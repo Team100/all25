@@ -1,6 +1,6 @@
-# Swerve 100
+# Comp
 
 This is the main comp bot repo.
 
-Part of the code here was (somewhat distantly) derived from 254 code, and other parts were inspired by Roadrunner.
+Part of the code here was (quite distantly now) derived from 254 code, and other parts were inspired (long ago) by Roadrunner.
 
