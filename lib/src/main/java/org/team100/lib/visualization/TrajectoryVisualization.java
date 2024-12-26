@@ -8,8 +8,6 @@ import org.team100.lib.logging.LoggerFactory.DoubleArrayLogger;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPoint;
 
-import com.choreo.lib.ChoreoTrajectory;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
@@ -71,10 +69,6 @@ public class TrajectoryVisualization {
             ndx += 3;
         }
         return arr;
-    }
-
-    public void setViz(ChoreoTrajectory trajectory) {
-        setViz(List.of(trajectory.getPoses()));
     }
 
     public void clear() {

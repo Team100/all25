@@ -15,10 +15,10 @@ public class OptionalRotation2dStruct implements Struct<OptionalRotation2d> {
         return OptionalRotation2d.class;
     }
 
-    @Override
-    public String getTypeString() {
-        return "struct:OptionalRotation2d";
-    }
+	@Override
+	public String getTypeName() {
+		return "OptionalRotation2d";
+	}
 
     @Override
     public int getSize() {

@@ -21,10 +21,10 @@ public class SwerveModulePosition100Struct implements Struct<SwerveModulePositio
         return SwerveModulePosition100.class;
     }
 
-    @Override
-    public String getTypeString() {
-        return "struct:SwerveModulePosition100";
-    }
+	@Override
+	public String getTypeName() {
+		return "SwerveModulePosition100";
+	}
 
     @Override
     public int getSize() {

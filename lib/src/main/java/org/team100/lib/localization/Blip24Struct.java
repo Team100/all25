@@ -12,10 +12,10 @@ public class Blip24Struct implements Struct<Blip24> {
         return Blip24.class;
     }
 
-    @Override
-    public String getTypeString() {
-        return "struct:Blip24";
-    }
+	@Override
+	public String getTypeName() {
+		return "Blip24";
+	}
 
     @Override
     public int getSize() {

@@ -1,0 +1,34 @@
+{
+	"folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "../lib"
+        },
+    ],
+    "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.server.launchMode": "Standard",
+        "terminal.integrated.scrollback": 100000,
+        "workbench.colorTheme": "Default Light+",
+        "files.autoSave": "afterDelay",
+        "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx32G -Xms100m -Xlog:disable",
+        "workbench.editor.revealIfOpen": true,
+        "editor.minimap.enabled": false,
+        "editor.inlayHints.enabled": "off",
+        "editor.detectIndentation": false,
+        "java.debug.settings.onBuildFailureProceed": true,
+        "editor.parameterHints.cycle": false,
+        "java.signatureHelp.enabled": false,
+        "java.saveActions.organizeImports": false,
+        "debug.console.fontSize": 16,
+        "workbench.colorCustomizations": {
+            "debugConsole.infoForeground":"#000000"
+        },
+        "debug.console.fontFamily": "courier",
+        "debug.console.collapseIdenticalLines": false,
+        "intellicodeApiExamples.python.enabled": false,
+        "intellicodeApiExamples.typescript.enabled": false
+    }
+}

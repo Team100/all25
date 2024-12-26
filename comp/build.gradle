@@ -3,12 +3,20 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2025.1.1-beta-3"
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir "../lib/src/main/java"
+        }
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-def ROBOT_MAIN_CLASS = "frc.robot.Main"
+def ROBOT_MAIN_CLASS = "org.team100.frc2024.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.

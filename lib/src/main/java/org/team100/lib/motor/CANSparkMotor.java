@@ -10,20 +10,20 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Util;
 
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
 
 import edu.wpi.first.wpilibj.RobotController;
 
 public abstract class CANSparkMotor implements BareMotor {
     protected final Feedforward100 m_ff;
-    protected final CANSparkBase m_motor;
+    protected final SparkBase m_motor;
     protected final RelativeEncoder m_encoder;
-    protected final SparkPIDController m_pidController;
+    protected final SparkClosedLoopController m_pidController;
     // CACHES
     private final DoubleSupplier m_encoder_position;
     private final DoubleSupplier m_encoder_velocity;
@@ -50,7 +50,7 @@ public abstract class CANSparkMotor implements BareMotor {
 
     protected CANSparkMotor(
             LoggerFactory parent,
-            CANSparkBase motor,
+            SparkBase motor,
             MotorPhase motorPhase,
             int currentLimit,
             Feedforward100 ff,
@@ -64,8 +64,8 @@ public abstract class CANSparkMotor implements BareMotor {
         Rev100.motorConfig(m_motor, IdleMode.kCoast, motorPhase, 20);
         Rev100.currentConfig(m_motor, currentLimit);
         m_encoder = m_motor.getEncoder();
-        m_pidController = m_motor.getPIDController();
-        Rev100.pidConfig(m_pidController, pid);
+        m_pidController = m_motor.getClosedLoopController();
+        Rev100.pidConfig(m_motor, pid);
         // make everything after this asynchronous.
         // NOTE: this makes error-checking not work at all.
         Rev100.crash(() -> m_motor.setCANTimeout(0));

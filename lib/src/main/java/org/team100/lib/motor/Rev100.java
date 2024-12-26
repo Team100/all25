@@ -5,11 +5,12 @@ import java.util.function.Supplier;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.util.Util;
 
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.REVLibError;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 
 public class Rev100 {
 
@@ -27,27 +28,33 @@ public class Rev100 {
         }
     }
 
-    public static void baseConfig(CANSparkBase motor) {
-        crash(motor::restoreFactoryDefaults);
+    public static void baseConfig(SparkBase motor) {
+        SparkMaxConfig conf = new SparkMaxConfig();
+        crash(() -> motor.configure(conf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
     }
 
-    public static void motorConfig(CANSparkBase motor, IdleMode idleMode, MotorPhase phase,
-            int velocityMeasurementPeriod) {
+    public static void motorConfig(SparkBase motor, IdleMode idleMode, MotorPhase phase,
+            int periodMs) {
         setIdleMode(motor, idleMode);
-        motor.setInverted(phase == MotorPhase.REVERSE);
-        // velocity is in the Status1 frame
-        // position is in the Status2 frame.
-        // https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces
-        crash(() -> motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, velocityMeasurementPeriod));
-        crash(() -> motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, velocityMeasurementPeriod));
+        SparkMaxConfig conf = new SparkMaxConfig();
+        conf.inverted(phase == MotorPhase.REVERSE);
+        conf.signals.primaryEncoderVelocityPeriodMs(periodMs);
+        conf.signals.primaryEncoderVelocityAlwaysOn(true);
+        conf.signals.primaryEncoderPositionPeriodMs(periodMs);
+        conf.signals.primaryEncoderPositionAlwaysOn(true);
+        crash(()->motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
     }
 
-    public static void currentConfig(CANSparkBase motor, int currentLimit) {
-        crash(() -> motor.setSmartCurrentLimit(currentLimit));
+    public static void currentConfig(SparkBase motor, int currentLimit) {
+        SparkMaxConfig conf = new SparkMaxConfig();
+        conf.smartCurrentLimit(currentLimit);
+        crash(()->motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
     }
 
-    public static void setIdleMode(CANSparkBase motor, IdleMode idleMode) {
-        crash(() -> motor.setIdleMode(idleMode));
+    public static void setIdleMode(SparkBase motor, IdleMode idleMode) {
+        SparkMaxConfig conf = new SparkMaxConfig();
+        conf.idleMode(idleMode);
+        crash(()->motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
     }
 
     /**
@@ -56,14 +63,16 @@ public class Rev100 {
      * a desired control output would be a duty cycle of 0.1 or so, which implies a
      * value of P like 3e-4.
      */
-    public static void pidConfig(SparkPIDController control, PIDConstants pid) {
-        crash(() -> control.setPositionPIDWrappingEnabled(false)); // don't use position control
-        crash(() -> control.setP(pid.getP()));
-        crash(() -> control.setI(pid.getI()));
-        crash(() -> control.setD(pid.getD()));
-        crash(() -> control.setIZone(pid.getIZone()));
-        crash(() -> control.setFF(0)); // use arbitrary FF instead
-        crash(() -> control.setOutputRange(-1, 1));
+    public static void pidConfig(SparkBase motor, PIDConstants pid) {
+        SparkMaxConfig conf = new SparkMaxConfig();
+        conf.closedLoop.positionWrappingEnabled(false); // don't use position control
+        conf.closedLoop.p(pid.getP());
+        conf.closedLoop.i(pid.getI());
+        conf.closedLoop.d(pid.getD());
+        conf.closedLoop.iZone(pid.getIZone());
+        conf.closedLoop.velocityFF(0); // use arbitrary FF instead
+        conf.closedLoop.outputRange(-1, 1);
+        crash(()->motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
     }
 
     private Rev100() {

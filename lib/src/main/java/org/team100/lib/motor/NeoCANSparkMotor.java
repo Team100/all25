@@ -4,8 +4,8 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.LoggerFactory;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 /**
  * Neo motor.
@@ -24,7 +24,7 @@ public class NeoCANSparkMotor extends CANSparkMotor {
             int currentLimit,
             Feedforward100 ff,
             PIDConstants pid) {
-        super(parent, new CANSparkMax(canId, MotorType.kBrushless),
+        super(parent, new SparkMax(canId, MotorType.kBrushless),
                 motorPhase, currentLimit, ff, pid);
     }
 

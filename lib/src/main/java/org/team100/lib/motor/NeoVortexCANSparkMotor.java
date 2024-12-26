@@ -4,8 +4,8 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.LoggerFactory;
 
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 /**
  * Neo Vortex motor.
@@ -20,7 +20,7 @@ public class NeoVortexCANSparkMotor extends CANSparkMotor {
             int currentLimit,
             Feedforward100 ff,
             PIDConstants pid) {
-        super(parent, new CANSparkFlex(canId, MotorType.kBrushless),
+        super(parent, new SparkFlex(canId, MotorType.kBrushless),
                 motorPhase, currentLimit, ff, pid);
     }
 

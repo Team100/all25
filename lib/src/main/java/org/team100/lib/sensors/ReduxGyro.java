@@ -7,7 +7,7 @@ import org.team100.lib.logging.LoggerFactory.Rotation2dLogger;
 import org.team100.lib.util.Util;
 
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
-import com.reduxrobotics.sensors.canandgyro.Canandgyro.Faults;
+import com.reduxrobotics.sensors.canandgyro.CanandgyroFaults;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -71,7 +71,7 @@ public class ReduxGyro implements Gyro {
     public void periodic() {
         if (m_gyro.isCalibrating())
             Util.println("Redux Gyro Calibrating ......");
-        Faults activeFaults = m_gyro.getActiveFaults();
+        CanandgyroFaults activeFaults = m_gyro.getActiveFaults();
         if (activeFaults.faultsValid())
             Util.warn("Redux Gyro fault!");
 

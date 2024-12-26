@@ -21,7 +21,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
-import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DataLogBackgroundWriter;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
@@ -48,7 +48,7 @@ public class UdpConsumers implements UdpConsumersInterface {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     NetworkTableInstance inst;
-    DataLog log_file;
+    DataLogBackgroundWriter log_file;
 
     volatile long m_timestamp;
 
@@ -106,7 +106,7 @@ public class UdpConsumers implements UdpConsumersInterface {
             // make a new log file?
             if (log_file != null)
                 log_file.close();
-            log_file = new DataLog("", "", 0.1);
+            log_file = new DataLogBackgroundWriter("", "", 0.1);
             System.out.println("impl " + log_file.getImpl());
             Instant i = Instant.ofEpochSecond(timestamp);
             // TODO: sometimes this fails because the internal

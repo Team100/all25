@@ -1,6 +1,6 @@
 # This is a basic workflow to build robot code.
 
-name: Swerve100 Unit Tests
+name: Comp Unit Tests
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the main branch.
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 10 
     defaults:
       run:
-        working-directory: ./comp/swerve100
+        working-directory: ./comp
 
     # This grabs the WPILib docker container
     container: wpilib/roborio-cross-ubuntu:2024-22.04

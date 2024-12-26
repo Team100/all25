@@ -13,10 +13,10 @@ public class SwerveModuleDeltaStruct implements Struct<SwerveModuleDelta> {
         return SwerveModuleDelta.class;
     }
 
-    @Override
-    public String getTypeString() {
-        return "struct:SwerveModuleDelta";
-    }
+	@Override
+	public String getTypeName() {
+		return "SwerveModuleDelta";
+	}
 
     @Override
     public int getSize() {
