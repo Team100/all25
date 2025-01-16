@@ -87,6 +87,7 @@ public:
     KNOBS = 9,
     MIDI = 10,
     MIDI_DUAL = 11
+    FIELD_2025 = 12
   };
 
   /**
@@ -103,6 +104,7 @@ public:
       case SubConsole::KNOBS: return "Knobs";
       case SubConsole::MIDI: return "MIDI";
       case SubConsole::MIDI_DUAL: return "MIDI_DUAL";
+      case SubConsole::FIELD_2025: return "Field 2025";
       default: return "Unassigned";
     }
   }
