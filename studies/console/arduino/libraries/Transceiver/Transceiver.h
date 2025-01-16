@@ -86,7 +86,7 @@ public:
     DEBUG = 8,
     KNOBS = 9,
     MIDI = 10,
-    MIDI_DUAL = 11
+    MIDI_DUAL = 11,
     FIELD_2025 = 12
   };
 

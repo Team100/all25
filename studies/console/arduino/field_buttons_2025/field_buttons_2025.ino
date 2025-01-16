@@ -13,5 +13,5 @@ void setup() {
 
 void loop() {
   sensor_.sense(reportTx_);
-  tranceiver_.send(reportTx_);
+  transceiver_.send(reportTx_);
 }
