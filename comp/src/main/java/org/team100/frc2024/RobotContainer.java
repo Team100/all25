@@ -102,7 +102,7 @@ public class RobotContainer implements Glassy {
 
         final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
         final DriverControl driverControl = new DriverControlProxy(logger, async);
-        final OperatorControl operatorControl = new OperatorControlProxy(async);
+        final OperatorControlProxy operatorControl = new OperatorControlProxy(async);
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
 
@@ -216,7 +216,7 @@ public class RobotContainer implements Glassy {
         
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::climb));
 
 
         //DRIVER BUTTONS
