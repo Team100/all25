@@ -2,19 +2,20 @@
 #define SENSOR_H
 #include "Data.h"
 
-// TODO: correct pin numbers here.
-constexpr uint8_t COL0 = 0;
-constexpr uint8_t COL1 = 0;
-constexpr uint8_t COL2 = 0;
-constexpr uint8_t COL3 = 0;
-constexpr uint8_t COL4 = 0;
-constexpr uint8_t COL5 = 0;
-constexpr uint8_t COL6 = 0;
-constexpr uint8_t ROW0 = 0;
-constexpr uint8_t ROW1 = 0;
-constexpr uint8_t ROW2 = 0;
-constexpr uint8_t ROW3 = 0;
-constexpr uint8_t ROW4 = 0;
+// The left side of the board is columns,
+// the right side of the board is rows.
+constexpr uint8_t COL0 = 3; // DIP pin 6
+constexpr uint8_t COL1 = 9; // DIP pin 12
+constexpr uint8_t COL2 = 8; // DIP pin 11
+constexpr uint8_t COL3 = 7; // DIP pin 10
+constexpr uint8_t COL4 = 6; // DIP pin 9
+constexpr uint8_t COL5 = 5; // DIP pin 8
+constexpr uint8_t COL6 = 4; // DIP pin 7
+constexpr uint8_t ROW0 = A0; // DIP pin 17
+constexpr uint8_t ROW1 = 15; // DIP pin 16
+constexpr uint8_t ROW2 = 14; // DIP pin 15
+constexpr uint8_t ROW3 = 16; // DIP pin 14
+constexpr uint8_t ROW4 = 10; // DIP pin 13
 
 /**
  * We use a 7x5 grid with three holes, resulting in 32 buttons.
