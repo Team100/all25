@@ -1,0 +1,1018 @@
+{
+  "meta": {
+    "author": "",
+    "backcolor": "#eeeeee",
+    "background": {
+      "name": "",
+      "style": ""
+    },
+    "name": "",
+    "notes": "",
+    "radii": "",
+    "switchBrand": "cherry",
+    "switchMount": "cherry",
+    "switchType": "MX1A-E1xx"
+  },
+  "keys": [
+    {
+      "color": "#cccccc",
+      "labels": [
+        "0,0"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "0,2"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 2,
+      "y": 0,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "0,4"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 4,
+      "y": 0,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "1,11"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 11,
+      "y": 0.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "2,4"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 3.5,
+      "y": 2,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "2,5"
+      ],
+      "textColor": [],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 4.5,
+      "y": 2,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#ff00ff",
+      "labels": [
+        "2,9"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#FFFFFF",
+        "textSize": 9
+      },
+      "x": 9,
+      "y": 2.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "3,2"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 2.25,
+      "y": 2.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "3,4"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 4,
+      "y": 3,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "3,6"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 5.75,
+      "y": 2.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "4,2"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 1.5,
+      "y": 3.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "4,3"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 2.75,
+      "y": 4,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "4,5"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 5.25,
+      "y": 4,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "4,7"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 6.5,
+      "y": 3.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#ff00ff",
+      "labels": [
+        "4,9"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#FFFFFF",
+        "textSize": 9
+      },
+      "x": 9,
+      "y": 3.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "5,2"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 1.5,
+      "y": 5.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "5,3"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 2.75,
+      "y": 5,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "5,5"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 5.25,
+      "y": 5,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "5,7"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 6.5,
+      "y": 5.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#ff00ff",
+      "labels": [
+        "5,9"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#FFFFFF",
+        "textSize": 9
+      },
+      "x": 9,
+      "y": 5.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "6,2"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 2.25,
+      "y": 6.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#00ff00",
+      "labels": [
+        "6,4"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 4,
+      "y": 6,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "6,6"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 5.75,
+      "y": 6.25,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "7,4"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 3.5,
+      "y": 7,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "7,5"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 9
+      },
+      "x": 4.5,
+      "y": 7,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#000000",
+      "labels": [
+        "7,9"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#FFFFFF",
+        "textSize": 9
+      },
+      "x": 9,
+      "y": 6.75,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "9,0"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 0,
+      "y": 9,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    },
+    {
+      "color": "#cccccc",
+      "labels": [
+        "9,11"
+      ],
+      "textColor": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "textSize": [],
+      "default": {
+        "textColor": "#000000",
+        "textSize": 3
+      },
+      "x": 11,
+      "y": 9,
+      "width": 1,
+      "height": 1,
+      "x2": 0,
+      "y2": 0,
+      "width2": 1,
+      "height2": 1,
+      "rotation_x": 0,
+      "rotation_y": 0,
+      "rotation_angle": 0,
+      "decal": false,
+      "ghost": false,
+      "stepped": false,
+      "nub": false,
+      "profile": "",
+      "sm": "",
+      "sb": "",
+      "st": ""
+    }
+  ]
+}
