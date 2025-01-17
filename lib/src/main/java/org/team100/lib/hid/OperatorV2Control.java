@@ -54,8 +54,8 @@ public class OperatorV2Control implements OperatorControl {
     }
 
     @Override
-    public boolean ramp() {
-        return m_controller.getAButton();
+    public double ramp() {
+        return m_controller.getRightY();
     }
 
     @Override

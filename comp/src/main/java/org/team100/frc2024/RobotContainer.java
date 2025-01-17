@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+import org.team100.frc2024.Climber.Climber;
+import org.team100.frc2024.Climber.ClimberRotate;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
@@ -80,7 +82,10 @@ public class RobotContainer implements Glassy {
 
     private final SwerveModuleCollection m_modules;
     // private final Command m_auton;
+
+    //SUBSYSTEMS
     final SwerveDriveSubsystem m_drive;
+    final Climber m_climber;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -147,6 +152,9 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider);
 
+
+        m_climber = new Climber();
+
        
 
         ///////////////////////////
@@ -208,6 +216,7 @@ public class RobotContainer implements Glassy {
         
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
+        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
 
 
         //DRIVER BUTTONS
@@ -219,6 +228,11 @@ public class RobotContainer implements Glassy {
                         m_drive,
                         driveControllerFactory.fancyPIDF(PIDFlog),
                         swerveKinodynamics));
+        
+        
+        //OPERATOR BUTTONS
+        // whileTrue(operatorControl::ramp, new ClimberRotate(m_climber, 0.2 ));
+        // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));
 
 
         
