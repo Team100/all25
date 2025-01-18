@@ -10,6 +10,7 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Util;
 
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -127,7 +128,7 @@ public abstract class CANSparkMotor implements BareMotor {
 
         double motorRev_M = motorRev_S * 60;
         Rev100.warn(() -> m_pidController.setReference(
-                motorRev_M, ControlType.kVelocity, 0, kFF, ArbFFUnits.kVoltage));
+                motorRev_M, ControlType.kVelocity, ClosedLoopSlot.kSlot0, kFF, ArbFFUnits.kVoltage));
 
         m_log_desired_speed.log(() -> motorRev_S);
         m_log_desired_accel.log(() -> motorRev_S2);
@@ -157,7 +158,7 @@ public abstract class CANSparkMotor implements BareMotor {
         double kFF = frictionFFVolts + velocityFFVolts + torqueFFVolts;
 
         Rev100.warn(() -> m_pidController.setReference(
-                motorRev, ControlType.kPosition, 0, kFF, ArbFFUnits.kVoltage));
+                motorRev, ControlType.kPosition, ClosedLoopSlot.kSlot0, kFF, ArbFFUnits.kVoltage));
 
         m_log_desired_position.log(() -> motorRev);
         m_log_desired_speed.log(() -> motorRev_S);
