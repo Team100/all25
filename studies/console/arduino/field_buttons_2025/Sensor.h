@@ -33,6 +33,7 @@ public:
     pinMode(COL3, INPUT_PULLUP);
     pinMode(COL4, INPUT_PULLUP);
     pinMode(COL5, INPUT_PULLUP);
+    pinMode(COL6, INPUT_PULLUP);
     // All rows start as high-Z digital inputs.
     rowHigh(ROW0);
     rowHigh(ROW1);
