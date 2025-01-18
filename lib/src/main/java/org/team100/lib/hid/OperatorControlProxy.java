@@ -91,7 +91,7 @@ public class OperatorControlProxy implements OperatorControl {
     }
 
     @Override
-    public boolean ramp() {
+    public double ramp() {
         return m_operatorControl.ramp();
     }
 

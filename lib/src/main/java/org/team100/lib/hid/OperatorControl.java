@@ -28,8 +28,8 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
-    default boolean ramp() {
-        return false;
+    default double ramp() {
+        return 0.0;
     }
 
     // this exists to bind to commands we don't want to run,
