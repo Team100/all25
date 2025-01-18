@@ -2,7 +2,6 @@ package org.team100.frc2024;
 
 import java.io.IOException;
 
-import org.team100.frc2024.config.AutonChooser;
 import org.team100.lib.config.Identity;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -125,7 +124,7 @@ public class Robot extends TimedRobot100 {
         int keyListSize = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
         m_log_key_list_size.log(() -> keyListSize);
         // this forces the static initializer to run, so that the widget appears.
-        m_log_active_auton_routine.log(() -> AutonChooser.routine().name());
+        // m_log_active_auton_routine.log(() -> AutonChooser.routine().name());
     }
 
     @Override
