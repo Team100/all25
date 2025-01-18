@@ -12,100 +12,63 @@ public interface OperatorControl extends Glassy {
         return "No HID Found!!";
     }
 
-    default boolean getButton1() {
+    default boolean pivotToAmpPosition() {
         return false;
     }
 
-    default boolean getButton2() {
+    default boolean outtake() {
         return false;
     }
 
-    default boolean getButton3() {
+    default boolean feed() {
         return false;
     }
 
-    default boolean getButton4() {
+    default boolean intake() {
         return false;
     }
 
-    default boolean getButton5() {
-        return false;
-    }
-
-    default boolean getButton6() {
-        return false;
-    }
-
-    default boolean getButton7() {
-        return false;
-    }
-
-    default boolean getButton8() {
-        return false;
-    }
-
-    default boolean getButton9() {
-        return false;
-    }
-
-    default boolean getButton10() {
-        return false;
-    }
-
-    default boolean getButton11() {
-        return false;
-    }
-
-    default boolean getButton12() {
-        return false;
-    }
-
-    default boolean getButton13() {
-        return false;
-    }
-
-    default boolean getButton14() {
-        return false;
-    }
-    
-    default boolean getButton15() {
-        return false;
-    }
-
-    default double getAxis1() {
+    default double ramp() {
         return 0.0;
     }
 
-    default double getAxis2() {
-        return 0.0;
+    // this exists to bind to commands we don't want to run,
+    // but we don't want them to rot either.
+    default boolean never() {
+        return false;
     }
 
-    default double getAxis3() {
-        return 0.0;
+    default boolean homeClimber() {
+        return false;
     }
 
-    default double getAxis4() {
-        return 0.0;
+    default double leftClimb() {
+        return 0;
     }
 
-    default double getAxis5() {
-        return 0.0;
+    default double rightClimb() {
+        return 0;
     }
 
-    default double getAxis6() {
-        return 0.0;
+    /** Put the climber hooks in the "up" position. */
+    default boolean climbUpPosition() {
+        return false;
     }
 
-    default double getAxis7() {
-        return 0.0;
+    /** Put the climber hooks in the "down" position. */
+    default boolean climbDownPosition() {
+        return false;
     }
 
-    default double getAxis8() {
-        return 0.0;
+    default boolean feedToAmp() {
+        return false;
     }
 
-    default double getAxis9() {
-        return 0.0;
+    default boolean outtakeFromAmp() {
+        return false;
     }
-    
+
+    default boolean testShoot() {
+        return false;
+    }
 }
