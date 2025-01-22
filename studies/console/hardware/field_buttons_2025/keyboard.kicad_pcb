@@ -5737,7 +5737,7 @@
 	(footprint "Graphics:wildhat_logo_6_med"
 		(layer "F.Cu")
 		(uuid "2f82a5ce-a6f9-4d1a-b5c8-4fea06e74a91")
-		(at 136.5 203)
+		(at 245 79.5)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.SilkS")
@@ -24689,8 +24689,8 @@
 		)
 	)
 	(gr_line
-		(start 365 49.97912)
-		(end 365 224)
+		(start 361.5 52)
+		(end 361.5 220)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24699,8 +24699,8 @@
 		(uuid "0fd1fa52-567b-4e52-82b7-8d25eb84a528")
 	)
 	(gr_line
-		(start 54 224)
-		(end 54 50)
+		(start 56.5 220)
+		(end 56.5 52)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24709,8 +24709,8 @@
 		(uuid "8430e0c3-b9ae-42ae-b817-abd1fe947eeb")
 	)
 	(gr_line
-		(start 365 224)
-		(end 54 224)
+		(start 361.5 220)
+		(end 56.5 220)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24719,8 +24719,8 @@
 		(uuid "8669327a-0e18-4312-865c-ee27914d1a19")
 	)
 	(gr_line
-		(start 54 50)
-		(end 365 49.97912)
+		(start 56.5 52)
+		(end 361.5 52)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24729,7 +24729,7 @@
 		(uuid "9a847789-f03c-44b0-a2c5-5d8728b8cd74")
 	)
 	(gr_text "Jan 20, 2025"
-		(at 252 222 0)
+		(at 101.5 213 0)
 		(layer "F.SilkS")
 		(uuid "e99e4084-0f51-4a68-b23c-d05cbf695b11")
 		(effects
