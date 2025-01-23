@@ -179,7 +179,7 @@
 	(footprint "MountingHole:MountingHole_4.3mm_M4_ISO7380_Pad"
 		(layer "F.Cu")
 		(uuid "016cf4e2-9e69-4dbc-84e0-fb3a0d284bb0")
-		(at 345 177.5)
+		(at 346.16 181.44)
 		(descr "Mounting Hole 4.3mm, M4, ISO7380")
 		(tags "mounting hole 4.3mm m4 iso7380")
 		(property "Reference" "H4"
@@ -1626,7 +1626,7 @@
 	(footprint "MountingHole:MountingHole_4.3mm_M4_ISO7380_Pad"
 		(layer "F.Cu")
 		(uuid "0d212848-4a01-4b11-afa2-9a29c76f0048")
-		(at 73 177.5)
+		(at 71.84 181.44)
 		(descr "Mounting Hole 4.3mm, M4, ISO7380")
 		(tags "mounting hole 4.3mm m4 iso7380")
 		(property "Reference" "H3"
@@ -2435,7 +2435,7 @@
 	(footprint "MountingHole:MountingHole_4.3mm_M4_ISO7380_Pad"
 		(layer "F.Cu")
 		(uuid "0f0ce264-287b-4c5b-a316-f38ccf2d4bcd")
-		(at 345 68.5)
+		(at 346.16 67.14)
 		(descr "Mounting Hole 4.3mm, M4, ISO7380")
 		(tags "mounting hole 4.3mm m4 iso7380")
 		(property "Reference" "H2"
@@ -10000,7 +10000,7 @@
 		(at 88.5 112.5)
 		(descr "Mounting Hole 3.2mm, M3, ISO7380")
 		(tags "mounting hole 3.2mm m3 iso7380")
-		(property "Reference" "REF**"
+		(property "Reference" "H7"
 			(at 0 -3.85 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -19391,7 +19391,7 @@
 		(at 95 112.5)
 		(descr "Mounting Hole 3.2mm, M3, ISO7380")
 		(tags "mounting hole 3.2mm m3 iso7380")
-		(property "Reference" "REF**"
+		(property "Reference" "H8"
 			(at 0 -3.85 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -20166,7 +20166,7 @@
 	(footprint "MountingHole:MountingHole_4.3mm_M4_ISO7380_Pad"
 		(layer "F.Cu")
 		(uuid "c9d460fd-ce0a-4fcc-acb1-da57a16458b1")
-		(at 73 68.5)
+		(at 71.84 67.14)
 		(descr "Mounting Hole 4.3mm, M4, ISO7380")
 		(tags "mounting hole 4.3mm m4 iso7380")
 		(property "Reference" "H1"
@@ -21005,7 +21005,7 @@
 		(at 95 68.5)
 		(descr "Mounting Hole 3.2mm, M3, ISO7380")
 		(tags "mounting hole 3.2mm m3 iso7380")
-		(property "Reference" "REF**"
+		(property "Reference" "H6"
 			(at 0 -3.85 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -21450,7 +21450,7 @@
 		(at 88.5 68.5)
 		(descr "Mounting Hole 3.2mm, M3, ISO7380")
 		(tags "mounting hole 3.2mm m3 iso7380")
-		(property "Reference" "REF**"
+		(property "Reference" "H5"
 			(at 0 -3.85 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -24689,8 +24689,8 @@
 		)
 	)
 	(gr_line
-		(start 361.5 52)
-		(end 361.5 220)
+		(start 361.4 54.44)
+		(end 361.4 219.54)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24699,8 +24699,8 @@
 		(uuid "0fd1fa52-567b-4e52-82b7-8d25eb84a528")
 	)
 	(gr_line
-		(start 56.5 220)
-		(end 56.5 52)
+		(start 56.6 219.54)
+		(end 56.6 54.44)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24709,8 +24709,8 @@
 		(uuid "8430e0c3-b9ae-42ae-b817-abd1fe947eeb")
 	)
 	(gr_line
-		(start 361.5 220)
-		(end 56.5 220)
+		(start 361.4 219.54)
+		(end 56.6 219.54)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24719,8 +24719,8 @@
 		(uuid "8669327a-0e18-4312-865c-ee27914d1a19")
 	)
 	(gr_line
-		(start 56.5 52)
-		(end 361.5 52)
+		(start 56.6 54.44)
+		(end 361.4 54.44)
 		(stroke
 			(width 0.4)
 			(type default)
@@ -24728,7 +24728,7 @@
 		(layer "Edge.Cuts")
 		(uuid "9a847789-f03c-44b0-a2c5-5d8728b8cd74")
 	)
-	(gr_text "Jan 20, 2025"
+	(gr_text "Jan 23, 2025"
 		(at 101.5 213 0)
 		(layer "F.SilkS")
 		(uuid "e99e4084-0f51-4a68-b23c-d05cbf695b11")
