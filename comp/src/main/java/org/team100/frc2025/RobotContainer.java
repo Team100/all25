@@ -1,18 +1,15 @@
-package org.team100.frc2024;
+package org.team100.frc2025;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
-
-import org.team100.frc2024.Climber.Climber;
-import org.team100.frc2024.Climber.ClimberRotate;
+import org.team100.frc2025.Climber.Climber;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
-import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
+import org.team100.lib.commands.drivetrain.DriveWithProfile2;
 import org.team100.lib.commands.drivetrain.FancyTrajectory;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.SetRotation;
-import org.team100.lib.commands.drivetrain.for_testing.OscillateProfile;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
 import org.team100.lib.commands.drivetrain.manual.ManualFieldRelativeSpeeds;
@@ -21,12 +18,9 @@ import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
 import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
 import org.team100.lib.controller.drivetrain.FullStateDriveController;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
-import org.team100.lib.controller.drivetrain.MinTimeDriveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.follower.DrivePIDFFollower;
-import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
 import org.team100.lib.framework.TimedRobot100;
@@ -35,7 +29,6 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
 import org.team100.lib.hid.OperatorControlProxy;
-import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -49,7 +42,6 @@ import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
-import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
 import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
@@ -59,14 +51,9 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -85,7 +72,7 @@ public class RobotContainer implements Glassy {
 
     //SUBSYSTEMS
     final SwerveDriveSubsystem m_drive;
-    final Climber m_climber;
+    // final Climber m_climber;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -153,7 +140,7 @@ public class RobotContainer implements Glassy {
                 visionDataProvider);
 
 
-        m_climber = new Climber();
+        // m_climber = new Climber();
 
        
 
@@ -216,10 +203,13 @@ public class RobotContainer implements Glassy {
         
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
 
+
+        // ObjectPosition24ArrayListener objectPosition24ArrayListener = new ObjectPosition24ArrayListener(poseEstimator);
 
         //DRIVER BUTTONS
+        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(11.5,5, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
         whileTrue(driverControl::driveWithFancyTrajec,
@@ -228,10 +218,9 @@ public class RobotContainer implements Glassy {
                         m_drive,
                         driveControllerFactory.fancyPIDF(PIDFlog),
                         swerveKinodynamics));
-        
-        
+    
+
         //OPERATOR BUTTONS
-        // whileTrue(operatorControl::ramp, new ClimberRotate(m_climber, 0.2 ));
         // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));
 
 

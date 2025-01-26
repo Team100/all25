@@ -39,6 +39,7 @@ class CameraFactory:
                 | Identity.GLOBAL_LEFT
                 | Identity.GLOBAL_RIGHT
                 | Identity.DEV # has one v2 camera at the moment
+                | Identity.DEV2
             ):
                 return 1
             case Identity.FLIPPED:

@@ -43,6 +43,7 @@ class Identity(Enum):
 
     # for testing
     DEV = "10000000a7c673d9"  # rpi4 used for development
+    DEV2 = "8ddb2ed6c49a9bce"
     FLIPPED = "flipme"  # example for per-identity config
     UNKNOWN = "unknown"
 
@@ -53,7 +54,9 @@ class Identity(Enum):
     @staticmethod
     def get() -> "Identity":
         serial = _serial
+        print(serial)
         # print(f"Coprocessor serial: {serial}")
         identity: Identity = Identity(serial)
+        print(identity)
         # print(f"Coprocessor identity: {identity.name}")
         return identity

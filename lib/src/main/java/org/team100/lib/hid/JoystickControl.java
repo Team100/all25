@@ -107,7 +107,7 @@ public abstract class JoystickControl implements DriverControl {
     }
 
     @Override
-    public boolean driveToNote() {
+    public boolean driveToObject() {
         return m_controller.getRawButton(7);
     }
 

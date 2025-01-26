@@ -1,9 +1,9 @@
-package org.team100.frc2024.motion;
+package org.team100.frc2025.motion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.frc2024.Timeless2024;
+import org.team100.frc2025.Timeless2024;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.motion.mechanism.RotaryMechanism;

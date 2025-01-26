@@ -22,11 +22,11 @@ class InterpreterFactory:
         else:
             scale = 1.0
         match identity:
-            case Identity.GLOBAL_GAME_PIECE | Identity.GAME_PIECE:
+            case Identity.GAME_PIECE:
                 display = RealDisplay(
                     int(scale * size.width),
                     int(scale * size.height),
-                    "tag" + str(camera_num),
+                    "note" + str(camera_num),
                 )
 
                 # GREEN TARGET VALUES
@@ -45,14 +45,16 @@ class InterpreterFactory:
                 Identity.RIGHTAMP
                 | Identity.LEFTAMP
                 | Identity.SHOOTER
+                | Identity.GLOBAL_GAME_PIECE 
                 | Identity.GLOBAL_LEFT
                 | Identity.GLOBAL_RIGHT
                 | Identity.DEV
+                | Identity.DEV2
             ):
                 display = RealDisplay(
                     int(scale * size.width),
                     int(scale * size.height),
-                    "note" + str(camera_num),
+                    "tag" + str(camera_num),
                 )
                 return TagDetector(identity, cam, camera_num, display, network)
             case _:

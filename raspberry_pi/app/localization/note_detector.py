@@ -48,7 +48,7 @@ class NoteDetector(Interpreter):
         self.object_higher = object_higher
 
         # TODO: move the identity part of this path to the Network object
-        path = "noteVision/" + identity.value + "/" + str(camera_num)
+        path = "objectVision/" + identity.value + "/" + str(camera_num)
         self._notes = network.get_note_sender(path + "/Rotation3d")
 
     def analyze(self, req: Request) -> None:
