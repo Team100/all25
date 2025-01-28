@@ -209,7 +209,7 @@ public class RobotContainer implements Glassy {
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new ObjectPosition24ArrayListener(poseEstimator);
 
         //DRIVER BUTTONS
-        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(11.5,5, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
+        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1,4x, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
         whileTrue(driverControl::driveWithFancyTrajec,

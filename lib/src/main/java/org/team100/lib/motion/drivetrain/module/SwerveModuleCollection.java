@@ -95,7 +95,7 @@ public class SwerveModuleCollection {
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE));
             case SWERVE_ONE:
-                Util.println("************** WCP MODULES w/Analog Encoders **************");
+                Util.println("************** WCP MODULES w/Duty-Cycle Encoders **************");
                 return new SwerveModuleCollection(
                         WCPSwerveModule100.getFalconDrive(frontLeftLogger,
                                 currentLimit,
@@ -134,7 +134,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 33,
                                 9,
-                                0.242,
+                                0.170,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE));
             case BETA_BOT:
