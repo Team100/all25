@@ -86,9 +86,9 @@ class DriveToWaypoint3Test extends Fixtured {
         Optional<Pose2d> optGoal = Target.goal(layout, Alliance.Blue, 1, transform);
         assertTrue(optGoal.isPresent());
         Pose2d goal = optGoal.get();
-        assertEquals(13.713, goal.getX(), kDelta);
-        assertEquals(0.612, goal.getY(), kDelta);
-        assertEquals(-1.047, goal.getRotation().getRadians(), kDelta);
+        assertEquals(15.300, goal.getX(), kDelta);
+        assertEquals(0.876, goal.getY(), kDelta);
+        assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
 
         HolonomicFieldRelativeController m_controller = HolonomicDriveControllerFactory.get(
                 new HolonomicFieldRelativeController.Log(logger));

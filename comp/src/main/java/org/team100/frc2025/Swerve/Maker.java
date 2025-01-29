@@ -1,36 +1,19 @@
-package org.team100.frc2024.Swerve;
+package org.team100.frc2025.Swerve;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import org.team100.frc2024.FieldConstants;
-import org.team100.frc2024.Swerve.SemiAuto.DriveTo_AB;
-import org.team100.frc2024.Swerve.SemiAuto.DriveTo_GH;
-import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
-import org.team100.frc2024.Swerve.SemiAuto.DriveTo_IJ;
-import org.team100.frc2024.Swerve.SemiAuto.DriveTo_KL;
-import org.team100.lib.commands.drivetrain.TrajectoryCommand100;
+import org.team100.frc2025.Swerve.SemiAuto.DriveTo_AB;
+import org.team100.frc2025.Swerve.SemiAuto.DriveTo_GH;
+import org.team100.frc2025.Swerve.SemiAuto.DriveTo_IJ;
+import org.team100.frc2025.Swerve.SemiAuto.DriveTo_KL;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DrivePIDFLockFollower;
-import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 

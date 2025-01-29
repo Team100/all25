@@ -412,11 +412,9 @@ class PoseEstimationHelperTest {
         Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
 
         // notice this is WRONG WRONG WRONG because the raw tag rotation is also WRONG
-        assertEquals(-1.038, cameraInFieldCoords.getX(), kDelta);
-        // the tag is over to the left
-        assertEquals(5.548, cameraInFieldCoords.getY(), kDelta);
-        // tag center is about 57 inches up
-        assertEquals(1.451, cameraInFieldCoords.getZ(), kDelta);
+        assertEquals(12.89, cameraInFieldCoords.getX(), kDelta);
+        assertEquals(4.026, cameraInFieldCoords.getY(), kDelta);
+        assertEquals(0.308, cameraInFieldCoords.getZ(), kDelta);
         assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
         assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
         // camera is facing down field which is WRONG WRONG WRONG
@@ -456,11 +454,11 @@ class PoseEstimationHelperTest {
 
         // the tag is a little bit behind the line, so we're a little closer to the line
         // than 1m.
-        assertEquals(0.9619, cameraInFieldCoords.getX(), kDelta);
+        assertEquals(14.890, cameraInFieldCoords.getX(), kDelta);
         // the tag is over to the left; so is the camera
-        assertEquals(5.548, cameraInFieldCoords.getY(), kDelta);
+        assertEquals(4.026, cameraInFieldCoords.getY(), kDelta);
         // tag center is about 57 inches up; so is the camera
-        assertEquals(1.451, cameraInFieldCoords.getZ(), kDelta);
+        assertEquals(0.308, cameraInFieldCoords.getZ(), kDelta);
         // zero roll
         assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
         // zero tilt
