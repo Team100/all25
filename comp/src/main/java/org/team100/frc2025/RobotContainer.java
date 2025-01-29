@@ -3,11 +3,13 @@ package org.team100.frc2025;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import org.team100.frc2025.Climber.Climber;
+
+import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveWithProfile2;
 import org.team100.lib.commands.drivetrain.FancyTrajectory;
+import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.SetRotation;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
@@ -18,6 +20,7 @@ import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
 import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
 import org.team100.lib.controller.drivetrain.FullStateDriveController;
+import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.follower.DrivePIDFFollower;
@@ -78,7 +81,7 @@ public class RobotContainer implements Glassy {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
         final Async async = asyncFactory.get();
         final Logging logging = Logging.instance();
-        final LevelPoller poller = new LevelPoller(async, logging::setLevel, Level.COMP);
+        final LevelPoller poller = new LevelPoller(async, logging::setLevel, Level.TRACE);
         Util.printf("Using log level %s\n", poller.getLevel().name());
         Util.println("Do not use TRACE in comp, with NT logging, it will overrun");
 
@@ -150,6 +153,7 @@ public class RobotContainer implements Glassy {
         //
 
         HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(comLog);
+        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(hlog);
 
         final DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(comLog);
         final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
@@ -209,7 +213,11 @@ public class RobotContainer implements Glassy {
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new ObjectPosition24ArrayListener(poseEstimator);
 
         //DRIVER BUTTONS
-        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1,4x, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
+        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1,4, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
+        whileTrue(driverControl::fullCycle, new FullCycle(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
+        
+        whileTrue(driverControl::test, new FullCycle2(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
+
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
         whileTrue(driverControl::driveWithFancyTrajec,

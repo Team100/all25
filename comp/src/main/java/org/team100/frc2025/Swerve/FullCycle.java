@@ -1,19 +1,22 @@
-package org.team100.lib.commands;
+package org.team100.frc2025.Swerve;
 
 import java.util.List;
 
+import org.team100.frc2025.FieldConstants;
 import org.team100.lib.commands.drivetrain.DriveToWaypoint3;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.ConstantConstraint;
-import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.TrajectoryMaker;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
@@ -29,17 +32,29 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
     public FullCycle(
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
-            HolonomicFieldRelativeController controller,
-            TrajectoryVisualization viz) {
+            TrajectoryVisualization viz,
+            DriveTrajectoryFollowerFactory factory,
+            SwerveKinodynamics kinodynamics,
+            HolonomicFieldRelativeController controller) {
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(parent.child(this));
         TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
-        StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
+
+        // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
+        Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics, viz);
+        Translation2d reefCenter = FieldConstants.getReefCenter();
+
         // for now just drive back and forth.
         addCommands(
-                new DriveToWaypoint3(
-                        log, waypoint0, drivetrain, maker, controller, viz),
-                new DriveToWaypoint3(
-                        log, waypoint1, drivetrain, maker, controller, viz));
+                // new ResetPose(drivetrain, 6.305274, 5.979709, 0),
+
+                // new RepeatCommand(
+                makerTrajec.test()
+        // )
+
+        // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)
+        // makerTrajec.test(drivetrain::getPose)
+        );
+
     }
 
 }
