@@ -36,7 +36,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveTo_IJ extends Command implements Planner2025 {
+public class DriveTo_AB extends Command implements Planner2025 {
     /** Creates a new TrajectoryCommandWithPose100. */
     public static class Log {
         private final Pose2dLogger m_log_goal;
@@ -45,7 +45,7 @@ public class DriveTo_IJ extends Command implements Planner2025 {
         private final BooleanLogger m_log_FINSIHED;
 
         public Log(LoggerFactory parent) {
-            LoggerFactory log = parent.child("DriveToIJ");
+            LoggerFactory log = parent.child("DriveToAB");
             m_log_goal = log.pose2dLogger(Level.TRACE, "goal");
             m_log_chassis_speeds = log.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
             m_log_THETA_ERROR = log.doubleLogger(Level.TRACE, "THETA ERROR");
@@ -64,7 +64,7 @@ public class DriveTo_IJ extends Command implements Planner2025 {
 
     
 
-    public DriveTo_IJ(
+    public DriveTo_AB(
             Log log,
             SwerveDriveSubsystem robotDrive,
             DriveTrajectoryFollower controller,
@@ -83,44 +83,39 @@ public class DriveTo_IJ extends Command implements Planner2025 {
     public void initialize() {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
-        FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.IJ;
+        FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.AB;
         FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
 
 
         List<Pose2d> waypointsM = new ArrayList<>();;
         List<Rotation2d> headings = new ArrayList<>();;
+
+        
     
         switch(originSector){
             case AB:
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.KL), Rotation2d.fromDegrees(5)));
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-50)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(0)));
 
                 
-                headings.add(Rotation2d.fromDegrees(-60));
-                headings.add(Rotation2d.fromDegrees(-120));
+                headings.add(Rotation2d.fromDegrees(0));
 
                 break;
             case CD:
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(-90)), Rotation2d.fromDegrees(0)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(90)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(50)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(160)));
-
-                headings.add(Rotation2d.fromDegrees(90));
-                headings.add(Rotation2d.fromDegrees(-180));
-                headings.add(Rotation2d.fromDegrees(-120));
+                headings.add(Rotation2d.fromDegrees(0));
                 break;
 
                 
             case EF:
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(90)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.CD), Rotation2d.fromDegrees(160)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(160)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(90)));
 
-                headings.add(Rotation2d.fromDegrees(-180));
-                headings.add(Rotation2d.fromDegrees(-120));
+                headings.add(Rotation2d.fromDegrees(60));
+                headings.add(Rotation2d.fromDegrees(0));
                 break;
 
             case GH:
@@ -143,7 +138,7 @@ public class DriveTo_IJ extends Command implements Planner2025 {
                 break;
             
         }
-
+        
         m_goal = waypointsM.get(waypointsM.size() - 1);
         m_log.m_log_goal.log(() -> m_goal);
 
@@ -190,8 +185,8 @@ public class DriveTo_IJ extends Command implements Planner2025 {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_controller.isDone();
-        // return false;
+        // return m_controller.isDone();
+        return false;
     }
 
     public PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings){

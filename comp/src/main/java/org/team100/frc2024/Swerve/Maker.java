@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.team100.frc2024.FieldConstants;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_AB;
 import org.team100.frc2024.Swerve.SemiAuto.DriveTo_GH;
 import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
 import org.team100.frc2024.Swerve.SemiAuto.DriveTo_IJ;
@@ -43,6 +44,7 @@ public class Maker {
     DriveTo_GH.Log m_driveToGHLog;
     DriveTo_IJ.Log m_driveToIJLog;
     DriveTo_KL.Log m_driveToKLLog;
+    DriveTo_AB.Log m_driveToABLog;
 
 
     SwerveDriveSubsystem m_swerve;
@@ -60,6 +62,7 @@ public class Maker {
         m_driveToGHLog = new DriveTo_GH.Log(m_logger);
         m_driveToIJLog = new DriveTo_IJ.Log(m_logger);
         m_driveToKLLog = new DriveTo_KL.Log(m_logger);
+        m_driveToABLog = new DriveTo_AB.Log(m_logger);
 
         m_factory = factory;
         m_swerve = swerve;
@@ -67,91 +70,15 @@ public class Maker {
         m_viz = viz;
         m_kinodynamics = kinodynamics;
 
-        makeClockWiseTraj();
+        
     }
 
-
-    public Pose2d makeTrajectoryCommand(Supplier<Pose2d> robotPose) {
-
-        Trajectory100 trajectory = m_clockWiseTraj;
-
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
-
-        // Optional<TrajectorySamplePoint> futurePoint = iter.advance(0.4);
-
-        double[] center  = { FieldConstants.getReefCenter().getX(), FieldConstants.getReefCenter().getY()};
-        double radius = FieldConstants.getOrbitWaypointRadius();
-        double[] point = {robotPose.get().getX(), robotPose.get().getY()};
-
-        List<double[]> array = getTangentPointsAtCircle(FieldConstants.getReefCenter().getX(), FieldConstants.getReefCenter().getY(), radius, robotPose.get().getX(), robotPose.get().getY());
-        
-        double[] arr = array.get(0);
-        return new Pose2d( new Translation2d(arr[0], arr[1]), new Rotation2d());
-
-
-        
-
-        
-
-    }
-
-    public void makeClockWiseTraj() {
-       
-        Translation2d reefCenter = FieldConstants.getReefCenter();
-        double circleRadius = FieldConstants.getOrbitWaypointRadius();
-
-        Pose2d radian_0 = new Pose2d(reefCenter.getX() + circleRadius, reefCenter.getY(), Rotation2d.fromDegrees(270));
-        Pose2d radian_90 = new Pose2d(reefCenter.getX(), reefCenter.getY() - circleRadius, Rotation2d.fromDegrees(180)); 
-
-        Pose2d radian_180 = new Pose2d(reefCenter.getX() - circleRadius, reefCenter.getY(), Rotation2d.fromDegrees(90)); 
-        Pose2d radian_270 = new Pose2d(reefCenter.getX(),  reefCenter.getY() + circleRadius, Rotation2d.fromDegrees(0)); 
-        Pose2d radian_360 = radian_0;
-
-        List<Pose2d> waypointsM = List.of(
-            radian_0,
-            radian_90,
-            radian_180,
-            radian_270,
-            radian_360
-        );
-
-        List<Rotation2d> headings = List.of(
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d()
-        );
-
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints.fast());
-
-        m_clockWiseTraj = trajectory;
-
-        // return new TrajectoryCommand100(m_commandLog, m_swerve, trajectory, m_factory.goodPIDF(m_PIDFLog),
-        //         m_viz);
-
-    }
 
     public Command test() {
 
-        Pose2d waypoint1 = new Pose2d(5.37, 6, Rotation2d.fromDegrees(315));
-        Pose2d waypoint2 = new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(270));
-
-        List<Pose2d> waypointsM = new ArrayList<>(List.of(
-            waypoint1,
-            waypoint2
-        ));
-
-        List<Rotation2d> headings = new ArrayList<>(List.of(
-            new Rotation2d(),
-            new Rotation2d()
-        ));
-        
         return new DriveTo_IJ(
                 m_driveToIJLog, 
-                m_swerve, 
-                waypointsM,
-                headings, 
+                m_swerve,
                 m_factory.goodPIDF(m_PIDFLog),
                 m_viz,
                 m_kinodynamics);
@@ -159,83 +86,6 @@ public class Maker {
     }
 
     
-
-    // public TrajectoryCommand100 runClockWiseTraj() {
-       
-    //     Translation2d reefCenter = FieldConstants.getReefCenter();
-    //     double circleRadius = FieldConstants.getOrbitRadius();
-
-    //     Pose2d radian_0 = new Pose2d(reefCenter.getX() + circleRadius, reefCenter.getY(), Rotation2d.fromDegrees(270));
-    //     Pose2d radian_90 = new Pose2d(reefCenter.getX(), reefCenter.getY() - circleRadius, Rotation2d.fromDegrees(180)); 
-
-    //     Pose2d radian_180 = new Pose2d(reefCenter.getX() - circleRadius, reefCenter.getY(), Rotation2d.fromDegrees(90)); 
-    //     Pose2d radian_270 = new Pose2d(reefCenter.getX(),  reefCenter.getY() + circleRadius, Rotation2d.fromDegrees(0)); 
-    //     Pose2d radian_360 = radian_0;
-
-    //     List<Pose2d> waypointsM = List.of(
-    //         radian_0,
-    //         radian_90,
-    //         radian_180,
-    //         radian_270,
-    //         radian_360
-    //     );
-
-    //     List<Rotation2d> headings = List.of(
-    //             new Rotation2d(),
-    //             new Rotation2d(),
-    //             new Rotation2d(),
-    //             new Rotation2d(),
-    //             new Rotation2d()
-    //     );
-
-    //     Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints.fast());
-
-    //     m_clockWiseTraj = trajectory;
-
-    //     return new TrajectoryCommand100(m_commandLog, m_swerve, trajectory, m_factory.goodPIDF(m_PIDFLog),
-    //             m_viz);
-
-    // }
-
-    public static List<double[]> getTangentPointsAtCircle(double centerX, double centerY, double r, double xx, double yy) {
-        List<double[]> tangentPoints = new ArrayList<>();
-
-        if (r == 0) {  // If the radius is 0, no tangents
-            return tangentPoints;
-        }
-
-        // Shift and scale the external point
-        double nx = (xx - centerX) / r;
-        double ny = (yy - centerY) / r;
-        double xy = nx * nx + ny * ny;
-
-        if (Math.abs(xy - 1.0) < 1e-9) {  // Point lies on the circumference, one tangent
-            tangentPoints.add(new double[] { xx, yy });
-            return tangentPoints;
-        }
-
-        if (xy < 1.0) {  // Point lies inside the circle, no tangents
-            return tangentPoints;
-        }
-
-        // Common case, two tangents
-        double d = ny * Math.sqrt(xy - 1);
-        double tx0 = (nx - d) / xy;
-        double tx1 = (nx + d) / xy;
-
-        if (ny != 0) {  // Common case where ny != 0
-            double yt0 = centerY + r * (1 - tx0 * nx) / ny;
-            double yt1 = centerY + r * (1 - tx1 * nx) / ny;
-            tangentPoints.add(new double[] { centerX + r * tx0, yt0 });
-            tangentPoints.add(new double[] { centerX + r * tx1, yt1 });
-        } else {  // Point at the center horizontally, Y=0
-            d = r * Math.sqrt(1 - tx0 * tx0);
-            tangentPoints.add(new double[] { centerX + r * tx0, centerY + d });
-            tangentPoints.add(new double[] { centerX + r * tx1, centerY - d });
-        }
-
-        return tangentPoints;
-    }
 
     
 }

@@ -44,7 +44,7 @@ public class DriveTo_GH extends Command implements Planner2025 {
         private final BooleanLogger m_log_FINSIHED;
 
         public Log(LoggerFactory parent) {
-            LoggerFactory log = parent.child("DriveToS4");
+            LoggerFactory log = parent.child("DriveToGH");
             m_log_goal = log.pose2dLogger(Level.TRACE, "goal");
             m_log_chassis_speeds = log.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
             m_log_THETA_ERROR = log.doubleLogger(Level.TRACE, "THETA ERROR");
@@ -55,7 +55,7 @@ public class DriveTo_GH extends Command implements Planner2025 {
     private final Log m_log;
     private final SwerveDriveSubsystem m_robotDrive;
     private final DriveTrajectoryFollower m_controller;
-    private final Pose2d m_goal;
+    private Pose2d m_goal = new Pose2d();
     private final TrajectoryVisualization m_viz;
 
     
@@ -66,18 +66,14 @@ public class DriveTo_GH extends Command implements Planner2025 {
     public DriveTo_GH(
             Log log,
             SwerveDriveSubsystem robotDrive,
-            List<Pose2d> waypointsM,
-            List<Rotation2d> headings,
             DriveTrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         m_log = log;
-        
         m_robotDrive = robotDrive;
         m_controller = controller;
-        m_goal = waypointsM.get(waypointsM.size() - 1);
         m_viz = viz;
-        log.m_log_goal.log(() -> m_goal);
+        
         m_constraints = new TimingConstraintFactory(kinodynamics);
         addRequirements(m_robotDrive);
     }
@@ -91,8 +87,8 @@ public class DriveTo_GH extends Command implements Planner2025 {
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.GH;
         FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
 
-        List<Pose2d> waypointsM = new ArrayList<>();;
-        List<Rotation2d> headings = new ArrayList<>();;
+        List<Pose2d> waypointsM = new ArrayList<>();
+        List<Rotation2d> headings = new ArrayList<>();
     
         switch(originSector){   
             case AB:
@@ -138,6 +134,9 @@ public class DriveTo_GH extends Command implements Planner2025 {
                 break;
             
         }
+
+        m_goal = waypointsM.get(waypointsM.size() - 1);
+        m_log.m_log_goal.log(() -> m_goal);
 
         PoseSet poseSet = addRobotPose(currPose, waypointsM, headings);
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), m_constraints.fast());

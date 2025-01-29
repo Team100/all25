@@ -93,11 +93,11 @@ public class FieldConstants {
     }
 
     public static double getOrbitDestinationRadius(){
-        return 1.6;
+        return 1.8;
     }
 
     public static double getReefOffset(){
-        return 0.5;
+        return 0.1524;
     }
 
     public static Translation2d getOrbitWaypoint(Rotation2d angle){
@@ -127,52 +127,23 @@ public class FieldConstants {
         double x = reefCenter.getX() + getOrbitDestinationRadius() * sectorAngle.getCos();
         double y = reefCenter.getY() + getOrbitDestinationRadius() * sectorAngle.getSin();
 
-        double angleTheta = Math.atan(getReefOffset()/getOrbitDestinationRadius());
-        double newRadius = Math.sqrt(Math.pow(getReefOffset(), 2) + Math.pow(getOrbitDestinationRadius(), 2));
+
+        double dx = 0;
+        double dy = 0;
+        
+        dx = (getReefOffset() * Math.cos(90 + sectorAngle.getDegrees()));
+        dy = (getReefOffset() * Math.sin(90 + sectorAngle.getDegrees()));
 
         
-
         switch(destinationPoint){
             case A, C, E, G, I, K:
-                sectorAngle = sectorAngle.plus(Rotation2d.fromRadians(angleTheta));
-                break;
+                return new Translation2d(x += dx, y += dy);
             case B, D, F, H, J, L:
-                sectorAngle = sectorAngle.minus(Rotation2d.fromRadians(angleTheta));
-                break;
+                return new Translation2d(x -= dx, y -= dy);
             case CENTER:
-                break;
-        }
-
+                return new Translation2d(x, y);
         
-        switch (destinationSector){
-            case AB:
-                sectorAngle = Rotation2d.fromDegrees(180).minus(sectorAngle);
-                break;
-            case CD:
-                sectorAngle = Rotation2d.fromDegrees(-120).minus(sectorAngle);
-                break;
-            case EF:
-                sectorAngle = Rotation2d.fromDegrees(-60).minus(sectorAngle);
-                break;
-            case GH:
-                sectorAngle = Rotation2d.fromDegrees(0).minus(sectorAngle);
-                break;
-            case IJ:
-                sectorAngle = Rotation2d.fromDegrees(60).minus(sectorAngle);
-                break;
-            case KL:
-                sectorAngle = Rotation2d.fromDegrees(120).minus(sectorAngle);
-                break;
         }
-        Rotation2d angleToCenter = Rotation2d.fromDegrees(90).minus(sectorAngle);
-        if(angleToCenter.getDegrees() < 0){
-            angleToCenter = new Rotation2d(-angleToCenter.getDegrees());
-        }
-
-
-
-        x = newRadius * angleToCenter.getCos();
-        y = newRadius * angleToCenter.getSin();
 
         return new Translation2d(x, y);
 
