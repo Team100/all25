@@ -1,16 +1,10 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2024.Swerve.SemiAuto;
+package org.team100.frc2025.Swerve.SemiAuto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2024.FieldConstants;
-import org.team100.frc2024.FieldConstants.ReefPoint;
-import org.team100.lib.follower.DrivePIDFFollower;
-import org.team100.lib.follower.DrivePIDFLockFollower;
+import org.team100.frc2025.FieldConstants;
 import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
