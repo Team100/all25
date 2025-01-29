@@ -69,6 +69,9 @@ public class DriverControlProxy implements DriverControl {
         if (name.startsWith("Logitech Extreme")) {
             return new LogitechExtremeJoystick();
         }
+        if (name.contains("8Bit")) {
+            return new DriverXboxControl(parent);
+        }
         if (name.startsWith("GP Controller")) {
             return new RealFlight(parent);
         }
