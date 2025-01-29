@@ -12,7 +12,7 @@ from app.network.network import Network
 
 
 class NoteDetectorTest(unittest.TestCase):
-    KEY = "noteVision/unknown/0/Rotation3d"
+    KEY = "objectVision/unknown/0/Rotation3d"
 
     def test_one_note_found(self) -> None:
 

@@ -1,6 +1,7 @@
 package org.team100.lib.commands.semiauto;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
@@ -16,19 +17,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
- * Drive to the nearest note, turning so that the intake side arrives first.
+ * Drive to the nearest object, turning so that the intake side arrives first.
  * 
- * If the robot is between two notes, it switches between them and makes no
+ * If the robot is between two objects, it switches between them and makes no
  * progress. TODO: fix that.
  * 
  * This never finishes; run it with an Intake command as the deadline.
  */
-public class DriveToNote extends Command {
+public class DriveToObject extends Command {
     /** Alignment tolerance for the intake */
     public static final double kIntakeAdmittanceRad = 0.2;
 
     private final DriveSubsystemInterface m_drive;
-    private final Function<Pose2d, Translation2d> m_camera;
+    private final Supplier<Translation2d> m_camera;
     private final boolean m_debug;
     private final DriveUtil m_driveUtil;
 
@@ -37,17 +38,17 @@ public class DriveToNote extends Command {
      * @param swerveKinodynamics
      * @param drive
      * @param camera             given the robot pose, return the field-relative
-     *                           position of the closest note, or null if none
+     *                           position of the closest object, or null if none
      *                           nearby
      * @param tactics            given the desired velocity, return avoidance
      *                           velocity
      * @param viz
      * @param debug
      */
-    public DriveToNote(
+    public DriveToObject(
             SwerveKinodynamics swerveKinodynamics,
             DriveSubsystemInterface drive,
-            Function<Pose2d, Translation2d> camera,
+            Supplier<Translation2d> camera,
             UnaryOperator<FieldRelativeVelocity> tactics,
             ForceViz viz,
             boolean debug) {
@@ -63,7 +64,7 @@ public class DriveToNote extends Command {
     @Override
     public void execute() {
         if (m_debug)
-            System.out.print("DriveToNote");
+            System.out.print("DriveToObject");
 
         // where are we with respect to the goal?
 
@@ -75,7 +76,7 @@ public class DriveToNote extends Command {
     }
 
     /**
-     * Go to the closest note, irrespective of the age of the sighting (since notes
+     * Go to the closest object, irrespective of the age of the sighting (since objects
      * don't move and sightings are all pretty new)
      */
     private void goToGoal(Pose2d pose) {
@@ -83,14 +84,14 @@ public class DriveToNote extends Command {
         // TODO: remember and prefer the previous fixation, unless some new sighting is
         // much better.
 
-        Translation2d closestSighting = m_camera.apply(pose);
+        Translation2d closestSighting = m_camera.get();
         if (closestSighting == null) {
-            // no nearby note, no need to move
+            // no nearby object, no need to move
             m_drive.drive(m_driveUtil.finish(new FieldRelativeVelocity(0, 0, 0)));
             return;
         }
 
-        // found a note
+        // found an object
 
         FieldRelativeVelocity desired = m_driveUtil.goToGoalAligned(
                 kIntakeAdmittanceRad,

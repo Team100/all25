@@ -108,7 +108,7 @@ public class VKBJoystick implements DriverControl {
     }
 
     @Override
-    public boolean driveToNote() {
+    public boolean driveToObject() {
         // return button(7);
         return false;
     }

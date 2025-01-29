@@ -49,7 +49,7 @@ public enum Camera {
     /**
      * Camera bot intake
      */
-    GLOBAL_GAME_PIECE("364f07fb090a3bf7",
+    GLOBAL_GAME_PIECE("d44649628c20d4d4",
             new Transform3d(
                     new Translation3d(0.2, -0.05, 0.381),
                     new Rotation3d(0, Math.toRadians(20), 0))),
@@ -57,7 +57,7 @@ public enum Camera {
      /**
      * Camera bot right april tag detector
      */
-    GLOBAL_RIGHT("d44649628c20d4d4",
+    GLOBAL_RIGHT("364f07fb090a3bf7",
             new Transform3d(
                     new Translation3d(0.15, -0.095, 0.381),
                     new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-30)))),

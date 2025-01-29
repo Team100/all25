@@ -116,8 +116,8 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean driveToNote() {
-        return m_driverControl.driveToNote();
+    public boolean driveToObject() {
+        return m_driverControl.driveToObject();
     }
 
     @Override

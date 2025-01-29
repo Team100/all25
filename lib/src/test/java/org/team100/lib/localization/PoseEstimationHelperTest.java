@@ -403,7 +403,7 @@ class PoseEstimationHelperTest {
 
         // "raw" layout, which is "out of the page" tag orientation.j
         // which is WRONG WRONG WRONG
-        Path path = Filesystem.getDeployDirectory().toPath().resolve("2024-crescendo.json");
+        Path path = Filesystem.getDeployDirectory().toPath().resolve("2025-reefscape.json");
         AprilTagFieldLayout layout = new AprilTagFieldLayout(path);
         layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 

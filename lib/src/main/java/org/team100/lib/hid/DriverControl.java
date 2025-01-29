@@ -96,7 +96,7 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
-    default boolean driveToNote() {
+    default boolean driveToObject() {
         return false;
     }
 

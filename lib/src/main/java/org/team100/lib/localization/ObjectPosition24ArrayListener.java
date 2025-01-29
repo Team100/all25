@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import org.team100.lib.config.Camera;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.SimulatedCamera;
-import org.team100.lib.util.NotePicker;
+import org.team100.lib.util.ObjectPicker;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -29,31 +29,31 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
- * Listen for updates from the note-detector camera and remember them for
+ * Listen for updates from the object-detector camera and remember them for
  * awhile.
  * 
  * TODO: as described below, use a buffer here, don't just remember the very
  * last thing the camera saw. Also use multiple sights to get a better idea of
  * where the target is.
  */
-public class NotePosition24ArrayListener {
+public class ObjectPosition24ArrayListener {
     /** Ignore sights older than this. */
     private static final double kMaxSightAgeS = 0.1;
     private StructBuffer<Rotation3d> m_buf = StructBuffer.create(Rotation3d.struct);
-    private List<Translation2d> notes = new ArrayList<>();
+    private List<Translation2d> objects = new ArrayList<>();
     private final PoseEstimator100 m_poseSupplier;
     private final NetworkTableListenerPoller m_poller;
 
     private double latestTime = 0;
 
-    public NotePosition24ArrayListener(PoseEstimator100 poseEstimator) {
+    public ObjectPosition24ArrayListener(PoseEstimator100 poseEstimator) {
         m_poseSupplier = poseEstimator;
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         m_poller = new NetworkTableListenerPoller(inst);
         m_poller.addListener(
                 new MultiSubscriber(
                         inst,
-                        new String[] { "noteVision" },
+                        new String[] { "objectVision" },
                         PubSubOption.keepDuplicates(true)),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
     }
@@ -77,7 +77,7 @@ public class NotePosition24ArrayListener {
                 if (b.length == 0) {
                     return;
                 }
-                // NOTE! sights are x-ahead WPI coordinates, not z-ahead camera coordinates.
+                // object! sights are x-ahead WPI coordinates, not z-ahead camera coordinates.
                 Rotation3d[] sights;
                 try {
                     synchronized (m_buf) {
@@ -90,12 +90,12 @@ public class NotePosition24ArrayListener {
                 Transform3d cameraInRobotCoordinates = Camera.get(fields[1]).getOffset();
                 Pose2d robotPose = m_poseSupplier.get(v.getServerTime() / 1000000.0).pose();
                 // TODO: this should accumulate sights, not replace the list every time.
-                notes = TargetLocalizer.cameraRotsToFieldRelativeArray(
+                objects = TargetLocalizer.cameraRotsToFieldRelativeArray(
                         robotPose,
                         cameraInRobotCoordinates,
                         sights);
             } else {
-                Util.warn("note weird vision update key: " + name);
+                Util.warn("object weird vision update key: " + name);
             }
         }
     }
@@ -119,20 +119,31 @@ public class NotePosition24ArrayListener {
                         rot.toArray(new Rotation3d[0]));
             default:
                 if (latestTime > Timer.getFPGATimestamp() - kMaxSightAgeS) {
-                    return notes;
+                    return objects;
                 }
                 return new ArrayList<>();
         }
     }
 
     /**
-     * The field-relative translation of the closest note, if any.
+     * The field-relative translation of the closest object, if any.
      */
     public Optional<Translation2d> getClosestTranslation2d() {
         update();
         Pose2d robotPose = m_poseSupplier.get(Timer.getFPGATimestamp()).pose();
-        return NotePicker.closestNote(
+        return ObjectPicker.closestObject(
                 getTranslation2dArray(),
                 robotPose);
+    }
+
+    /**
+     * The field-relative translation of the closest object, if any.
+     */
+    public Translation2d getClosestTranslation2dNull() {
+        Optional<Translation2d> translation2d = getClosestTranslation2d(); 
+        if (translation2d.isEmpty()) {
+            return null;
+        }
+        return getClosestTranslation2d().get();
     }
 }

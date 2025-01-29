@@ -283,11 +283,11 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_stator.log(m_stator);
         m_log_torque.log(this::getMotorTorque);
         m_log_temp.log(m_temp);
-        if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
-            Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
-                    m_motor.getDeviceID(),
-                    m_supplyVoltage.getAsDouble(),
-                    RobotController.getBatteryVoltage());
+        // if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
+        //     Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
+        //             m_motor.getDeviceID(),
+        //             m_supplyVoltage.getAsDouble(),
+        //             RobotController.getBatteryVoltage());
     }
 
     private double getMotorTorque() {

@@ -158,7 +158,7 @@ public class DriverXboxControl implements DriverControl {
     }
 
     @Override
-    public boolean driveToNote() {
+    public boolean driveToObject() {
         return m_controller.getYButton();
     }
 
