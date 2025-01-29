@@ -16,6 +16,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -56,9 +57,119 @@ class SwerveDrivePoseEstimator100Test {
         assertEquals(0, estimate.getRotation().getRadians(), kDelta);
     }
 
+    private static void verifyVelocity(double xV, SwerveModel state) {
+        FieldRelativeVelocity v = state.velocity();
+        assertEquals(xV, v.x(), kDelta);
+    }
+
     @BeforeEach
     void nolog() {
         DataLogManager.stop();
+    }
+
+    @Test
+    void odo1() {
+        SwerveKinodynamics kinodynamics = SwerveKinodynamicsFactory.forTest();
+        double[] stateStdDevs = new double[] { 0.1, 0.1, 0.1 };
+        double[] visionMeasurementStdDevs = new double[] { 0.5, 0.5, Double.MAX_VALUE };
+        SwerveDrivePoseEstimator100 poseEstimator = kinodynamics.newPoseEstimator(
+                logger,
+                new MockGyro(),
+                positionZero,
+                GeometryUtil.kPoseZero,
+                0); // zero initial time
+        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // 0.1 m
+        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // velocity is the delta
+        verify(0.1, poseEstimator.get(0.02));
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+
+        // big vision update
+        poseEstimator.put(0.00, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
+        // position slides over there
+        verify(0.167, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // odometry adds to that
+        verify(0.267, poseEstimator.get(0.02));
+        // velocity is unchanged.
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+    }
+
+    @Test
+    void odo2() {
+        SwerveKinodynamics kinodynamics = SwerveKinodynamicsFactory.forTest();
+        double[] stateStdDevs = new double[] { 0.1, 0.1, 0.1 };
+        double[] visionMeasurementStdDevs = new double[] { 0.5, 0.5, Double.MAX_VALUE };
+        SwerveDrivePoseEstimator100 poseEstimator = kinodynamics.newPoseEstimator(
+                logger,
+                new MockGyro(),
+                positionZero,
+                GeometryUtil.kPoseZero,
+                0); // zero initial time
+        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // 0.1 m
+        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // velocity is the delta
+        verify(0.1, poseEstimator.get(0.02));
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+
+        // big vision update, but later
+        poseEstimator.put(0.02, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
+        // initial position is unchanged
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // not sure what's happening here
+        verify(0.25, poseEstimator.get(0.02));
+        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // than making velocity reflect the camera noise.
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+    }
+
+    @Test
+    void odo3() {
+        SwerveKinodynamics kinodynamics = SwerveKinodynamicsFactory.forTest();
+        double[] stateStdDevs = new double[] { 0.1, 0.1, 0.1 };
+        double[] visionMeasurementStdDevs = new double[] { 0.5, 0.5, Double.MAX_VALUE };
+        SwerveDrivePoseEstimator100 poseEstimator = kinodynamics.newPoseEstimator(
+                logger,
+                new MockGyro(),
+                positionZero,
+                GeometryUtil.kPoseZero,
+                0); // zero initial time
+        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // 0.1 m
+        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // velocity is the delta
+        verify(0.1, poseEstimator.get(0.02));
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+
+        // big vision update, even later
+        poseEstimator.put(0.04, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
+        // initial position is unchanged
+        verify(0.000, poseEstimator.get(0.00));
+        verifyVelocity(0.000, poseEstimator.get(0.00));
+        // camera does nothing
+        verify(0.1, poseEstimator.get(0.02));
+        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // than making velocity reflect the camera noise.
+        verifyVelocity(5.000, poseEstimator.get(0.02));
+        // this is 0.1 towards the camera 1.0
+        verify(0.25, poseEstimator.get(0.04));
+        // still velo is unaffected
+        verifyVelocity(5.000, poseEstimator.get(0.04));
     }
 
     @Test
