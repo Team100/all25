@@ -2,7 +2,6 @@ package org.team100.lib.motion.drivetrain;
 
 import java.lang.reflect.Field;
 
-import org.team100.frc2024.FieldConstants;
 import org.team100.lib.config.DriverSkill;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;

@@ -2,12 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2024.Swerve;
+package org.team100.frc2024.Swerve.SemiAuto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2024.FieldConstants;
+import org.team100.frc2024.FieldConstants.ReefPoint;
+import org.team100.lib.follower.DrivePIDFFollower;
+import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -33,7 +36,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveToS4 extends Command {
+public class DriveTo_KL extends Command implements Planner2025 {
     /** Creates a new TrajectoryCommandWithPose100. */
     public static class Log {
         private final Pose2dLogger m_log_goal;
@@ -42,7 +45,7 @@ public class DriveToS4 extends Command {
         private final BooleanLogger m_log_FINSIHED;
 
         public Log(LoggerFactory parent) {
-            LoggerFactory log = parent.child("TrajectoryCommandWithPose100");
+            LoggerFactory log = parent.child("DriveToS3");
             m_log_goal = log.pose2dLogger(Level.TRACE, "goal");
             m_log_chassis_speeds = log.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
             m_log_THETA_ERROR = log.doubleLogger(Level.TRACE, "THETA ERROR");
@@ -61,7 +64,7 @@ public class DriveToS4 extends Command {
 
     
 
-    public DriveToS4(
+    public DriveTo_KL(
             Log log,
             SwerveDriveSubsystem robotDrive,
             List<Pose2d> waypointsM,
@@ -85,47 +88,56 @@ public class DriveToS4 extends Command {
     public void initialize() {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
+        FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.KL;
+        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+
+
         List<Pose2d> waypointsM = new ArrayList<>();;
         List<Rotation2d> headings = new ArrayList<>();;
     
         switch(originSector){
-            case S1:
-                waypointsM.add(new Pose2d(3.51, 5.9, Rotation2d.fromDegrees(45)));
-                waypointsM.add(new Pose2d(5.37, 6, Rotation2d.fromDegrees(-45)));
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(-90)));
+            case AB:
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(0)));
+
                 
-                headings.add(new Rotation2d());
-                headings.add(new Rotation2d());
-                headings.add(new Rotation2d());
-                break;
-            case S2:
-                waypointsM.add(new Pose2d(5.37, 6, Rotation2d.fromDegrees(-45)));
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(-90)));
+                headings.add(Rotation2d.fromDegrees(-60));
 
-                headings.add(new Rotation2d());
-                headings.add(new Rotation2d());
                 break;
-            case S3:
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(-90)));
+            case CD:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.AB), Rotation2d.fromDegrees(90)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(0)));
 
-                headings.add(new Rotation2d());
+                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(-60));
+
                 break;
-            case S4:
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(180)));
 
-                headings.add(new Rotation2d());
+                
+            case EF:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(90)));
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(160)));
+
+                headings.add(Rotation2d.fromDegrees(-180));
+                headings.add(Rotation2d.fromDegrees(-120));
                 break;
-            case S5:
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(90)));
 
-                headings.add(new Rotation2d());
+            case GH:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(170)));
+                
+                headings.add(Rotation2d.fromDegrees(-120));
                 break;
-            case S6:
-                waypointsM.add(new Pose2d(5.56, 2.24, Rotation2d.fromDegrees(45)));
-                waypointsM.add(new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(90)));
+            case IJ:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-120)));
+                
+                headings.add(Rotation2d.fromDegrees(-120));
+                break;
+            case KL:
 
-                headings.add(new Rotation2d());
-                headings.add(new Rotation2d());
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-60)));
+                
+                headings.add(Rotation2d.fromDegrees(-120));
                 break;
             default:
                 break;
@@ -138,6 +150,7 @@ public class DriveToS4 extends Command {
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
         m_controller.setTrajectory(iter);
 
+        
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -146,6 +159,12 @@ public class DriveToS4 extends Command {
         final double now = Timer.getFPGATimestamp();
         Pose2d currentPose = m_robotDrive.getPose();
         ChassisSpeeds currentRobotRelativeSpeed = m_robotDrive.getChassisSpeeds();
+
+        Rotation2d angleToReef = FieldConstants.angleToReefCenter(currentPose);
+        Rotation2d currentHeading = currentPose.getRotation();
+        Rotation2d thetaError = angleToReef.minus(currentHeading);
+
+        // m_controller.setThetaError(thetaError);
         ChassisSpeeds output = m_controller.update(now, currentPose, currentRobotRelativeSpeed);
 
         m_robotDrive.setChassisSpeedsNormally(output);
@@ -169,6 +188,7 @@ public class DriveToS4 extends Command {
     @Override
     public boolean isFinished() {
         return m_controller.isDone();
+        // return false;
     }
 
     public PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings){

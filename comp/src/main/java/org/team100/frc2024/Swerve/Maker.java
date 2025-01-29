@@ -7,8 +7,13 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.team100.frc2024.FieldConstants;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_GH;
+import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_IJ;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_KL;
 import org.team100.lib.commands.drivetrain.TrajectoryCommand100;
 import org.team100.lib.follower.DrivePIDFFollower;
+import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.logging.LoggerFactory;
@@ -25,14 +30,21 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 
 
 public class Maker {
 
     TimingConstraintFactory constraints;
     DrivePIDFFollower.Log m_PIDFLog;
+    DrivePIDFLockFollower.Log m_lockedLog;
+
     LoggerFactory m_logger;
-    DriveToS4.Log m_commandLog;
+    DriveTo_GH.Log m_driveToGHLog;
+    DriveTo_IJ.Log m_driveToIJLog;
+    DriveTo_KL.Log m_driveToKLLog;
+
+
     SwerveDriveSubsystem m_swerve;
     DriveTrajectoryFollowerFactory m_factory;
     TrajectoryVisualization m_viz;
@@ -43,7 +55,12 @@ public class Maker {
     public Maker(LoggerFactory parent, SwerveDriveSubsystem swerve,  DriveTrajectoryFollowerFactory factory, SwerveKinodynamics kinodynamics, TrajectoryVisualization viz){
         m_logger = parent.child("Maker");
         m_PIDFLog = new DrivePIDFFollower.Log(m_logger);
-        m_commandLog = new DriveToS4.Log(m_logger);
+        m_lockedLog = new DrivePIDFLockFollower.Log(m_logger);
+
+        m_driveToGHLog = new DriveTo_GH.Log(m_logger);
+        m_driveToIJLog = new DriveTo_IJ.Log(m_logger);
+        m_driveToKLLog = new DriveTo_KL.Log(m_logger);
+
         m_factory = factory;
         m_swerve = swerve;
         constraints = new TimingConstraintFactory(kinodynamics);
@@ -63,7 +80,7 @@ public class Maker {
         // Optional<TrajectorySamplePoint> futurePoint = iter.advance(0.4);
 
         double[] center  = { FieldConstants.getReefCenter().getX(), FieldConstants.getReefCenter().getY()};
-        double radius = FieldConstants.getOrbitRadius();
+        double radius = FieldConstants.getOrbitWaypointRadius();
         double[] point = {robotPose.get().getX(), robotPose.get().getY()};
 
         List<double[]> array = getTangentPointsAtCircle(FieldConstants.getReefCenter().getX(), FieldConstants.getReefCenter().getY(), radius, robotPose.get().getX(), robotPose.get().getY());
@@ -81,7 +98,7 @@ public class Maker {
     public void makeClockWiseTraj() {
        
         Translation2d reefCenter = FieldConstants.getReefCenter();
-        double circleRadius = FieldConstants.getOrbitRadius();
+        double circleRadius = FieldConstants.getOrbitWaypointRadius();
 
         Pose2d radian_0 = new Pose2d(reefCenter.getX() + circleRadius, reefCenter.getY(), Rotation2d.fromDegrees(270));
         Pose2d radian_90 = new Pose2d(reefCenter.getX(), reefCenter.getY() - circleRadius, Rotation2d.fromDegrees(180)); 
@@ -115,7 +132,7 @@ public class Maker {
 
     }
 
-    public DriveToS4 test() {
+    public Command test() {
 
         Pose2d waypoint1 = new Pose2d(5.37, 6, Rotation2d.fromDegrees(315));
         Pose2d waypoint2 = new Pose2d(6.305274, 4.074270, Rotation2d.fromDegrees(270));
@@ -130,8 +147,8 @@ public class Maker {
             new Rotation2d()
         ));
         
-        return new DriveToS4(
-                m_commandLog, 
+        return new DriveTo_IJ(
+                m_driveToIJLog, 
                 m_swerve, 
                 waypointsM,
                 headings, 

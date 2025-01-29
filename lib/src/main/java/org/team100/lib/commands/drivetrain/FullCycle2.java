@@ -45,8 +45,8 @@ public class FullCycle2 extends SequentialCommandGroup implements Glassy {
         TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
-        Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics, viz);
-        Translation2d reefCenter = FieldConstants.getReefCenter();
+        // Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics, viz);
+        // Translation2d reefCenter = FieldConstants.getReefCenter();
 
         // for now just drive back and forth.
         addCommands(

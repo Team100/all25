@@ -16,6 +16,10 @@ public class DriveTrajectoryFollowerFactory {
         m_util = util;
     }
 
+    public DrivePIDFLockFollower reefLockedPIDF(DrivePIDFLockFollower.Log log) {
+        return new DrivePIDFLockFollower(log, m_util, false, 2.4, 6);
+    }
+
     public DriveTrajectoryFollower fancyPIDF(DrivePIDFFollower.Log log) {
         return new DrivePIDFFollower(log, m_util, false, 2.4, 1.3);
     }
