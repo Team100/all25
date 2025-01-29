@@ -15,7 +15,7 @@ public interface HolonomicFieldRelativeController extends Glassy {
         final SwerveModelLogger reference; // ref v is FF
         final SwerveModelLogger error;
         final FieldRelativeVelocityLogger u_FB;
-
+        
         public Log(LoggerFactory parent) {
             LoggerFactory child = parent.child("HolonomicFieldRelativeController");
             reference = child.swerveModelLogger(Level.DEBUG, "reference");

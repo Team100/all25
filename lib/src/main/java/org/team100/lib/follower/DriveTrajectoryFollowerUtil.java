@@ -80,6 +80,30 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
         return new ChassisSpeeds(0, 0, omega);
     }
 
+    public ChassisSpeeds feedforwardLocked(Pose2d currentPose, TimedPose setpoint) {
+        final double velocity_m = setpoint.velocityM_S();
+        m_log_setpoint_velocity.log(() -> velocity_m);
+
+        // robot-relative motion direction
+        Optional<Rotation2d> motion_direction = direction(currentPose, setpoint);
+
+        ChassisSpeeds u_FF = ffLocked(setpoint, velocity_m, motion_direction);
+        m_log_u_FF.log(() -> u_FF);
+        return u_FF;
+    }
+
+    private ChassisSpeeds ffLocked(TimedPose setpoint, double velocity_m, Optional<Rotation2d> rot) {
+        // heading rate is rad/m of movement, so multiply by m/s to get rad/s
+        double omega = velocity_m * setpoint.state().getHeadingRate();
+        if (rot.isPresent()) {
+            Rotation2d motion_direction = rot.get();
+            double vx = motion_direction.getCos() * velocity_m;
+            double vy = motion_direction.getSin() * velocity_m;
+            return new ChassisSpeeds(vx, vy, 0);
+        }
+        return new ChassisSpeeds(0, 0, omega);
+    }
+
     public ChassisSpeeds feedback(
             Pose2d currentPose,
             TimedPose setpoint,
@@ -91,6 +115,22 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
                 kPCart * positionError.dx,
                 kPCart * positionError.dy,
                 kPTheta * positionError.dtheta);
+        m_log_u_FB.log(() -> u_FB);
+        return u_FB;
+    }
+
+    public ChassisSpeeds feedbackLocked(
+            Pose2d currentPose,
+            TimedPose setpoint,
+            double kPCart,
+            double kPTheta,
+            Rotation2d thetaError) {
+        final Twist2d positionError = getErrorTwist(currentPose, setpoint);
+        m_log_position_error.log(() -> positionError);
+        ChassisSpeeds u_FB = new ChassisSpeeds(
+                kPCart * positionError.dx,
+                kPCart * positionError.dy,
+                kPTheta * thetaError.getRadians());
         m_log_u_FB.log(() -> u_FB);
         return u_FB;
     }

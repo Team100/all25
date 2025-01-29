@@ -1,5 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
+import org.team100.frc2024.Swerve.Maker;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
@@ -21,26 +22,28 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class DriveToPoseSimple extends Command implements Glassy {
     private final FieldRelativeVelocityLogger m_log_output;
-    private final SwerveModel m_goal;
+    private SwerveModel m_goal;
     private final HolonomicFieldRelativeController m_controller;
     private final SwerveDriveSubsystem m_swerve;
+    private final Maker m_maker;
 
     public DriveToPoseSimple(
             LoggerFactory parent,
-            Pose2d goal,
             HolonomicFieldRelativeController controller,
-            SwerveDriveSubsystem swerve) {
+            SwerveDriveSubsystem swerve,
+            Maker maker) {
         LoggerFactory child = parent.child(this);
         m_log_output = child.fieldRelativeVelocityLogger(Level.TRACE, "output");
         // goal is motionless at the specified pose.
-        m_goal = new SwerveModel(goal);
+        m_goal = null;
         m_controller = controller;
         m_swerve = swerve;
+        m_maker = maker;
     }
 
     @Override
     public void initialize() {
-        // ?
+        m_goal = new SwerveModel(m_maker.makeTrajectoryCommand(m_swerve::getPose));
     }
 
     @Override
