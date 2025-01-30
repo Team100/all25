@@ -9,6 +9,7 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -45,7 +46,7 @@ public class DriveInALittleSquare extends Command implements Glassy  {
     private static final double kVToleranceRad_S = 0.02;
 
     private final SwerveDriveSubsystem m_swerve;
-    private final TrapezoidProfile100 m_driveProfile;
+    private final Profile100 m_driveProfile;
 
     /** Current speed setpoint. */
     Control100 m_setpoint;

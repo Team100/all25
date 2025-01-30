@@ -12,6 +12,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -48,7 +49,7 @@ public class Rotate extends Command implements Glassy {
 
     private boolean m_finished = false;
 
-    TrapezoidProfile100 m_profile;
+    Profile100 m_profile;
     Control100 refTheta;
 
     private boolean m_steeringAligned;
