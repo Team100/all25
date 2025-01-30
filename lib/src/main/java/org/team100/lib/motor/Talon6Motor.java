@@ -53,9 +53,9 @@ public abstract class Talon6Motor implements BareMotor {
     protected final DoubleSupplier m_torque;
 
     // caching the control requests saves allocation
-    private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0);
-    private final DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0);
-    private final PositionVoltage m_PositionVoltage = new PositionVoltage(0);
+    private final VelocityVoltage m_velocityVoltage;
+    private final DutyCycleOut m_dutyCycleOut;
+    private final PositionVoltage m_positionVoltage;
 
     private final double m_supplyLimit;
 
@@ -86,6 +86,15 @@ public abstract class Talon6Motor implements BareMotor {
             double statorLimit,
             PIDConstants lowLevelVelocityConstants,
             Feedforward100 ff) {
+        m_velocityVoltage = new VelocityVoltage(0);
+        m_dutyCycleOut = new DutyCycleOut(0);
+        m_positionVoltage = new PositionVoltage(0);
+        // make control synchronous.
+        // see https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveModule.java#L210
+        m_velocityVoltage.UpdateFreqHz = 0;
+        m_dutyCycleOut.UpdateFreqHz = 0;
+        m_positionVoltage.UpdateFreqHz = 0;
+
         LoggerFactory child = parent.child(this);
         m_motor = new TalonFX(canId);
         m_ff = ff;
@@ -125,7 +134,8 @@ public abstract class Talon6Motor implements BareMotor {
         Memo.registerSignal(motorTorqueCurrent);
 
         // None of these need to refresh.
-        m_position = Memo.ofDouble(() -> BaseStatusSignal.getLatencyCompensatedValueAsDouble(motorPosition, motorVelocity));
+        m_position = Memo
+                .ofDouble(() -> BaseStatusSignal.getLatencyCompensatedValueAsDouble(motorPosition, motorVelocity));
         m_velocity = Memo.ofDouble(() -> motorVelocity.getValueAsDouble());
         m_dutyCycle = Memo.ofDouble(() -> motorDutyCycle.getValueAsDouble());
         m_error = Memo.ofDouble(() -> motorClosedLoopError.getValueAsDouble());
@@ -231,7 +241,7 @@ public abstract class Talon6Motor implements BareMotor {
         // PositionVoltage has a velocity field for kV feedforward but we use arbitrary
         // feedforward for that.
         Phoenix100.warn(() -> m_motor.setControl(
-                m_PositionVoltage
+                m_positionVoltage
                         .withPosition(motorRev)
                         .withFeedForward(kFFVolts)));
 
@@ -298,7 +308,7 @@ public abstract class Talon6Motor implements BareMotor {
         return m_velocity.getAsDouble();
     }
 
-    /** Position is latency-compensated.  Cached. */
+    /** Position is latency-compensated. Cached. */
     public double getPositionRev() {
         return m_position.getAsDouble();
     }
