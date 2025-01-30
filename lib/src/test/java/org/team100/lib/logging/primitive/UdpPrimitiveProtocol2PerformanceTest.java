@@ -1,8 +1,8 @@
 package org.team100.lib.logging.primitive;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.util.Takt;
 
-import edu.wpi.first.wpilibj.Timer;
 
 class UdpPrimitiveProtocol2PerformanceTest {
     /**
@@ -20,68 +20,68 @@ class UdpPrimitiveProtocol2PerformanceTest {
 
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putBoolean(17, true))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("boolean duration sec %.3f\n", t2 - t1);
             System.out.printf("boolean duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }
 
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putDouble(17, 1.0))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("double duration sec %.3f\n", t2 - t1);
             System.out.printf("double duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putInt(17, 1))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("int duration sec %.3f\n", t2 - t1);
             System.out.printf("int duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putDoubleArray(17, new double[] { 1.0 }))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("double[] duration sec %.3f\n", t2 - t1);
             System.out.printf("double[] duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putLong(17, 1))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("long duration sec %.3f\n", t2 - t1);
             System.out.printf("long duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }
         {
             p.clear();
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             for (int i = 0; i < ITERATIONS; ++i) {
                 if (!p.putString(17, "asdf"))
                     p.clear();
             }
-            double t2 = Timer.getFPGATimestamp();
+            double t2 = Takt.actual();
             System.out.printf("string duration sec %.3f\n", t2 - t1);
             System.out.printf("string duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         }

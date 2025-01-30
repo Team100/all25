@@ -6,15 +6,14 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motor.BareMotor;
-
-import edu.wpi.first.wpilibj.Timer;
+import org.team100.lib.util.Takt;
 
 public class SimulatedBareEncoder implements IncrementalBareEncoder {
     private final BareMotor m_motor;
 
     // accumulates.
     private double m_position = 0;
-    private double m_time = Timer.getFPGATimestamp();
+    private double m_time = Takt.get();
     private OptionalDoubleLogger m_log_position;
     private OptionalDoubleLogger m_log_velocity;
 
@@ -40,7 +39,7 @@ public class SimulatedBareEncoder implements IncrementalBareEncoder {
      */
     @Override
     public OptionalDouble getPositionRad() {
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         double dt = now - m_time;
         double m_rate = m_motor.getVelocityRad_S();
         m_position += m_rate * dt;
@@ -51,7 +50,7 @@ public class SimulatedBareEncoder implements IncrementalBareEncoder {
     @Override
     public void reset() {
         m_position = 0;
-        m_time = Timer.getFPGATimestamp();
+        m_time = Takt.get();
     }
 
     @Override

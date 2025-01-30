@@ -46,11 +46,11 @@ import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -105,7 +105,7 @@ public class RobotContainerParkingLot implements Glassy {
                 m_gyro,
                 m_modules.positions(),
                 GeometryUtil.kPoseZero,
-                Timer.getFPGATimestamp());
+                Takt.get());
         final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
         final VisionDataProvider24 visionDataProvider = new VisionDataProvider24(
                 driveLogger,

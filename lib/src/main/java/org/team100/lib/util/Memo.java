@@ -44,9 +44,7 @@ public class Memo {
         signals.add(signal);
     }
 
-    /**
-     * This should be run in Robot.robotPeriodic().
-     */
+    /** Should be run in Robot.robotPeriodic(). */
     public static void resetAll() {
         if (!signals.isEmpty())
             BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));

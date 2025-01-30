@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.team100.lib.config.Camera;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.SimulatedCamera;
 import org.team100.lib.util.ObjectPicker;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +26,6 @@ import edu.wpi.first.networktables.ValueEventData;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Listen for updates from the object-detector camera and remember them for
@@ -82,7 +81,7 @@ public class ObjectPosition24ArrayListener {
                 try {
                     synchronized (m_buf) {
                         sights = m_buf.readArray(b);
-                        latestTime = Timer.getFPGATimestamp();
+                        latestTime = Takt.get();
                     }
                 } catch (RuntimeException ex) {
                     return;
@@ -107,7 +106,7 @@ public class ObjectPosition24ArrayListener {
         update();
         switch (Identity.instance) {
             case BLANK:
-                Pose2d robotPose = m_poseSupplier.get(Timer.getFPGATimestamp()).pose();
+                Pose2d robotPose = m_poseSupplier.get(Takt.get()).pose();
                 SimulatedCamera simCamera = SimulatedCamera.getGamePieceCamera();
                 Optional<Alliance> alliance = DriverStation.getAlliance();
                 if (alliance.isEmpty())
@@ -118,7 +117,7 @@ public class ObjectPosition24ArrayListener {
                         simCamera.getOffset(),
                         rot.toArray(new Rotation3d[0]));
             default:
-                if (latestTime > Timer.getFPGATimestamp() - kMaxSightAgeS) {
+                if (latestTime > Takt.get() - kMaxSightAgeS) {
                     return objects;
                 }
                 return new ArrayList<>();
@@ -130,7 +129,7 @@ public class ObjectPosition24ArrayListener {
      */
     public Optional<Translation2d> getClosestTranslation2d() {
         update();
-        Pose2d robotPose = m_poseSupplier.get(Timer.getFPGATimestamp()).pose();
+        Pose2d robotPose = m_poseSupplier.get(Takt.get()).pose();
         return ObjectPicker.closestObject(
                 getTranslation2dArray(),
                 robotPose);

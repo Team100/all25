@@ -3,10 +3,11 @@ package org.team100.lib.indicator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.team100.lib.util.Takt;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 
 /**
@@ -60,7 +61,7 @@ public class LEDIndicator {
     /**
      * Fast flashing, 15hz.
      */
-    private static final int kFlashDurationMicrosec = 30000;
+    private static final double kFlashDurationSec = 0.03;
 
     private final AddressableLED led;
     private final AddressableLEDBuffer buffer;
@@ -119,7 +120,7 @@ public class LEDIndicator {
         if (kFlash) {
             // front depends on flashing state
             if (m_flashing) {
-                if ((RobotController.getFPGATime() / kFlashDurationMicrosec) % 2 == 0) {
+                if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
                     for (LEDStrip strip : m_frontStrips) {
                         strip.solid(buffer, Color.kBlack);
                     }

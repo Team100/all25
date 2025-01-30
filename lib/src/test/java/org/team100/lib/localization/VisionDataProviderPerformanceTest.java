@@ -12,6 +12,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -20,7 +21,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 
 class VisionDataProviderPerformanceTest {
     private static final double kDelta = 0.01;
@@ -71,7 +71,7 @@ class VisionDataProviderPerformanceTest {
 
         // run forever so i can use the profiler
         while (true)
-            vdp.estimateRobotPose(cameraSerialNumber, blips, Timer.getFPGATimestamp(), Alliance.Red);
+            vdp.estimateRobotPose(cameraSerialNumber, blips, Takt.get(), Alliance.Red);
     }
 
     @Test

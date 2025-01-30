@@ -1,7 +1,5 @@
 package org.team100.lib.motion.drivetrain;
 
-import java.lang.reflect.Field;
-
 import org.team100.lib.config.DriverSkill;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
@@ -19,13 +17,11 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Memo;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -182,7 +178,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                 m_gyro,
                 m_swerveLocal.positions(),
                 robotPose,
-                Timer.getFPGATimestamp());
+                Takt.get());
         m_stateSupplier.reset();
     }
 
@@ -247,7 +243,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
 
     /** used by the supplier */
     private SwerveModel update() {
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         // System.out.println("SwerveDriveSubsystem.update() " + now);
         m_poseEstimator.put(
                 now,

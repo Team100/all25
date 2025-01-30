@@ -9,9 +9,8 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
-
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Send logs to a log recipient via UDP.
@@ -101,7 +100,7 @@ public class UdpPrimitiveLogger implements PrimitiveLogger {
 
     /** Emits some labels and flushes all dirty values. */
     public void periodic() {
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         if (flushTime + kFlushPeriod < now) {
             flush();
             dumpLabels();

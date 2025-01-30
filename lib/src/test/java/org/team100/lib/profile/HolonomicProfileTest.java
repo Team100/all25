@@ -5,9 +5,9 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.Timer;
 
 class HolonomicProfileTest {
     private static final boolean PRINT = false;
@@ -50,11 +50,11 @@ class HolonomicProfileTest {
         SwerveModel i = new SwerveModel(new Pose2d(), new FieldRelativeVelocity(1, 0, 0));
         SwerveModel g = new SwerveModel(new Pose2d(0, 1, GeometryUtil.kRotationZero));
         int N = 1000000;
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int ii = 0; ii < N; ++ii) {
             hp.solve(i, g);
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         if (PRINT)
             System.out.printf("duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
         if (PRINT)

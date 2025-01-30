@@ -11,8 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 import org.junit.jupiter.api.Test;
-
-import edu.wpi.first.wpilibj.Timer;
+import org.team100.lib.util.Takt;
 
 /** Timing is on my desktop, real address (not localhost), no listener. */
 class UdpTest {
@@ -39,7 +38,7 @@ class UdpTest {
         DatagramSocket m_socket = new DatagramSocket();
         m_socket.setSendBufferSize(SOCKET_BUF_SIZE);
         byte[] m_bytes = new byte[PACKET_BUF_SIZE];
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             try {
                 DatagramPacket p = new DatagramPacket(m_bytes, m_bytes.length, m_addr, PORT);
@@ -48,7 +47,7 @@ class UdpTest {
                 // windows throws here, which shouldn't happen.
             }
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("1: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("1: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         m_socket.close();
@@ -65,7 +64,7 @@ class UdpTest {
         m_socket.setSendBufferSize(SOCKET_BUF_SIZE);
         m_socket.connect(m_addr, PORT);
         byte[] m_bytes = new byte[30];
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             try {
                 DatagramPacket p = new DatagramPacket(m_bytes, m_bytes.length, m_addr, PORT);
@@ -74,7 +73,7 @@ class UdpTest {
                 // windows throws here, which shouldn't happen.
             }
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("2: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("2: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         m_socket.close();
@@ -94,7 +93,7 @@ class UdpTest {
         channel.connect(sockAddr);
         byte[] m_bytes = new byte[PACKET_BUF_SIZE];
         ByteBuffer m_bb = ByteBuffer.wrap(m_bytes);
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             m_bb.rewind();
             try {
@@ -103,7 +102,7 @@ class UdpTest {
                 // windows throws here, which shouldn't happen.
             }
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("3: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("3: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         channel.close();
@@ -122,12 +121,12 @@ class UdpTest {
         InetSocketAddress sockAddr = new InetSocketAddress(m_addr, PORT);
         byte[] m_bytes = new byte[PACKET_BUF_SIZE];
         ByteBuffer m_bb = ByteBuffer.wrap(m_bytes);
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             m_bb.rewind();
             channel.send(m_bb, sockAddr);
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("4: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("4: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         channel.close();
@@ -145,12 +144,12 @@ class UdpTest {
         channel.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUF_SIZE);
         InetSocketAddress sockAddr = new InetSocketAddress(m_addr, PORT);
         ByteBuffer m_bb = ByteBuffer.allocateDirect(PACKET_BUF_SIZE);
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             m_bb.rewind();
             channel.send(m_bb, sockAddr);
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("5: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("5: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         channel.close();
@@ -169,12 +168,12 @@ class UdpTest {
         InetSocketAddress sockAddr = new InetSocketAddress(m_addr, PORT);
         channel.connect(sockAddr);
         ByteBuffer m_bb = ByteBuffer.allocateDirect(PACKET_BUF_SIZE);
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         for (int i = 0; i < N; ++i) {
             m_bb.rewind();
             channel.write(m_bb);
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         System.out.printf("6: duration sec %5.3f\n", (t1 - t0));
         System.out.printf("6: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         channel.close();

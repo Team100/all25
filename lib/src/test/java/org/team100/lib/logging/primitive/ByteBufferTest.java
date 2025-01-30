@@ -1,14 +1,13 @@
 package org.team100.lib.logging.primitive;
 
-import org.junit.jupiter.api.Test;
-
-import edu.wpi.first.wpilibj.Timer;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
+
+import org.junit.jupiter.api.Test;
+import org.team100.lib.util.Takt;
 
 /** Learning how to use ByteBuffer encoders. */
 class ByteBufferTest {
@@ -41,13 +40,13 @@ class ByteBufferTest {
         final int S = 500;
         {
             // 130 ms (!)
-            double t0 = Timer.getFPGATimestamp();
+            double t0 = Takt.actual();
             byte[] b = new byte[S];
             for (int i = 0; i < N; ++i) {
                 Arrays.fill(b, (byte) 0);
                 b[0] = (byte) 1;
             }
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             System.out.printf("array fill duration (ms) %5.1f\n", 1e3 * (t1 - t0));
             System.out.printf("array fill per op (ns)   %5.1f\n", 1e9 * (t1 - t0) / N);
 
@@ -56,37 +55,37 @@ class ByteBufferTest {
         // third case, but that's not a real effect
         {
             // 15 ms
-            double t0 = Timer.getFPGATimestamp();
+            double t0 = Takt.actual();
             for (int i = 0; i < N; ++i) {
                 byte[] b = new byte[S];
                 b[0] = (byte) 1;
             }
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             System.out.printf("new array duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
             System.out.printf("new array per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
 
         }
         {
             // 15 ms
-            double t0 = Timer.getFPGATimestamp();
+            double t0 = Takt.actual();
             for (int i = 0; i < N; ++i) {
                 byte[] b = new byte[S];
                 ByteBuffer bb = ByteBuffer.wrap(b);
                 bb.put((byte) 1);
             }
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             System.out.printf("buf wrap duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
             System.out.printf("buf wrap per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
 
         }
         {
             // 15 ms
-            double t0 = Timer.getFPGATimestamp();
+            double t0 = Takt.actual();
             for (int i = 0; i < N; ++i) {
                 ByteBuffer b = ByteBuffer.allocate(S);
                 b.put((byte) 1);
             }
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
             System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
 
@@ -95,13 +94,13 @@ class ByteBufferTest {
             // 7 seconds (!!)
             // allocateDirect is *very* slow, 700 times slower.
             // use this only for singleton buffers.
-            double t0 = Timer.getFPGATimestamp();
+            double t0 = Takt.actual();
             for (int i = 0; i < N; ++i) {
                 ByteBuffer b = ByteBuffer.allocateDirect(S);
                 b.put((byte) 1);
 
             }
-            double t1 = Timer.getFPGATimestamp();
+            double t1 = Takt.actual();
             System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
             System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
 
@@ -115,14 +114,14 @@ class ByteBufferTest {
         final int ITERATIONS = 1000000;
         final int N = 180;
         ByteBuffer bb = ByteBuffer.allocateDirect(N * 8);
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         for (int i = 0; i < ITERATIONS; ++i) {
             bb.clear();
             for (int j = 0; j < N; ++j) {
                 bb.putDouble(j, j * 8);
             }
         }
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("string duration sec %.3f\n", t2 - t1);
         System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
     }
@@ -137,7 +136,7 @@ class ByteBufferTest {
         for (int i = 0; i < N; ++i) {
             bb.putDouble(i);
         }
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         double total = 0;
         for (int i = 0; i < ITERATIONS; ++i) {
             bb.rewind();
@@ -146,7 +145,7 @@ class ByteBufferTest {
                 total += bb.getDouble();
             }
         }
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("total %f\n", total);
         System.out.printf("string duration sec %.3f\n", t2 - t1);
         System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
@@ -165,7 +164,7 @@ class ByteBufferTest {
         }
         bb.rewind();
         DoubleBuffer db = bb.asDoubleBuffer();
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         double total = 0;
         for (int i = 0; i < ITERATIONS; ++i) {
             db.rewind();
@@ -175,7 +174,7 @@ class ByteBufferTest {
             }
         }
         System.out.printf("total %f\n", total);
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("string duration sec %.3f\n", t2 - t1);
         System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
     }

@@ -16,11 +16,11 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryTimeSampler;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -69,7 +69,7 @@ public class FancyTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
-        final double now = Timer.getFPGATimestamp();
+        final double now = Takt.get();
         Pose2d currentPose = m_robotDrive.getPose();
         ChassisSpeeds currentSpeed = m_robotDrive.getChassisSpeeds();
         ChassisSpeeds output = m_controller.update(now, currentPose, currentSpeed);

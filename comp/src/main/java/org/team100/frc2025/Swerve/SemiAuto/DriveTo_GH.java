@@ -19,13 +19,13 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryTimeSampler;
+import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -144,7 +144,7 @@ public class DriveTo_GH extends Command implements Planner2025 {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        final double now = Timer.getFPGATimestamp();
+        final double now = Takt.get();
         Pose2d currentPose = m_robotDrive.getPose();
         ChassisSpeeds currentRobotRelativeSpeed = m_robotDrive.getChassisSpeeds();
 
