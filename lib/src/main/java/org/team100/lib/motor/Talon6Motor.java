@@ -10,12 +10,19 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Util;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -23,12 +30,18 @@ import edu.wpi.first.wpilibj.RobotController;
  * Superclass for TalonFX motors.
  */
 public abstract class Talon6Motor implements BareMotor {
+    // speeding up the updates is a tradeoff between latency and CAN utilization.
+    // 254 seems to think that 100 is a good compromise?
+    // see
+    // https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveDrivetrain.java#L382
+    private static final int SIGNAL_UPDATE_FREQ_HZ = 100;
     private final TalonFX m_motor;
     private final Feedforward100 m_ff;
 
     // CACHES
     // Two levels of caching here: the cotemporal cache caches the value
     // and also the supplier
+    /** position is latency-compensated. */
     protected final DoubleSupplier m_position;
     protected final DoubleSupplier m_velocity;
     protected final DoubleSupplier m_dutyCycle;
@@ -40,9 +53,9 @@ public abstract class Talon6Motor implements BareMotor {
     protected final DoubleSupplier m_torque;
 
     // caching the control requests saves allocation
-    private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0);
-    private final DutyCycleOut m_dutyCycleOut = new DutyCycleOut(0);
-    private final PositionVoltage m_PositionVoltage = new PositionVoltage(0);
+    private final VelocityVoltage m_velocityVoltage;
+    private final DutyCycleOut m_dutyCycleOut;
+    private final PositionVoltage m_positionVoltage;
 
     private final double m_supplyLimit;
 
@@ -73,6 +86,15 @@ public abstract class Talon6Motor implements BareMotor {
             double statorLimit,
             PIDConstants lowLevelVelocityConstants,
             Feedforward100 ff) {
+        m_velocityVoltage = new VelocityVoltage(0);
+        m_dutyCycleOut = new DutyCycleOut(0);
+        m_positionVoltage = new PositionVoltage(0);
+        // make control synchronous.
+        // see https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveModule.java#L210
+        m_velocityVoltage.UpdateFreqHz = 0;
+        m_dutyCycleOut.UpdateFreqHz = 0;
+        m_positionVoltage.UpdateFreqHz = 0;
+
         LoggerFactory child = parent.child(this);
         m_motor = new TalonFX(canId);
         m_ff = ff;
@@ -85,20 +107,43 @@ public abstract class Talon6Motor implements BareMotor {
         Phoenix100.currentConfig(talonFXConfigurator, supplyLimit, statorLimit);
         Phoenix100.pidConfig(talonFXConfigurator, lowLevelVelocityConstants);
 
-        Phoenix100.crash(() -> m_motor.getPosition().setUpdateFrequency(50));
-        Phoenix100.crash(() -> m_motor.getVelocity().setUpdateFrequency(50));
-        Phoenix100.crash(() -> m_motor.getTorqueCurrent().setUpdateFrequency(50));
+        Phoenix100.crash(() -> m_motor.getPosition().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
+        Phoenix100.crash(() -> m_motor.getVelocity().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
+        Phoenix100.crash(() -> m_motor.getTorqueCurrent().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
 
-        // each memo refresh calls the motor refresh method
-        m_position = Memo.ofDouble(() -> m_motor.getPosition().refresh().getValueAsDouble());
-        m_velocity = Memo.ofDouble(() -> m_motor.getVelocity().refresh().getValueAsDouble());
-        m_dutyCycle = Memo.ofDouble(() -> m_motor.getDutyCycle().refresh().getValueAsDouble());
-        m_error = Memo.ofDouble(() -> m_motor.getClosedLoopError().refresh().getValueAsDouble());
-        m_supply = Memo.ofDouble(() -> m_motor.getSupplyCurrent().refresh().getValueAsDouble());
-        m_supplyVoltage = Memo.ofDouble(() -> m_motor.getSupplyVoltage().refresh().getValueAsDouble());
-        m_stator = Memo.ofDouble(() -> m_motor.getStatorCurrent().refresh().getValueAsDouble());
-        m_temp = Memo.ofDouble(() -> m_motor.getDeviceTemp().refresh().getValueAsDouble());
-        m_torque = Memo.ofDouble(() -> m_motor.getTorqueCurrent().refresh().getValueAsDouble());
+        // Cache the status signal getters.
+        final StatusSignal<Angle> motorPosition = m_motor.getPosition();
+        final StatusSignal<AngularVelocity> motorVelocity = m_motor.getVelocity();
+        final StatusSignal<Double> motorDutyCycle = m_motor.getDutyCycle();
+        final StatusSignal<Double> motorClosedLoopError = m_motor.getClosedLoopError();
+        final StatusSignal<Current> motorSupplyCurrent = m_motor.getSupplyCurrent();
+        final StatusSignal<Voltage> motorSupplyVoltage = m_motor.getSupplyVoltage();
+        final StatusSignal<Current> motorStatorCurrent = m_motor.getStatorCurrent();
+        final StatusSignal<Temperature> motorDeviceTemp = m_motor.getDeviceTemp();
+        final StatusSignal<Current> motorTorqueCurrent = m_motor.getTorqueCurrent();
+
+        // The memoizer refreshes all the signals at once.
+        Memo.registerSignal(motorPosition);
+        Memo.registerSignal(motorVelocity);
+        Memo.registerSignal(motorDutyCycle);
+        Memo.registerSignal(motorClosedLoopError);
+        Memo.registerSignal(motorSupplyCurrent);
+        Memo.registerSignal(motorSupplyVoltage);
+        Memo.registerSignal(motorStatorCurrent);
+        Memo.registerSignal(motorDeviceTemp);
+        Memo.registerSignal(motorTorqueCurrent);
+
+        // None of these need to refresh.
+        m_position = Memo
+                .ofDouble(() -> BaseStatusSignal.getLatencyCompensatedValueAsDouble(motorPosition, motorVelocity));
+        m_velocity = Memo.ofDouble(() -> motorVelocity.getValueAsDouble());
+        m_dutyCycle = Memo.ofDouble(() -> motorDutyCycle.getValueAsDouble());
+        m_error = Memo.ofDouble(() -> motorClosedLoopError.getValueAsDouble());
+        m_supply = Memo.ofDouble(() -> motorSupplyCurrent.getValueAsDouble());
+        m_supplyVoltage = Memo.ofDouble(() -> motorSupplyVoltage.getValueAsDouble());
+        m_stator = Memo.ofDouble(() -> motorStatorCurrent.getValueAsDouble());
+        m_temp = Memo.ofDouble(() -> motorDeviceTemp.getValueAsDouble());
+        m_torque = Memo.ofDouble(() -> motorTorqueCurrent.getValueAsDouble());
 
         m_log_desired_duty = child.doubleLogger(Level.TRACE, "desired duty cycle [-1,1]");
         m_log_desired_position = child.doubleLogger(Level.DEBUG, "desired position (rev)");
@@ -196,7 +241,7 @@ public abstract class Talon6Motor implements BareMotor {
         // PositionVoltage has a velocity field for kV feedforward but we use arbitrary
         // feedforward for that.
         Phoenix100.warn(() -> m_motor.setControl(
-                m_PositionVoltage
+                m_positionVoltage
                         .withPosition(motorRev)
                         .withFeedForward(kFFVolts)));
 
@@ -263,7 +308,7 @@ public abstract class Talon6Motor implements BareMotor {
         return m_velocity.getAsDouble();
     }
 
-    /** Cached. */
+    /** Position is latency-compensated. Cached. */
     public double getPositionRev() {
         return m_position.getAsDouble();
     }
@@ -284,10 +329,10 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_torque.log(this::getMotorTorque);
         m_log_temp.log(m_temp);
         // if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
-        //     Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
-        //             m_motor.getDeviceID(),
-        //             m_supplyVoltage.getAsDouble(),
-        //             RobotController.getBatteryVoltage());
+        // Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
+        // m_motor.getDeviceID(),
+        // m_supplyVoltage.getAsDouble(),
+        // RobotController.getBatteryVoltage());
     }
 
     private double getMotorTorque() {

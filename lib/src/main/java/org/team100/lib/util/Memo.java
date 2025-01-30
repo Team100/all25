@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+
 /**
  * Cache a supplier until reset().
  * 
@@ -20,6 +22,7 @@ import java.util.function.Supplier;
  */
 public class Memo {
     private static final List<Runnable> resetters = new ArrayList<>();
+    private static final List<BaseStatusSignal> signals = new ArrayList<>();
 
     public static <T> CotemporalCache<T> of(Supplier<T> delegate) {
         CotemporalCache<T> cache = new CotemporalCache<>(delegate);
@@ -34,9 +37,19 @@ public class Memo {
     }
 
     /**
+     * There's a "resetter" that calls CTRE's refreshAll; add the supplied signal to
+     * the list in the refresh.
+     */
+    public static void registerSignal(BaseStatusSignal signal) {
+        signals.add(signal);
+    }
+
+    /**
      * This should be run in Robot.robotPeriodic().
      */
     public static void resetAll() {
+        if (!signals.isEmpty())
+            BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
         for (Runnable r : resetters) {
             r.run();
         }
@@ -56,7 +69,7 @@ public class Memo {
             // synchronized adds ~20ns.
             if (m_value == null)
                 m_value = m_delegate.get();
-                
+
             return m_value;
         }
 
