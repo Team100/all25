@@ -2,14 +2,13 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.util.Util;
-
-import edu.wpi.first.wpilibj.Timer;
 
 public class OutboardLinearVelocityServo implements LinearVelocityServo {
     private final LinearMechanism m_mechanism;
@@ -21,7 +20,6 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
 
     // for calculating acceleration
     private double previousSetpoint = 0;
-    private double prevTime;
     private double m_setpoint;
 
     public OutboardLinearVelocityServo(LoggerFactory parent, LinearMechanism mechanism) {
@@ -37,7 +35,6 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
     public void reset() {
         Util.warn("make sure resetting encoder position doesn't break anything");
         m_mechanism.resetEncoderPosition();
-        prevTime = Timer.getFPGATimestamp();
     }
 
     @Override
@@ -89,17 +86,16 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
     ////////////////////////////////////////////////
 
     /**
-     * there will be some jitter in dt, which will result in a small amount of
-     * jitter in acceleration, and since this is a trailing difference there will be
-     * a tiny bit of delay, compared to the actual profile. If this is
-     * a problem, rewrite the profile class to expose the acceleration state and use
-     * that instead.
+     * Acceleration from trailing difference in velocity.
+     * 
+     * To avoid injecting clock noise into the acceleration signal, this uses
+     * a constant dt, TimedRobot100.LOOP_PERIOD_S, so you'd better be calling this
+     * at about that rate.
+     * 
+     * @param setpoint desired velocity
      */
     private double accel(double setpoint) {
-        double now = Timer.getFPGATimestamp();
-        double dt = now - prevTime;
-        prevTime = now;
-        double accel = (setpoint - previousSetpoint) / dt;
+        double accel = (setpoint - previousSetpoint) / TimedRobot100.LOOP_PERIOD_S;
         previousSetpoint = setpoint;
         return accel;
     }
