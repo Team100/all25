@@ -15,10 +15,19 @@ import org.team100.lib.dashboard.Glassy;
 public interface LinearVelocityServo extends Glassy {
     void reset();
 
-    /** meters/sec */
+    /**
+     * Set velocity and compute implied acceleration based on the previous call,
+     * using TimedRobot100.LOOP_PERIOD_S.  If you call this more often, you'll
+     * get weird results.
+     * 
+     * @param setpointM_S desired speed, m/s
+     */
     void setVelocityM_S(double setpointM_S);
 
-    /** meters/sec meters/sec_2 */
+    /**
+     * @param setpoint   desired speed, m/s
+     * @param setpoint_2 desired acceleration m/s^2
+     */
     void setVelocity(double setpoint, double setpoint_2);
 
     /** meters/sec. Note this can be noisy, maybe filter it. */
