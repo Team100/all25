@@ -55,12 +55,17 @@ class RealDisplay(Display):
 
         (c_x, c_y) = (int(tag.getCenter().x), int(tag.getCenter().y))
         circle(image, (c_x, c_y), 10, WHITE, -1)
+        # this is for lens calibration
+        self.text(
+            image,
+            f"cx:{c_x:4.1f} cy:{c_y:4.1f}",
+            (5, 140),
+        )
 
         tag_id = tag.getId()
         self.text(image, f"id {tag_id}", (c_x, c_y))
 
         # type the translation into the image, in WPI coords (x-forward)
-
         t = pose.translation()
         self.text(
             image,
