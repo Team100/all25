@@ -28,8 +28,7 @@ class GravityServoTest implements Timeless2024 {
 
     @Test
     void testSetPosition() {
-        double period = 0.02;
-        PIDController pivotController = new PIDController(4.5, 0.0, 0.000, period);
+        PIDController pivotController = new PIDController(4.5, 0.0, 0.000);
         Profile100 profile = new TrapezoidProfile100(8, 8, 0.001);
         // motor speed is rad/s
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
