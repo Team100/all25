@@ -17,7 +17,7 @@ class OscillateDirectTest extends RealisticFixtured implements Timeless {
         assertEquals(0, fixture.drive.getState().x().x(), kDelta);
 
         // half wave is 2 seconds
-        for (int i = 0; i < 101; ++i) {
+        for (int i = 0; i < 100; ++i) {
             stepTime(0.02);
             od.execute();
             fixture.drive.periodic();

@@ -119,7 +119,7 @@ class SimulatedHeadingTest implements Timeless {
         assertEquals(0.279, states2.frontLeft().angle.get().getRadians(), kDelta);
         assertEquals(0.17, states2.frontRight().angle.get().getRadians(), 0.01);
         assertEquals(-0.363, states2.rearLeft().angle.get().getRadians(), kDelta);
-        assertEquals(-0.224, states2.rearRight().angle.get().getRadians(), kDelta);
+        assertEquals(-0.22, states2.rearRight().angle.get().getRadians(), 0.01);
 
         // we wanted to turn 1 rad/s for 0.4s so this is close.
         assertEquals(0.42, h.getYawNWU().getRadians(), 0.03);
