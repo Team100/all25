@@ -15,6 +15,7 @@ public interface Timeless2024 {
     default void pauseTiming() {
         HAL.initialize(500, 0);
         SimHooks.pauseTiming();
+        Takt.update();
     }
 
     @AfterEach
@@ -27,7 +28,6 @@ public interface Timeless2024 {
         SimHooks.stepTiming(t);
         Takt.update();
         Memo.resetAll();
-        Memo.updateAll();
     }
 
 }
