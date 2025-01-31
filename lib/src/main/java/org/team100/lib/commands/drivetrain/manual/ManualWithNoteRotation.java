@@ -166,12 +166,12 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
         double thetaFB = m_thetaController.calculate(yaw, m_thetaSetpoint.x());
         m_log_theta_setpoint.log(() -> m_thetaSetpoint);
         m_log_theta_measurement.log(() -> yaw);
-        m_log_theta_error.log(m_thetaController::getPositionError);
+        m_log_theta_error.log(m_thetaController::getError);
         m_log_theta_FB.log(() -> thetaFB);
         double omegaFB = m_omegaController.calculate(yawRate, m_thetaSetpoint.v());
         m_log_omega_reference.log(() -> m_thetaSetpoint.model());
         m_log_omega_measurement.log(() -> yawRate);
-        m_log_omega_error.log(m_omegaController::getPositionError);
+        m_log_omega_error.log(m_omegaController::getError);
         m_log_omega_FB.log(() -> omegaFB);
 
         double omega = MathUtil.clamp(

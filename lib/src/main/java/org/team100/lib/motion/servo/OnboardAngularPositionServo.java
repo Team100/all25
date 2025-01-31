@@ -183,8 +183,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(m_controller::getPositionError);
-        m_log_velocity_error.log(m_controller::getVelocityError);
+        m_log_error.log(m_controller::getError);
+        m_log_velocity_error.log(m_controller::getErrorDerivative);
     }
 
     @Override

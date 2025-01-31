@@ -159,13 +159,13 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
         double thetaFB = m_thetaController.calculate(measurement, m_thetaSetpoint.x());
         m_log_theta_setpoint.log(() -> m_thetaSetpoint);
         m_log_theta_measurement.log(() -> measurement);
-        m_log_theta_error.log(m_thetaController::getPositionError);
+        m_log_theta_error.log(m_thetaController::getError);
         m_log_theta_FB.log(() -> thetaFB);
 
         double omegaFB = m_omegaController.calculate(headingRate, m_thetaSetpoint.v());
         m_log_omega_reference.log(() -> m_thetaSetpoint.model());
         m_log_omega_measurement.log(() -> headingRate);
-        m_log_omega_error.log(m_omegaController::getPositionError);
+        m_log_omega_error.log(m_omegaController::getError);
         m_log_omega_FB.log(() -> omegaFB);
 
         double omega = MathUtil.clamp(
