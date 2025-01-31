@@ -31,8 +31,8 @@ class ArmSubsystemTest implements Timeless {
         }
 
         // how far did it spin?
-        assertEquals(0.65, armSubSystem.getPosition().get().th1, 0.01);
-        assertEquals(0.65, armSubSystem.getPosition().get().th2, 0.01);
+        assertEquals(0.66, armSubSystem.getPosition().get().th1, 0.01);
+        assertEquals(0.66, armSubSystem.getPosition().get().th2, 0.01);
 
         armSubSystem.close();
     }

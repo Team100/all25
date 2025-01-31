@@ -8,10 +8,11 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -23,8 +24,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.RobotController;
 
 /**
  * Superclass for TalonFX motors.
@@ -90,7 +89,8 @@ public abstract class Talon6Motor implements BareMotor {
         m_dutyCycleOut = new DutyCycleOut(0);
         m_positionVoltage = new PositionVoltage(0);
         // make control synchronous.
-        // see https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveModule.java#L210
+        // see
+        // https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveModule.java#L210
         m_velocityVoltage.UpdateFreqHz = 0;
         m_dutyCycleOut.UpdateFreqHz = 0;
         m_positionVoltage.UpdateFreqHz = 0;
@@ -134,8 +134,16 @@ public abstract class Talon6Motor implements BareMotor {
         Memo.registerSignal(motorTorqueCurrent);
 
         // None of these need to refresh.
+        // this latency compensation uses takt time rather than the real clock.
         m_position = Memo
-                .ofDouble(() -> BaseStatusSignal.getLatencyCompensatedValueAsDouble(motorPosition, motorVelocity));
+                .ofDouble(() -> {
+                    double latency = Utils.fpgaToCurrentTime(Takt.get()) - motorPosition.getTimestamp().getTime();
+                    if (latency > 0.1) {
+                        Util.warn("!!!!!!! stale position! !!!!!!!");
+                        latency = 0.1;
+                    }
+                    return motorPosition.getValueAsDouble() + (motorVelocity.getValueAsDouble() * latency);
+                });
         m_velocity = Memo.ofDouble(() -> motorVelocity.getValueAsDouble());
         m_dutyCycle = Memo.ofDouble(() -> motorDutyCycle.getValueAsDouble());
         m_error = Memo.ofDouble(() -> motorClosedLoopError.getValueAsDouble());
