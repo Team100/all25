@@ -37,6 +37,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         OptionalDouble velocityRad_S = m_mechanism.getVelocityRad_S();
         if (velocityRad_S.isEmpty())
             return OptionalDouble.empty();
+        System.out.println("velocity " + velocityRad_S);
         m_positionRad += velocityRad_S.getAsDouble() * dtS;
         m_positionRad = MathUtil.angleModulus(m_positionRad);
         m_timeS = nowS;
