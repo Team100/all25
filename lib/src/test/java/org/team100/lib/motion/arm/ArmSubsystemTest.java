@@ -21,9 +21,9 @@ class ArmSubsystemTest implements Timeless {
         assertEquals(0, armSubSystem.getPosition().get().th2, kDelta);
 
         for (int i = 0; i < 100; ++i) {
+            armSubSystem.set(1, 1);
             stepTime(0.02);
             // since i took out the limits this just spins
-            armSubSystem.set(1, 1);
             // you have to call getPosition on the simulated sensor for it to do the integraiton.
             armSubSystem.getPosition();
             ArmAngles angles = armSubSystem.getPosition().get();

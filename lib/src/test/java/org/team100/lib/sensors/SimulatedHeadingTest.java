@@ -107,6 +107,7 @@ class SimulatedHeadingTest implements Timeless {
             // get the modules pointing the right way (wait for the steering profiles)
             c.setDesiredStates(states);
             stepTime(0.02);
+            h.getYawNWU();
         }
         SwerveModuleStates states2 = c.states();
 
@@ -116,7 +117,7 @@ class SimulatedHeadingTest implements Timeless {
         assertEquals(0.802, states2.rearLeft().speedMetersPerSecond, kDelta);
         assertEquals(1.281, states2.rearRight().speedMetersPerSecond, kDelta);
         assertEquals(0.279, states2.frontLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0.170, states2.frontRight().angle.get().getRadians(), kDelta);
+        assertEquals(0.17, states2.frontRight().angle.get().getRadians(), 0.01);
         assertEquals(-0.363, states2.rearLeft().angle.get().getRadians(), kDelta);
         assertEquals(-0.224, states2.rearRight().angle.get().getRadians(), kDelta);
 

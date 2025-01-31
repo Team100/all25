@@ -34,6 +34,7 @@ public class SimulatedGyro implements Gyro {
         double now = Takt.get();
         double dt = now - m_time;
         m_heading += speeds.omegaRadiansPerSecond * dt;
+        // System.out.println(m_heading);
         m_time = now;
         return new Rotation2d(m_heading);
     }
