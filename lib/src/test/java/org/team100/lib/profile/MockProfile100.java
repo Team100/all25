@@ -19,4 +19,9 @@ public class MockProfile100 implements Profile100 {
         return new ResultWithETA(result, eta);
     }
 
+    @Override
+    public MockProfile100 scale(double s) {
+        return this;
+    }
+
 }
