@@ -16,6 +16,7 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.util.DriveUtil;
+import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -92,7 +93,7 @@ public class DriveToWaypoint100 extends Command implements Glassy {
 
     @Override
     public void execute() {
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         Pose2d currentPose = m_swerve.getPose();
         ChassisSpeeds currentSpeed = m_swerve.getChassisSpeeds();
         ChassisSpeeds output = m_controller.update(now, currentPose, currentSpeed);

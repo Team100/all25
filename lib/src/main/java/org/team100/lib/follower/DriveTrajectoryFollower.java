@@ -16,7 +16,7 @@ public interface DriveTrajectoryFollower extends Glassy {
     /**
      * Makes no attempt to enforce feasibility.
      * 
-     * @param timestamp        in seconds, use Timer.getFPGATimestamp()
+     * @param timestamp        in seconds, use Takt.get()
      * @param measurement      measured pose
      * @param current_velocity measured robot-relative speed, this should be
      *                         obtained from drivetrain.speeds().

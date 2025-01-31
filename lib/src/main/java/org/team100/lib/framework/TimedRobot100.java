@@ -1,20 +1,20 @@
 package org.team100.lib.framework;
 
-import edu.wpi.first.hal.DriverStationJNI;
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.wpilibj.IterativeRobotBase;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.hal.NotifierJNI;
-
 import java.util.PriorityQueue;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
-import org.team100.lib.logging.Logging;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.logging.Logging;
+import org.team100.lib.util.Takt;
+
+import edu.wpi.first.hal.DriverStationJNI;
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.HAL;
+import edu.wpi.first.hal.NotifierJNI;
+import edu.wpi.first.wpilibj.IterativeRobotBase;
 
 /**
  * Copy of {@link edu.wpi.first.wpilibj.TimedRobot} in an effort to improve
@@ -44,7 +44,7 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
             this.period = periodSeconds;
             this.expirationTime = startTimeSeconds
                     + offsetSeconds
-                    + Math.floor((Timer.getFPGATimestamp() - startTimeSeconds) / this.period)
+                    + Math.floor((Takt.actual() - startTimeSeconds) / this.period)
                             * this.period
                     + this.period;
             this.logger = logger.doubleLogger(Level.COMP, "duration (s)/" + name);
@@ -52,9 +52,9 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
 
         public void run() {
 
-            double startWaitingS = Timer.getFPGATimestamp();
+            double startWaitingS = Takt.actual();
             func.run();
-            double endWaitingS = Timer.getFPGATimestamp();
+            double endWaitingS = Takt.actual();
             double durationS = endWaitingS - startWaitingS;
             this.logger.log(() -> durationS);
 
@@ -104,7 +104,7 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
         super(LOOP_PERIOD_S);
         m_robotLogger = Logging.instance().rootLogger.child(this);
         m_log_slack = m_robotLogger.doubleLogger(Level.COMP, "slack time (s)");
-        m_startTime = Timer.getFPGATimestamp();
+        m_startTime = Takt.actual();
         addPeriodic(this::loopFunc, TimedRobot100.LOOP_PERIOD_S, "main loop");
         NotifierJNI.setNotifierName(m_notifier, "TimedRobot");
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_Timed);
@@ -139,13 +139,13 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
             NotifierJNI.updateNotifierAlarm(m_notifier, (long) (callback.expirationTime * 1e6));
 
             // how long do we spend waiting?
-            double startWaitingS = Timer.getFPGATimestamp();
+            double startWaitingS = Takt.actual();
             long curTime = NotifierJNI.waitForNotifierAlarm(m_notifier);
             if (curTime == 0) {
                 // someone called StopNotifier
                 break;
             }
-            double endWaitingS = Timer.getFPGATimestamp();
+            double endWaitingS = Takt.actual();
             double slackS = endWaitingS - startWaitingS;
             // this is the main loop slack, don't let it go to zero!
             m_log_slack.log(() -> slackS);

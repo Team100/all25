@@ -8,13 +8,14 @@ import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.JvmLogger;
 import org.team100.lib.logging.Level;
-import org.team100.lib.logging.Logging;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.IntLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.logging.Logging;
 import org.team100.lib.util.Memo;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -53,6 +54,11 @@ public class Robot extends TimedRobot100 {
         m_jvmLogger = new JvmLogger(m_robotLogger);
     }
 
+    ///////////////////////////////////////////////////////////////////////
+    //
+    // RobotInit is called once by TimedRobot.startCompetition.
+    //
+
     @Override
     public void robotInit() {
         Util.printf("WPILib Version: %s\n", WPILibVersion.Version); // 2023.2.1
@@ -90,15 +96,27 @@ public class Robot extends TimedRobot100 {
     /**
      * robotPeriodic is called in the IterativeRobotBase.loopFunc, which is what the
      * TimedRobot runs in the main loop.
+     * 
+     * This is what should do all the work.
      */
     @Override
     public void robotPeriodic() {
+        // Advance the drumbeat.
+        Takt.update();
+
         // Cache instances hold measurements that we want to keep consistent
         // for an entire cycle, but that we want to forget between cycles, so we
         // reset them all here.
         Memo.resetAll();
+
+        // After the clock is advanced, it would be good to make as many observations as
+        // possible, so the times of those observations are as close to the interrupt
+        // time as possible.  This might yield a whole lot of work, though.
+        Memo.updateAll();
+
         CommandScheduler.getInstance().run();
-        // TODO(dmontauk): why do we separate things between Robot and RobotContainer? What is the logical separation?
+        // TODO(dmontauk): why do we separate things between Robot and RobotContainer?
+        // What is the logical separation?
         m_robotContainer.periodic();
 
         m_log_ds_MatchTime.log(DriverStation::getMatchTime);
@@ -118,14 +136,19 @@ public class Robot extends TimedRobot100 {
         }
     }
 
+    //////////////////////////////////////////////////////////////////////
+    //
+    // Exits are called first when mode changes
+    //
     @Override
-    public void disabledPeriodic() {
-        m_log_mode.log(() -> "disabled");
-        int keyListSize = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
-        m_log_key_list_size.log(() -> keyListSize);
-        // this forces the static initializer to run, so that the widget appears.
-        // m_log_active_auton_routine.log(() -> AutonChooser.routine().name());
+    public void testExit() {
+        clearCommands();
     }
+
+    //////////////////////////////////////////////////////////////////////
+    //
+    // Inits are called on mode change, after exiting the previous mode.
+    //
 
     @Override
     public void autonomousInit() {
@@ -148,30 +171,23 @@ public class Robot extends TimedRobot100 {
         clearCommands();
     }
 
-    @Override
-    public void testExit() {
-        clearCommands();
-    }
-
-    private void clearCommands() {
-        CommandScheduler.getInstance().cancelAll();
-        CommandScheduler.getInstance().clearComposedCommands();
-    }
+    ///////////////////////////////////////////////////////////////////////
+    //
+    // Mode-specific periodics should do nothing, to avoid caching anything.
+    //
 
     @Override
-    public void close() {
-        super.close();
-        m_robotContainer.close();
+    public void disabledPeriodic() {
+        m_log_mode.log(() -> "disabled");
+        int keyListSize = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
+        m_log_key_list_size.log(() -> keyListSize);
+        // this forces the static initializer to run, so that the widget appears.
+        // m_log_active_auton_routine.log(() -> AutonChooser.routine().name());
     }
 
     @Override
     public void autonomousPeriodic() {
         m_log_mode.log(() -> "autonomous");
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        //
     }
 
     @Override
@@ -185,9 +201,37 @@ public class Robot extends TimedRobot100 {
         m_log_mode.log(() -> "test");
     }
 
+    //////////////////////////////////////////////////////////////////////
+    //
+    // Simulation init is called once right after RobotInit.
+    //
+
     @Override
     public void simulationInit() {
         DriverStation.silenceJoystickConnectionWarning(true);
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    //
+    // Simulation periodic is called after everything else; leave it empty.
+    //
+
+    @Override
+    public void simulationPeriodic() {
+        //
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        m_robotContainer.close();
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+
+    private void clearCommands() {
+        CommandScheduler.getInstance().cancelAll();
+        CommandScheduler.getInstance().clearComposedCommands();
     }
 
     private void banner() {

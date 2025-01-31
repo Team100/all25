@@ -17,6 +17,7 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.util.DriveUtil;
+import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,7 +25,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -95,7 +95,7 @@ public class DriveToState101 extends Command implements Glassy {
 
     @Override
     public void execute() {
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         Pose2d currentPose = m_swerve.getPose();
         ChassisSpeeds currentSpeed = m_swerve.getChassisSpeeds();
         ChassisSpeeds output = m_controller.update(now, currentPose, currentSpeed);

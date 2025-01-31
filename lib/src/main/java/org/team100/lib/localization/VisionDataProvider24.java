@@ -12,6 +12,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -28,7 +29,6 @@ import edu.wpi.first.networktables.ValueEventData;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.RobotController;
 
 /**
  * Extracts robot pose estimates from camera input.
@@ -81,7 +81,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
     // reuse the buffer since it takes some time to make
     private StructBuffer<Blip24> m_buf = StructBuffer.create(Blip24.struct);
 
-    private long latestTimeUs = 0;
+    private double latestTimeSec = 0;
 
     /**
      * @param layout
@@ -110,9 +110,9 @@ public class VisionDataProvider24 implements VisionData, Glassy {
      * The age of the last pose estimate, in microseconds.
      * The caller could use this to, say, indicate tag visibility.
      */
-    public long getPoseAgeUs() {
-        long nowUs = RobotController.getFPGATime();
-        return nowUs - latestTimeUs;
+    public double getPoseAgeSec() {
+        double now = Takt.get();
+        return now - latestTimeSec;
     }
 
     public void update() {
@@ -227,7 +227,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 if (distanceM <= kVisionChangeToleranceMeters) {
                     // this hard limit excludes false positives, which were a bigger problem in 2023
                     // due to the coarse tag family used. in 2024 this might not be an issue.
-                    latestTimeUs = RobotController.getFPGATime();
+                    latestTimeSec = Takt.get();
                     m_poseEstimator.put(
                             frameTimeSec,
                             currentRobotinFieldCoords,

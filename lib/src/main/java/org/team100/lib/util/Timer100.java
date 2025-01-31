@@ -1,7 +1,5 @@
 package org.team100.lib.util;
 
-import edu.wpi.first.wpilibj.RobotController;
-
 /**
  * This exists because the WPI Timer class does not provide access to the
  * "running" field, which is just beyond.
@@ -74,6 +72,6 @@ public class Timer100 {
     //////////////////////////////////
 
     private double getMsClock() {
-        return RobotController.getFPGATime() / 1000.0;
+        return Takt.get() / 1000.0;
     }
 }

@@ -22,17 +22,20 @@ import com.ctre.phoenix6.BaseStatusSignal;
  */
 public class Memo {
     private static final List<Runnable> resetters = new ArrayList<>();
+    private static final List<Runnable> updaters = new ArrayList<>();
     private static final List<BaseStatusSignal> signals = new ArrayList<>();
 
     public static <T> CotemporalCache<T> of(Supplier<T> delegate) {
         CotemporalCache<T> cache = new CotemporalCache<>(delegate);
         resetters.add(cache::reset);
+        updaters.add(cache::get);
         return cache;
     }
 
     public static DoubleCache ofDouble(DoubleSupplier delegate) {
         DoubleCache cache = new DoubleCache(delegate);
         resetters.add(cache::reset);
+        updaters.add(cache::getAsDouble);
         return cache;
     }
 
@@ -44,13 +47,17 @@ public class Memo {
         signals.add(signal);
     }
 
-    /**
-     * This should be run in Robot.robotPeriodic().
-     */
+    /** Should be run in Robot.robotPeriodic(). */
     public static void resetAll() {
         if (!signals.isEmpty())
             BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
         for (Runnable r : resetters) {
+            r.run();
+        }
+    }
+
+    public static void updateAll() {
+        for (Runnable r : updaters) {
             r.run();
         }
     }

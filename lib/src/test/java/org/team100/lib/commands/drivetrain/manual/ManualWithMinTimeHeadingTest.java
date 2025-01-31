@@ -19,6 +19,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -338,7 +339,7 @@ class ManualWithMinTimeHeadingTest {
         double kRotationSpeed = 0.5;
         assertEquals(1.414, swerveKinodynamics.getMaxAngleSpeedRad_S() * kRotationSpeed, kDelta);
         assertEquals(4.243, swerveKinodynamics.getMaxAngleAccelRad_S2() * kRotationSpeed, kDelta);
-        TrapezoidProfile100 m_profile = new TrapezoidProfile100(
+        Profile100 m_profile = new TrapezoidProfile100(
                 2.829,
                 4.2,
                 0.01);

@@ -7,9 +7,9 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Timer;
 
 public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final RotaryMechanism m_mechanism;
@@ -18,7 +18,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final OptionalDoubleLogger m_log_rate;
 
     private double m_positionRad = 0;
-    private double m_timeS = Timer.getFPGATimestamp();
+    private double m_timeS = Takt.get();
 
     public SimulatedRotaryPositionSensor(
             LoggerFactory parent,
@@ -31,7 +31,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
 
     @Override
     public OptionalDouble getPositionRad() {
-        double nowS = Timer.getFPGATimestamp();
+        double nowS = Takt.get();
         double dtS = nowS - m_timeS;
         // motor velocity is rad/s
         OptionalDouble velocityRad_S = m_mechanism.getVelocityRad_S();

@@ -1,6 +1,7 @@
 package org.team100.lib.sensors;
 
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,7 +23,7 @@ public class LSM6DSOXGyro implements Gyro {
 
     public LSM6DSOXGyro() {
         m_gyro = new LSM6DSOX_I2C();
-        previousTimeSec = Timer.getFPGATimestamp();
+        previousTimeSec = Takt.get();
     }
 
     /** mirrors real_gyro.py */
@@ -32,7 +33,7 @@ public class LSM6DSOXGyro implements Gyro {
         if (prevRateRad_S == null) {
             prevRateRad_S = yawRateRadS;
         }
-        double endTimeS = Timer.getFPGATimestamp();
+        double endTimeS = Takt.get();
         double durationS = endTimeS - previousTimeSec;
         previousTimeSec = endTimeS;
         // use the midpoint rule Riemann sum

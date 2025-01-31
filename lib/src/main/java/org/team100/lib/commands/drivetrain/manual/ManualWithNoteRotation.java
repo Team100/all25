@@ -18,6 +18,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.DriveUtil;
@@ -53,7 +54,7 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
     private final Supplier<Optional<Translation2d>> m_target;
     private final PIDController m_thetaController;
     private final PIDController m_omegaController;
-    private final TrapezoidProfile100 m_profile;
+    private final Profile100 m_profile;
     private final BooleanSupplier m_trigger;
 
     private final DoubleLogger m_log_apparent_motion;

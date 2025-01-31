@@ -1,14 +1,12 @@
 package org.team100.lib.util;
 
-import edu.wpi.first.wpilibj.Timer;
-
 /**
  * Use this for measurements that include timestamps.
  * 
  * Network Tables uses a time basis of FPGA microseconds, which can be found at
- * RobotController.getFPGATime().
+ * Takt.get().
  * 
- * We standardize on seconds, which can be found at Timer.getFPGATimestamp().
+ * We standardize on seconds, which can be found at Takt.get().
  * 
  * @see https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-intro.html#timestamps
  */
@@ -25,7 +23,7 @@ public class TimestampedDouble {
     /** use the current time */
     public TimestampedDouble(double value) {
         m_value = value;
-        m_timeS = Timer.getFPGATimestamp();
+        m_timeS = Takt.get();
     }
 
     public double getValue() {

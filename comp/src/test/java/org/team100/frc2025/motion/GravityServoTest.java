@@ -15,6 +15,7 @@ import org.team100.lib.motion.servo.GravityServoInterface;
 
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -29,7 +30,7 @@ class GravityServoTest implements Timeless2024 {
     void testSetPosition() {
         double period = 0.02;
         PIDController pivotController = new PIDController(4.5, 0.0, 0.000, period);
-        TrapezoidProfile100 profile = new TrapezoidProfile100(8, 8, 0.001);
+        Profile100 profile = new TrapezoidProfile100(8, 8, 0.001);
         // motor speed is rad/s
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
         RotaryMechanism simMech = new SimpleRotaryMechanism(

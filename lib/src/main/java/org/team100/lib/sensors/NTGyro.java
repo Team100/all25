@@ -2,6 +2,7 @@ package org.team100.lib.sensors;
 
 import java.util.EnumSet;
 
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.TimestampedDouble;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,7 +12,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableListenerPoller;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.ValueEventData;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Gyro data from network tables.
@@ -52,7 +52,7 @@ public class NTGyro implements Gyro {
     public Rotation2d getYawNWU() {
         update();
         // extrapolate to now, assuming the rate is current
-        double nowS = Timer.getFPGATimestamp();
+        double nowS = Takt.get();
         double dtS = nowS - m_yaw.getTimeS();
         double dYaw = m_yawRate.getValue() * dtS;
         double nowYaw = m_yaw.getValue() + dYaw;

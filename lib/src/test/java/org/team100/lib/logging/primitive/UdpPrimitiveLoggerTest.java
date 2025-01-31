@@ -19,8 +19,7 @@ import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveBooleanLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveIntLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveStringLogger;
-
-import edu.wpi.first.wpilibj.Timer;
+import org.team100.lib.util.Takt;
 
 class UdpPrimitiveLoggerTest {
 
@@ -183,7 +182,7 @@ class UdpPrimitiveLoggerTest {
         UdpPrimitiveLogger udpLogger = new UdpPrimitiveLogger(x -> bb = x, x -> mb = x);
         LoggerFactory logger = new LoggerFactory(() -> Level.COMP, "root", udpLogger);
 
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         final double interval = 0.02;
         final double total_time = 2;
         final int keys = 5000;
@@ -193,9 +192,9 @@ class UdpPrimitiveLoggerTest {
             loggers[j] = logger.doubleLogger(Level.COMP, "doublekey" + j);
         }
         System.out.println("expected keys per second: " + expected_keys_per_sec);
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         for (int i = 0; i < (total_time / interval); ++i) {
-            double d = Timer.getFPGATimestamp() - t0;
+            double d = Takt.actual() - t0;
             double dt = interval - (d % interval);
             Thread.sleep((long) (dt * 1000) + 1);
             for (int j = 0; j < keys; ++j) {
@@ -204,7 +203,7 @@ class UdpPrimitiveLoggerTest {
             }
             udpLogger.flush();
         }
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("et %.3f\n", t2 - t1);
     }
 
@@ -224,7 +223,7 @@ class UdpPrimitiveLoggerTest {
                 new UdpSender(UdpSender.kmetadataPort));
         LoggerFactory logger = new LoggerFactory(() -> Level.COMP, "root", udpLogger);
 
-        double t0 = Timer.getFPGATimestamp();
+        double t0 = Takt.actual();
         final double interval = 0.02;
         // final double total_time = 10;
         final double total_time = 1;
@@ -238,9 +237,9 @@ class UdpPrimitiveLoggerTest {
         }
 
         udpLogger.sendAllLabels();
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         for (int i = 0; i < ITERATIONS; ++i) {
-            double d = Timer.getFPGATimestamp() - t0;
+            double d = Takt.actual() - t0;
             double dt = interval - (d % interval);
             Thread.sleep((long) (dt * 1000) + 1);
             for (int j = 0; j < KEYS; ++j) {
@@ -249,7 +248,7 @@ class UdpPrimitiveLoggerTest {
             }
             udpLogger.flush();
         }
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("duration sec %.3f\n", t2 - t1);
         System.out.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         System.out.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
@@ -287,7 +286,7 @@ class UdpPrimitiveLoggerTest {
         }
         udpLogger.sendAllLabels();
 
-        double t1 = Timer.getFPGATimestamp();
+        double t1 = Takt.actual();
         for (int i = 0; i < ITERATIONS; ++i) {
             for (int j = 0; j < KEYS; ++j) {
                 final double val = (double) i;
@@ -295,7 +294,7 @@ class UdpPrimitiveLoggerTest {
             }
             udpLogger.flush();
         }
-        double t2 = Timer.getFPGATimestamp();
+        double t2 = Takt.actual();
         System.out.printf("duration sec %.3f\n", t2 - t1);
         System.out.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
         System.out.printf("duration per packet us %.3f\n", 1000000 * (t2 - t1) / (dataSink.getCounter()));

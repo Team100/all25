@@ -53,7 +53,7 @@ public class LimitedLinearVelocityServo implements LinearVelocityServo {
     public void setVelocity(double goal, double goal_2) {
         double setpoint = m_limiter.calculate(goal);
         setpoint = MathUtil.clamp(setpoint, -m_maxVel, m_maxVel);
-        m_servo.setVelocityM_S(setpoint);
+        m_servo.setVelocity(setpoint, goal_2);
     }
 
     @Override

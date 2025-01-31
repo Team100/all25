@@ -6,10 +6,10 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * One of the kinds of absolute rotary position sensors directly connected to
@@ -114,7 +114,7 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
         OptionalDouble angleRad = getRad();
         if (angleRad.isEmpty())
             return OptionalDouble.empty();
-        double timeS = Timer.getFPGATimestamp();
+        double timeS = Takt.get();
         if (m_prevAngleRad == null) {
             m_prevAngleRad = angleRad.getAsDouble();
             m_prevTimeS = timeS;

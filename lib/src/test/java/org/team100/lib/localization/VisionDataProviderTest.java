@@ -13,6 +13,7 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.testing.Timeless;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -21,7 +22,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 
 class VisionDataProviderTest implements Timeless {
     private static final double kDelta = 0.01;
@@ -69,9 +69,9 @@ class VisionDataProviderTest implements Timeless {
                 blip
         };
 
-        vdp.estimateRobotPose(key, blips, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(key, blips, Takt.get(), Alliance.Red);
         // do it twice to convince vdp it's a good estimate
-        vdp.estimateRobotPose(key, blips, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(key, blips, Takt.get(), Alliance.Red);
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
 
@@ -122,10 +122,10 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "foo";
         final Blip24[] blips = new Blip24[] { blip };
 
-        vdp.estimateRobotPose(cameraSerialNumber, blips, Timer.getFPGATimestamp() - 0.075, Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, blips, Takt.get() - 0.075, Alliance.Red);
 
         // two good estimates are required, so do another one.
-        vdp.estimateRobotPose(cameraSerialNumber, blips, Timer.getFPGATimestamp() - 0.075, Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, blips, Takt.get() - 0.075, Alliance.Red);
 
         assertEquals(1, poseEstimate.size());
         assertEquals(1, timeEstimate.size());
@@ -139,7 +139,7 @@ class VisionDataProviderTest implements Timeless {
         assertEquals(-Math.PI / 4, result.getRotation().getRadians(), kDelta);
 
         // the delay is just what we told it to use.
-        double now = Timer.getFPGATimestamp();
+        double now = Takt.get();
         Double t = timeEstimate.get(0);
         double delay = now - t;
         assertEquals(0.075, delay, kDelta);
@@ -191,8 +191,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "1000000013c9c96c";
         final Blip24[] tags = new Blip24[] { tag3, tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -233,8 +233,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -275,8 +275,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test2";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -321,8 +321,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test";
         final Blip24[] tags = new Blip24[] { tag3, tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -364,8 +364,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test1";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -407,8 +407,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -450,8 +450,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -492,8 +492,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -535,8 +535,8 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test1";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 
     @Test
@@ -579,7 +579,7 @@ class VisionDataProviderTest implements Timeless {
         final String cameraSerialNumber = "test3";
         final Blip24[] tags = new Blip24[] { tag4 };
 
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
-        vdp.estimateRobotPose(cameraSerialNumber, tags, Timer.getFPGATimestamp(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
+        vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
     }
 }
