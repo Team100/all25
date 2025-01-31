@@ -101,11 +101,19 @@ public class Robot extends TimedRobot100 {
      */
     @Override
     public void robotPeriodic() {
+        // Advance the drumbeat.
+        Takt.update();
+
         // Cache instances hold measurements that we want to keep consistent
         // for an entire cycle, but that we want to forget between cycles, so we
         // reset them all here.
         Memo.resetAll();
-        Takt.update();
+
+        // After the clock is advanced, it would be good to make as many observations as
+        // possible, so the times of those observations are as close to the interrupt
+        // time as possible.  This might yield a whole lot of work, though.
+        Memo.updateAll();
+
         CommandScheduler.getInstance().run();
         // TODO(dmontauk): why do we separate things between Robot and RobotContainer?
         // What is the logical separation?
