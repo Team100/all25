@@ -19,6 +19,7 @@ public interface Timeless {
     default void pauseTiming() {
         HAL.initialize(500, 0);
         SimHooks.pauseTiming();
+        Takt.update();
     }
 
     @AfterEach
@@ -31,7 +32,6 @@ public interface Timeless {
         SimHooks.stepTiming(t);
         Takt.update();
         Memo.resetAll();
-        Memo.updateAll();
     }
 
 }

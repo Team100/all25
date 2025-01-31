@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
  * It should be updated in robotPeriodic and nowhere else (except maybe tests).
  */
 public class Takt {
-    private static double now = 0;
+    private static double now = actual();
 
     /**
      * Update the singleton clock.
