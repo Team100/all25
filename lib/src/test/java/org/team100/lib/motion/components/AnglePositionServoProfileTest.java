@@ -36,7 +36,7 @@ class AnglePositionServoProfileTest {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDController(1, 0, 0, TimedRobot100.LOOP_PERIOD_S);
+        controller2 = new PIDController(1, 0, 0);
         controller2.enableContinuousInput(-Math.PI, Math.PI);
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);

@@ -43,7 +43,7 @@ class AngularPositionProfileTest implements Timeless {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDController(5, 0, 0, TimedRobot100.LOOP_PERIOD_S);
+        controller2 = new PIDController(5, 0, 0);
     }
 
     /**

@@ -37,7 +37,7 @@ class AnglePositionServoTest {
                 new MockIncrementalBareEncoder(),
                 1);
         final MockRotaryPositionSensor turningEncoder = new MockRotaryPositionSensor();
-        final PIDController turningController2 = new PIDController(1, 0, 0, TimedRobot100.LOOP_PERIOD_S);
+        final PIDController turningController2 = new PIDController(1, 0, 0);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         final AngularPositionServo servo = new OnboardAngularPositionServo(
                 logger,

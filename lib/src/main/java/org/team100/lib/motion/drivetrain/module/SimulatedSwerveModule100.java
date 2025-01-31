@@ -61,8 +61,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         PIDController turningPositionController = new PIDController(
                 20, // kP
                 0, // kI
-                0, // kD
-                TimedRobot100.LOOP_PERIOD_S);
+                0); // kD
         turningPositionController.enableContinuousInput(-Math.PI, Math.PI);
         // note low tolerance
         turningPositionController.setTolerance(0.05, 0.05);
