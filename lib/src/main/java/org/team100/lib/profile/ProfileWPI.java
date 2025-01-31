@@ -9,8 +9,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
 /** Wrap the WPI profile. */
 public class ProfileWPI implements Profile100 {
-    Constraints m_constraints;
-    TrapezoidProfile m_profile;
+    private final Constraints m_constraints;
+    private final TrapezoidProfile m_profile;
 
     public ProfileWPI(double maxVel, double maxAccel) {
         m_constraints = new Constraints(maxVel, maxAccel);

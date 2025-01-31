@@ -6,12 +6,13 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
+import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 /**
  * Patterned after FullStateDriveController.
  */
-public class FullStateController {
+public class FullStateController implements Controller100 {
 
     private final Model100Logger m_log_measurement;
     private final Model100Logger m_log_reference; // ref v is FF
@@ -44,7 +45,8 @@ public class FullStateController {
         m_tol2 = vtol;
     }
 
-    public double calculate(Model100 measurement, Model100 reference) {
+    @Override
+    public Control100 calculate(Model100 measurement, Model100 reference) {
         m_log_measurement.log(() -> measurement);
         m_log_reference.log(() -> reference);
         m_log_error.log(() -> reference.minus(measurement));
@@ -52,7 +54,9 @@ public class FullStateController {
         m_atSetpoint = true;
         double u_FB = calculateFB(measurement, reference);
         m_log_u_FB.log(() -> u_FB);
-        return u_FF + u_FB;
+        // return "u" in the "v" slot.
+        // TODO: not that?
+        return new Control100(0, u_FF + u_FB, 0);
     }
 
     private double calculateFB(Model100 measurement, Model100 setpoint) {
