@@ -26,8 +26,8 @@ class ArmSubsystemTest implements Timeless {
             // since i took out the limits this just spins
             // you have to call getPosition on the simulated sensor for it to do the integraiton.
             armSubSystem.getPosition();
-            ArmAngles angles = armSubSystem.getPosition().get();
-            System.out.printf("%d %5.3f %5.3f\n", i, angles.th1, angles.th2);
+            // ArmAngles angles = armSubSystem.getPosition().get();
+            // System.out.printf("%d %5.3f %5.3f\n", i, angles.th1, angles.th2);
         }
 
         // how far did it spin?
