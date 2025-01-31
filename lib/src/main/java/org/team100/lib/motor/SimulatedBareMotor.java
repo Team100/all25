@@ -24,6 +24,7 @@ public class SimulatedBareMotor implements BareMotor {
 
     @Override
     public void setDutyCycle(double dutyCycle) {
+        System.out.println("duty cycle " + dutyCycle);
         final double output = MathUtil.clamp(
                 Util.notNaN(dutyCycle), -1, 1);
         m_log_duty.log(() -> output);
