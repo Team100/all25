@@ -35,6 +35,7 @@ class Identity(Enum):
     RIGHTAMP = "10000000caeaae82"
     LEFTAMP = "100000004e0a1fb9"
     GAME_PIECE = "1000000013c9c96c"
+    DIST_TEST = "47403d5eafe002a9"
 
     # camera-bot cameras
     GLOBAL_GAME_PIECE = "d44649628c20d4d4"
@@ -54,9 +55,9 @@ class Identity(Enum):
     @staticmethod
     def get() -> "Identity":
         serial = _serial
-        print(serial)
-        # print(f"Coprocessor serial: {serial}")
+        # print(serial)
+        print(f"********** Coprocessor serial: {serial}")
         identity: Identity = Identity(serial)
-        print(identity)
-        # print(f"Coprocessor identity: {identity.name}")
+        # print(identity)
+        print(f"********** Coprocessor identity: {identity.name}")
         return identity
