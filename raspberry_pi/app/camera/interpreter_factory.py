@@ -17,7 +17,9 @@ class InterpreterFactory:
         identity: Identity, cam: Camera, camera_num: int, network: Network
     ) -> Interpreter:
         size = cam.get_size()
-        if identity != Identity.UNKNOWN:
+        if identity == Identity.DIST_TEST:
+            scale = 1.0
+        elif identity != Identity.UNKNOWN:
             scale = 0.25
         else:
             scale = 1.0
@@ -50,6 +52,7 @@ class InterpreterFactory:
                 | Identity.GLOBAL_RIGHT
                 | Identity.DEV
                 | Identity.DEV2
+                | Identity.DIST_TEST
             ):
                 display = RealDisplay(
                     int(scale * size.width),
