@@ -3,6 +3,7 @@ package org.team100.lib.commands.drivetrain.manual;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.TargetUtil;
 import org.team100.lib.hid.DriverControl;
@@ -16,15 +17,14 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -50,8 +50,8 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Supplier<Translation2d> m_target;
-    private final PIDController m_thetaController;
-    private final PIDController m_omegaController;
+    private final Controller100 m_thetaController;
+    private final Controller100 m_omegaController;
     private final Profile100 m_profile;
     private final BooleanSupplier m_trigger;
 
@@ -77,8 +77,8 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Translation2d> target,
-            PIDController thetaController,
-            PIDController omegaController,
+            Controller100 thetaController,
+            Controller100 omegaController,
             BooleanSupplier trigger) {
         m_field_log = fieldLogger;
         LoggerFactory child = parent.child(this);
@@ -156,23 +156,26 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
 
         double thetaFF = m_thetaSetpoint.v();
 
-        double thetaFB = m_thetaController.calculate(measurement, m_thetaSetpoint.x());
+        // feedback is velocity
+        double thetaFB = m_thetaController.calculate(Model100.x(measurement), m_thetaSetpoint.model()).v();
         m_log_theta_setpoint.log(() -> m_thetaSetpoint);
         m_log_theta_measurement.log(() -> measurement);
-        m_log_theta_error.log(m_thetaController::getError);
+        m_log_theta_error.log(() -> m_thetaSetpoint.x() - measurement);
         m_log_theta_FB.log(() -> thetaFB);
 
-        double omegaFB = m_omegaController.calculate(headingRate, m_thetaSetpoint.v());
+        double omegaFB = m_omegaController.calculate(Model100.x(headingRate), Model100.x(m_thetaSetpoint.v())).v();
         m_log_omega_reference.log(() -> m_thetaSetpoint.model());
         m_log_omega_measurement.log(() -> headingRate);
-        m_log_omega_error.log(m_omegaController::getError);
+        m_log_omega_error.log(() -> m_thetaSetpoint.v() - headingRate);
+
         m_log_omega_FB.log(() -> omegaFB);
 
         double omega = MathUtil.clamp(
                 thetaFF + thetaFB + omegaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
-        FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(), omega);
+        FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(
+                scaledInput.x(), scaledInput.y(), omega);
 
         // desaturate to feasibility by preferring the rotational velocity.
         twistWithLockM_S = m_swerveKinodynamics.preferRotation(twistWithLockM_S);
@@ -186,7 +189,8 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
         if (m_trigger.getAsBoolean()) {
             m_ball = currentTranslation;
             // correct for newtonian relativity
-            m_ballV = new Translation2d(kBallVelocityM_S * TimedRobot100.LOOP_PERIOD_S, currentRotation)
+            m_ballV = new Translation2d(
+                    kBallVelocityM_S * TimedRobot100.LOOP_PERIOD_S, currentRotation)
                     .plus(FieldRelativeDelta.delta(m_prevPose, state.pose()).getTranslation());
         }
         if (m_ball != null) {

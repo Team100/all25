@@ -3,6 +3,7 @@ package org.team100.lib.commands.drivetrain.manual;
 import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.HeadingLatch;
+import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
@@ -22,7 +23,6 @@ import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -45,8 +45,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     /** Absolute input supplier, null if free */
     private final Supplier<Rotation2d> m_desiredRotation;
     private final HeadingLatch m_latch;
-    private final PIDController m_thetaController;
-    private final PIDController m_omegaController;
+    private final Controller100 m_thetaController;
+    private final Controller100 m_omegaController;
     private final LinearFilter m_outputFilter;
 
     // LOGGERS
@@ -81,8 +81,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Rotation2d> desiredRotation,
-            PIDController thetaController,
-            PIDController omegaController) {
+            Controller100 thetaController,
+            Controller100 omegaController) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_desiredRotation = desiredRotation;
@@ -217,7 +217,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     }
 
     /**
-     * Note that the max speed and accel are inversely proportional to the current velocity.
+     * Note that the max speed and accel are inversely proportional to the current
+     * velocity.
      */
     public TrapezoidProfile100 makeProfile(double currentVelocity) {
         // fraction of the maximum speed
@@ -240,8 +241,10 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 0.01);
     }
 
+    // feedback is velocity
     private double getOmegaFB(double headingRate) {
-        double omegaFB = m_omegaController.calculate(headingRate, m_thetaSetpoint.v());
+        double omegaFB = m_omegaController.calculate(
+                Model100.x(headingRate), Model100.x(m_thetaSetpoint.v())).v();
 
         if (Experiments.instance.enabled(Experiment.SnapThetaFilter)) {
             // output filtering to prevent oscillation due to delay
@@ -254,8 +257,9 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         return omegaFB;
     }
 
+    // feedback is velocity
     private double getThetaFB(double headingMeasurement) {
-        double thetaFB = m_thetaController.calculate(headingMeasurement, m_thetaSetpoint.x());
+        double thetaFB = m_thetaController.calculate(Model100.x(headingMeasurement), m_thetaSetpoint.model()).v();
         if (Math.abs(thetaFB) < THETA_FB_DEADBAND) {
             thetaFB = 0;
         }

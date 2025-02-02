@@ -22,6 +22,8 @@ import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
 import org.team100.lib.controller.drivetrain.FullStateDriveController;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.PIDControllerVeloWPI;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
@@ -52,7 +54,6 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotController;
@@ -154,12 +155,13 @@ public class RobotContainer implements Glassy {
         final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
         DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(comLog);
 
-        final PIDController thetaController = new PIDController(3.0, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-        final PIDController omegaController = new PIDController(0.2, 0, 0);
-
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
+
+        final Controller100 thetaController = new PIDControllerVeloWPI(
+                manLog, 3.0, 0, 0, true, 0.05, 1);
+        final Controller100 omegaController = new PIDControllerVeloWPI(
+                manLog, 0.2, 0, 0, false, 0.05, 1);
 
         driveManually.register("MODULE_STATE", false,
                 new SimpleManualModuleStates(manLog, swerveKinodynamics));

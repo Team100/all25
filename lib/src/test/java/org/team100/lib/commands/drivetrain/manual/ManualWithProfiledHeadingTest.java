@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.PIDControllerVeloWPI;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
@@ -23,7 +25,6 @@ import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -40,9 +41,8 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        PIDController thetaController = new PIDController(3.5, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-        PIDController omegaController = new PIDController(3.5, 0, 0);
+        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
+        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
@@ -73,9 +73,8 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        PIDController thetaController = new PIDController(3.5, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-        PIDController omegaController = new PIDController(3.5, 0, 0);
+        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
+        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
@@ -111,10 +110,9 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        PIDController thetaController = new PIDController(3.5, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
         // probably P is too high here.
-        PIDController omegaController = new PIDController(3.5, 0, 0);
+        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
@@ -195,9 +193,10 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        PIDController thetaController = new PIDController(3.5, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-        PIDController omegaController = new PIDController(3.5, 0, 0);
+        Controller100 thetaController = new PIDControllerVeloWPI(
+                logger, 3.5, 0, 0, true, 0.05, 1);
+        Controller100 omegaController = new PIDControllerVeloWPI(
+                logger, 3.5, 0, 0, false, 0.05, 1);
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
@@ -269,10 +268,9 @@ class ManualWithProfiledHeadingTest {
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
         // NOTE no feedback here.
-        PIDController thetaController = new PIDController(0, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        Controller100 thetaController = new PIDControllerVeloWPI(logger, 0, 0, 0, true, 0.05, 1);
         // NOTE no feedback here.
-        PIDController omegaController = new PIDController(0, 0, 0);
+        Controller100 omegaController = new PIDControllerVeloWPI(logger, 0, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
@@ -345,10 +343,9 @@ class ManualWithProfiledHeadingTest {
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
         // NOTE feedback here
-        PIDController thetaController = new PIDController(3.5, 0, 0);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
         // NOTE feedback here
-        PIDController omegaController = new PIDController(3.5, 0, 0);
+        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
