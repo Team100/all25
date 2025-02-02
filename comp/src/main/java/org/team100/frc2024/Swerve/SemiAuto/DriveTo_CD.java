@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.team100.frc2024.FieldConstants;
-import org.team100.frc2024.FieldConstants.ReefPoint;
+import org.team100.frc2024.FieldConstants.ReefDestination;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
@@ -72,7 +72,7 @@ public class DriveTo_CD extends Navigator implements Planner2025 {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.CD;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.D;
+        FieldConstants.ReefDestination destinationPoint = FieldConstants.ReefDestination.CENTER;
 
 
         List<Pose2d> waypointsM = new ArrayList<>();;

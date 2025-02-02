@@ -73,7 +73,7 @@ public class DriveTo_GH extends Navigator implements Planner2025 {
 
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.GH;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+        FieldConstants.ReefDestination destinationPoint = FieldConstants.ReefDestination.CENTER;
 
         List<Pose2d> waypointsM = new ArrayList<>();
         List<Rotation2d> headings = new ArrayList<>();

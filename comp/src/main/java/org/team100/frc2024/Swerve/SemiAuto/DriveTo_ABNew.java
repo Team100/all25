@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2024.FieldConstants;
-import org.team100.frc2024.FieldConstants.ReefPoint;
+import org.team100.frc2024.FieldConstants.ReefDestination;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
@@ -67,14 +67,10 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.AB;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.A;
+        FieldConstants.ReefDestination destinationPoint = FieldConstants.ReefDestination.CENTER;
 
         List<Pose2d> waypointsM = new ArrayList<>();
-        ;
         List<Rotation2d> headings = new ArrayList<>();
-        ;
-        List<Double> mN = new ArrayList<>();
-        ;
 
         Translation2d currTranslation = currPose.getTranslation();
         Rotation2d initialSpline = new Rotation2d();
@@ -101,7 +97,6 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
                 break;
             case CD:
 
-
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
                         Rotation2d.fromDegrees(90)));
 
@@ -114,7 +109,8 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
                 break;
             case EF:
 
-                waypointsM.add(new Pose2d(2.71, 4.04 - 1.5, Rotation2d.fromDegrees(110)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitLandingZone(destinationSector, FieldConstants.ReefDestination.CW),
+                Rotation2d.fromDegrees(110)));
 
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
                         Rotation2d.fromDegrees(70)));
@@ -130,8 +126,9 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
                         0.1);
                 break;
             case GH:
-                waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
-
+                // waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitLandingZone(destinationSector, FieldConstants.ReefDestination.CCW),
+                        Rotation2d.fromDegrees(-110)));
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
                         Rotation2d.fromDegrees(-70)));
 
@@ -147,8 +144,10 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
 
                 break;
             case IJ:
-                waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
 
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitLandingZone(destinationSector, FieldConstants.ReefDestination.CCW),
+                        Rotation2d.fromDegrees(-110)));
+                        
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
                         Rotation2d.fromDegrees(-70)));
 
