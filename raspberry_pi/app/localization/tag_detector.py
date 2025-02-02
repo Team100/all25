@@ -5,7 +5,7 @@
 from typing import cast
 
 import numpy as np
-from cv2 import undistortImagePoints
+from cv2 import undistortImagePoints, undistort
 from numpy.typing import NDArray
 from robotpy_apriltag import AprilTagDetection, AprilTagDetector, AprilTagPoseEstimator
 from typing_extensions import override
@@ -49,7 +49,12 @@ class TagDetector(Interpreter):
         self.at_detector.setConfig(config)
         self.at_detector.addFamily("tag36h11")
 
-        tag_size = 0.1651  # tagsize 6.5 inches
+        if identity == Identity.DIST_TEST:
+            # the distortion rig uses a 33 mm, 20% scale, tag.
+            tag_size = 0.033
+        else:
+            # normal tag size is 6.5 inches
+            tag_size = 0.1651
         self.estimator = AprilTagPoseEstimator(
             AprilTagPoseEstimator.Config(
                 tag_size,
@@ -75,6 +80,13 @@ class TagDetector(Interpreter):
 
             # this  makes a view, very fast (150 ns)
             img: Mat = img.reshape((self.height, self.width))  # type:ignore
+
+            #######
+            #
+            # uncomment this line to undistort the whole image, for debugging
+            # img = undistort(img, self.mtx, self.dist)
+            #
+            #######
 
             # TODO: crop regions that never have targets
             # this also makes a view, very fast (150 ns)
@@ -104,12 +116,13 @@ class TagDetector(Interpreter):
                 corners: tuple[
                     float, float, float, float, float, float, float, float
                 ] = result_item.getCorners((0, 0, 0, 0, 0, 0, 0, 0))
+
                 # undistortPoints wants [[x0,y0],[x1,y1],...]
                 pairs = np.reshape(corners, [4, 2])
                 pairs = undistortImagePoints(pairs, self.mtx, self.dist)
+                
                 # the estimator wants [x0, y0, x1, y1, ...]
-                # corners = np.reshape(pairs, [8])
-                # pairs has an extra dimension
+                # pairs has an extra dimension, so redo it:
                 corners = (
                     pairs[0][0][0],
                     pairs[0][0][1],

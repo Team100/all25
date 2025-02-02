@@ -155,8 +155,12 @@ class RealCamera(Camera):
         self.camera_config: dict[str, Any] = RealCamera.__get_config(
             identity, self.cam, self.size
         )
-        self.mtx = RealCamera.__mtx_from_model(model)
-        self.dist = RealCamera.__dist_from_model(model)
+        self.mtx = RealCamera.__mtx_from_model(identity, model)
+        self.dist = RealCamera.__dist_from_model(identity, model)
+        print("MTX")
+        print(self.mtx)
+        print("DIST")
+        print(self.dist)
         print("SENSOR MODES AVAILABLE")
         pprint(self.cam.sensor_modes)  # type:ignore
         if identity == Identity.FLIPPED:
@@ -281,7 +285,7 @@ class RealCamera(Camera):
                 return 300  # the old value, works with v2 cameras
 
     @staticmethod
-    def __mtx_from_model(model: Model) -> Mat:
+    def __mtx_from_model(identity: Identity, model: Model) -> Mat:
         """Intrinsic matrix."""
         match model:
             case Model.V3_WIDE:
@@ -301,13 +305,31 @@ class RealCamera(Camera):
                     ]
                 )
             case Model.GS:
-                return np.array(
-                    [
-                        [1780, 0, 728],
-                        [0, 1780, 544],
-                        [0, 0, 1],
-                    ]
-                )
+                if identity == Identity.DIST_TEST: # 3.2mm lens
+                    # this is for the 3.2 mm lens
+                    #  return np.array(
+                    #     [
+                    #         [935, 0, 728], # 728 = 1456/2, not actually in the center
+                    #         [0, 935, 544], # 544 = 1088/2, actually center :-)
+                    #         [0, 0, 1],
+                    #     ]
+                    # )
+                    # this is for the 6 mm lens
+                    return np.array(
+                        [
+                            [1780, 0, 728], # 728 = 1456/2, not actually in the center
+                            [0, 1780, 544], # 544 = 1088/2, actually center :-)
+                            [0, 0, 1],
+                        ]
+                    )
+                else: # 6mm lens
+                    return np.array(
+                        [
+                            [1780, 0, 728],
+                            [0, 1780, 544],
+                            [0, 0, 1],
+                        ]
+                    )
             case _:
                 return np.array(
                     [
@@ -318,16 +340,24 @@ class RealCamera(Camera):
                 )
 
     @staticmethod
-    def __dist_from_model(model: Model) -> Mat:
+    def __dist_from_model(identity: Identity, model: Model) -> Mat:
         """Minimal distortion matrix with four elements, [k1, k2, p1, p2]
-        see https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html"""
+        see https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html
+        see https://docs.google.com/spreadsheets/d/1x2_58wyVb5e9HJW8WgakgYcOXgPaJe0yTIHew206M-M
+        """
         match model:
             case Model.V3_WIDE:
                 return np.array([[0.01, -0.0365, 0, 0]])
             case Model.V2:
                 return np.array([[-0.003, 0.04, 0, 0]])
             case Model.GS:
-                return np.array([[-0.2, -0.4, 0, 0]])
+                if identity == Identity.DIST_TEST:
+# this is for the 3.2 mm lens from 2/1/25 testing
+#                    return np.array([[-0.306, 0.107, 0, 0]])
+# this is for the 6 mm lens from 2/1/25 testing
+                    return np.array([[-0.510, 0.335, 0, 0]])
+                else:
+                    return np.array([[-0.2, -0.4, 0, 0]])
             case _:
                 return np.array([[0, 0, 0, 0]])
 
