@@ -8,6 +8,9 @@ import java.util.function.Supplier;
 
 import org.team100.frc2024.FieldConstants;
 import org.team100.frc2024.Swerve.SemiAuto.DriveTo_AB;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_ABNew;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_CD;
+import org.team100.frc2024.Swerve.SemiAuto.DriveTo_EF;
 import org.team100.frc2024.Swerve.SemiAuto.DriveTo_GH;
 import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
 import org.team100.frc2024.Swerve.SemiAuto.DriveTo_IJ;
@@ -45,6 +48,8 @@ public class Maker {
     DriveTo_IJ.Log m_driveToIJLog;
     DriveTo_KL.Log m_driveToKLLog;
     DriveTo_AB.Log m_driveToABLog;
+    DriveTo_CD.Log m_driveToCDLog;
+    DriveTo_EF.Log m_driveToEFLog;
 
 
     SwerveDriveSubsystem m_swerve;
@@ -63,6 +68,8 @@ public class Maker {
         m_driveToIJLog = new DriveTo_IJ.Log(m_logger);
         m_driveToKLLog = new DriveTo_KL.Log(m_logger);
         m_driveToABLog = new DriveTo_AB.Log(m_logger);
+        m_driveToCDLog = new DriveTo_CD.Log(m_logger);
+        m_driveToEFLog = new DriveTo_EF.Log(m_logger);
 
         m_factory = factory;
         m_swerve = swerve;
@@ -76,8 +83,8 @@ public class Maker {
 
     public Command test() {
 
-        return new DriveTo_IJ(
-                m_driveToIJLog, 
+        return new DriveTo_ABNew(
+                m_logger, 
                 m_swerve,
                 m_factory.goodPIDF(m_PIDFLog),
                 m_viz,

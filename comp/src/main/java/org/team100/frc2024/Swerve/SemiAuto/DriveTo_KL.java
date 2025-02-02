@@ -36,24 +36,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveTo_KL extends Command implements Planner2025 {
+public class DriveTo_KL extends Navigator implements Planner2025 {
     /** Creates a new TrajectoryCommandWithPose100. */
-    public static class Log {
-        private final Pose2dLogger m_log_goal;
-        private final ChassisSpeedsLogger m_log_chassis_speeds;
-        private final DoubleLogger m_log_THETA_ERROR;
-        private final BooleanLogger m_log_FINSIHED;
 
-        public Log(LoggerFactory parent) {
-            LoggerFactory log = parent.child("DriveToKL");
-            m_log_goal = log.pose2dLogger(Level.TRACE, "goal");
-            m_log_chassis_speeds = log.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
-            m_log_THETA_ERROR = log.doubleLogger(Level.TRACE, "THETA ERROR");
-            m_log_FINSIHED = log.booleanLogger(Level.TRACE, "FINSIHED");
-        }
-    }
-
-    private final Log m_log;
+    private final Navigator.Log m_log;
     private final SwerveDriveSubsystem m_robotDrive;
     private final DriveTrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
@@ -65,12 +51,13 @@ public class DriveTo_KL extends Command implements Planner2025 {
     
 
     public DriveTo_KL(
-            Log log,
+            LoggerFactory log,
             SwerveDriveSubsystem robotDrive,
             DriveTrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-        m_log = log;
+        super(log, robotDrive, controller, viz, kinodynamics);
+        m_log = super.m_log;
         m_robotDrive = robotDrive;
         m_controller = controller;
         m_viz = viz;
@@ -152,60 +139,5 @@ public class DriveTo_KL extends Command implements Planner2025 {
         
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
-    public void execute() {
-        final double now = Timer.getFPGATimestamp();
-        Pose2d currentPose = m_robotDrive.getPose();
-        ChassisSpeeds currentRobotRelativeSpeed = m_robotDrive.getChassisSpeeds();
 
-        Rotation2d angleToReef = FieldConstants.angleToReefCenter(currentPose);
-        Rotation2d currentHeading = currentPose.getRotation();
-        Rotation2d thetaError = angleToReef.minus(currentHeading);
-
-        // m_controller.setThetaError(thetaError);
-        ChassisSpeeds output = m_controller.update(now, currentPose, currentRobotRelativeSpeed);
-
-        m_robotDrive.setChassisSpeedsNormally(output);
-
-        m_log.m_log_chassis_speeds.log(() -> output);
-        double thetaErrorRad = m_goal.getRotation().getRadians()
-                - m_robotDrive.getPose().getRotation().getRadians();
-        m_log.m_log_THETA_ERROR.log(() -> thetaErrorRad);
-        m_log.m_log_FINSIHED.log(() -> false);
-    }
-
-    // Called once the command ends or is interrupted.
-    @Override
-    public void end(boolean interrupted) {
-        m_log.m_log_FINSIHED.log(() -> true);
-        m_robotDrive.stop();
-        m_viz.clear();
-    }
-
-    // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        return m_controller.isDone();
-        // return false;
-    }
-
-    public PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings){
-        Translation2d currTranslation = currPose.getTranslation();
-        Translation2d firstWaypoint = waypoints.get(0).getTranslation();
-        Rotation2d initialSpline = firstWaypoint.minus(currTranslation).getAngle();
-        Pose2d initialWaypoint = new Pose2d(currTranslation, initialSpline);
-        Rotation2d initialHeading = currPose.getRotation();
-
-        List<Pose2d> waypointsWithPose = new ArrayList<>();
-        List<Rotation2d> headingsWithPose = new ArrayList<>();;
-
-        waypointsWithPose.addAll(waypoints);
-        headingsWithPose.addAll(headings);
-
-        waypointsWithPose.add(0, initialWaypoint);
-        headingsWithPose.add(0, initialHeading);
-
-        return new PoseSet(waypointsWithPose, headingsWithPose);
-    }
 }

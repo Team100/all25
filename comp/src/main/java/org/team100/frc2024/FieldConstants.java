@@ -78,6 +78,11 @@ public class FieldConstants {
         }
     }
 
+    public static double getDistanceToReefCenter(Pose2d pose){
+        Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
+        return target.getNorm();
+    }
+
     public static Rotation2d angleToReefCenter(Pose2d pose){
         Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
         Rotation2d targetAngle = target.getAngle();
@@ -89,7 +94,7 @@ public class FieldConstants {
     }
 
     public static double getOrbitWaypointRadius(){
-        return 2.7;
+        return 2.2; //2.4
     }
 
     public static double getOrbitDestinationRadius(){

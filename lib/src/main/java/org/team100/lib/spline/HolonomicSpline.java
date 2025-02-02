@@ -27,7 +27,7 @@ import edu.wpi.first.math.geometry.Twist2d;
  */
 public class HolonomicSpline {
     /** spline control points need to be not too close to a u-turn. */
-    private static final double MIN_ANGLE = 2 * Math.PI / 3;
+    private static final double MIN_ANGLE = 2 * Math.PI / 2;
     private static final double kEpsilon = 1e-5;
     private static final double kStepSize = 1.0;
     private static final double kMinDelta = 0.001;
@@ -53,6 +53,30 @@ public class HolonomicSpline {
         checkBounds(p0, p1);
         // the 1.2 here is a magic number that makes the spline look nice.
         double scale = 1.2 * GeometryUtil.distance(p0.getTranslation(), p1.getTranslation());
+        double x0 = p0.getTranslation().getX();
+        double x1 = p1.getTranslation().getX();
+        double dx0 = p0.getRotation().getCos() * scale;
+        double dx1 = p1.getRotation().getCos() * scale;
+        double ddx0 = 0;
+        double ddx1 = 0;
+        double y0 = p0.getTranslation().getY();
+        double y1 = p1.getTranslation().getY();
+        double dy0 = p0.getRotation().getSin() * scale;
+        double dy1 = p1.getRotation().getSin() * scale;
+        double ddy0 = 0;
+        double ddy1 = 0;
+
+        this.x = Spline1d.newSpline1d(x0, x1, dx0, dx1, ddx0, ddx1);
+        this.y = Spline1d.newSpline1d(y0, y1, dy0, dy1, ddy0, ddy1);
+        this.r0 = r0;
+        double delta = r0.unaryMinus().rotateBy(r1).getRadians();
+        theta = Spline1d.newSpline1d(0.0, delta, 0, 0, 0, 0);
+    }
+
+    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d r0, Rotation2d r1, double mN) {
+        checkBounds(p0, p1);
+        // the 1.2 here is a magic number that makes the spline look nice.
+        double scale = mN * GeometryUtil.distance(p0.getTranslation(), p1.getTranslation());
         double x0 = p0.getTranslation().getX();
         double x1 = p1.getTranslation().getX();
         double dx0 = p0.getRotation().getCos() * scale;

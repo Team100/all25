@@ -36,25 +36,28 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveTo_AB extends Navigator implements Planner2025 {
+public class DriveTo_EF extends Navigator implements Planner2025 {
     /** Creates a new TrajectoryCommandWithPose100. */
+    
+
+    private final Navigator.Log m_log;
     private final SwerveDriveSubsystem m_robotDrive;
     private final DriveTrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
     private final TrajectoryVisualization m_viz;
-    private final Navigator.Log m_log;
+
     
     TimingConstraintFactory m_constraints;
 
     
 
-    public DriveTo_AB(
-            LoggerFactory parent,
+    public DriveTo_EF(
+            LoggerFactory log,
             SwerveDriveSubsystem robotDrive,
             DriveTrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-        super(parent, robotDrive, controller, viz, kinodynamics);
+        super(log, robotDrive, controller, viz, kinodynamics);    
         m_log = super.m_log;
         m_robotDrive = robotDrive;
         m_controller = controller;
@@ -68,87 +71,77 @@ public class DriveTo_AB extends Navigator implements Planner2025 {
     public void initialize() {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
-        FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.AB;
+        FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.EF;
         FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
 
 
         List<Pose2d> waypointsM = new ArrayList<>();;
         List<Rotation2d> headings = new ArrayList<>();;
-        Rotation2d endingSpline = new Rotation2d();
+
         
     
         switch(originSector){
             case AB:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.CD), Rotation2d.fromDegrees(-10)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(0)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(60)));
 
-                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(60));
+
+                headings.add(Rotation2d.fromDegrees(120));
 
                 break;
             case CD:
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(50)));
-                
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(60)));
 
-                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(120));
                 break;
 
                 
             case EF:
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.CD), Rotation2d.fromDegrees(160)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(120)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(90)));
-
-                headings.add(Rotation2d.fromDegrees(60));
-                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(120));
                 break;
 
             case GH:
-                // waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.EF), Rotation2d.fromDegrees(200)));    
-                // waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.CD), Rotation2d.fromDegrees(160)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(210)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(90)));
-                
-                endingSpline = Rotation2d.fromDegrees(90);
-
-                // headings.add(Rotation2d.fromDegrees(120));
-                // headings.add(Rotation2d.fromDegrees(60));
-                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(120));
                 break;
             case IJ:
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.KL), Rotation2d.fromDegrees(200)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.GH), Rotation2d.fromDegrees(270)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-90)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(210)));
+                
+                headings.add(Rotation2d.fromDegrees(180));
 
-                endingSpline = Rotation2d.fromDegrees(90);
-
-                headings.add(Rotation2d.fromDegrees(-60));
-                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(120));
                 break;
             case KL:
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-70)));
 
-                endingSpline = Rotation2d.fromDegrees(-70);
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.IJ), Rotation2d.fromDegrees(0)));
 
-                headings.add(Rotation2d.fromDegrees(0));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitWaypoint(FieldConstants.FieldSector.GH), Rotation2d.fromDegrees(270)));
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(210)));
+
+                headings.add(Rotation2d.fromDegrees(-120));
+
+                headings.add(Rotation2d.fromDegrees(180));
+
+                headings.add(Rotation2d.fromDegrees(120));
                 break;
             default:
                 break;
             
         }
         
-        m_goal = waypointsM.get(waypointsM.size() - 1);
-        
+        // m_goal = waypointsM.get(waypointsM.size() - 1);
+        // m_log.m_log_goal.log(() -> m_goal);
+
         PoseSet poseSet = addRobotPose(currPose, waypointsM, headings);
-
-        List<Pose2d> m = poseSet.poses();
-        List<Rotation2d> r = poseSet.headings();
-        Translation2d destination = FieldConstants.getOrbitDestination(destinationSector, destinationPoint);
-
-        Translation2d translation1 = new Translation2d(3.31, 1.96);
-        Translation2d translation2 = new Translation2d(2.71, 4.04);
-        Rotation2d rotation1 = translation2.minus(translation1).getAngle();
-
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), m_constraints.fast());
         m_viz.setViz(trajectory);
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
@@ -156,6 +149,5 @@ public class DriveTo_AB extends Navigator implements Planner2025 {
 
         
     }
-
 
 }
