@@ -69,7 +69,7 @@ public class DriveTo_AB extends Navigator implements Planner2025 {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.AB;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.A;
 
 
         List<Pose2d> waypointsM = new ArrayList<>();;

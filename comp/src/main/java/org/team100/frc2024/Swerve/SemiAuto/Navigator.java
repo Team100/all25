@@ -160,55 +160,10 @@ public class Navigator extends Command implements Planner2025 {
         return new PoseSet(waypointsWithPose, headingsWithPose);
     }
 
-    public PoseSet addRobotPoseNew(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings, FieldSector originSector){
+    public PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings, Rotation2d initialSpline){
         Translation2d currTranslation = currPose.getTranslation();
-        Rotation2d initialSpline = new Rotation2d();
-
-        Translation2d vectorFromCenterToRobot = currTranslation.minus(FieldConstants.getReefCenter());
-        Translation2d newVec = vectorFromCenterToRobot.rotateBy(Rotation2d.fromDegrees(90));
-        Rotation2d perpAngle = newVec.getAngle();
-
-
-
-
-        
-        switch (originSector) {
-            case AB:
-                initialSpline = Rotation2d.fromDegrees(-90).plus(Rotation2d.fromDegrees(90));
-                break;
-            case CD:
-                initialSpline = Rotation2d.fromDegrees(-30).plus(Rotation2d.fromDegrees(180));
-                break;
-            case EF:
-                initialSpline = Rotation2d.fromDegrees(30).plus(Rotation2d.fromDegrees(180));
-                break;
-            case GH:
-                Translation2d targetPoint2 = FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(90));
-                
-
-                Translation2d toTargetPoint2 = targetPoint2.minus(currTranslation);
-                Rotation2d newPerp2 = perpAngle.times(0.35);
-                Rotation2d splineToPoint2 = toTargetPoint2.getAngle();
-            
-                initialSpline = splineToPoint2.minus(newPerp2);
-                break;
-            case IJ:
-                Translation2d targetPoint = FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(90));
-                
-
-                Translation2d toTargetPoint = targetPoint.minus(currTranslation);
-                Rotation2d newPerp = perpAngle.times(0.1);
-                Rotation2d splineToPoint = toTargetPoint.getAngle();
-                
-                initialSpline = splineToPoint.minus(newPerp);
-
-                break;
-            case KL:
-                initialSpline = Rotation2d.fromDegrees(210);
-                break;
-        }
-
-
+        Translation2d firstWaypoint = waypoints.get(0).getTranslation();
+        // Rotation2d initialSpline = firstWaypoint.minus(currTranslation).getAngle();
         Pose2d initialWaypoint = new Pose2d(currTranslation, initialSpline);
         Rotation2d initialHeading = currPose.getRotation();
 
@@ -224,34 +179,21 @@ public class Navigator extends Command implements Planner2025 {
         return new PoseSet(waypointsWithPose, headingsWithPose);
     }
 
-    public PoseSet computeSpline(PoseSet poseSet, Rotation2d endingSpline) {
-
-        List<Pose2d> m = poseSet.poses();
-        List<Pose2d> waypointsM = new ArrayList<>();
-        for (int i = 0; i < m.size() - 1; i += 1) {
-
-            if(i == 0){
-                Translation2d t0 = m.get(i).getTranslation();
-                Translation2d t1 = m.get(i + 1).getTranslation();
-                Rotation2d theta = t1.minus(t0).getAngle();
-                waypointsM.add(new Pose2d(t0, theta));
-            }else{
-                Translation2d t0 = m.get(i).getTranslation();
-                Translation2d t1 = m.get(i + 1).getTranslation();
-                Rotation2d theta = t1.minus(t0).getAngle();
-                waypointsM.add(new Pose2d(t0, theta.times(1)));
-            }
-            
-        }
-
-        //ADD OPTION TO ADD LAST SPLINE
-
-        // Last Value
-        Translation2d t0 = m.get(m.size() - 1).getTranslation();
-        Translation2d t1 = m.get(m.size() - 2).getTranslation();
-        Rotation2d theta = t1.minus(t0).getAngle();
-        waypointsM.add(new Pose2d(t0, endingSpline));
+    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation, Translation2d vectorFromCenterToRobot, Rotation2d rotationAngle, double magicNumber){
+        Translation2d translationToTarget = targetPoint.minus(currTranslation);
         
-        return new PoseSet(waypointsM, poseSet.headings());
+        Rotation2d tangentAngle = vectorFromCenterToRobot.rotateBy(rotationAngle).getAngle();
+
+        Rotation2d tangentAngleAdjusted = tangentAngle.times(magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
+
+        return translationToTarget.getAngle().minus(tangentAngleAdjusted);
+
     }
+
+    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation){
+        Rotation2d initialSpline = targetPoint.minus(currTranslation).getAngle();
+        return initialSpline;
+
+    }
+    
 }

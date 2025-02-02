@@ -43,10 +43,8 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
     private Pose2d m_goal = new Pose2d();
     private final TrajectoryVisualization m_viz;
     private final Navigator.Log m_log;
-    
-    TimingConstraintFactory m_constraints;
 
-    
+    TimingConstraintFactory m_constraints;
 
     public DriveTo_ABNew(
             LoggerFactory parent,
@@ -69,67 +67,128 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.AB;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.A;
 
-
-        List<Pose2d> waypointsM = new ArrayList<>();;
-        List<Rotation2d> headings = new ArrayList<>();;
-        List<Double> mN = new ArrayList<>();;
+        List<Pose2d> waypointsM = new ArrayList<>();
+        ;
+        List<Rotation2d> headings = new ArrayList<>();
+        ;
+        List<Double> mN = new ArrayList<>();
+        ;
 
         Translation2d currTranslation = currPose.getTranslation();
         Rotation2d initialSpline = new Rotation2d();
 
-        Translation2d vectorFromCenterToRobot = currTranslation.minus(FieldConstants.getReefCenter());        
-    
-        switch(originSector){
+        Translation2d vectorFromCenterToRobot = currTranslation.minus(FieldConstants.getReefCenter());
+
+        switch (originSector) {
             case AB:
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                Rotation2d.fromDegrees(90)));
+
+                headings.add(Rotation2d.fromDegrees(0));
+
+                initialSpline = calculateInitialSpline(
+                    FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                    currTranslation
+                    );
+
+                waypointsM.clear();
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                initialSpline));
+
                 break;
             case CD:
-                break;   
+
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        Rotation2d.fromDegrees(90)));
+
+                headings.add(Rotation2d.fromDegrees(0));
+
+                initialSpline = calculateInitialSpline(
+                        FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        currTranslation
+                        );
+                break;
             case EF:
+
+                waypointsM.add(new Pose2d(2.71, 4.04 - 1.5, Rotation2d.fromDegrees(110)));
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        Rotation2d.fromDegrees(70)));
+
+                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(0));
+
+                initialSpline = calculateInitialSpline(
+                        FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(-90)),
+                        currTranslation,
+                        vectorFromCenterToRobot,
+                        Rotation2d.fromDegrees(-90),
+                        0.1);
                 break;
             case GH:
+                waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        Rotation2d.fromDegrees(-70)));
+
+                headings.add(Rotation2d.fromDegrees(0));
+                headings.add(Rotation2d.fromDegrees(0));
+
+                initialSpline = calculateInitialSpline(
+                        FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(90)),
+                        currTranslation,
+                        vectorFromCenterToRobot,
+                        Rotation2d.fromDegrees(90),
+                        0.5);
+
                 break;
             case IJ:
                 waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
 
-                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint), Rotation2d.fromDegrees(-70)));
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        Rotation2d.fromDegrees(-70)));
 
                 headings.add(Rotation2d.fromDegrees(0));
                 headings.add(Rotation2d.fromDegrees(0));
 
-                Translation2d targetPoint = FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(90));
-
-                Translation2d translationToTarget = targetPoint.minus(currTranslation);
-
-                Rotation2d tangentAngle = vectorFromCenterToRobot.rotateBy(Rotation2d.fromDegrees(90)).getAngle();
-
-                Rotation2d tangentAngleAdjusted = tangentAngle.times(0.1);
-
-                initialSpline = translationToTarget.getAngle().minus(tangentAngleAdjusted);
+                initialSpline = calculateInitialSpline(
+                        FieldConstants.getOrbitWaypoint(Rotation2d.fromDegrees(90)),
+                        currTranslation,
+                        vectorFromCenterToRobot,
+                        Rotation2d.fromDegrees(90),
+                        0.1);
                 break;
             case KL:
+
+                waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        Rotation2d.fromDegrees(-90)));
+
+                headings.add(Rotation2d.fromDegrees(0));
+
+                initialSpline = calculateInitialSpline(
+                        FieldConstants.getOrbitDestination(destinationSector, destinationPoint),
+                        currTranslation
+                        );
                 break;
             default:
                 break;
-            
+
         }
-        
+
         m_goal = waypointsM.get(waypointsM.size() - 1);
-        
-        PoseSet poseSet = addRobotPoseNew(currPose, waypointsM, headings, originSector);;
 
-        // waypointsM = poseSet.poses();
-        // headings = poseSet.headings();
-        mN.add(0, 1.2);
+        PoseSet poseSet = addRobotPose(currPose, waypointsM, headings, initialSpline);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), m_constraints.fast(), mN);
+        Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(),
+                m_constraints.fast());
         m_viz.setViz(trajectory);
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
         m_controller.setTrajectory(iter);
 
-        
     }
-
 
 }

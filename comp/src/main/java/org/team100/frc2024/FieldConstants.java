@@ -94,7 +94,7 @@ public class FieldConstants {
     }
 
     public static double getOrbitWaypointRadius(){
-        return 2.2; //2.4
+        return 2.1; //2.4
     }
 
     public static double getOrbitDestinationRadius(){
@@ -102,7 +102,7 @@ public class FieldConstants {
     }
 
     public static double getReefOffset(){
-        return 0.1524;
+        return 0.1524; //0.1524
     }
 
     public static Translation2d getOrbitWaypoint(Rotation2d angle){
@@ -136,8 +136,14 @@ public class FieldConstants {
         double dx = 0;
         double dy = 0;
         
-        dx = (getReefOffset() * Math.cos(90 + sectorAngle.getDegrees()));
-        dy = (getReefOffset() * Math.sin(90 + sectorAngle.getDegrees()));
+        dy = (getReefOffset() * Math.cos(90 + sectorAngle.getDegrees()));
+        dx = (getReefOffset() * Math.sin(90 + sectorAngle.getDegrees()));
+
+        // Translation2d translation = new Translation2d(x,y);
+        // double length = translation.getNorm();
+
+        // dx = length * sectorAngle.getCos() - getReefOffset() * sectorAngle.getSin();
+        // dy = length * sectorAngle.getSin() - getReefOffset() * sectorAngle.getCos();
 
         
         switch(destinationPoint){

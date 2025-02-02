@@ -72,7 +72,7 @@ public class DriveTo_CD extends Navigator implements Planner2025 {
         Pose2d currPose = m_robotDrive.getPose();
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.CD;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.D;
 
 
         List<Pose2d> waypointsM = new ArrayList<>();;
