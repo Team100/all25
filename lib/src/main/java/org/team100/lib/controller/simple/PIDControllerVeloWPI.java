@@ -11,15 +11,17 @@ import org.team100.lib.state.Model100;
 import edu.wpi.first.math.controller.PIDController;
 
 /**
- * Wrap the WPI PID controller in our control interface.
+ * Control velocity using the WPI PID controller class, wrapped in our
+ * control interface.
+ * 
  * This also logs the error that we have habitually logged elsewhere, because I
  * don't want the idea of "error" to be in the interface.
  */
-public class PIDControllerWPI implements Controller100, Glassy {
+public class PIDControllerVeloWPI implements Controller100, Glassy {
     private final PIDController m_controller;
     private final DoubleLogger m_log_error;
 
-    public PIDControllerWPI(
+    public PIDControllerVeloWPI(
             LoggerFactory parent,
             double p,
             double i,
@@ -32,13 +34,17 @@ public class PIDControllerWPI implements Controller100, Glassy {
         m_log_error = child.doubleLogger(Level.TRACE, "error");
     }
 
+    /**
+     * Observe position error, produce desired velocity, and include implied
+     * position and accel given that velocity.
+     */
     @Override
     public Control100 calculate(Model100 measurement, Model100 setpoint) {
-        double u = m_controller.calculate(measurement.x(), setpoint.x());
+        double targetVelo = m_controller.calculate(measurement.x(), setpoint.x());
+        double targetPos = measurement.x() + targetVelo * TimedRobot100.LOOP_PERIOD_S;
+        double targetAccel = (targetVelo - measurement.v()) / TimedRobot100.LOOP_PERIOD_S;
         m_log_error.log(m_controller::getError);
-        // return "u" in the "a" slot.
-        // TODO: not that?
-        return new Control100(0, 0, u);
+        return new Control100(targetPos, targetVelo, targetAccel);
     }
 
 }

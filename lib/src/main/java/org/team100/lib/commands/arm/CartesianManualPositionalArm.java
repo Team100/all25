@@ -3,7 +3,7 @@ package org.team100.lib.commands.arm;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-import org.team100.lib.controller.simple.PIDControllerWPI;
+import org.team100.lib.controller.simple.PIDControllerAccelWPI;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -32,8 +32,8 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
     private final DoubleSupplier m_x;
     private final DoubleSupplier m_y;
 
-    private final PIDControllerWPI m_lowerController;
-    private final PIDControllerWPI m_upperController;
+    private final PIDControllerAccelWPI m_lowerController;
+    private final PIDControllerAccelWPI m_upperController;
 
     // LOGGERS
 
@@ -63,8 +63,8 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
         m_x = x;
         m_y = y;
 
-        m_lowerController = new PIDControllerWPI(child.child("lower"), 1, 0, 0, true);
-        m_upperController = new PIDControllerWPI(child.child("upper"), 1, 0, 0, true);
+        m_lowerController = new PIDControllerAccelWPI(child.child("lower"), 1, 0, 0, true);
+        m_upperController = new PIDControllerAccelWPI(child.child("upper"), 1, 0, 0, true);
         addRequirements(arm);
     }
 
@@ -90,6 +90,8 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
 
         Translation2d cartesian_measurement = m_kinematics.forward(measurement.get());
 
+        // TODO: there should be some sort of "kA" here rather than just consuming
+        // the accel value directly.
         double u1 = MathUtil.clamp(
                 m_lowerController.calculate(
                         new Model100(measurement.get().th1, 0),
