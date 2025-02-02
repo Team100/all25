@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.TargetUtil;
@@ -17,15 +18,14 @@ import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -52,8 +52,8 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Supplier<Optional<Translation2d>> m_target;
-    private final PIDController m_thetaController;
-    private final PIDController m_omegaController;
+    private final Controller100 m_thetaController;
+    private final Controller100 m_omegaController;
     private final Profile100 m_profile;
     private final BooleanSupplier m_trigger;
 
@@ -78,8 +78,8 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Optional<Translation2d>> target,
-            PIDController thetaController,
-            PIDController omegaController,
+            Controller100 thetaController,
+            Controller100 omegaController,
             BooleanSupplier trigger) {
         m_field_log = fieldLogger;
         LoggerFactory child = parent.child(this);
@@ -142,7 +142,7 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
         double yaw = state.theta().x();
         double yawRate = state.theta().v();
         Rotation2d currentRotation = new Rotation2d(yaw);
-        
+
         Translation2d currentTranslation = state.pose().getTranslation();
         Rotation2d bearing = TargetUtil.bearing(currentTranslation, target.get()).plus(GeometryUtil.kRotation180);
         // take the short path
@@ -163,15 +163,15 @@ public class ManualWithNoteRotation implements ChassisSpeedDriver {
         m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goal);
         double thetaFF = m_thetaSetpoint.v();
 
-        double thetaFB = m_thetaController.calculate(yaw, m_thetaSetpoint.x());
+        double thetaFB = m_thetaController.calculate(Model100.x(yaw), m_thetaSetpoint.model()).v();
         m_log_theta_setpoint.log(() -> m_thetaSetpoint);
         m_log_theta_measurement.log(() -> yaw);
-        m_log_theta_error.log(m_thetaController::getError);
+        m_log_theta_error.log(() -> m_thetaSetpoint.x() - yaw);
         m_log_theta_FB.log(() -> thetaFB);
-        double omegaFB = m_omegaController.calculate(yawRate, m_thetaSetpoint.v());
+        double omegaFB = m_omegaController.calculate(Model100.x(yawRate), Model100.x(m_thetaSetpoint.v())).v();
         m_log_omega_reference.log(() -> m_thetaSetpoint.model());
         m_log_omega_measurement.log(() -> yawRate);
-        m_log_omega_error.log(m_omegaController::getError);
+        m_log_omega_error.log(() -> m_thetaSetpoint.v() - yawRate);
         m_log_omega_FB.log(() -> omegaFB);
 
         double omega = MathUtil.clamp(

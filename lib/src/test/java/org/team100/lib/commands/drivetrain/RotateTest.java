@@ -49,7 +49,7 @@ class RotateTest extends Fixtured implements Timeless {
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle.get().getRadians(), kDelta);
 
         // steering
-        for (int i = 0; i < 18; ++i) {
+        for (int i = 0; i < 13; ++i) {
             stepTime(0.02);
             fixture.drive.periodic();
             rotate.execute();

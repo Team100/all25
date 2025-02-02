@@ -1,8 +1,9 @@
 package org.team100.lib.motion.drivetrain.module;
 
+import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.PIDControllerVeloWPI;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
@@ -15,8 +16,6 @@ import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.Profile100;
-
-import edu.wpi.first.math.controller.PIDController;
 
 public class SimulatedSwerveModule100 extends SwerveModule100 {
 
@@ -58,13 +57,14 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
                 parent,
                 turningMech);
-        PIDController turningPositionController = new PIDController(
+        Controller100 turningPositionController = new PIDControllerVeloWPI(
+                parent,
                 20, // kP
                 0, // kI
-                0); // kD
-        turningPositionController.enableContinuousInput(-Math.PI, Math.PI);
-        // note low tolerance
-        turningPositionController.setTolerance(0.05, 0.05);
+                0, // kD
+                true,
+                0.05, // note low tolerance
+                1);
         Profile100 profile = kinodynamics.getSteeringProfile();
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,

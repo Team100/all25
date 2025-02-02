@@ -3,6 +3,8 @@ package org.team100.lib.motion.components;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.PIDControllerVeloWPI;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.framework.TimedRobot100;
@@ -17,15 +19,13 @@ import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.TrapezoidProfile100;
 
-import edu.wpi.first.math.controller.PIDController;
-
 class AnglePositionServoProfileTest {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     private final MockBareMotor motor;
     private final MockRotaryPositionSensor encoder;
-    private final PIDController controller2;
+    private final Controller100 controller2;
     private final AngularPositionServo servo;
 
     public AnglePositionServoProfileTest() {
@@ -36,8 +36,7 @@ class AnglePositionServoProfileTest {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDController(1, 0, 0);
-        controller2.enableContinuousInput(-Math.PI, Math.PI);
+        controller2 = new PIDControllerVeloWPI(logger, 1, 0, 0, true, 0.05, 1);
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         servo = new OnboardAngularPositionServo(

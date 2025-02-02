@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
+import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -20,7 +21,6 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 
 /**
@@ -30,6 +30,8 @@ import edu.wpi.first.math.filter.LinearFilter;
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final double kFeedbackDeadbandRad_S = 0.01;
+    private static final double kPositionTolerance = 0.05;
+    private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
     private final RotaryPositionSensor m_positionSensor;
@@ -37,7 +39,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      * This is positional feedback only, since velocity feedback is handled
      * outboard.
      */
-    private final PIDController m_controller;
+    private final Controller100 m_controller;
 
     /**
      * Smooth out the feedback output.
@@ -69,8 +71,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
-    private final DoubleLogger m_log_position_tolerance;
-    private final DoubleLogger m_log_velocity_tolerance;
     private final BooleanLogger m_log_at_setpoint;
 
     public OnboardAngularPositionServo(
@@ -78,13 +78,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             RotaryMechanism mech,
             RotaryPositionSensor positionSensor,
             Supplier<Profile100> profile,
-            PIDController controller) {
+            Controller100 controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_positionSensor = positionSensor;
         m_profile = profile;
         m_controller = controller;
-        m_controller.setIntegratorRange(0, 0.1);
         m_filter = LinearFilter.singlePoleIIR(0.02, TimedRobot100.LOOP_PERIOD_S);
 
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
@@ -96,8 +95,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_TOTAL = child.doubleLogger(Level.TRACE, "u_TOTAL (rad_s)");
         m_log_error = child.doubleLogger(Level.TRACE, "Controller Position Error (rad)");
         m_log_velocity_error = child.doubleLogger(Level.TRACE, "Controller Velocity Error (rad_s)");
-        m_log_position_tolerance = child.doubleLogger(Level.TRACE, "Position Tolerance");
-        m_log_velocity_tolerance = child.doubleLogger(Level.TRACE, "Velocity Tolerance");
         m_log_at_setpoint = child.booleanLogger(Level.TRACE, "At Setpoint");
     }
 
@@ -158,13 +155,15 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         final double u_FB;
         if (Experiments.instance.enabled(Experiment.FilterFeedback)) {
             u_FB = MathUtil.applyDeadband(
-                    m_filter.calculate(m_controller.calculate(measurementPositionRad,
-                            m_setpointRad.x())),
+                    m_filter.calculate(m_controller.calculate(
+                            Model100.x(measurementPositionRad),
+                            m_setpointRad.model()).v()),
                     kFeedbackDeadbandRad_S,
                     Double.POSITIVE_INFINITY);
         } else {
-            u_FB = m_controller.calculate(measurementPositionRad,
-                    m_setpointRad.x());
+            u_FB = m_controller.calculate(
+                    Model100.x(measurementPositionRad),
+                    m_setpointRad.model()).v();
         }
 
         final double u_FF = m_setpointRad.v();
@@ -183,8 +182,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(m_controller::getError);
-        m_log_velocity_error.log(m_controller::getErrorDerivative);
+        m_log_error.log(() -> m_setpointRad.x() - measurementPositionRad);
+        m_log_velocity_error.log(() -> m_setpointRad.v() - mechanismVelocityRad_S);
     }
 
     @Override
@@ -214,8 +213,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public boolean atSetpoint() {
         boolean atSetpoint = m_controller.atSetpoint();
-        m_log_position_tolerance.log(m_controller::getPositionTolerance);
-        m_log_velocity_tolerance.log(m_controller::getVelocityTolerance);
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
     }
@@ -231,11 +228,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
                 && MathUtil.isNear(
                         m_goal.x(),
                         m_setpointRad.x(),
-                        m_controller.getPositionTolerance())
+                        kPositionTolerance)
                 && MathUtil.isNear(
                         m_goal.v(),
                         m_setpointRad.v(),
-                        m_controller.getVelocityTolerance());
+                        kVelocityTolerance);
     }
 
     @Override

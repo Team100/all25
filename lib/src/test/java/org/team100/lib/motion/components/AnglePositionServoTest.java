@@ -3,10 +3,14 @@ package org.team100.lib.motion.components;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.PIDControllerVeloWPI;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
-import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.TestLoggerFactory;
+import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
@@ -15,12 +19,7 @@ import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.TrapezoidProfile100;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.TestLoggerFactory;
-import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.util.Util;
-
-import edu.wpi.first.math.controller.PIDController;
 
 class AnglePositionServoTest {
     private static final double kDelta = 0.001;
@@ -37,7 +36,8 @@ class AnglePositionServoTest {
                 new MockIncrementalBareEncoder(),
                 1);
         final MockRotaryPositionSensor turningEncoder = new MockRotaryPositionSensor();
-        final PIDController turningController2 = new PIDController(1, 0, 0);
+        final Controller100 turningController2 = new PIDControllerVeloWPI(
+                logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         final AngularPositionServo servo = new OnboardAngularPositionServo(
                 logger,
