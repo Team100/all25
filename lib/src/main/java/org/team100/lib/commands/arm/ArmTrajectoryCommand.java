@@ -85,16 +85,16 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         m_timer = new Timer();
 
         m_lowerPosController = new PIDControllerVeloWPI(
-                child.child("lowerPosController"), 2, 0, 0.1, true, kTolerance);
+                child.child("lowerPosController"), 2, 0, 0.1, true, kTolerance, 1);
 
         m_upperPosController = new PIDControllerVeloWPI(
-                child.child("upperPosController"), 2, 0, 0.05, true, kTolerance);
+                child.child("upperPosController"), 2, 0, 0.05, true, kTolerance, 1);
 
         m_lowerVelController = new PIDControllerVeloWPI(
-                child.child("lowerVelController"), 0.1, 0, 0, false, kTolerance);
+                child.child("lowerVelController"), 0.1, 0, 0, false, kTolerance, 1);
 
         m_upperVelController = new PIDControllerVeloWPI(
-                child.child("upperVelController"), 0.1, 0, 0, false, kTolerance);
+                child.child("upperVelController"), 0.1, 0, 0, false, kTolerance, 1);
 
         m_trajectories = new ArmTrajectories(kConf);
 

@@ -13,4 +13,6 @@ public interface Controller100 {
      * If the most-recent calculation inputs were within the tolerance.
      */
     boolean atSetpoint();
+
+    void reset();
 }

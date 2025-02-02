@@ -15,7 +15,7 @@ public class PIDControllerVeloWPITest {
 
     @Test
     public void testCalculate() {
-        PIDControllerVeloWPI c = new PIDControllerVeloWPI(logger, 1, 0, 0, false, 0.05);
+        PIDControllerVeloWPI c = new PIDControllerVeloWPI(logger, 1, 0, 0, false, 0.05, 1);
 
         // measurement == goal: control is the same
         Control100 u = c.calculate(new Model100(), new Model100());

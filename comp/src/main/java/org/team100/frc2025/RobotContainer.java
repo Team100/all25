@@ -73,7 +73,7 @@ public class RobotContainer implements Glassy {
     private final SwerveModuleCollection m_modules;
     // private final Command m_auton;
 
-    //SUBSYSTEMS
+    // SUBSYSTEMS
     final SwerveDriveSubsystem m_drive;
     // final Climber m_climber;
 
@@ -95,10 +95,8 @@ public class RobotContainer implements Glassy {
         final OperatorControl operatorControl = new OperatorControlProxy(async);
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
-
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
-        
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
@@ -142,10 +140,7 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider);
 
-
         // m_climber = new Climber();
-
-       
 
         ///////////////////////////
         //
@@ -153,13 +148,12 @@ public class RobotContainer implements Glassy {
         //
 
         HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(comLog);
-        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(hlog);
+        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog, hlog);
 
         final DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(comLog);
         final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
         DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(comLog);
 
-        
         final PIDController thetaController = new PIDController(3.0, 0, 0);
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         final PIDController omegaController = new PIDController(0.2, 0, 0);
@@ -204,19 +198,23 @@ public class RobotContainer implements Glassy {
                         omegaController,
                         driverControl::trigger));
 
-        
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+        // operatorControl::ramp));
 
+        // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
+        // ObjectPosition24ArrayListener(poseEstimator);
 
-        // ObjectPosition24ArrayListener objectPosition24ArrayListener = new ObjectPosition24ArrayListener(poseEstimator);
+        // DRIVER BUTTONS
+        whileTrue(driverControl::driveToObject,
+                new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
+                        new FullStateDriveController(hlog), swerveKinodynamics));
+        whileTrue(driverControl::fullCycle,
+                new FullCycle(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
 
-        //DRIVER BUTTONS
-        whileTrue(driverControl::driveToObject, new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1,4, new Rotation2d()))), m_drive, new FullStateDriveController(hlog),swerveKinodynamics));
-        whileTrue(driverControl::fullCycle, new FullCycle(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
-        
-        whileTrue(driverControl::test, new FullCycle2(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
+        whileTrue(driverControl::test,
+                new FullCycle2(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
@@ -226,13 +224,10 @@ public class RobotContainer implements Glassy {
                         m_drive,
                         driveControllerFactory.fancyPIDF(PIDFlog),
                         swerveKinodynamics));
-    
 
-        //OPERATOR BUTTONS
+        // OPERATOR BUTTONS
         // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));
 
-
-        
     }
 
     public void beforeCommandCycle() {
@@ -264,7 +259,7 @@ public class RobotContainer implements Glassy {
 
     public void scheduleAuton() {
         // if (m_auton == null)
-        //     return;
+        // return;
         // m_auton.schedule();
     }
 
@@ -274,7 +269,7 @@ public class RobotContainer implements Glassy {
 
     public void cancelAuton() {
         // if (m_auton == null)
-        //     return;
+        // return;
         // m_auton.cancel();
     }
 

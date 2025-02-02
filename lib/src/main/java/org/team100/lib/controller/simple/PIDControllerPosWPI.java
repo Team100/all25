@@ -51,4 +51,9 @@ public class PIDControllerPosWPI implements Controller100, Glassy {
         return m_controller.atSetpoint();
     }
 
+    @Override
+    public void reset() {
+        m_controller.reset();
+    }
+
 }

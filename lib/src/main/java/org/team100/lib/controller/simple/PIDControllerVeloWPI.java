@@ -27,9 +27,12 @@ public class PIDControllerVeloWPI implements Controller100, Glassy {
             double i,
             double d,
             boolean rotation,
-            double tolerance) {
+            double tolerance,
+            double integratorRange) {
         m_controller = new PIDController(p, i, d, TimedRobot100.LOOP_PERIOD_S);
         m_controller.setTolerance(tolerance);
+        m_controller.setIntegratorRange(-integratorRange, integratorRange);
+
         if (rotation)
             m_controller.enableContinuousInput(-Math.PI, Math.PI);
         LoggerFactory child = parent.child(this);
@@ -52,6 +55,11 @@ public class PIDControllerVeloWPI implements Controller100, Glassy {
     @Override
     public boolean atSetpoint() {
         return m_controller.atSetpoint();
+    }
+
+    @Override
+    public void reset() {
+        m_controller.reset();
     }
 
 }

@@ -24,4 +24,9 @@ public class ProfiledController implements Controller100 {
         return false;
     }
 
+    @Override
+    public void reset() {
+        // nothing
+    }
+
 }

@@ -57,6 +57,7 @@ class DriveToWaypoint3Test extends Fixtured {
         };
 
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
+                logger,
                 new HolonomicFieldRelativeController.Log(logger));
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(
@@ -91,6 +92,7 @@ class DriveToWaypoint3Test extends Fixtured {
         assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
 
         HolonomicFieldRelativeController m_controller = HolonomicDriveControllerFactory.get(
+                logger,
                 new HolonomicFieldRelativeController.Log(logger));
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(

@@ -174,6 +174,11 @@ public class MinTimeController implements Controller100, Glassy {
         return calculate(TimedRobot100.LOOP_PERIOD_S, initial, goal);
     }
 
+    @Override
+    public void reset() {
+        // nothing
+    }
+
     /**
      * Note order of the arguments: initial state first, then goal.
      * 

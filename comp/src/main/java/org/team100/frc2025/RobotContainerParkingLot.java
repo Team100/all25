@@ -124,7 +124,7 @@ public class RobotContainerParkingLot implements Glassy {
                 swerveLocal,
                 visionDataProvider);
         HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(driveLogger);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(hlog);
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(driveLogger, hlog);
 
         ///////////////////////
 
@@ -244,7 +244,9 @@ public class RobotContainerParkingLot implements Glassy {
                         maker.permissiveSquare(), viz));
 
         // one-meter square with position and velocity feedback control
-        HolonomicFieldRelativeController fscontroller = HolonomicDriveControllerFactory.get(hlog);
+        HolonomicFieldRelativeController fscontroller = HolonomicDriveControllerFactory.get(
+                driveLogger,
+                hlog);
         whileTrue(driverControl::never,
                 new FullStateTrajectoryListCommand(driveLogger, fscontroller, m_drive,
                         maker::square, viz));
