@@ -8,4 +8,9 @@ public interface Controller100 {
      * Produce the desired state for the next time step.
      */
     Control100 calculate(Model100 measurement, Model100 setpoint);
+
+    /**
+     * If the most-recent calculation inputs were within the tolerance.
+     */
+    boolean atSetpoint();
 }

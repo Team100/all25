@@ -46,4 +46,9 @@ public class PIDControllerPosWPI implements Controller100, Glassy {
         return new Control100(targetPos, targetVelo, targetAccel);
     }
 
+    @Override
+    public boolean atSetpoint() {
+        return m_controller.atSetpoint();
+    }
+
 }

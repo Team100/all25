@@ -680,7 +680,7 @@ public class LoggerFactory {
             if (!allow(m_level))
                 return;
             Model100 val = vals.get();
-            m_xLogger.log(val::x);
+            m_xLogger.log(() -> val.x());
             m_vLogger.log(val::v);
         }
     }

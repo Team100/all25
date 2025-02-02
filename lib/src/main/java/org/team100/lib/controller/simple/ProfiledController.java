@@ -14,12 +14,14 @@ public class ProfiledController implements Controller100 {
 
     }
 
-    public void enableContinuousInput(double minimumInput, double maximumInput) {
-        // use modulus instead
-    }
-
+    @Override
     public Control100 calculate(Model100 measurement, Model100 setpoint) {
         return null;
+    }
+
+    @Override
+    public boolean atSetpoint() {
+        return false;
     }
 
 }
