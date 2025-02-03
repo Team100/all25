@@ -19,7 +19,7 @@ public class ProfiledControllerTest {
     /** Double integrator system simulator, kinda */
     static class Sim {
         /** this represents the system's inability to execute infinite jerk. */
-        private static final double jerkLimit = 0.5;
+        private final double m_jerkLimit;
         /** measured position */
         double y = 0;
         /** measured velocity */
@@ -27,10 +27,14 @@ public class ProfiledControllerTest {
         /** accel for imposing the jerk limit */
         double a = 0;
 
+        public Sim(double jerkLimit) {
+            m_jerkLimit = jerkLimit;
+        }
+
         /** evolve the system over the duration of this time step */
         void step(double u) {
 
-            a = jerkLimit * a + (1 - jerkLimit) * u;
+            a = m_jerkLimit * a + (1 - m_jerkLimit) * u;
 
             y = y + yDot * 0.02 + 0.5 * a * 0.02 * 0.02;
             yDot = yDot + a * 0.02;
@@ -59,7 +63,8 @@ public class ProfiledControllerTest {
         Control100 setpointControl = new Control100();
         Model100 setpointModel = initial;
 
-        Sim sim = new Sim();
+        // for now, infinite jerk
+        Sim sim = new Sim(0);
         sim.y = 0;
         sim.yDot = 0;
 
@@ -84,7 +89,7 @@ public class ProfiledControllerTest {
         Feedback100 feedback = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
         // initial state is motionless
-        Sim sim = new Sim();
+        Sim sim = new Sim(0.5);
         sim.y = 0;
         sim.yDot = 0;
         double u_FB = 0;
