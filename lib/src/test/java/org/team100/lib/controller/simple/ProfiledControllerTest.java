@@ -60,7 +60,7 @@ public class ProfiledControllerTest {
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
-        ProfiledController c = new ProfiledController(p, f);
+        ProfiledController c = new ProfiledController(p, f, x -> x);
         final Model100 initial = new Model100(0, 0);
         final Model100 goal = new Model100(1, 0);
 
@@ -123,7 +123,6 @@ public class ProfiledControllerTest {
         // log initial state
         Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                 0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
-
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
 

@@ -1,13 +1,9 @@
 package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
-import java.util.function.Supplier;
 
-import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.RotaryPositionSensor;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -15,13 +11,11 @@ import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
 
 /**
  * Because the 2025 angular encoder classes do not wind up, this is a version of
@@ -29,30 +23,11 @@ import edu.wpi.first.math.filter.LinearFilter;
  * OnboardPositionServo.
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
-    private static final double kFeedbackDeadbandRad_S = 0.01;
-    private static final double kPositionTolerance = 0.05;
-    private static final double kVelocityTolerance = 0.05;
-
     private final RotaryMechanism m_mechanism;
     private final RotaryPositionSensor m_positionSensor;
-    /**
-     * This is positional feedback only, since velocity feedback is handled
-     * outboard.
-     */
-    private final Feedback100 m_feedback;
-
-    /**
-     * Smooth out the feedback output.
-     * TODO: is this really necessary?
-     */
-    private final LinearFilter m_filter;
-
-    private final Profile100 m_profile;
-    // this was Sanjan experimenting in October 2024
-    // private ProfileWPI profileTest = new ProfileWPI(40,120);
+    private final ProfiledController m_controller;
 
     private Model100 m_goal = new Model100(0, 0);
-    private Control100 m_setpointRad = new Control100(0, 0);
 
     // LOGGERS
     private final Model100Logger m_log_goal;
@@ -66,18 +41,19 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_log_velocity_error;
     private final BooleanLogger m_log_at_setpoint;
 
+    /**
+     * Note the position sensor can be separate from the motor sensors that are part
+     * of the mechanism.
+     */
     public OnboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
             RotaryPositionSensor positionSensor,
-            Profile100 profile,
-            Feedback100 controller) {
+            ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_positionSensor = positionSensor;
-        m_profile = profile;
-        m_feedback = controller;
-        m_filter = LinearFilter.singlePoleIIR(0.02, TimedRobot100.LOOP_PERIOD_S);
+        m_controller = controller;
 
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
@@ -99,14 +75,13 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public void reset() {
-        m_feedback.reset();
         OptionalDouble position = getPosition();
         OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty()) {
             Util.warn("OnboardAngularPositionServo: Broken sensor!");
             return;
         }
-        m_setpointRad = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        m_controller.init(new Model100(position.getAsDouble(), velocity.getAsDouble()));
     }
 
     @Override
@@ -119,52 +94,41 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             double goalRad,
             double goalVelocityRad_S,
             double feedForwardTorqueNm) {
-        OptionalDouble positionRad = m_positionSensor.getPositionRad();
+        OptionalDouble position = getPosition();
         // note the mechanism uses the motor's internal encoder which may be only
         // approximately attached to the the output, via backlash and slack, so these
         // two measurements might not be entirely consistent.
-        OptionalDouble optVel = m_mechanism.getVelocityRad_S();
+        // on the other hand, using the position sensor to obtain velocity has its own
+        // issues: delay and noise.
+        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
 
-        if (positionRad.isEmpty() || optVel.isEmpty()) {
+        if (position.isEmpty() || velocity.isEmpty()) {
             Util.warn("GravityServo: Broken sensor!");
             return;
         }
-        double measurementPositionRad = MathUtil.angleModulus(positionRad.getAsDouble());
-        double mechanismVelocityRad_S = optVel.getAsDouble();
+        m_goal = new Model100(goalRad, goalVelocityRad_S);
 
-        // use the goal nearest to the measurement.
-        m_goal = new Model100(MathUtil.angleModulus(goalRad - measurementPositionRad) + measurementPositionRad,
-                goalVelocityRad_S);
+        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+        ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+        Control100 setpointRad = result.feedforward();
 
-        // use the setpoint nearest to the measurement.
-        m_setpointRad = new Control100(
-                MathUtil.angleModulus(m_setpointRad.x() - measurementPositionRad) + measurementPositionRad,
-                m_setpointRad.v());
-
-        m_setpointRad = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpointRad.model(), m_goal);
-
-        final double u_FB = m_feedback.calculate(
-                Model100.x(measurementPositionRad),
-                m_setpointRad.model());
-
-        final double u_FF = m_setpointRad.v();
+        final double u_FF = setpointRad.v();
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
+        final double u_FB = result.feedback();
 
         final double u_TOTAL = u_FB + u_FF;
 
-        // stop using the trailing accel, use the setpoint accel instead.
-        // m_mechanism.setVelocity(u_TOTAL, accel(u_TOTAL), feedForwardTorqueNm);
-        m_mechanism.setVelocity(u_TOTAL, m_setpointRad.a(), feedForwardTorqueNm);
+        m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
-        m_log_measurement.log(() -> new Model100(measurementPositionRad, mechanismVelocityRad_S));
-        m_log_setpoint.log(() -> m_setpointRad);
+        m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
+        m_log_setpoint.log(() -> setpointRad);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(() -> m_setpointRad.x() - measurementPositionRad);
-        m_log_velocity_error.log(() -> m_setpointRad.v() - mechanismVelocityRad_S);
+        m_log_error.log(() -> setpointRad.x() - position.getAsDouble());
+        m_log_velocity_error.log(() -> setpointRad.v() - velocity.getAsDouble());
     }
 
     @Override
@@ -173,7 +137,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     /**
-     * @return Current position measurement, radians.
+     * Position as measured by the position sensor, which is can be part
+     * of the motor, or not.
+     * 
+     * @return Current position measurement, radians, wrapped in [-pi,pi].
      */
     @Override
     public OptionalDouble getPosition() {
@@ -184,6 +151,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     /**
+     * Velocity as measured by the position sensor.
+     * 
      * @return Current velocity, rad/s.
      */
     @Override
@@ -193,7 +162,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public boolean atSetpoint() {
-        boolean atSetpoint = m_feedback.atSetpoint();
+        boolean atSetpoint = m_controller.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
     }
@@ -205,15 +174,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public boolean atGoal() {
-        return atSetpoint()
-                && MathUtil.isNear(
-                        m_goal.x(),
-                        m_setpointRad.x(),
-                        kPositionTolerance)
-                && MathUtil.isNear(
-                        m_goal.v(),
-                        m_setpointRad.v(),
-                        kVelocityTolerance);
+        return m_controller.atGoal(m_goal);
     }
 
     @Override
@@ -234,13 +195,13 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     /** for testing only */
     @Override
     public Control100 getSetpoint() {
-        return m_setpointRad;
+        return m_controller.getSetpoint().control();
     }
 
     @Override
     public void periodic() {
         m_mechanism.periodic();
-        m_log_setpoint.log(() -> m_setpointRad);
+        m_log_setpoint.log(() -> m_controller.getSetpoint().control());
         m_log_goal.log(() -> m_goal);
     }
 }

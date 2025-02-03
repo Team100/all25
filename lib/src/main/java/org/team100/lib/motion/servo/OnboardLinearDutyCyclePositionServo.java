@@ -31,8 +31,6 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
 
-    private Control100 m_setpoint = new Control100(0, 0);
-
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
             LinearMechanism mechanism,
@@ -59,12 +57,14 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty())
             return;
-        m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
-        m_controller.init(m_setpoint.model());
+        m_controller.init(new Model100(position.getAsDouble(), velocity.getAsDouble()));
     }
 
     @Override
-    public void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm) {
+    public void setPositionWithVelocity(
+            double goalM,
+            double goalVelocityM_S,
+            double feedForwardTorqueNm) {
         OptionalDouble position = getPosition();
         OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty())
@@ -72,19 +72,19 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         Model100 goal = new Model100(goalM, goalVelocityM_S);
         ProfiledController.Result result = m_controller.calculate(measurement, goal);
-        m_setpoint = result.feedforward();
-        double u_FF = m_kV * m_setpoint.v();
+        Control100 setpoint = result.feedforward();
+        double u_FF = m_kV * setpoint.v();
         double u_FB = result.feedback();
         double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
         m_mechanism.setDutyCycle(u_TOTAL);
         m_log_goal.log(() -> goal);
         m_log_measurement.log(() -> position.getAsDouble());
-        m_log_setpoint.log(() -> m_setpoint);
+        m_log_setpoint.log(() -> setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(() -> m_setpoint.x() - position.getAsDouble());
-        m_log_velocity_error.log(() -> m_setpoint.v() - velocity.getAsDouble());
+        m_log_error.log(() -> setpoint.x() - position.getAsDouble());
+        m_log_velocity_error.log(() -> setpoint.v() - velocity.getAsDouble());
     }
 
     @Override

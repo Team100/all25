@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.RotaryPositionSensor;
@@ -20,6 +21,8 @@ import org.team100.lib.motor.NeoCANSparkMotor;
 import org.team100.lib.motor.NeoVortexCANSparkMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
+
+import edu.wpi.first.math.MathUtil;
 
 public class ServoFactory {
 
@@ -94,7 +97,7 @@ public class ServoFactory {
             double gearRatio,
             double maxVelocity,
             double maxAccel,
-            Feedback100 controller,
+            Feedback100 feedback,
             Feedforward100 ff,
             PIDConstants lowLevelVelocityConstants) {
         CANSparkMotor motor = new NeoVortexCANSparkMotor(
@@ -110,11 +113,14 @@ public class ServoFactory {
                 new CANSparkEncoder(parent, motor),
                 gearRatio);
         RotaryPositionSensor sensor = new ProxyRotaryPositionSensor(mech);
+        ProfiledController controller = new ProfiledController(
+                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
+                feedback,
+                MathUtil::angleModulus);
         return new OnboardAngularPositionServo(
                 parent,
                 mech,
                 sensor,
-                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 controller);
     }
 
@@ -122,7 +128,7 @@ public class ServoFactory {
             LoggerFactory parent,
             double maxVelocity,
             double maxAccel,
-            Feedback100 controller) {
+            Feedback100 feedback) {
         // motor speed is rad/s
         SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
         RotaryMechanism mech = new SimpleRotaryMechanism(
@@ -136,11 +142,14 @@ public class ServoFactory {
         // the new sim doesn't have hard stops; should it?
         // 0, // minimum hard stop
         // 2); // maximum hard stop
+        ProfiledController controller = new ProfiledController(
+                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
+                feedback,
+                MathUtil::angleModulus);
         return new OnboardAngularPositionServo(
                 parent,
                 mech,
                 sensor,
-                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 controller);
     }
 

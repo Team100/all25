@@ -10,6 +10,8 @@ import edu.wpi.first.math.MathUtil;
  * 
  * The usual state-space representation would be X = (x,v) and Xdot = (v,a).
  * Units are meters, radians, and seconds.
+ * 
+ * TODO: include modulus here: the "x" is always either periodic (rotary) or not.
  */
 public class Model100 {
     private final double m_x;

@@ -18,6 +18,8 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final OptionalDoubleLogger m_log_rate;
 
     private double m_positionRad = 0;
+    // to calculate the position with trapezoid integral
+    private double m_previousVelocity = 0;
     private double m_timeS = Takt.get();
 
     public SimulatedRotaryPositionSensor(
@@ -33,11 +35,16 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     public OptionalDouble getPositionRad() {
         double nowS = Takt.get();
         double dtS = nowS - m_timeS;
+        // this is the velocity at the current instant.
         // motor velocity is rad/s
         OptionalDouble velocityRad_S = m_mechanism.getVelocityRad_S();
         if (velocityRad_S.isEmpty())
             return OptionalDouble.empty();
-        m_positionRad += velocityRad_S.getAsDouble() * dtS;
+
+        // use the previous velocity to calculate the trapezoidal integral
+        m_positionRad += 0.5 * (velocityRad_S.getAsDouble() + m_previousVelocity) * dtS;
+        m_previousVelocity = velocityRad_S.getAsDouble();
+
         m_positionRad = MathUtil.angleModulus(m_positionRad);
         m_timeS = nowS;
         m_log_position.log(() -> m_positionRad);
