@@ -15,6 +15,10 @@ public class TrajectoryTimeIterator {
     private double m_timeS = 0.0;
     private Optional<TrajectorySamplePoint> m_current;
 
+    /**
+     * Sets the current sample to the first sample.
+     * Sets the iterator time to the time of the first sample.
+     */
     public TrajectoryTimeIterator(TrajectoryTimeSampler sampler) {
         m_sampler = sampler;
         // No effect if view is empty.

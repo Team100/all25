@@ -48,30 +48,34 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
      * Makes no attempt to coordinate the axes or provide feasible output.
      */
     @Override
-    public FieldRelativeVelocity calculate(SwerveModel measurement, SwerveModel reference) {
+    public FieldRelativeVelocity calculate(
+            SwerveModel measurement,
+            SwerveModel currentReference,
+            SwerveModel nextReference) {
         m_log.measurement.log(() -> measurement);
-        m_log.reference.log(() -> reference);
-        m_log.error.log(() -> reference.minus(measurement));
-
-        FieldRelativeVelocity u_FF = reference.velocity();
+        m_log.reference.log(() -> currentReference);
+        m_log.error.log(() -> currentReference.minus(measurement));
 
         // feedbacks are velocities
         double xFB = m_xFeedback.calculate(
                 Model100.x(measurement.x().x()),
-                Model100.x(reference.x().x()));
+                Model100.x(currentReference.x().x()));
         double yFB = m_yFeedback.calculate(
                 Model100.x(measurement.y().x()),
-                Model100.x(reference.y().x()));
+                Model100.x(currentReference.y().x()));
         double thetaFB = m_thetaFeedback.calculate(
                 Model100.x(measurement.theta().x()),
-                Model100.x(reference.theta().x()));
+                Model100.x(currentReference.theta().x()));
         double omegaFB = 0.0;
         if (m_useOmega) {
             omegaFB = m_omegaFeedback.calculate(Model100.x(measurement.theta().v()),
-                    Model100.x(reference.theta().v()));
+                    Model100.x(currentReference.theta().v()));
         }
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB + omegaFB);
         m_log.u_FB.log(() -> u_FB);
+
+        FieldRelativeVelocity u_FF = nextReference.velocity();
+
         return u_FF.plus(u_FB);
     }
 

@@ -29,6 +29,10 @@ class FullStateDriveControllerTest {
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
                         new Model100(0, 0)));
         assertEquals(0, t.x(), kDelta);
         assertEquals(0, t.y(), kDelta);
@@ -41,6 +45,10 @@ class FullStateDriveControllerTest {
         FullStateDriveController c = new FullStateDriveController(hlog);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),
@@ -61,6 +69,10 @@ class FullStateDriveControllerTest {
         FullStateDriveController c = new FullStateDriveController(hlog);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),
@@ -87,6 +99,10 @@ class FullStateDriveControllerTest {
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
                         new Model100(-1, 0.5),
                         new Model100(0, 0),
                         new Model100(0, 0)));
@@ -102,6 +118,10 @@ class FullStateDriveControllerTest {
         FullStateDriveController c = new FullStateDriveController(hlog);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),

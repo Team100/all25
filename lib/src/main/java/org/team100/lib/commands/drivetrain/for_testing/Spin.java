@@ -31,6 +31,7 @@ public class Spin extends Command implements Glassy {
     double m_initialRotation;
     double m_speedRad_S;
     double m_angleRad;
+    SwerveModel m_currentReference;
 
     public Spin(
             SwerveDriveSubsystem swerve,
@@ -48,6 +49,7 @@ public class Spin extends Command implements Glassy {
         m_initialRotation = currentPose.getRotation().getRadians();
         m_speedRad_S = 0;
         m_angleRad = 0;
+        m_currentReference = null;
     }
 
     @Override
@@ -66,9 +68,15 @@ public class Spin extends Command implements Glassy {
                 m_initialRotation + m_angleRad,
                 m_speedRad_S);
 
-        SwerveModel reference = new SwerveModel(xState, yState, rotation);
+        SwerveModel nextReference = new SwerveModel(xState, yState, rotation);
+        if (m_currentReference == null) {
+            m_currentReference = nextReference;
+        }
 
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(m_swerve.getState(), reference);
+        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                m_swerve.getState(), m_currentReference, nextReference);
+        m_currentReference = nextReference;
+
         // force dx and dy to zero, clamp dtheta
         FieldRelativeVelocity clamped = new FieldRelativeVelocity(0, 0,
                 MathUtil.clamp(fieldRelativeTarget.theta(), -kMaxSpeed, kMaxSpeed));

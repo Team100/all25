@@ -51,9 +51,10 @@ public class DriveInACircle extends Command implements Glassy {
     private final FieldRelativeVelocityLogger m_log_target;
 
     private Translation2d m_center;
-    private double m_initialRotation; 
+    private double m_initialRotation;
     private double m_speedRad_S;
     private double m_angleRad;
+    private SwerveControl m_currentReference;
 
     /**
      * @param turnRatio How to rotate the drivetrain.
@@ -92,6 +93,7 @@ public class DriveInACircle extends Command implements Glassy {
         m_center = getCenter(currentPose, kRadiusM);
         m_speedRad_S = 0;
         m_angleRad = 0;
+        m_currentReference = null;
         visualize();
     }
 
@@ -114,7 +116,13 @@ public class DriveInACircle extends Command implements Glassy {
                 m_initialRotation,
                 m_turnRatio);
 
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(m_swerve.getState(), reference.model());
+        if (m_currentReference == null) {
+            m_currentReference = reference;
+        }
+
+        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                m_swerve.getState(), m_currentReference.model(), reference.model());
+        m_currentReference = reference;
         m_swerve.driveInFieldCoords(fieldRelativeTarget);
 
         m_log_center.log(() -> m_center);

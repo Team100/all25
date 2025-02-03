@@ -52,7 +52,8 @@ public class OscillateForceField extends Command implements Glassy {
     @Override
     public void execute() {
         SwerveModel measurement = m_swerve.getState();
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, m_goal);
+        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+            measurement, m_goal, m_goal);
         m_swerve.driveInFieldCoords(fieldRelativeTarget);
     }
 

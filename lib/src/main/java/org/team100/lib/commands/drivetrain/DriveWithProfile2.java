@@ -45,7 +45,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
     private double sy = 1;
 
     private Pose2d m_fieldRelativeGoal = null;
-    
+
     private final FieldLogger.Log m_field_log;
 
     private Control100 xSetpoint;
@@ -55,6 +55,8 @@ public class DriveWithProfile2 extends Command implements Glassy {
     private Model100 m_xGoalRaw;
     private Model100 m_yGoalRaw;
     private Model100 m_thetaGoalRaw;
+
+    SwerveModel currentGoalState;
 
     public DriveWithProfile2(
             FieldLogger.Log fieldLogger,
@@ -69,15 +71,15 @@ public class DriveWithProfile2 extends Command implements Glassy {
         m_limits = limits;
         xProfile = new TrapezoidProfile100(
                 m_limits.getMaxDriveVelocityM_S(),
-                m_limits.getMaxDriveAccelerationM_S2()/2,
+                m_limits.getMaxDriveAccelerationM_S2() / 2,
                 kTranslationalToleranceM);
         yProfile = new TrapezoidProfile100(
                 m_limits.getMaxDriveVelocityM_S(),
-                m_limits.getMaxDriveAccelerationM_S2()/2,
+                m_limits.getMaxDriveAccelerationM_S2() / 2,
                 kTranslationalToleranceM);
         thetaProfile = new TrapezoidProfile100(
                 m_limits.getMaxAngleSpeedRad_S(),
-                m_limits.getMaxAngleAccelRad_S2()/50,
+                m_limits.getMaxAngleAccelRad_S2() / 50,
                 kRotationToleranceRad);
         addRequirements(m_swerve);
     }
@@ -96,7 +98,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
         } else {
             m_fieldRelativeGoal = opt.get();
         }
-        
+
         m_xGoalRaw = new Model100(m_fieldRelativeGoal.getX(), 0);
         m_yGoalRaw = new Model100(m_fieldRelativeGoal.getY(), 0);
 
@@ -105,19 +107,23 @@ public class DriveWithProfile2 extends Command implements Glassy {
         double slowETA = Math.max(tx, ty);
 
         sx = TrapezoidProfile100.solveForSlowerETA(
-                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2()/2, kTranslationalToleranceM, dt,
+                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2() / 2, kTranslationalToleranceM,
+                dt,
                 xSetpoint.model(), m_xGoalRaw, slowETA, kTranslationalToleranceM_S);
         sy = TrapezoidProfile100.solveForSlowerETA(
-                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2()/2, kTranslationalToleranceM, dt,
+                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2() / 2, kTranslationalToleranceM,
+                dt,
                 ySetpoint.model(), m_yGoalRaw, slowETA, kTranslationalToleranceM_S);
 
         xProfile = xProfile.scale(sx);
         yProfile = yProfile.scale(sy);
+
+        currentGoalState = null;
     }
 
     @Override
     public void execute() {
-        
+
         Rotation2d currentRotation = m_swerve.getPose().getRotation();
         // take the short path
         double measurement = currentRotation.getRadians();
@@ -143,13 +149,18 @@ public class DriveWithProfile2 extends Command implements Glassy {
         m_yGoalRaw = new Model100(m_fieldRelativeGoal.getY(), 0);
         ySetpoint = yProfile.calculate(TimedRobot100.LOOP_PERIOD_S, ySetpoint.model(), m_yGoalRaw);
         m_field_log.m_log_target.log(() -> new double[] {
-            m_fieldRelativeGoal.getX(),
-            m_fieldRelativeGoal.getY(),
-            m_fieldRelativeGoal.getRotation().getRadians() });
+                m_fieldRelativeGoal.getX(),
+                m_fieldRelativeGoal.getY(),
+                m_fieldRelativeGoal.getRotation().getRadians() });
 
         thetaSetpoint = thetaProfile.calculate(TimedRobot100.LOOP_PERIOD_S, thetaSetpoint.model(), m_thetaGoalRaw);
-        SwerveModel goalState = new SwerveModel(xSetpoint.model(), ySetpoint.model(), thetaSetpoint.model());
-        FieldRelativeVelocity goal = m_controller.calculate(m_swerve.getState(), goalState);
+        SwerveModel nextGoalState = new SwerveModel(xSetpoint.model(), ySetpoint.model(), thetaSetpoint.model());
+        if (currentGoalState == null) {
+            currentGoalState = nextGoalState;
+        }
+        FieldRelativeVelocity goal = m_controller.calculate(
+                m_swerve.getState(), currentGoalState, nextGoalState);
+        currentGoalState = nextGoalState;
         m_swerve.driveInFieldCoords(goal);
     }
 
@@ -169,15 +180,15 @@ public class DriveWithProfile2 extends Command implements Glassy {
 
     public boolean atRest() {
         return Math.abs(m_swerve.getState().x().v()) < kTranslationalToleranceM_S
-        && Math.abs(m_swerve.getState().y().v()) < kTranslationalToleranceM_S
-        && Math.abs(m_swerve.getState().theta().v()) < kRotationToleranceRad_S;
+                && Math.abs(m_swerve.getState().y().v()) < kTranslationalToleranceM_S
+                && Math.abs(m_swerve.getState().theta().v()) < kRotationToleranceRad_S;
     }
 
     @Override
     public void end(boolean interrupted) {
         m_swerve.stop();
-        xProfile = xProfile.scale(1/sx);
-        yProfile = yProfile.scale(1/sy);
+        xProfile = xProfile.scale(1 / sx);
+        yProfile = yProfile.scale(1 / sy);
     }
 
 }

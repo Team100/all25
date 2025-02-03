@@ -83,6 +83,14 @@ public class OscillatePosition extends Command implements Glassy {
         if (m_trajectory == null)
             return;
         SwerveModel measurement = m_swerve.getState();
+        Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
+        if (curOpt.isEmpty()) {
+            Util.warn("broken trajectory, cancelling!");
+            cancel(); // this should not happen
+            return;
+        }
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+
 
         if (m_steeringAligned) {
             Optional<TrajectorySamplePoint> optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
@@ -91,11 +99,10 @@ public class OscillatePosition extends Command implements Glassy {
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-
-            TimedPose desiredState = samplePoint.state();
+            TimedPose desiredState = optSamplePoint.get().state();
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, reference);
             m_log_trajecX.log(() -> desiredState.state().getPose().getX());
             m_log_trajecY.log(() -> desiredState.state().getPose().getY());
 
@@ -109,11 +116,10 @@ public class OscillatePosition extends Command implements Glassy {
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-
-            TimedPose desiredState = samplePoint.state();
+            TimedPose desiredState = optSamplePoint.get().state();
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, reference);
 
             m_steeringAligned = m_swerve.steerAtRest(fieldRelativeTarget);
         }

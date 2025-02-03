@@ -83,37 +83,45 @@ public class FullStateTrajectoryListCommand extends Command implements Glassy {
         }
 
         // now there is a trajectory to follow
+
+        SwerveModel measurement = m_swerve.getState();
+        Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
+        if (curOpt.isEmpty()) {
+            Util.warn("broken trajectory, cancelling!");
+            cancel(); // this should not happen
+            return;
+        }
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+
         if (m_aligned) {
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
+            Optional<TrajectorySamplePoint> nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            if (nextOpt.isEmpty()) {
                 Util.warn("broken trajectory, cancelling!");
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-            TimedPose desiredState = samplePoint.state();
+            TimedPose desiredState = nextOpt.get().state();
 
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            SwerveModel measurement = m_swerve.getState();
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, nextReference);
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
-            m_log_reference.log(() -> reference);
+            m_log_reference.log(() -> nextReference);
         } else {
             // look one loop ahead by *previewing* the next point
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
+            Optional<TrajectorySamplePoint> nextOpt = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+            if (nextOpt.isEmpty()) {
                 Util.warn("broken trajectory, cancelling!");
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-            TimedPose desiredState = samplePoint.state();
+            TimedPose desiredState = nextOpt.get().state();
 
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            SwerveModel measurement = m_swerve.getState();
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, nextReference);
             m_aligned = m_swerve.steerAtRest(fieldRelativeTarget);
-            m_log_reference.log(() -> reference);
+            m_log_reference.log(() -> nextReference);
         }
 
     }

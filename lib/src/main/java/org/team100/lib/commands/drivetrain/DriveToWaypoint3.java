@@ -45,6 +45,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         private final Pose2dLogger desired;
         private final BooleanLogger aligned;
         private final Pose2dLogger pose;
+
         public Log(LoggerFactory parent) {
             LoggerFactory log = parent.child("DriveToWaypoint3");
             desired = log.pose2dLogger(Level.TRACE, "Desired");
@@ -105,38 +106,43 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public void execute() {
         if (m_trajectory == null)
             return;
-        SwerveModel measurement = m_swerve.getState(); 
+        SwerveModel measurement = m_swerve.getState();
+        Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
+        if (curOpt.isEmpty()) {
+            Util.warn("broken trajectory, cancelling!");
+            cancel(); // this should not happen
+            return;
+        }
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
 
         if (m_steeringAligned) {
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
+            Optional<TrajectorySamplePoint> nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            if (nextOpt.isEmpty()) {
                 Util.warn("broken trajectory, cancelling!");
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-
-            TimedPose desiredState = samplePoint.state();
-            m_log.desired.log(() -> desiredState.state().getPose());
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            TimedPose nextState = nextOpt.get().state();
+            m_log.desired.log(() -> nextState.state().getPose());
+            SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, nextReference);
 
             // follow normally
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // not aligned yet, try aligning by *previewing* next point
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
+            Optional<TrajectorySamplePoint> nextOpt = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+            if (nextOpt.isEmpty()) {
                 Util.warn("broken trajectory, cancelling!");
                 cancel(); // this should not happen
                 return;
             }
-            TrajectorySamplePoint samplePoint = optSamplePoint.get();
-
-            TimedPose desiredState = samplePoint.state();
-            m_log.desired.log(() -> desiredState.state().getPose());
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+            TimedPose nextState = nextOpt.get().state();
+            m_log.desired.log(() -> nextState.state().getPose());
+            SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
+            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentReference, nextReference);
 
             m_steeringAligned = m_swerve.steerAtRest(fieldRelativeTarget);
         }

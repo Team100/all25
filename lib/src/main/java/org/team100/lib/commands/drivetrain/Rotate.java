@@ -50,7 +50,7 @@ public class Rotate extends Command implements Glassy {
     private boolean m_finished = false;
 
     Profile100 m_profile;
-    Control100 refTheta;
+    Control100 currentRefTheta;
 
     private boolean m_steeringAligned;
 
@@ -67,7 +67,7 @@ public class Rotate extends Command implements Glassy {
         m_gyro = gyro;
         m_swerveKinodynamics = swerveKinodynamics;
         m_goalState = new Model100(targetAngleRadians, 0);
-        refTheta = new Control100(0, 0);
+        currentRefTheta = new Control100(0, 0);
 
         addRequirements(drivetrain);
         m_log_error_x = child.doubleLogger(Level.TRACE, "errorX");
@@ -91,27 +91,39 @@ public class Rotate extends Command implements Glassy {
 
     private void resetRefTheta() {
         ChassisSpeeds initialSpeeds = m_robotDrive.getChassisSpeeds();
-        refTheta = new Control100(
+        currentRefTheta = new Control100(
                 m_robotDrive.getPose().getRotation().getRadians(),
                 initialSpeeds.omegaRadiansPerSecond);
     }
 
     @Override
     public void execute() {
-        // reference
-        refTheta = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, refTheta.model(), m_goalState);
-        m_finished = MathUtil.isNear(refTheta.x(), m_goalState.x(), kXToleranceRad)
-                && MathUtil.isNear(refTheta.v(), m_goalState.v(), kVToleranceRad_S);
+
+        m_finished = MathUtil.isNear(currentRefTheta.x(), m_goalState.x(), kXToleranceRad)
+                && MathUtil.isNear(currentRefTheta.v(), m_goalState.v(), kVToleranceRad_S);
 
         SwerveModel measurement = m_robotDrive.getState();
         Pose2d currentPose = measurement.pose();
 
-        SwerveModel reference = new SwerveModel(
+        SwerveModel currentRef = new SwerveModel(
                 new Model100(currentPose.getX(), 0), // stationary at current pose
                 new Model100(currentPose.getY(), 0),
-                new Model100(refTheta.x(), refTheta.v()));
+                new Model100(currentRefTheta.x(), currentRefTheta.v()));
 
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(measurement, reference);
+        Control100 nextRefTheta = m_profile.calculate(
+                TimedRobot100.LOOP_PERIOD_S,
+                currentRefTheta.model(),
+                m_goalState);
+
+        SwerveModel nextReference = new SwerveModel(
+                new Model100(currentPose.getX(), 0), // stationary at current pose
+                new Model100(currentPose.getY(), 0),
+                new Model100(nextRefTheta.x(), nextRefTheta.v()));
+
+        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+                measurement, currentRef, nextReference);
+
+        currentRefTheta = nextRefTheta;
 
         if (m_steeringAligned) {
             // steer normally.
@@ -126,15 +138,16 @@ public class Rotate extends Command implements Glassy {
             }
         }
 
+        // log what we did
+
         double headingMeasurement = currentPose.getRotation().getRadians();
         double headingRate = m_gyro.getYawRateNWU();
 
-        // log what we did
-        m_log_error_x.log(() -> refTheta.x() - headingMeasurement);
-        m_log_error_v.log(() -> refTheta.v() - headingRate);
+        m_log_error_x.log(() -> currentRefTheta.x() - headingMeasurement);
+        m_log_error_v.log(() -> currentRefTheta.v() - headingRate);
         m_log_measurement_x.log(() -> headingMeasurement);
         m_log_measurement_v.log(() -> headingRate);
-        m_log_reference.log(() -> refTheta);
+        m_log_reference.log(() -> currentRefTheta);
     }
 
     @Override
