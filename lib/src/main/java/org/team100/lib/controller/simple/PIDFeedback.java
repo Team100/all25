@@ -5,49 +5,51 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.controller.PIDController;
 
 /**
- * Control acceleration using the WPI PID controller class, wrapped in our
- * control interface.
+ * Feedback using the WPI PID controller class.
  * 
  * This also logs the error that we have habitually logged elsewhere, because I
  * don't want the idea of "error" to be in the interface.
  */
-public class PIDControllerAccelWPI implements Controller100, Glassy {
+public class PIDFeedback implements Feedback100, Glassy {
     private final PIDController m_controller;
     private final DoubleLogger m_log_error;
+    private final DoubleLogger m_log_errorD;
 
-    public PIDControllerAccelWPI(
+    public PIDFeedback(
             LoggerFactory parent,
             double p,
             double i,
             double d,
-            boolean rotation) {
+            boolean rotation,
+            double tolerance,
+            double integratorRange) {
         m_controller = new PIDController(p, i, d, TimedRobot100.LOOP_PERIOD_S);
+        m_controller.setTolerance(tolerance);
+        m_controller.setIntegratorRange(-integratorRange, integratorRange);
+
         if (rotation)
             m_controller.enableContinuousInput(-Math.PI, Math.PI);
         LoggerFactory child = parent.child(this);
         m_log_error = child.doubleLogger(Level.TRACE, "error");
+        m_log_errorD = child.doubleLogger(Level.TRACE, "errorD");
+
     }
 
     /**
-     * Observe position error, produce desired accel and implied
-     * velocity and position given that accel.
+     * Observe position error, produce desired velocity, and include implied
+     * position and accel given that velocity.
      */
     @Override
-    public Control100 calculate(Model100 measurement, Model100 setpoint) {
-        double targetAccel = m_controller.calculate(measurement.x(), setpoint.x());
-        double targetVelo = measurement.v()
-                + targetAccel * TimedRobot100.LOOP_PERIOD_S;
-        double targetPos = measurement.x()
-                + measurement.v() * TimedRobot100.LOOP_PERIOD_S
-                + 0.5 * targetAccel * TimedRobot100.LOOP_PERIOD_S * TimedRobot100.LOOP_PERIOD_S;
+    public double calculate(Model100 measurement, Model100 setpoint) {
+        double u = m_controller.calculate(measurement.x(), setpoint.x());
         m_log_error.log(m_controller::getError);
-        return new Control100(targetPos, targetVelo, targetAccel);
+        m_log_errorD.log(m_controller::getErrorDerivative);
+        return u;
     }
 
     @Override

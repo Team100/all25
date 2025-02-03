@@ -26,22 +26,40 @@ class TrapezoidProfile100Test {
             Util.printf("%f %f %f %f\n", tt, sample.x(), sample.v(), sample.a());
     }
 
+    /** Double integrator system simulator, kinda */
+    static class Sim {
+        /** this represents the system's inability to execute infinite jerk. */
+        private static final double jerkLimit = 0.5;
+        /** measured position */
+        double y = 0;
+        /** measured velocity */
+        double yDot = 0;
+        /** accel for imposing the jerk limit */
+        double a = 0;
+
+        /** evolve the system over the duration of this time step */
+        void step(double u) {
+
+            a = jerkLimit * a + (1 - jerkLimit) * u;
+
+            y = y + yDot * 0.02 + 0.5 * a * 0.02 * 0.02;
+            yDot = yDot + a * 0.02;
+        }
+    }
+
     /** I think we're writing followers incorrectly, here's how to do it. */
     @Test
     void discreteTime1() {
-        final TrapezoidProfile100 profile = new TrapezoidProfile100(2, 1, 0.01);
+        final Profile100 profile = new TrapezoidProfile100(2, 1, 0.01);
         final Model100 initial = new Model100(0, 0);
         final Model100 goal = new Model100(1, 0);
         final double k1 = 5.0;
         final double k2 = 1.0;
-        // filter the output
-        final double jerkLimit = 0.5;
 
-        // y is the measurement, initial state is motionless
-        double y = 0;
-        double yDot = 0;
-        // initial control is off
-        double u = 0;
+        // initial state is motionless
+        Sim sim = new Sim();
+        sim.y = 0;
+        sim.yDot = 0;
         double feedback = 0;
         Control100 setpointControl = new Control100();
 
@@ -50,7 +68,7 @@ class TrapezoidProfile100Test {
 
         // log initial state
         Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                0.0, setpointModel.x(), setpointModel.v(), 0.0, y, yDot, 0.0, 0.0);
+                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0, 0.0);
 
         // eta to goal
         double etaS = 0;
@@ -64,14 +82,15 @@ class TrapezoidProfile100Test {
                     setpointControl.x(),
                     setpointControl.v(),
                     setpointControl.a(),
-                    y,
-                    yDot,
+                    sim.y,
+                    sim.yDot,
                     feedback,
                     etaS);
 
             // compute feedback using the "previous" setpoint, which is for the current
             // instant
-            feedback = k1 * (setpointModel.x() - y) + k2 * (setpointModel.v() - yDot);
+            feedback = k1 * (setpointModel.x() - sim.y)
+                    + k2 * (setpointModel.v() - sim.yDot);
 
             ResultWithETA result = profile.calculateWithETA(0.02, setpointModel, goal);
             setpointControl = result.state();
@@ -81,11 +100,10 @@ class TrapezoidProfile100Test {
 
             // this is actuation for the next time step, using the feedback for the current
             // time, and feedforward for the next time step
-            u = jerkLimit * u + (1-jerkLimit) * (setpointControl.a() + feedback);
 
-            // evolve the system over the duration of this time step
-            y = y + yDot * 0.02 + 0.5 * u * 0.02 * 0.02;
-            yDot = yDot + u * 0.02;
+            double u = setpointControl.a() + feedback;
+
+            sim.step(u);
         }
     }
 

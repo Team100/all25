@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
@@ -41,14 +41,14 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
-        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
+        Feedback100 thetaFeedback = new PIDFeedback(logger, 3.5, 0, 0, true, 0.05, 1);
+        Feedback100 omegaFeedback = new PIDFeedback(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
         m_manualWithHeading.reset(new SwerveModel());
 
         DriverControl.Velocity twist1_1 = new DriverControl.Velocity(0, 0, 0);
@@ -73,14 +73,14 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
-        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
+        Feedback100 thetaFeedback = new PIDFeedback(logger, 3.5, 0, 0, true, 0.05, 1);
+        Feedback100 omegaFeedback = new PIDFeedback(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
 
         m_manualWithHeading.reset(new SwerveModel());
 
@@ -110,15 +110,15 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
+        Feedback100 thetaFeedback = new PIDFeedback(logger, 3.5, 0, 0, true, 0.05, 1);
         // probably P is too high here.
-        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
+        Feedback100 omegaFeedback = new PIDFeedback(logger, 3.5, 0, 0, false, 0.05, 1);
         ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
 
         m_manualWithHeading.reset(new SwerveModel());
         // reset means setpoint is currentpose.
@@ -193,16 +193,16 @@ class ManualWithProfiledHeadingTest {
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        Controller100 thetaController = new PIDControllerVeloWPI(
+        Feedback100 thetaFeedback = new PIDFeedback(
                 logger, 3.5, 0, 0, true, 0.05, 1);
-        Controller100 omegaController = new PIDControllerVeloWPI(
+        Feedback100 omegaFeedback = new PIDFeedback(
                 logger, 3.5, 0, 0, false, 0.05, 1);
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
 
         // currently facing +x
         m_manualWithHeading.reset(new SwerveModel());
@@ -268,16 +268,16 @@ class ManualWithProfiledHeadingTest {
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
         // NOTE no feedback here.
-        Controller100 thetaController = new PIDControllerVeloWPI(logger, 0, 0, 0, true, 0.05, 1);
+        Feedback100 thetaFeedback = new PIDFeedback(logger, 0, 0, 0, true, 0.05, 1);
         // NOTE no feedback here.
-        Controller100 omegaController = new PIDControllerVeloWPI(logger, 0, 0, 0, false, 0.05, 1);
+        Feedback100 omegaFeedback = new PIDFeedback(logger, 0, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
 
         // driver rotates a bit
         DriverControl.Velocity control = new DriverControl.Velocity(0, 0, 1);
@@ -343,16 +343,16 @@ class ManualWithProfiledHeadingTest {
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
         // NOTE feedback here
-        Controller100 thetaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, true, 0.05, 1);
+        Feedback100 thetaFeedback = new PIDFeedback(logger, 3.5, 0, 0, true, 0.05, 1);
         // NOTE feedback here
-        Controller100 omegaController = new PIDControllerVeloWPI(logger, 3.5, 0, 0, false, 0.05, 1);
+        Feedback100 omegaFeedback = new PIDFeedback(logger, 3.5, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,
                 swerveKinodynamics,
                 rotationSupplier,
-                thetaController,
-                omegaController);
+                thetaFeedback,
+                omegaFeedback);
 
         // driver rotates a bit
         DriverControl.Velocity twist1_1 = new DriverControl.Velocity(0, 0, 1);

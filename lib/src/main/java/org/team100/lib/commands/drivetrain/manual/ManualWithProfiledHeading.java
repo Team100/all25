@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.HeadingLatch;
 import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
@@ -45,8 +46,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     /** Absolute input supplier, null if free */
     private final Supplier<Rotation2d> m_desiredRotation;
     private final HeadingLatch m_latch;
-    private final Controller100 m_thetaController;
-    private final Controller100 m_omegaController;
+    private final Feedback100 m_thetaFeedback;
+    private final Feedback100 m_omegaFeedback;
     private final LinearFilter m_outputFilter;
 
     // LOGGERS
@@ -81,13 +82,13 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Rotation2d> desiredRotation,
-            Controller100 thetaController,
-            Controller100 omegaController) {
+            Feedback100 thetaController,
+            Feedback100 omegaController) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_desiredRotation = desiredRotation;
-        m_thetaController = thetaController;
-        m_omegaController = omegaController;
+        m_thetaFeedback = thetaController;
+        m_omegaFeedback = omegaController;
         m_latch = new HeadingLatch();
         m_outputFilter = LinearFilter.singlePoleIIR(0.01, TimedRobot100.LOOP_PERIOD_S);
         m_log_mode = child.stringLogger(Level.TRACE, "mode");
@@ -110,8 +111,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_thetaSetpoint = state.theta().control();
         m_goal = null;
         m_latch.unlatch();
-        m_thetaController.reset();
-        m_omegaController.reset();
+        m_thetaFeedback.reset();
+        m_omegaFeedback.reset();
     }
 
     /**
@@ -243,8 +244,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
 
     // feedback is velocity
     private double getOmegaFB(double headingRate) {
-        double omegaFB = m_omegaController.calculate(
-                Model100.x(headingRate), Model100.x(m_thetaSetpoint.v())).v();
+        double omegaFB = m_omegaFeedback.calculate(
+                Model100.x(headingRate), Model100.x(m_thetaSetpoint.v()));
 
         if (Experiments.instance.enabled(Experiment.SnapThetaFilter)) {
             // output filtering to prevent oscillation due to delay
@@ -259,7 +260,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
 
     // feedback is velocity
     private double getThetaFB(double headingMeasurement) {
-        double thetaFB = m_thetaController.calculate(Model100.x(headingMeasurement), m_thetaSetpoint.model()).v();
+        double thetaFB = m_thetaFeedback.calculate(Model100.x(headingMeasurement), m_thetaSetpoint.model());
         if (Math.abs(thetaFB) < THETA_FB_DEADBAND) {
             thetaFB = 0;
         }

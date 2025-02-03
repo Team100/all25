@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.frc2025.Timeless2024;
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
@@ -27,7 +28,7 @@ class GravityServoTest implements Timeless2024 {
 
     @Test
     void testSetPosition() {
-        Controller100 pivotController = new PIDControllerVeloWPI(
+        Feedback100 pivotFeedback = new PIDFeedback(
                 logger, 4.5, 0.0, 0.000, false, 0.05, 1);
         Profile100 profile = new TrapezoidProfile100(8, 8, 0.001);
         // motor speed is rad/s
@@ -46,7 +47,7 @@ class GravityServoTest implements Timeless2024 {
                 simMech,
                 simEncoder,
                 () -> profile,
-                pivotController);
+                pivotFeedback);
         servo.reset();
 
         GravityServoInterface g = new OutboardGravityServo(

@@ -15,6 +15,11 @@ public interface Profile100 {
      */
     Control100 calculate(double dt, Model100 initial, Model100 goal);
 
+    /**
+     * Return the control for dt in the future.
+     * 
+     * Note order here, initial first, goal second.
+     */
     ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal);
 
     /**

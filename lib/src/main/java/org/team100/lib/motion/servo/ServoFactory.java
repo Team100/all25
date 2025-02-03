@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.RotaryPositionSensor;
@@ -94,7 +95,7 @@ public class ServoFactory {
             double gearRatio,
             double maxVelocity,
             double maxAccel,
-            Controller100 controller,
+            Feedback100 controller,
             Feedforward100 ff,
             PIDConstants lowLevelVelocityConstants) {
         CANSparkMotor motor = new NeoVortexCANSparkMotor(
@@ -122,7 +123,7 @@ public class ServoFactory {
             LoggerFactory parent,
             double maxVelocity,
             double maxAccel,
-            Controller100 controller) {
+            Feedback100 controller) {
         // motor speed is rad/s
         SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
         RotaryMechanism mech = new SimpleRotaryMechanism(

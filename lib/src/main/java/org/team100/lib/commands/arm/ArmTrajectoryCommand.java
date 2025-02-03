@@ -3,7 +3,8 @@ package org.team100.lib.commands.arm;
 import java.util.Optional;
 
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -42,10 +43,10 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
     private final ArmAngles m_goalAngles;
     private final Timer m_timer;
 
-    private final Controller100 m_lowerPosController;
-    private final Controller100 m_upperPosController;
-    private final Controller100 m_lowerVelController;
-    private final Controller100 m_upperVelController;
+    private final Feedback100 m_lowerPosFeedback;
+    private final Feedback100 m_upperPosFeedback;
+    private final Feedback100 m_lowerVelFeedback;
+    private final Feedback100 m_upperVelFeedback;
 
     private final ArmTrajectories m_trajectories;
 
@@ -84,16 +85,16 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         m_goalAngles = m_armKinematicsM.inverse(m_goal);
         m_timer = new Timer();
 
-        m_lowerPosController = new PIDControllerVeloWPI(
+        m_lowerPosFeedback = new PIDFeedback(
                 child.child("lowerPosController"), 2, 0, 0.1, true, kTolerance, 1);
 
-        m_upperPosController = new PIDControllerVeloWPI(
+        m_upperPosFeedback = new PIDFeedback(
                 child.child("upperPosController"), 2, 0, 0.05, true, kTolerance, 1);
 
-        m_lowerVelController = new PIDControllerVeloWPI(
+        m_lowerVelFeedback = new PIDFeedback(
                 child.child("lowerVelController"), 0.1, 0, 0, false, kTolerance, 1);
 
-        m_upperVelController = new PIDControllerVeloWPI(
+        m_upperVelFeedback = new PIDFeedback(
                 child.child("upperVelController"), 0.1, 0, 0, false, kTolerance, 1);
 
         m_trajectories = new ArmTrajectories(kConf);
@@ -131,12 +132,12 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         ArmAngles r = getThetaPosReference(desiredState);
 
         // position feedback
-        double u1_pos = m_lowerPosController.calculate(
+        double u1_pos = m_lowerPosFeedback.calculate(
                 Model100.x(measurement.get().th1),
-                Model100.x(r.th1)).v();
-        double u2_pos = m_upperPosController.calculate(
+                Model100.x(r.th1));
+        double u2_pos = m_upperPosFeedback.calculate(
                 Model100.x(measurement.get().th2),
-                Model100.x(r.th2)).v();
+                Model100.x(r.th2));
 
         // velocity reference
         ArmAngles rdot = getThetaVelReference(desiredState, r);
@@ -154,12 +155,12 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         double ff1 = rdot.th1 * kFudgeFactor;
 
         // velocity feedback
-        double u1_vel = m_lowerVelController.calculate(
+        double u1_vel = m_lowerVelFeedback.calculate(
                 Model100.x(velocityMeasurement.get().th1),
-                Model100.x(rdot.th1)).v();
-        double u2_vel = m_upperVelController.calculate(
+                Model100.x(rdot.th1));
+        double u2_vel = m_upperVelFeedback.calculate(
                 Model100.x(velocityMeasurement.get().th2),
-                Model100.x(rdot.th2)).v();
+                Model100.x(rdot.th2));
 
         // u is really velocity
         double u1 = ff1 + u1_pos + u1_vel;
@@ -220,10 +221,10 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
             return true;
 
         return m_timer.get() > m_trajectory.getTotalTimeSeconds()
-                && m_lowerPosController.atSetpoint()
-                && m_upperPosController.atSetpoint()
-                && m_lowerVelController.atSetpoint()
-                && m_upperVelController.atSetpoint();
+                && m_lowerPosFeedback.atSetpoint()
+                && m_upperPosFeedback.atSetpoint()
+                && m_lowerVelFeedback.atSetpoint()
+                && m_upperVelFeedback.atSetpoint();
     }
 
     @Override

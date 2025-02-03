@@ -1,7 +1,8 @@
 package org.team100.lib.motion.drivetrain.module;
 
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
@@ -57,7 +58,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
                 parent,
                 turningMech);
-        Controller100 turningPositionController = new PIDControllerVeloWPI(
+        Feedback100 turningPositionFeedback = new PIDFeedback(
                 parent,
                 20, // kP
                 0, // kI
@@ -71,7 +72,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 turningMech,
                 turningEncoder,
                 () -> profile,
-                turningPositionController);
+                turningPositionFeedback);
         turningServo.reset();
         return turningServo;
     }

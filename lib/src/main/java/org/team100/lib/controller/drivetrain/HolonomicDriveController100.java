@@ -1,6 +1,7 @@
 package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -10,10 +11,10 @@ import org.team100.lib.state.Model100;
  * PID x, PID y, PID theta, and (optionally) PID omega.
  */
 public class HolonomicDriveController100 implements HolonomicFieldRelativeController {
-    private final Controller100 m_xController;
-    private final Controller100 m_yController;
-    private final Controller100 m_thetaController;
-    private final Controller100 m_omegaController;
+    private final Feedback100 m_xFeedback;
+    private final Feedback100 m_yFeedback;
+    private final Feedback100 m_thetaFeedback;
+    private final Feedback100 m_omegaFeedback;
     private final boolean m_useOmega;
     private final Log m_log;
 
@@ -23,25 +24,25 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
      * @param useOmega include omega feedback
      */
     HolonomicDriveController100(LoggerFactory parent, Log log, boolean useOmega) {
-        m_xController = HolonomicDriveControllerFactory.cartesian(parent);
-        m_yController = HolonomicDriveControllerFactory.cartesian(parent);
-        m_thetaController = HolonomicDriveControllerFactory.theta(parent);
-        m_omegaController = HolonomicDriveControllerFactory.omega(parent);
+        m_xFeedback = HolonomicDriveControllerFactory.cartesian(parent);
+        m_yFeedback = HolonomicDriveControllerFactory.cartesian(parent);
+        m_thetaFeedback = HolonomicDriveControllerFactory.theta(parent);
+        m_omegaFeedback = HolonomicDriveControllerFactory.omega(parent);
         m_useOmega = useOmega;
         m_log = log;
     }
 
     @Override
     public boolean atReference() {
-        if (!m_xController.atSetpoint())
+        if (!m_xFeedback.atSetpoint())
             return false;
-        if (!m_yController.atSetpoint())
+        if (!m_yFeedback.atSetpoint())
             return false;
-        if (!m_thetaController.atSetpoint())
+        if (!m_thetaFeedback.atSetpoint())
             return false;
         if (!m_useOmega)
             return true;
-        return m_omegaController.atSetpoint();
+        return m_omegaFeedback.atSetpoint();
     }
 
     /**
@@ -56,19 +57,19 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
         FieldRelativeVelocity u_FF = reference.velocity();
 
         // feedbacks are velocities
-        double xFB = m_xController.calculate(
+        double xFB = m_xFeedback.calculate(
                 Model100.x(measurement.x().x()),
-                Model100.x(reference.x().x())).v();
-        double yFB = m_yController.calculate(
+                Model100.x(reference.x().x()));
+        double yFB = m_yFeedback.calculate(
                 Model100.x(measurement.y().x()),
-                Model100.x(reference.y().x())).v();
-        double thetaFB = m_thetaController.calculate(
+                Model100.x(reference.y().x()));
+        double thetaFB = m_thetaFeedback.calculate(
                 Model100.x(measurement.theta().x()),
-                Model100.x(reference.theta().x())).v();
+                Model100.x(reference.theta().x()));
         double omegaFB = 0.0;
         if (m_useOmega) {
-            omegaFB = m_omegaController.calculate(Model100.x(measurement.theta().v()),
-                    Model100.x(reference.theta().v())).v();
+            omegaFB = m_omegaFeedback.calculate(Model100.x(measurement.theta().v()),
+                    Model100.x(reference.theta().v()));
         }
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB + omegaFB);
         m_log.u_FB.log(() -> u_FB);
@@ -77,10 +78,10 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
 
     @Override
     public void reset() {
-        m_xController.reset();
-        m_yController.reset();
-        m_thetaController.reset();
+        m_xFeedback.reset();
+        m_yFeedback.reset();
+        m_thetaFeedback.reset();
         if (m_useOmega)
-            m_omegaController.reset();
+            m_omegaFeedback.reset();
     }
 }

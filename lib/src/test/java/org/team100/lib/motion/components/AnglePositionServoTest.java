@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
@@ -36,7 +37,7 @@ class AnglePositionServoTest {
                 new MockIncrementalBareEncoder(),
                 1);
         final MockRotaryPositionSensor turningEncoder = new MockRotaryPositionSensor();
-        final Controller100 turningController2 = new PIDControllerVeloWPI(
+        final Feedback100 turningFeedback2 = new PIDFeedback(
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         final AngularPositionServo servo = new OnboardAngularPositionServo(
@@ -44,7 +45,7 @@ class AnglePositionServoTest {
                 mech,
                 turningEncoder,
                 () -> profile,
-                turningController2);
+                turningFeedback2);
         servo.reset();
         // spin for 1 s
         for (int i = 0; i < 50; ++i) {

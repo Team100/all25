@@ -4,6 +4,7 @@ import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -39,7 +40,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      * This is positional feedback only, since velocity feedback is handled
      * outboard.
      */
-    private final Controller100 m_controller;
+    private final Feedback100 m_feedback;
 
     /**
      * Smooth out the feedback output.
@@ -78,12 +79,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             RotaryMechanism mech,
             RotaryPositionSensor positionSensor,
             Supplier<Profile100> profile,
-            Controller100 controller) {
+            Feedback100 controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_positionSensor = positionSensor;
         m_profile = profile;
-        m_controller = controller;
+        m_feedback = controller;
         m_filter = LinearFilter.singlePoleIIR(0.02, TimedRobot100.LOOP_PERIOD_S);
 
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
@@ -106,7 +107,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public void reset() {
-        m_controller.reset();
+        m_feedback.reset();
         OptionalDouble position = getPosition();
         OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty()) {
@@ -155,15 +156,15 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         final double u_FB;
         if (Experiments.instance.enabled(Experiment.FilterFeedback)) {
             u_FB = MathUtil.applyDeadband(
-                    m_filter.calculate(m_controller.calculate(
+                    m_filter.calculate(m_feedback.calculate(
                             Model100.x(measurementPositionRad),
-                            m_setpointRad.model()).v()),
+                            m_setpointRad.model())),
                     kFeedbackDeadbandRad_S,
                     Double.POSITIVE_INFINITY);
         } else {
-            u_FB = m_controller.calculate(
+            u_FB = m_feedback.calculate(
                     Model100.x(measurementPositionRad),
-                    m_setpointRad.model()).v();
+                    m_setpointRad.model());
         }
 
         final double u_FF = m_setpointRad.v();
@@ -212,7 +213,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public boolean atSetpoint() {
-        boolean atSetpoint = m_controller.atSetpoint();
+        boolean atSetpoint = m_feedback.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
     }

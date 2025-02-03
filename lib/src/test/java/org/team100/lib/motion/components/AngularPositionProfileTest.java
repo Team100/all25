@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.framework.TimedRobot100;
@@ -31,7 +32,7 @@ class AngularPositionProfileTest implements Timeless {
     private final MockBareMotor motor;
     private final RotaryMechanism mech;
     private final MockRotaryPositionSensor encoder;
-    private final Controller100 controller2;
+    private final Feedback100 feedback2;
 
     private AngularPositionServo servo;
 
@@ -43,7 +44,7 @@ class AngularPositionProfileTest implements Timeless {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDControllerVeloWPI(logger, 5, 0, 0, false, 0.05, 1);
+        feedback2 = new PIDFeedback(logger, 5, 0, 0, false, 0.05, 1);
     }
 
     /**
@@ -58,7 +59,7 @@ class AngularPositionProfileTest implements Timeless {
                 mech,
                 encoder,
                 () -> profile,
-                controller2);
+                feedback2);
         servo.reset();
 
         verifyTrapezoid();
@@ -72,7 +73,7 @@ class AngularPositionProfileTest implements Timeless {
                 mech,
                 encoder,
                 () -> profile,
-                controller2);
+                feedback2);
         servo.reset();
         verifyTrapezoid();
     }

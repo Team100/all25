@@ -22,8 +22,8 @@ import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
 import org.team100.lib.controller.drivetrain.FullStateDriveController;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
-import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
@@ -158,9 +158,9 @@ public class RobotContainer implements Glassy {
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
 
-        final Controller100 thetaController = new PIDControllerVeloWPI(
+        final Feedback100 thetaFeedback = new PIDFeedback(
                 manLog, 3.0, 0, 0, true, 0.05, 1);
-        final Controller100 omegaController = new PIDControllerVeloWPI(
+        final Feedback100 omegaFeedback = new PIDFeedback(
                 manLog, 0.2, 0, 0, false, 0.05, 1);
 
         driveManually.register("MODULE_STATE", false,
@@ -177,8 +177,8 @@ public class RobotContainer implements Glassy {
                         manLog,
                         swerveKinodynamics,
                         driverControl::desiredRotation,
-                        thetaController,
-                        omegaController));
+                        thetaFeedback,
+                        omegaFeedback));
 
         driveManually.register("SNAPS_FULL_STATE", true,
                 new ManualWithFullStateHeading(
@@ -196,8 +196,8 @@ public class RobotContainer implements Glassy {
                         manLog,
                         swerveKinodynamics,
                         driverControl::target,
-                        thetaController,
-                        omegaController,
+                        thetaFeedback,
+                        omegaFeedback,
                         driverControl::trigger));
 
         // DEFAULT COMMANDS

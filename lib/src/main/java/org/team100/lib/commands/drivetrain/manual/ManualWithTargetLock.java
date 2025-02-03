@@ -4,6 +4,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.TargetUtil;
 import org.team100.lib.hid.DriverControl;
@@ -50,8 +51,8 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Supplier<Translation2d> m_target;
-    private final Controller100 m_thetaController;
-    private final Controller100 m_omegaController;
+    private final Feedback100 m_thetaController;
+    private final Feedback100 m_omegaController;
     private final Profile100 m_profile;
     private final BooleanSupplier m_trigger;
 
@@ -77,8 +78,8 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Translation2d> target,
-            Controller100 thetaController,
-            Controller100 omegaController,
+            Feedback100 thetaController,
+            Feedback100 omegaController,
             BooleanSupplier trigger) {
         m_field_log = fieldLogger;
         LoggerFactory child = parent.child(this);
@@ -157,13 +158,13 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
         double thetaFF = m_thetaSetpoint.v();
 
         // feedback is velocity
-        double thetaFB = m_thetaController.calculate(Model100.x(measurement), m_thetaSetpoint.model()).v();
+        double thetaFB = m_thetaController.calculate(Model100.x(measurement), m_thetaSetpoint.model());
         m_log_theta_setpoint.log(() -> m_thetaSetpoint);
         m_log_theta_measurement.log(() -> measurement);
         m_log_theta_error.log(() -> m_thetaSetpoint.x() - measurement);
         m_log_theta_FB.log(() -> thetaFB);
 
-        double omegaFB = m_omegaController.calculate(Model100.x(headingRate), Model100.x(m_thetaSetpoint.v())).v();
+        double omegaFB = m_omegaController.calculate(Model100.x(headingRate), Model100.x(m_thetaSetpoint.v()));
         m_log_omega_reference.log(() -> m_thetaSetpoint.model());
         m_log_omega_measurement.log(() -> headingRate);
         m_log_omega_error.log(() -> m_thetaSetpoint.v() - headingRate);

@@ -7,6 +7,10 @@ import org.team100.lib.state.Model100;
 /**
  * A profiled controller combines a source of references (e.g. a trapezoid, or
  * any other method) and a source of feedback (e.g. PID, or any other method).
+ * 
+ * I think we have a habit of mixing up previous-step, current-step, and
+ * future-step quantities when writing profile/control loops. This implements
+ * the right way to do it.
  */
 public class ProfiledController implements Controller100 {
 

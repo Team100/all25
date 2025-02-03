@@ -3,7 +3,7 @@ package org.team100.lib.commands.arm;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-import org.team100.lib.controller.simple.PIDControllerAccelWPI;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -32,8 +32,8 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
     private final DoubleSupplier m_x;
     private final DoubleSupplier m_y;
 
-    private final PIDControllerAccelWPI m_lowerController;
-    private final PIDControllerAccelWPI m_upperController;
+    private final PIDFeedback m_lowerFeedback;
+    private final PIDFeedback m_upperFeedback;
 
     // LOGGERS
 
@@ -63,8 +63,8 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
         m_x = x;
         m_y = y;
 
-        m_lowerController = new PIDControllerAccelWPI(child.child("lower"), 1, 0, 0, true);
-        m_upperController = new PIDControllerAccelWPI(child.child("upper"), 1, 0, 0, true);
+        m_lowerFeedback = new PIDFeedback(child.child("lower"), 1, 0, 0, true, 0.05, 1);
+        m_upperFeedback = new PIDFeedback(child.child("upper"), 1, 0, 0, true, 0.05, 1);
         addRequirements(arm);
     }
 
@@ -93,14 +93,14 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
         // TODO: there should be some sort of "kA" here rather than just consuming
         // the accel value directly.
         double u1 = MathUtil.clamp(
-                m_lowerController.calculate(
+                m_lowerFeedback.calculate(
                         new Model100(measurement.get().th1, 0),
-                        new Model100(setpoint.th1, 0)).a(),
+                        new Model100(setpoint.th1, 0)),
                 -1, 1);
         double u2 = MathUtil.clamp(
-                m_upperController.calculate(
+                m_upperFeedback.calculate(
                         new Model100(measurement.get().th2, 0),
-                        new Model100(setpoint.th2, 0)).a(),
+                        new Model100(setpoint.th2, 0)),
                 -1, 1);
 
         m_arm.set(u1, u2);

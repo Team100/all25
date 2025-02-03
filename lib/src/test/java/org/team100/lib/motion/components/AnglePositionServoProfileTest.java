@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.simple.Controller100;
-import org.team100.lib.controller.simple.PIDControllerVeloWPI;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.framework.TimedRobot100;
@@ -25,7 +26,7 @@ class AnglePositionServoProfileTest {
 
     private final MockBareMotor motor;
     private final MockRotaryPositionSensor encoder;
-    private final Controller100 controller2;
+    private final Feedback100 feedback2;
     private final AngularPositionServo servo;
 
     public AnglePositionServoProfileTest() {
@@ -36,7 +37,7 @@ class AnglePositionServoProfileTest {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDControllerVeloWPI(logger, 1, 0, 0, true, 0.05, 1);
+        feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         servo = new OnboardAngularPositionServo(
@@ -44,7 +45,7 @@ class AnglePositionServoProfileTest {
                 mech,
                 encoder,
                 () -> profile,
-                controller2);
+                feedback2);
         servo.reset();
     }
 
