@@ -2,15 +2,13 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -20,10 +18,9 @@ import edu.wpi.first.math.MathUtil;
  * Position control using duty cycle feature of linear mechanism
  */
 public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo {
-    private static final double kV = 0.1;
     private final LinearMechanism m_mechanism;
-    private final Feedback100 m_controller;
-    private final Profile100 m_profile;
+    private final ProfiledController m_controller;
+    private final double m_kV;
     // LOGGERS
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_measurement;
@@ -39,12 +36,13 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
             LinearMechanism mechanism,
-            Feedback100 controller,
-            Profile100 profile) {
+            ProfiledController controller,
+            double kV) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
         m_controller = controller;
-        m_profile = profile;
+        m_kV = kV;
+
         m_log_goal = child.model100Logger(Level.TRACE, "goal (m)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (m)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (m)");
@@ -57,35 +55,36 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
 
     @Override
     public void reset() {
-        m_controller.reset();
         OptionalDouble position = getPosition();
         OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty())
             return;
         m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        m_controller.init(m_setpoint.model());
     }
 
     @Override
     public void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm) {
-        OptionalDouble positionM = m_mechanism.getPositionM();
-        if (positionM.isEmpty())
+        OptionalDouble position = getPosition();
+        OptionalDouble velocity = getVelocity();
+        if (position.isEmpty() || velocity.isEmpty())
             return;
-        double measurementM = positionM.getAsDouble();
+        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         Model100 goal = new Model100(goalM, goalVelocityM_S);
-        m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), goal);
-        double u_FF = kV * m_setpoint.v();
-        double u_FB = m_controller.calculate(Model100.x(measurementM), m_setpoint.model());
+        ProfiledController.Result result = m_controller.calculate(measurement, goal);
+        m_setpoint = result.feedforward();
+        double u_FF = m_kV * m_setpoint.v();
+        double u_FB = result.feedback();
         double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
         m_mechanism.setDutyCycle(u_TOTAL);
-
         m_log_goal.log(() -> goal);
-        m_log_measurement.log(() -> measurementM);
+        m_log_measurement.log(() -> position.getAsDouble());
         m_log_setpoint.log(() -> m_setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(() -> m_setpoint.x() - measurementM);
-        m_log_velocity_error.log(() -> m_setpoint.v() - getVelocity().getAsDouble());
+        m_log_error.log(() -> m_setpoint.x() - position.getAsDouble());
+        m_log_velocity_error.log(() -> m_setpoint.v() - velocity.getAsDouble());
     }
 
     @Override

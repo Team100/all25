@@ -45,6 +45,7 @@ public class ProfiledController {
      */
     public void init(Model100 measurement) {
         m_setpoint = measurement;
+        m_feedback.reset();
     }
 
     /**
