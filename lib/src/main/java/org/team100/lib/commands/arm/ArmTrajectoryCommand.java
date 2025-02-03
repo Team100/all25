@@ -2,7 +2,6 @@ package org.team100.lib.commands.arm;
 
 import java.util.Optional;
 
-import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;

@@ -1,7 +1,6 @@
 package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.config.Identity;
-import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.logging.LoggerFactory;

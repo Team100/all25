@@ -3,7 +3,6 @@ package org.team100.lib.commands.drivetrain.manual;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.TargetUtil;

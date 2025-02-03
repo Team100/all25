@@ -3,7 +3,6 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
-import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.experiments.Experiment;

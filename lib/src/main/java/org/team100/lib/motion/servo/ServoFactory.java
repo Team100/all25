@@ -2,7 +2,6 @@ package org.team100.lib.motion.servo;
 
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
-import org.team100.lib.controller.simple.Controller100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.ProxyRotaryPositionSensor;
