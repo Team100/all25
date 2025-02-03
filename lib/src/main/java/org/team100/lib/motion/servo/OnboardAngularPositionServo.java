@@ -47,7 +47,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     private final LinearFilter m_filter;
 
-
     private final Profile100 m_profile;
     // this was Sanjan experimenting in October 2024
     // private ProfileWPI profileTest = new ProfileWPI(40,120);
@@ -144,19 +143,9 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
         m_setpointRad = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpointRad.model(), m_goal);
 
-        final double u_FB;
-        if (Experiments.instance.enabled(Experiment.FilterFeedback)) {
-            u_FB = MathUtil.applyDeadband(
-                    m_filter.calculate(m_feedback.calculate(
-                            Model100.x(measurementPositionRad),
-                            m_setpointRad.model())),
-                    kFeedbackDeadbandRad_S,
-                    Double.POSITIVE_INFINITY);
-        } else {
-            u_FB = m_feedback.calculate(
-                    Model100.x(measurementPositionRad),
-                    m_setpointRad.model());
-        }
+        final double u_FB = m_feedback.calculate(
+                Model100.x(measurementPositionRad),
+                m_setpointRad.model());
 
         final double u_FF = m_setpointRad.v();
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
