@@ -103,7 +103,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         OptionalDouble velocity = m_mechanism.getVelocityRad_S();
 
         if (position.isEmpty() || velocity.isEmpty()) {
-            Util.warn("GravityServo: Broken sensor!");
+            Util.warn("Broken sensor!");
             return;
         }
         m_goal = new Model100(goalRad, goalVelocityRad_S);
