@@ -91,7 +91,7 @@ import edu.wpi.first.math.MathUtil;
  * It might be slower around the switching points, since it can call itself once
  * or twice, once per segment.
  */
-public class MinTimeController implements Controller100, Glassy {
+public class MinTimeController implements Glassy {
 
     // how close to a boundary (e.g. switching curve, max v) to behave as if we were
     // "on" the boundary
@@ -169,14 +169,8 @@ public class MinTimeController implements Controller100, Glassy {
         return modulus(s.x(), s.v(), 0);
     }
 
-    @Override
     public Control100 calculate(final Model100 initial, final Model100 goal) {
         return calculate(TimedRobot100.LOOP_PERIOD_S, initial, goal);
-    }
-
-    @Override
-    public void reset() {
-        // nothing
     }
 
     /**

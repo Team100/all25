@@ -53,25 +53,46 @@ public class ProfiledControllerTest {
     @Test
     void test1() {
         Profile100 p = new TrapezoidProfile100(2, 1, 0.01);
-        Feedback100 f = new PIDFeedback(logger, 1, 0, 0, false, 0.05, 1);
+
+        // Feedback100 f = new PIDFeedback(logger, 1, 0, 0, false, 0.05, 1);
+
+        final double k1 = 5.0;
+        final double k2 = 1.0;
+        Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
+
         ProfiledController c = new ProfiledController(p, f);
         final Model100 initial = new Model100(0, 0);
         final Model100 goal = new Model100(1, 0);
 
         c.init(initial);
 
-        Control100 setpointControl = new Control100();
-        Model100 setpointModel = initial;
+        Control100 setpointControl = initial.control();
 
         // for now, infinite jerk
         Sim sim = new Sim(0);
+        // Sim sim = new Sim(0.9);
         sim.y = 0;
         sim.yDot = 0;
+        double u_FB = 0;
+        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
-            setpointControl = c.calculate(sim.state(), goal);
-            Util.println(setpointControl);
-            sim.step(setpointControl.a());
+            // at the beginning of the time step, we show the current measurement
+            // and the setpoint calculated in the previous time step (which applies to this
+            // one)
+            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                    currentTime,
+                    setpointControl.x(),
+                    setpointControl.v(),
+                    setpointControl.a(),
+                    sim.y,
+                    sim.yDot,
+                    u_FB);
+
+            ProfiledController.Result result = c.calculate(sim.state(), goal);
+            setpointControl = result.feedforward();
+            u_FB = result.feedback();
+            sim.step(setpointControl.a() + u_FB);
 
         }
 
@@ -89,35 +110,34 @@ public class ProfiledControllerTest {
         Feedback100 feedback = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
         // initial state is motionless
-        Sim sim = new Sim(0.5);
+        Sim sim = new Sim(0);
+        // Sim sim = new Sim(0.9);
         sim.y = 0;
         sim.yDot = 0;
         double u_FB = 0;
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
-        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb,   eta\n");
+        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         // log initial state
-        Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0, 0.0);
+        Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
 
-        // eta to goal
-        double etaS = 0;
+
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
 
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                     currentTime,
                     setpointControl.x(),
                     setpointControl.v(),
                     setpointControl.a(),
                     sim.y,
                     sim.yDot,
-                    u_FB,
-                    etaS);
+                    u_FB);
 
             // compute feedback using the "previous" setpoint, which is for the current
             // instant
@@ -126,7 +146,6 @@ public class ProfiledControllerTest {
 
             ResultWithETA result = profile.calculateWithETA(0.02, setpointModel, goal);
             setpointControl = result.state();
-            etaS = result.etaS();
             // this is the setpoint for the next time step
             setpointModel = setpointControl.model();
 

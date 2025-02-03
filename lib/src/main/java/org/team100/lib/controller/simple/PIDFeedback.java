@@ -41,8 +41,7 @@ public class PIDFeedback implements Feedback100, Glassy {
     }
 
     /**
-     * Observe position error, produce desired velocity, and include implied
-     * position and accel given that velocity.
+     * Observe position error, produce PID output.
      */
     @Override
     public double calculate(Model100 measurement, Model100 setpoint) {

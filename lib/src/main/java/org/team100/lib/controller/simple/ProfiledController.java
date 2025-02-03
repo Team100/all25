@@ -13,52 +13,59 @@ import org.team100.lib.state.Model100;
  * I think we have a habit of mixing up previous-step, current-step, and
  * future-step quantities when writing profile/control loops. This implements
  * the right way to do it.
+ * 
+ * You must call init() with the current measurement, prior to calculate().
+ * 
+ * Remember to re-initialize anytime the profile may diverge from the
+ * measurement, or you'll introduce transients.
  */
-public class ProfiledController implements Controller100 {
+public class ProfiledController {
+
+    /**
+     * @param feedforward the desired state for the end of the next time step.
+     * @param feedback    based on the error at the current instant.
+     */
+    public record Result(Control100 feedforward, double feedback) {
+    }
+
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
     private final Profile100 m_profile;
     private final Feedback100 m_feedback;
-    private Model100 setpointModel;
+    private Model100 m_setpoint;
 
     public ProfiledController(Profile100 profile, Feedback100 feedback) {
         m_profile = profile;
         m_feedback = feedback;
     }
 
-    public void init(Model100 initial) {
-        setpointModel = initial;
+    /**
+     * Initializes the setpoint.
+     * 
+     * @param measurement current-instant measurement
+     */
+    public void init(Model100 measurement) {
+        m_setpoint = measurement;
     }
 
-    @Override
-    public Control100 calculate(Model100 measurement, Model100 goal) {
-        if (setpointModel == null)
-            throw new IllegalStateException("must initialize");
-        // there are two components: profile and feedback.
-        // feedback compares the current measurement with the current profile,
-        // and applies the output to the next time step.
-        // profile is for the next time step.
-        double u_FB = m_feedback.calculate(measurement, setpointModel);
-        ResultWithETA result = m_profile.calculateWithETA(kDt, setpointModel, goal);
-        Control100 setpointControl = result.state();
-        setpointModel = setpointControl.model();
+    /**
+     * Calculates feedforward and feedback.
+     * 
+     * @param measurement current-instant measurement
+     * @param goal        final desired state
+     */
+    public Result calculate(Model100 measurement, Model100 goal) {
+        if (m_setpoint == null)
+            throw new IllegalStateException("Null setpoint!");
 
-        // there's more than one way to apply the feedback.
-        // sometimes we apply it as velocity, so a lower level servo uses it.
-        // for now it's accel.
-        double a = setpointControl.a() + u_FB;
-        double v = measurement.v() + a * kDt;
-        double x = measurement.x() + measurement.v() * kDt + 0.5 * a * kDt * kDt;
-        return new Control100(x, v, a);
+        // Feedback compares the current measurement with the current profile.
+        double u_FB = m_feedback.calculate(measurement, m_setpoint);
+
+        // Profile result is for the next time step.
+        ResultWithETA result = m_profile.calculateWithETA(kDt, m_setpoint, goal);
+
+        Control100 u_FF = result.state();
+        m_setpoint = u_FF.model();
+
+        return new Result(u_FF, u_FB);
     }
-
-    @Override
-    public boolean atSetpoint() {
-        return false;
-    }
-
-    @Override
-    public void reset() {
-        // nothing
-    }
-
 }
