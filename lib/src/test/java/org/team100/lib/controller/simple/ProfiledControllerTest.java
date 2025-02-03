@@ -35,6 +35,10 @@ public class ProfiledControllerTest {
             y = y + yDot * 0.02 + 0.5 * a * 0.02 * 0.02;
             yDot = yDot + a * 0.02;
         }
+
+        Model100 state() {
+            return new Model100(y, yDot);
+        }
     }
 
     /**
@@ -44,6 +48,27 @@ public class ProfiledControllerTest {
      */
     @Test
     void test1() {
+        Profile100 p = new TrapezoidProfile100(2, 1, 0.01);
+        Feedback100 f = new PIDFeedback(logger, 1, 0, 0, false, 0.05, 1);
+        ProfiledController c = new ProfiledController(p, f);
+        final Model100 initial = new Model100(0, 0);
+        final Model100 goal = new Model100(1, 0);
+
+        c.init(initial);
+
+        Control100 setpointControl = new Control100();
+        Model100 setpointModel = initial;
+
+        Sim sim = new Sim();
+        sim.y = 0;
+        sim.yDot = 0;
+
+        for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
+            setpointControl = c.calculate(sim.state(), goal);
+            Util.println(setpointControl);
+            sim.step(setpointControl.a());
+
+        }
 
     }
 
@@ -56,15 +81,13 @@ public class ProfiledControllerTest {
         final double k1 = 5.0;
         final double k2 = 1.0;
 
-        FullStateFeedback controller = new FullStateFeedback(
-                logger, k1, k2, x -> x, 1, 1);
+        Feedback100 feedback = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
         // initial state is motionless
         Sim sim = new Sim();
         sim.y = 0;
         sim.yDot = 0;
-        // double feedback = 0;
-        Control100 feedback = new Control100();
+        double u_FB = 0;
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
@@ -88,13 +111,13 @@ public class ProfiledControllerTest {
                     setpointControl.a(),
                     sim.y,
                     sim.yDot,
-                    feedback.v(),
+                    u_FB,
                     etaS);
 
             // compute feedback using the "previous" setpoint, which is for the current
             // instant
 
-            feedback = controller.calculate(new Model100(sim.y, sim.yDot), setpointModel);
+            u_FB = feedback.calculate(new Model100(sim.y, sim.yDot), setpointModel);
 
             ResultWithETA result = profile.calculateWithETA(0.02, setpointModel, goal);
             setpointControl = result.state();
@@ -105,8 +128,7 @@ public class ProfiledControllerTest {
             // this is actuation for the next time step, using the feedback for the current
             // time, and feedforward for the next time step
 
-            // TODO: fix this combination of "a" and feedback "v"
-            double u = setpointControl.a() + feedback.v();
+            double u = setpointControl.a() + u_FB;
 
             sim.step(u);
         }
