@@ -70,7 +70,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 parent,
                 turningMech,
                 turningEncoder,
-                () -> profile,
+                profile,
                 turningPositionFeedback);
         turningServo.reset();
         return turningServo;

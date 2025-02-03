@@ -57,7 +57,7 @@ class AngularPositionProfileTest implements Timeless {
                 logger,
                 mech,
                 encoder,
-                () -> profile,
+                profile,
                 feedback2);
         servo.reset();
 
@@ -71,7 +71,7 @@ class AngularPositionProfileTest implements Timeless {
                 logger,
                 mech,
                 encoder,
-                () -> profile,
+                profile,
                 feedback2);
         servo.reset();
         verifyTrapezoid();

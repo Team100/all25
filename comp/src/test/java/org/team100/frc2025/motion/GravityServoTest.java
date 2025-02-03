@@ -45,7 +45,7 @@ class GravityServoTest implements Timeless2024 {
                 logger,
                 simMech,
                 simEncoder,
-                () -> profile,
+                profile,
                 pivotFeedback);
         servo.reset();
 

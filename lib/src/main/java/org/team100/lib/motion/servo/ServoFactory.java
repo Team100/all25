@@ -114,7 +114,7 @@ public class ServoFactory {
                 parent,
                 mech,
                 sensor,
-                () -> new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
+                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 controller);
     }
 
@@ -140,7 +140,7 @@ public class ServoFactory {
                 parent,
                 mech,
                 sensor,
-                () -> new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
+                new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 controller);
     }
 

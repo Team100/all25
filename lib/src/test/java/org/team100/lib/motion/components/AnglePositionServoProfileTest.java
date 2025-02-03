@@ -43,7 +43,7 @@ class AnglePositionServoProfileTest {
                 logger,
                 mech,
                 encoder,
-                () -> profile,
+                profile,
                 feedback2);
         servo.reset();
     }

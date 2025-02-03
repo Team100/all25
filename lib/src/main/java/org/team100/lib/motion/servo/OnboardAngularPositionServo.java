@@ -47,14 +47,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     private final LinearFilter m_filter;
 
-    /**
-     * This is a supplier so we can update it at runtime.
-     * This is used at the moment for the "amp arm" motion, which uses fast and slow
-     * profiles depending on position, explicitly selected by commands.
-     * TODO: instead of that, make a profile that does the correct "easing"
-     * shape.
-     */
-    private final Supplier<Profile100> m_profile;
+
+    private final Profile100 m_profile;
     // this was Sanjan experimenting in October 2024
     // private ProfileWPI profileTest = new ProfileWPI(40,120);
 
@@ -77,7 +71,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             LoggerFactory parent,
             RotaryMechanism mech,
             RotaryPositionSensor positionSensor,
-            Supplier<Profile100> profile,
+            Profile100 profile,
             Feedback100 controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
@@ -148,9 +142,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
                 MathUtil.angleModulus(m_setpointRad.x() - measurementPositionRad) + measurementPositionRad,
                 m_setpointRad.v());
 
-        m_setpointRad = m_profile.get().calculate(TimedRobot100.LOOP_PERIOD_S, m_setpointRad.model(), m_goal);
-        // this was Sanjan experimenting in October 2024
-        // m_setpointRad = profileTest.calculate(0.02, m_setpointRad, m_goal);
+        m_setpointRad = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpointRad.model(), m_goal);
 
         final double u_FB;
         if (Experiments.instance.enabled(Experiment.FilterFeedback)) {

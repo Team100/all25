@@ -43,7 +43,7 @@ class AnglePositionServoTest {
                 logger,
                 mech,
                 turningEncoder,
-                () -> profile,
+                profile,
                 turningFeedback2);
         servo.reset();
         // spin for 1 s
