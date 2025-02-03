@@ -42,14 +42,15 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private final OptionalDoubleLogger m_log_position;
 
     private final Profile100 m_profile;
-    /** Remember that the outboard goal "winds up" i.e. it's not in [-pi,pi] */
+    /**
+     * Goal "winds up" i.e. it's it's [-inf, inf], not [-pi,pi]
+     */
     private Model100 m_goal = new Model100(0, 0);
-    /** Remember that the outboard setpoint "winds up" i.e. it's not in [-pi,pi] */
+    /**
+     * Setpoint "winds up" i.e. it's [-inf, inf], not [-pi,pi]
+     */
     private Control100 m_setpoint = new Control100(0, 0);
-    // this was Sanjan experimenting in October 2024
-    // private ProfileWPI profileTest = new ProfileWPI(40,120);
-    
-    /** Don't forget to set a profile. */
+
     public OutboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
@@ -85,51 +86,41 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setEncoderPosition(value);
     }
 
-    /** The outboard measurement does not wrap, but the goal does */
+    /**
+     * The outboard measurement does not wrap, but the goal does
+     * 
+     * @param goalRad             [-pi, pi]
+     * @param goalVelocityRad_S
+     * @param feedForwardTorqueNm
+     */
     @Override
-    public void setPositionWithVelocity(double wrappedGoalRad, double goalVelocity, double feedForwardTorqueNm) {
-        // goal is [-pi,pi]
-        // but measurement is [-inf,inf]
-
-        OptionalDouble positionRad = m_encoder.getPositionRad();
-        m_log_position.log(() -> positionRad);
-
-        if (positionRad.isEmpty())
+    public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
+        OptionalDouble posOpt = m_encoder.getPositionRad();
+        if (posOpt.isEmpty())
             return;
+        m_log_position.log(() -> posOpt);
 
-        // unwrapped measurement is [-inf,inf]
-        double unwrappedMeasurementRad = positionRad.getAsDouble();
-        // wrapped measurement is [-pi,pi]
-        double wrappedMeasurementRad = MathUtil.angleModulus(unwrappedMeasurementRad);
-
-        // err is [-pi,pi]
-        double goalErr = MathUtil.angleModulus(wrappedGoalRad - wrappedMeasurementRad);
+        // measurement is [-inf,inf]
+        double measurement = posOpt.getAsDouble();
 
         // choose a goal which is near the measurement
-        // apply error to unwrapped measurement, so goal is [-inf, inf]
-        m_goal = new Model100(goalErr + unwrappedMeasurementRad, goalVelocity);
+        // goal is [-inf, inf]
+        m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
+                goalVelocityRad_S);
 
-        // @sanjan's version from sep 2024 used measurement as setpoint which i think is
-        // an error.
-        // m_setpoint = new State100(measurementRad, m_setpoint.v());
-        // setpoint is [-inf,inf]
-        // wrapped setpoint is [-pi,pi]
-        double wrappedSetpoint = MathUtil.angleModulus(m_setpoint.x());
-        // setpoint err is [-pi,pi]
-        double setpointErr = MathUtil.angleModulus(wrappedSetpoint - wrappedMeasurementRad);
-        // we're choosing a setpoint that is near the measurement
-        m_setpoint = new Control100(setpointErr + unwrappedMeasurementRad, m_setpoint.v());
+        // setpoint is [-inf,inf], near the measurement
+        m_setpoint = new Control100(
+                MathUtil.angleModulus(m_setpoint.x() - measurement) + measurement,
+                m_setpoint.v());
 
         // finally compute a new setpoint
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
-        // this was Sanjan experimenting in October 2024
-        // m_setpoint = profileTest.calculate(0.02, m_setpoint, m_goal);
 
         m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
-        m_log_measurement.log(() -> unwrappedMeasurementRad);
+        m_log_measurement.log(() -> measurement);
         m_log_setpoint.log(() -> m_setpoint);
     }
 
@@ -153,14 +144,11 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         OptionalDouble positionRad = getPosition();
         if (positionRad.isEmpty())
             return false;
-        double positionMeasurementRad = positionRad.getAsDouble();
         OptionalDouble velocityRad_S = getVelocity();
         if (velocityRad_S.isEmpty())
             return false;
-        double velocityMeasurementRad_S = velocityRad_S.getAsDouble();
-        double positionError = MathUtil.angleModulus(m_setpoint.x() - positionMeasurementRad);
-        double velocityError = m_setpoint.v() - velocityMeasurementRad_S;
-        // System.out.println("position error " + positionError + " velocity error " + velocityError);
+        double positionError = MathUtil.angleModulus(m_setpoint.x() - positionRad.getAsDouble());
+        double velocityError = m_setpoint.v() - velocityRad_S.getAsDouble();
         return Math.abs(positionError) < kPositionTolerance
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
@@ -168,7 +156,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private boolean setpointAtGoal() {
         double positionError = MathUtil.angleModulus(m_goal.x() - m_setpoint.x());
         double velocityError = m_goal.v() - m_setpoint.v();
-        // System.out.println("goal position error " + positionError + " velocity " + velocityError);
         return Math.abs(positionError) < kPositionTolerance
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
@@ -195,7 +182,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public Control100 getSetpoint() {
-        // 11/11/24 note this used to return m_goal ?
         return m_setpoint;
     }
 
@@ -203,15 +189,5 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     public void periodic() {
         m_mechanism.periodic();
         m_encoder.periodic();
-    }
-
-    public void setProfile(Profile100 profile) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setProfile'");
-    }
-
-    public void setSpeed(double input2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setSpeed'");
     }
 }
