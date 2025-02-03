@@ -6,7 +6,6 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
-import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 /**
@@ -14,7 +13,7 @@ import org.team100.lib.state.Model100;
  * 
  * Does not include feedforward, this just does feedback.
  */
-public class FullStateFeedback implements Controller100 {
+public class FullStateFeedback implements Feedback100 {
 
     private final Model100Logger m_log_measurement;
     private final Model100Logger m_log_reference; // ref v is FF
@@ -56,7 +55,7 @@ public class FullStateFeedback implements Controller100 {
     }
 
     @Override
-    public Control100 calculate(Model100 measurement, Model100 reference) {
+    public double calculate(Model100 measurement, Model100 reference) {
         m_log_measurement.log(() -> measurement);
         m_log_reference.log(() -> reference);
         m_log_error.log(() -> reference.minus(measurement));
@@ -64,10 +63,8 @@ public class FullStateFeedback implements Controller100 {
         m_atSetpoint = true;
         double u_FB = calculateFB(measurement, reference);
         m_log_u_FB.log(() -> u_FB);
-        // return "u" in the "v" slot.
-        // TODO: not that?
-        // return new Control100(0, u_FF + u_FB, 0);
-        return new Control100(0, u_FB, 0);
+        // return u_FF + u_FB;
+        return u_FB;
     }
 
     private double calculateFB(Model100 measurement, Model100 setpoint) {

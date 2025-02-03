@@ -2,7 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.controller.simple.Controller100;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -22,7 +22,7 @@ import edu.wpi.first.math.MathUtil;
 public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo {
     private static final double kV = 0.1;
     private final LinearMechanism m_mechanism;
-    private final Controller100 m_controller;
+    private final Feedback100 m_controller;
     private final Profile100 m_profile;
     // LOGGERS
     private final Model100Logger m_log_goal;
@@ -39,7 +39,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
             LinearMechanism mechanism,
-            Controller100 controller,
+            Feedback100 controller,
             Profile100 profile) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
@@ -74,7 +74,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         Model100 goal = new Model100(goalM, goalVelocityM_S);
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), goal);
         double u_FF = kV * m_setpoint.v();
-        double u_FB = m_controller.calculate(Model100.x(measurementM), m_setpoint.model()).v();
+        double u_FB = m_controller.calculate(Model100.x(measurementM), m_setpoint.model());
         double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
         m_mechanism.setDutyCycle(u_TOTAL);
 
