@@ -2,12 +2,10 @@
 
 This is a snapshot from Feb 4 2025.
 
-I removed the parts that we're not going to use in 2025:
+It contains stuff I worked on in 2024, but didn't finish prior
+to the 2025 build season.  To simplify the 2025 comp code,
+I took out the unfinished parts from all25/raspberry_pi.
 
-* the Redux gyro works fine, so I removed the NT gyro.
-* the GTSAM stuff needs more offseason time, so I removed it.
-
-I left the logging stuff in, since I'm not yet sure if we need it.
 
 ---
 
