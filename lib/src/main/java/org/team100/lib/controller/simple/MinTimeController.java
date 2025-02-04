@@ -3,6 +3,7 @@ package org.team100.lib.controller.simple;
 import java.util.function.DoubleUnaryOperator;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
@@ -166,6 +167,10 @@ public class MinTimeController implements Glassy {
 
     private Control100 modulus(Model100 s) {
         return modulus(s.x(), s.v(), 0);
+    }
+
+    public Control100 calculate(final Model100 initial, final Model100 goal) {
+        return calculate(TimedRobot100.LOOP_PERIOD_S, initial, goal);
     }
 
     /**

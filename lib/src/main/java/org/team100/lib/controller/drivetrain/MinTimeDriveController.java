@@ -73,29 +73,33 @@ public class MinTimeDriveController implements HolonomicFieldRelativeController 
      * Makes no attempt to coordinate the axes or provide feasible output.
      */
     @Override
-    public FieldRelativeVelocity calculate(SwerveModel measurement, SwerveModel reference) {
+    public FieldRelativeVelocity calculate(
+            SwerveModel measurement,
+            SwerveModel currentReference,
+            SwerveModel nextReference) {
         m_log.measurement.log(() -> measurement);
-        m_log.reference.log(() -> reference);
-        m_log.error.log(() -> reference.minus(measurement));
-
-        FieldRelativeVelocity u_FF = reference.velocity();
+        m_log.reference.log(() -> currentReference);
+        m_log.error.log(() -> currentReference.minus(measurement));
 
         Control100 xFB = m_xController.calculate(
                 TimedRobot100.LOOP_PERIOD_S,
                 measurement.x(),
-                reference.x());
+                currentReference.x());
         Control100 yFB = m_yController.calculate(
                 TimedRobot100.LOOP_PERIOD_S,
                 measurement.y(),
-                reference.y());
+                currentReference.y());
         Control100 thetaFB = m_thetaController.calculate(
                 TimedRobot100.LOOP_PERIOD_S,
                 measurement.theta(),
-                reference.theta());
+                currentReference.theta());
 
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
                 xFB.v(), yFB.v(), thetaFB.v());
         m_log.u_FB.log(() -> u_FB);
+
+        FieldRelativeVelocity u_FF = nextReference.velocity();
+
         return u_FF.plus(u_FB);
     }
 

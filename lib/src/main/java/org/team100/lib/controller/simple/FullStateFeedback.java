@@ -10,8 +10,10 @@ import org.team100.lib.state.Model100;
 
 /**
  * Patterned after FullStateDriveController.
+ * 
+ * Does not include feedforward, this just does feedback.
  */
-public class FullStateController {
+public class FullStateFeedback implements Feedback100 {
 
     private final Model100Logger m_log_measurement;
     private final Model100Logger m_log_reference; // ref v is FF
@@ -25,7 +27,15 @@ public class FullStateController {
 
     private boolean m_atSetpoint = false;
 
-    public FullStateController(
+    /**
+     * @param parent logger
+     * @param k1 position gain
+     * @param k2 velocity gain
+     * @param modulus for rotary
+     * @param xtol for "at setpoint"
+     * @param vtol for "at setpoint"
+     */
+    public FullStateFeedback(
             LoggerFactory parent,
             double k1,
             double k2,
@@ -44,15 +54,17 @@ public class FullStateController {
         m_tol2 = vtol;
     }
 
+    @Override
     public double calculate(Model100 measurement, Model100 reference) {
         m_log_measurement.log(() -> measurement);
         m_log_reference.log(() -> reference);
         m_log_error.log(() -> reference.minus(measurement));
-        double u_FF = reference.v();
+        // double u_FF = reference.v();
         m_atSetpoint = true;
         double u_FB = calculateFB(measurement, reference);
         m_log_u_FB.log(() -> u_FB);
-        return u_FF + u_FB;
+        // return u_FF + u_FB;
+        return u_FB;
     }
 
     private double calculateFB(Model100 measurement, Model100 setpoint) {

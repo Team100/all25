@@ -69,6 +69,7 @@ public class TrapezoidProfile100 implements Profile100 {
         m_tolerance = tolerance;
     }
 
+    @Override
     public TrapezoidProfile100 scale(double s) {
         return new TrapezoidProfile100(m_maxVelocity, s * m_maxAcceleration, m_tolerance);
     }
@@ -137,6 +138,8 @@ public class TrapezoidProfile100 implements Profile100 {
     }
 
     /**
+     * Return the control for dt in the future.
+     * 
      * Note order of the arguments: initial state first, then goal.
      * 
      * Input velocities are clamped to the velocity constraint.
@@ -157,6 +160,8 @@ public class TrapezoidProfile100 implements Profile100 {
      */
     @Override
     public ResultWithETA calculateWithETA(double dt, final Model100 initialRaw, final Model100 goalRaw) {
+        if (DEBUG)
+            Util.printf("calculateWithETA %5.3f %s %s\n", dt, initialRaw, goalRaw);
         // Too-high initial speed is handled with braking
         if (initialRaw.v() > m_maxVelocity) {
             if (DEBUG)
@@ -264,7 +269,7 @@ public class TrapezoidProfile100 implements Profile100 {
         if (MathUtil.isNear(timeToSwitch, 0, 1e-12)) {
             // switch eta is zero: go to the goal via G-
             if (DEBUG)
-                Util.printf("at switch, go to G-\n");
+                Util.printf("timeToSwitch %f, go to G-\n", timeToSwitch);
             double duration = durationAtMaxA(initial.v(), goal.v());
             return new ResultWithETA(full(truncateDt(dt, initial, goal), initial, -1), duration);
         }
@@ -440,14 +445,25 @@ public class TrapezoidProfile100 implements Profile100 {
      */
     private ResultWithETA traverseSwitch(double dt, Model100 in_initial, final Model100 goal, double t1,
             double direction) {
+        // t1 is the time before the switch
+        // t2 is the time after
+        double t2 = dt - t1;
         if (DEBUG)
-            Util.printf("traverse switch\n");
+            Util.printf("traverse switch %5.3f %5.3f\n", t1, t2);
+        // if the remaining time is ~zero, then just go full, we'll catch the switch the
+        // next time.
+        if (t2 < 1e-6) {
+            if (DEBUG)
+                Util.printf("switch is at endpoint, go full.\n");
+            Control100 result = full(dt, in_initial, direction);
+            return new ResultWithETA(result, dt);
+        }
+
         // first get to the switching point
         double x = in_initial.x() + in_initial.v() * t1
                 + 0.5 * direction * m_maxAcceleration * Math.pow(t1, 2);
         double v = in_initial.v() + direction * m_maxAcceleration * t1;
-        // then go the other way for the remaining time
-        double t2 = dt - t1;
+
         // just use the same method for the second part
         // note this is slower than the code below so maybe put it back
         Model100 s = new Model100(x, v);

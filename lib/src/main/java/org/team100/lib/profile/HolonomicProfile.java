@@ -58,6 +58,7 @@ public class HolonomicProfile {
         pptheta = ptheta.scale(stheta);
     }
 
+    /** Compute the control for the end of the next time step */
     public SwerveControl calculate(SwerveModel i, SwerveModel g) {
         Control100 stateX = ppx.calculate(m_dt, i.x(), g.x());
         Control100 stateY = ppy.calculate(m_dt, i.y(), g.y());

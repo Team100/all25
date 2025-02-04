@@ -31,24 +31,27 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
     }
 
     @Override
-    public FieldRelativeVelocity calculate(SwerveModel measurement, SwerveModel reference) {
+    public FieldRelativeVelocity calculate(
+            SwerveModel measurement,
+            SwerveModel currentReference,
+            SwerveModel nextReference) {
         m_log.measurement.log(() -> measurement);
-        m_log.reference.log(() -> reference);
-        m_log.error.log(() -> reference.minus(measurement));
-
-        FieldRelativeVelocity u_FF = reference.velocity();
+        m_log.reference.log(() -> currentReference);
+        m_log.error.log(() -> currentReference.minus(measurement));
 
         m_atSetpoint = true;
 
         double xFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
-                measurement.x(), reference.x(), x -> x);
+                measurement.x(), currentReference.x(), x -> x);
         double yFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
-                measurement.y(), reference.y(), x -> x);
+                measurement.y(), currentReference.y(), x -> x);
         double thetaFB = calculateFB(kThetaK1, kThetaK2, kThetaTolerance, kOmegaTolerance,
-                measurement.theta(), reference.theta(), MathUtil::angleModulus);
+                measurement.theta(), currentReference.theta(), MathUtil::angleModulus);
 
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB);
         m_log.u_FB.log(() -> u_FB);
+
+        FieldRelativeVelocity u_FF = nextReference.velocity();
 
         return u_FF.plus(u_FB);
     }

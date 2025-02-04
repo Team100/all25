@@ -47,6 +47,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     void testSimple() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
         HolonomicFieldRelativeController control = HolonomicDriveControllerFactory.get(
+                logger,
                 new HolonomicFieldRelativeController.Log(logger));
         TrajectoryListCommand c = new TrajectoryListCommand(
                 logger,
@@ -76,6 +77,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     @Test
     void testLowLevel() {
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
+                logger,
                 new HolonomicFieldRelativeController.Log(logger));
         TrajectoryListCommand command = new TrajectoryListCommand(
                 logger,

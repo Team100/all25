@@ -15,7 +15,7 @@ public interface HolonomicFieldRelativeController extends Glassy {
         final SwerveModelLogger reference; // ref v is FF
         final SwerveModelLogger error;
         final FieldRelativeVelocityLogger u_FB;
-        
+
         public Log(LoggerFactory parent) {
             LoggerFactory child = parent.child("HolonomicFieldRelativeController");
             reference = child.swerveModelLogger(Level.DEBUG, "reference");
@@ -26,11 +26,22 @@ public interface HolonomicFieldRelativeController extends Glassy {
     }
 
     /**
-     * @param measurement current state in field coordinates
-     * @param reference   reference state i.e. setpoint
-     * @return field-relative , meters and radians per second
+     * Feedback should compare the current-instant measurement to the
+     * current-instant reference.
+     * 
+     * Feedforward should be looking at the next-step reference.
+     * 
+     * Previous versions of this method used a single reference for both.
+     * 
+     * @param measurement      current measurement state in field coordinates
+     * @param currentReference current reference state i.e. setpoint
+     * @param nextReference    reference for dt in the future, used for feedforward.
+     * @return field-relative velocity, meters and radians per second
      */
-    FieldRelativeVelocity calculate(SwerveModel measurement, SwerveModel reference);
+    FieldRelativeVelocity calculate(
+            SwerveModel measurement,
+            SwerveModel currentReference,
+            SwerveModel nextReference);
 
     /**
      * This uses the tolerances in the controllers.

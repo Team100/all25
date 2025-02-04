@@ -3,9 +3,11 @@ package org.team100.lib.motion.components;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -17,7 +19,7 @@ import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.TrapezoidProfile100;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.MathUtil;
 
 class AnglePositionServoProfileTest {
     private static final double kDelta = 0.001;
@@ -25,8 +27,10 @@ class AnglePositionServoProfileTest {
 
     private final MockBareMotor motor;
     private final MockRotaryPositionSensor encoder;
-    private final PIDController controller2;
+    private final Feedback100 feedback2;
     private final AngularPositionServo servo;
+    // for calculating the trapezoidal integral
+    double previousMotorSpeed = 0;
 
     public AnglePositionServoProfileTest() {
         motor = new MockBareMotor();
@@ -36,56 +40,56 @@ class AnglePositionServoProfileTest {
                 new MockIncrementalBareEncoder(),
                 1);
         encoder = new MockRotaryPositionSensor();
-        controller2 = new PIDController(1, 0, 0, TimedRobot100.LOOP_PERIOD_S);
-        controller2.enableContinuousInput(-Math.PI, Math.PI);
+        feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
+        ProfiledController controller = new ProfiledController(
+                profile,
+                feedback2,
+                MathUtil::angleModulus);
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
                 encoder,
-                () -> profile,
-                controller2);
+                controller);
         servo.reset();
     }
 
-    /**
-     * Profile invariant to support refactoring the servo. This is the WPILib
-     * TrapezoidalProfile. This only works with
-     * {@link org.team100.lib.experiments.Experiment.FilterFeedback} off.
-     * Note: i modified the expectation a bit when i imposed the 0.02s clock
-     */
     @Test
     void testProfile() {
-
-        verify(0.101, 0.005, 0.1);
-        verify(0.202, 0.020, 0.2);
-        verify(0.303, 0.045, 0.3);
-        verify(0.403, 0.080, 0.4);
-        verify(0.504, 0.125, 0.5);
-        verify(0.605, 0.180, 0.6);
-        verify(0.705, 0.245, 0.7);
-        verify(0.805, 0.320, 0.8);
-        verify(0.905, 0.405, 0.9);
-        verify(1.006, 0.500, 1.0); // little bit of overshoot here
-        verify(0.905, 0.595, 0.9);
-        verify(0.803, 0.680, 0.8);
-        verify(0.702, 0.755, 0.7);
-        verify(0.601, 0.820, 0.6);
-        verify(0.499, 0.875, 0.5);
-        verify(0.399, 0.920, 0.4);
-        verify(0.298, 0.955, 0.3);
-        verify(0.197, 0.980, 0.2);
-        verify(0.097, 0.995, 0.1);
-        verify(-0.003, 1.000, 0.0);
-        verify(-0.003, 1.000, 0.0);
+        verify(0.1, 0.005, 0.1);
+        verify(0.2, 0.020, 0.2);
+        verify(0.3, 0.045, 0.3);
+        verify(0.4, 0.080, 0.4);
+        verify(0.5, 0.125, 0.5);
+        verify(0.6, 0.180, 0.6);
+        verify(0.7, 0.245, 0.7);
+        verify(0.8, 0.320, 0.8);
+        verify(0.9, 0.405, 0.9);
+        verify(1.0, 0.500, 1.0);
+        verify(0.9, 0.595, 0.9);
+        verify(0.8, 0.680, 0.8);
+        verify(0.7, 0.755, 0.7);
+        verify(0.6, 0.820, 0.6);
+        verify(0.5, 0.875, 0.5);
+        verify(0.4, 0.920, 0.4);
+        verify(0.3, 0.955, 0.3);
+        verify(0.2, 0.980, 0.2);
+        verify(0.1, 0.995, 0.1);
+        verify(0.0, 1.000, 0.0);
     }
 
-    private void verify(double motorVelocity, double setpointPosition, double setpointVelocity) {
+    private void verify(
+            double motorVelocity,
+            double setpointPosition,
+            double setpointVelocity) {
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
-            encoder.angle += motor.velocity * TimedRobot100.LOOP_PERIOD_S;
+            // observe the current instant and set the output for the next step
             servo.setPosition(1, 0);
+            // trapezoid integral over the step
+            encoder.angle += 0.5 * (motor.velocity + previousMotorSpeed) * 0.02;
+            previousMotorSpeed = motor.velocity;
         }
         assertEquals(motorVelocity, motor.velocity, kDelta);
         assertEquals(setpointPosition, servo.getSetpoint().x(), kDelta);

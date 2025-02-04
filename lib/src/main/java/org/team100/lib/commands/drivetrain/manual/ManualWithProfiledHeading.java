@@ -3,6 +3,7 @@ package org.team100.lib.commands.drivetrain.manual;
 import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.HeadingLatch;
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
@@ -22,7 +23,6 @@ import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -45,8 +45,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     /** Absolute input supplier, null if free */
     private final Supplier<Rotation2d> m_desiredRotation;
     private final HeadingLatch m_latch;
-    private final PIDController m_thetaController;
-    private final PIDController m_omegaController;
+    private final Feedback100 m_thetaFeedback;
+    private final Feedback100 m_omegaFeedback;
     private final LinearFilter m_outputFilter;
 
     // LOGGERS
@@ -81,13 +81,13 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Rotation2d> desiredRotation,
-            PIDController thetaController,
-            PIDController omegaController) {
+            Feedback100 thetaController,
+            Feedback100 omegaController) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_desiredRotation = desiredRotation;
-        m_thetaController = thetaController;
-        m_omegaController = omegaController;
+        m_thetaFeedback = thetaController;
+        m_omegaFeedback = omegaController;
         m_latch = new HeadingLatch();
         m_outputFilter = LinearFilter.singlePoleIIR(0.01, TimedRobot100.LOOP_PERIOD_S);
         m_log_mode = child.stringLogger(Level.TRACE, "mode");
@@ -110,8 +110,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_thetaSetpoint = state.theta().control();
         m_goal = null;
         m_latch.unlatch();
-        m_thetaController.reset();
-        m_omegaController.reset();
+        m_thetaFeedback.reset();
+        m_omegaFeedback.reset();
     }
 
     /**
@@ -145,6 +145,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 state.theta(),
                 pov,
                 control.theta());
+                
         if (m_goal == null) {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
@@ -154,33 +155,34 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             return m_swerveKinodynamics.analyticDesaturation(control);
         }
 
-        // take the short path
-        m_goal = new Rotation2d(
-                Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
-
         // if this is the first run since the latch, then the setpoint should be
         // whatever the measurement is
         if (m_thetaSetpoint == null) {
             m_thetaSetpoint = new Control100(yawMeasurement, yawRateMeasurement);
         }
 
-        // use the modulus closest to the measurement
-        m_thetaSetpoint = new Control100(
-                Math100.getMinDistance(yawMeasurement, m_thetaSetpoint.x()),
-                m_thetaSetpoint.v());
+        final double thetaFB = getThetaFB(yawMeasurement);
+        final double omegaFB = getOmegaFB(yawRateMeasurement);
 
+        //
+        // feedforward uses the new setpoint
+        //
+
+        // take the short path
+        m_goal = new Rotation2d(
+                Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
         // in snap mode we take dx and dy from the user, and use the profile for dtheta.
         // the omega goal in snap mode is always zero.
         Model100 goalState = new Model100(m_goal.getRadians(), 0);
 
+        // use the modulus closest to the measurement
+        m_thetaSetpoint = new Control100(
+                Math100.getMinDistance(yawMeasurement, m_thetaSetpoint.x()),
+                m_thetaSetpoint.v());
         m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goalState);
 
         // the snap overrides the user input for omega.
         double thetaFF = m_thetaSetpoint.v();
-
-        final double thetaFB = getThetaFB(yawMeasurement);
-
-        final double omegaFB = getOmegaFB(yawRateMeasurement);
 
         double omega = MathUtil.clamp(
                 thetaFF + thetaFB + omegaFB,
@@ -217,7 +219,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     }
 
     /**
-     * Note that the max speed and accel are inversely proportional to the current velocity.
+     * Note that the max speed and accel are inversely proportional to the current
+     * velocity.
      */
     public TrapezoidProfile100 makeProfile(double currentVelocity) {
         // fraction of the maximum speed
@@ -240,8 +243,10 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 0.01);
     }
 
+    // feedback is velocity
     private double getOmegaFB(double headingRate) {
-        double omegaFB = m_omegaController.calculate(headingRate, m_thetaSetpoint.v());
+        double omegaFB = m_omegaFeedback.calculate(
+                Model100.x(headingRate), Model100.x(m_thetaSetpoint.v()));
 
         if (Experiments.instance.enabled(Experiment.SnapThetaFilter)) {
             // output filtering to prevent oscillation due to delay
@@ -254,8 +259,9 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         return omegaFB;
     }
 
+    // feedback is velocity
     private double getThetaFB(double headingMeasurement) {
-        double thetaFB = m_thetaController.calculate(headingMeasurement, m_thetaSetpoint.x());
+        double thetaFB = m_thetaFeedback.calculate(Model100.x(headingMeasurement), m_thetaSetpoint.model());
         if (Math.abs(thetaFB) < THETA_FB_DEADBAND) {
             thetaFB = 0;
         }

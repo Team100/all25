@@ -29,6 +29,9 @@
         "debug.console.fontFamily": "courier",
         "debug.console.collapseIdenticalLines": false,
         "intellicodeApiExamples.python.enabled": false,
-        "intellicodeApiExamples.typescript.enabled": false
+        "intellicodeApiExamples.typescript.enabled": false,
+        "workbench.tree.enableStickyScroll": false,
+        "editor.stickyScroll.scrollWithEditor": false,
+        "editor.stickyScroll.enabled": false
     }
 }

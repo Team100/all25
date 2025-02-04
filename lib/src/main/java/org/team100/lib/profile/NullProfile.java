@@ -16,4 +16,9 @@ public class NullProfile implements Profile100 {
         return new ResultWithETA(initial.control(), 0);
     }
 
+    @Override
+    public NullProfile scale(double s) {
+        return this;
+    }
+
 }

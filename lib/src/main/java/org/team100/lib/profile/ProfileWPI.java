@@ -9,12 +9,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
 /** Wrap the WPI profile. */
 public class ProfileWPI implements Profile100 {
-
-    TrapezoidProfile m_profile;
+    private final Constraints m_constraints;
+    private final TrapezoidProfile m_profile;
 
     public ProfileWPI(double maxVel, double maxAccel) {
-        Constraints constraints = new Constraints(maxVel, maxAccel);
-        m_profile = new TrapezoidProfile(constraints);
+        m_constraints = new Constraints(maxVel, maxAccel);
+        m_profile = new TrapezoidProfile(m_constraints);
     }
 
     @Override
@@ -28,5 +28,10 @@ public class ProfileWPI implements Profile100 {
         Control100 result100 = calculate(dt, initial, goal);
         double eta = m_profile.totalTime();
         return new ResultWithETA(result100, eta);
+    }
+
+    @Override
+    public ProfileWPI scale(double s) {
+        return new ProfileWPI(m_constraints.maxVelocity, s * m_constraints.maxAcceleration);
     }
 }

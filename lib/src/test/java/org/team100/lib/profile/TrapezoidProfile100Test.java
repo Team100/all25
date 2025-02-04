@@ -17,13 +17,94 @@ import org.team100.lib.util.Util;
  * of max velocity.
  */
 class TrapezoidProfile100Test {
-    private static final boolean actuallyPrint = false;
+    private static final boolean actuallyPrint = true;
     private static final double k10ms = 0.01;
     private static final double kDelta = 0.001;
 
     private void dump(double tt, Control100 sample) {
         if (actuallyPrint)
             Util.printf("%f %f %f %f\n", tt, sample.x(), sample.v(), sample.a());
+    }
+
+    /** Double integrator system simulator, kinda */
+    static class Sim {
+        /** this represents the system's inability to execute infinite jerk. */
+        private static final double jerkLimit = 0.5;
+        /** measured position */
+        double y = 0;
+        /** measured velocity */
+        double yDot = 0;
+        /** accel for imposing the jerk limit */
+        double a = 0;
+
+        /** evolve the system over the duration of this time step */
+        void step(double u) {
+
+            a = jerkLimit * a + (1 - jerkLimit) * u;
+
+            y = y + yDot * 0.02 + 0.5 * a * 0.02 * 0.02;
+            yDot = yDot + a * 0.02;
+        }
+    }
+
+    /** I think we're writing followers incorrectly, here's how to do it. */
+    @Test
+    void discreteTime1() {
+        final Profile100 profile = new TrapezoidProfile100(2, 1, 0.01);
+        final Model100 initial = new Model100(0, 0);
+        final Model100 goal = new Model100(1, 0);
+        final double k1 = 5.0;
+        final double k2 = 1.0;
+
+        // initial state is motionless
+        Sim sim = new Sim();
+        sim.y = 0;
+        sim.yDot = 0;
+        double feedback = 0;
+        Control100 setpointControl = new Control100();
+
+        Model100 setpointModel = initial;
+        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb,   eta\n");
+
+        // log initial state
+        Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0, 0.0);
+
+        // eta to goal
+        double etaS = 0;
+        for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
+
+            // at the beginning of the time step, we show the current measurement
+            // and the setpoint calculated in the previous time step (which applies to this
+            // one)
+            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                    currentTime,
+                    setpointControl.x(),
+                    setpointControl.v(),
+                    setpointControl.a(),
+                    sim.y,
+                    sim.yDot,
+                    feedback,
+                    etaS);
+
+            // compute feedback using the "previous" setpoint, which is for the current
+            // instant
+            feedback = k1 * (setpointModel.x() - sim.y)
+                    + k2 * (setpointModel.v() - sim.yDot);
+
+            ResultWithETA result = profile.calculateWithETA(0.02, setpointModel, goal);
+            setpointControl = result.state();
+            etaS = result.etaS();
+            // this is the setpoint for the next time step
+            setpointModel = setpointControl.model();
+
+            // this is actuation for the next time step, using the feedback for the current
+            // time, and feedforward for the next time step
+
+            double u = setpointControl.a() + feedback;
+
+            sim.step(u);
+        }
     }
 
     /** What if the entry velocity is above the cruise velocity? */
@@ -1555,9 +1636,9 @@ class TrapezoidProfile100Test {
 
     // Tests that decreasing the maximum velocity in the middle when it is already
     // moving faster than the new max is handled correctly
-    // Oct 20, 2024, this behavior is different now.  It used to
+    // Oct 20, 2024, this behavior is different now. It used to
     // immediately clamp the profile to the new maximum, with
-    // infinite acceleration, which is a pointless behavior.  Now
+    // infinite acceleration, which is a pointless behavior. Now
     // the new constraint creates max braking.
     @Test
     void posContinuousUnderVelChange() {

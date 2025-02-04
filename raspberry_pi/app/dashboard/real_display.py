@@ -55,12 +55,17 @@ class RealDisplay(Display):
 
         (c_x, c_y) = (int(tag.getCenter().x), int(tag.getCenter().y))
         circle(image, (c_x, c_y), 10, WHITE, -1)
-        # this is for lens calibration
-        self.text(
-            image,
-            f"cx:{c_x:4.1f} cy:{c_y:4.1f}",
-            (5, 140),
-        )
+
+        # this is for lens calibration, just for the DIST_TEST camera
+        # TODO: make this actually respect the camera center
+        # cam_cx = 728 # optical center, not center of the line
+        # cam_cy = 544
+        # circle(image, (cam_cx, cam_cy), 10, WHITE, -1)
+        # self.text(
+        #     image,
+        #     f"cx:{c_x-cam_cx:3d} cy:{c_y-cam_cy:3d}",
+        #     (5, 185),
+        # )
 
         tag_id = tag.getId()
         self.text(image, f"id {tag_id}", (c_x, c_y))
@@ -69,10 +74,8 @@ class RealDisplay(Display):
         t = pose.translation()
         self.text(
             image,
-            f"t: {t.z:4.1f},{-t.x:4.1f},{-t.y:4.1f}",
-            # (c_x - 50, c_y + 40),
-            (5, 145),
-
+            f"t: {t.z:6.3f},{-t.x:6.3f},{-t.y:6.3f}",
+            (c_x - 50, c_y + 40),
         )
 
     @override

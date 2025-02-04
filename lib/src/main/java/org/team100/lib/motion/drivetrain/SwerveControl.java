@@ -19,6 +19,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * and acceleration.
  * 
  * This type is used for control, which is why it includes acceleration
+ * 
+ * Do not try to use zero as an initial location; always initialize with the
+ * current location.
  */
 public class SwerveControl {
     private final Control100 m_x;
@@ -51,10 +54,6 @@ public class SwerveControl {
 
     public SwerveControl(Rotation2d x) {
         this(new Pose2d(0, 0, x));
-    }
-
-    public SwerveControl() {
-        this(new Control100(), new Control100(), new Control100());
     }
 
     public SwerveModel model() {
