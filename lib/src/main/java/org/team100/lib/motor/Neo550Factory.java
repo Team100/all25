@@ -1,4 +1,4 @@
-package org.team100.lib.util;
+package org.team100.lib.motor;
 
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
@@ -15,9 +15,6 @@ import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
-import org.team100.lib.motor.MotorPhase;
-import org.team100.lib.motor.Neo550CANSparkMotor;
-import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.logging.LoggerFactory;
 
