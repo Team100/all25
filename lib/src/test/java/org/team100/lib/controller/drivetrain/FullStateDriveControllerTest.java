@@ -44,13 +44,14 @@ class FullStateDriveControllerTest {
     void testFar() {
         FullStateDriveController c = new FullStateDriveController(hlog);
         assertFalse(c.atReference());
+        // no velocity, no feedforward
         FieldRelativeVelocity t = c.calculate(
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
-                        new Model100(0, 0),
+                        new Model100(1, 0),
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
@@ -74,11 +75,11 @@ class FullStateDriveControllerTest {
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
-                        new Model100(0, 0),
+                        new Model100(0, 1), // produces error = 1
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
-                        new Model100(0, 1),
+                        new Model100(0, 1), // produces FF = 1
                         new Model100(0, 0),
                         new Model100(0, 0)));
         // position err is zero but velocity error is 1 and feedforward is also 1 so dx
@@ -99,11 +100,11 @@ class FullStateDriveControllerTest {
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
-                        new Model100(0, 0),
+                        new Model100(-1, 0.5), // position + velocity error
                         new Model100(0, 0),
                         new Model100(0, 0)),
                 new SwerveModel(
-                        new Model100(-1, 0.5),
+                        new Model100(-1, 0.5), // velocity reference
                         new Model100(0, 0),
                         new Model100(0, 0)));
         // position and velocity controls are opposite, so just cruise
@@ -117,11 +118,8 @@ class FullStateDriveControllerTest {
     void testAllAxes() {
         FullStateDriveController c = new FullStateDriveController(hlog);
         assertFalse(c.atReference());
+        // none of these have any velocity so there's no feedforward.
         FieldRelativeVelocity t = c.calculate(
-                new SwerveModel(
-                        new Model100(0, 0),
-                        new Model100(0, 0),
-                        new Model100(0, 0)),
                 new SwerveModel(
                         new Model100(0, 0),
                         new Model100(0, 0),
@@ -129,7 +127,11 @@ class FullStateDriveControllerTest {
                 new SwerveModel(
                         new Model100(1, 0),
                         new Model100(2, 0),
-                        new Model100(3, 0)));
+                        new Model100(3, 0)),
+                new SwerveModel(
+                        new Model100(2, 0),
+                        new Model100(4, 0),
+                        new Model100(6, 0)));
         // 1m error so dx should be K*e = 1
         assertEquals(4, t.x(), kDelta);
         assertEquals(8, t.y(), kDelta);
