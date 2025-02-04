@@ -197,8 +197,7 @@ public class RobotContainer implements Glassy {
                         swerveKinodynamics,
                         driverControl::target,
                         thetaFeedback,
-                        omegaFeedback,
-                        driverControl::trigger));
+                        omegaFeedback));
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);

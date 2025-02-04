@@ -145,6 +145,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 state.theta(),
                 pov,
                 control.theta());
+                
         if (m_goal == null) {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
@@ -154,33 +155,34 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             return m_swerveKinodynamics.analyticDesaturation(control);
         }
 
-        // take the short path
-        m_goal = new Rotation2d(
-                Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
-
         // if this is the first run since the latch, then the setpoint should be
         // whatever the measurement is
         if (m_thetaSetpoint == null) {
             m_thetaSetpoint = new Control100(yawMeasurement, yawRateMeasurement);
         }
 
-        // use the modulus closest to the measurement
-        m_thetaSetpoint = new Control100(
-                Math100.getMinDistance(yawMeasurement, m_thetaSetpoint.x()),
-                m_thetaSetpoint.v());
+        final double thetaFB = getThetaFB(yawMeasurement);
+        final double omegaFB = getOmegaFB(yawRateMeasurement);
 
+        //
+        // feedforward uses the new setpoint
+        //
+
+        // take the short path
+        m_goal = new Rotation2d(
+                Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
         // in snap mode we take dx and dy from the user, and use the profile for dtheta.
         // the omega goal in snap mode is always zero.
         Model100 goalState = new Model100(m_goal.getRadians(), 0);
 
+        // use the modulus closest to the measurement
+        m_thetaSetpoint = new Control100(
+                Math100.getMinDistance(yawMeasurement, m_thetaSetpoint.x()),
+                m_thetaSetpoint.v());
         m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goalState);
 
         // the snap overrides the user input for omega.
         double thetaFF = m_thetaSetpoint.v();
-
-        final double thetaFB = getThetaFB(yawMeasurement);
-
-        final double omegaFB = getOmegaFB(yawRateMeasurement);
 
         double omega = MathUtil.clamp(
                 thetaFF + thetaFB + omegaFB,

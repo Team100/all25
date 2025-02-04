@@ -342,9 +342,7 @@ class ManualWithProfiledHeadingTest {
         assertEquals(8.485, swerveKinodynamics.getMaxAngleAccelRad_S2(), kDelta);
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
 
-        // NOTE feedback here
         Feedback100 thetaFeedback = new PIDFeedback(logger, 3.5, 0, 0, true, 0.05, 1);
-        // NOTE feedback here
         Feedback100 omegaFeedback = new PIDFeedback(logger, 3.5, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
@@ -395,7 +393,7 @@ class ManualWithProfiledHeadingTest {
         // not sure how it can slow down so fast
         assertEquals(2.811, m_manualWithHeading.m_thetaSetpoint.v(), kDelta);
         // includes some feedback
-        verify(0, 0, 2.828, v);
+        verify(0, 0, 2.811, v);
     }
 
     /**
