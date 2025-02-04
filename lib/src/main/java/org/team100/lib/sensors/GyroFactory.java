@@ -1,8 +1,6 @@
 package org.team100.lib.sensors;
 
 import org.team100.lib.config.Identity;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
@@ -22,11 +20,7 @@ public class GyroFactory {
                 return new ReduxGyro(parent, 60);
             default:
                 // for simulation
-                return new SelectGyro(
-                        new NTGyro(),
-                        new SimulatedGyro(kinodynamics, collection),
-                        () -> Experiments.instance.enabled(Experiment.NetworkGyro));
-
+                return new SimulatedGyro(kinodynamics, collection);
         }
     }
 

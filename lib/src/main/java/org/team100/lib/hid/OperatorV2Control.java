@@ -93,10 +93,7 @@ public class OperatorV2Control implements OperatorControl {
 
     @Override
     public boolean pivotToAmpPosition() {
-        // TODO: 2025 version
-        // return m_controller.getLeftBumperButton();
-        // TODO: 2024 version
-        return m_controller.getLeftBumper();
+        return m_controller.getLeftBumperButton();
     }
 
     @Override

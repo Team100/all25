@@ -40,10 +40,6 @@ public enum Experiment {
      */
     SnapThetaFilter,
     /**
-     * Use the network-tables gyro. 
-     */
-    NetworkGyro,
-    /**
      * Snaps can prefer rotation or translation
      */
     SnapPreferRotation,

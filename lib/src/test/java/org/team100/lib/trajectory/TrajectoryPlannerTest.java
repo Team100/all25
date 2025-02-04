@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 class TrajectoryPlannerTest {
+    private static final boolean kPrint = false;
     private static final double kDelta = 0.01;
 
     /**
@@ -94,8 +95,10 @@ class TrajectoryPlannerTest {
         }
         long endTimeNs = System.nanoTime();
         double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
-        System.out.printf("total duration ms: %5.3f\n", totalDurationMs);
-        System.out.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
+        if (kPrint) {
+            System.out.printf("total duration ms: %5.3f\n", totalDurationMs);
+            System.out.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
+        }
         assertEquals(131, t.m_points.size());
         TrajectoryPoint p = t.getPoint(40);
         assertEquals(0.5, p.state().state().getPose().getX(), kDelta);

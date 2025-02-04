@@ -3,8 +3,9 @@ package org.team100.lib.logging.primitive;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.util.Takt;
 
-
 class UdpPrimitiveProtocol2PerformanceTest {
+    private static final boolean kPrint = false;
+
     /**
      * Encoding itself is quite fast, 4 ns per key, about 1 ns
      * per int on my machine, which is about as fast as it can go, I think.
@@ -26,8 +27,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("boolean duration sec %.3f\n", t2 - t1);
-            System.out.printf("boolean duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("boolean duration sec %.3f\n", t2 - t1);
+                System.out.printf("boolean duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
 
         {
@@ -38,8 +41,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("double duration sec %.3f\n", t2 - t1);
-            System.out.printf("double duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("double duration sec %.3f\n", t2 - t1);
+                System.out.printf("double duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
         {
             p.clear();
@@ -49,8 +54,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("int duration sec %.3f\n", t2 - t1);
-            System.out.printf("int duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("int duration sec %.3f\n", t2 - t1);
+                System.out.printf("int duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
         {
             p.clear();
@@ -60,8 +67,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("double[] duration sec %.3f\n", t2 - t1);
-            System.out.printf("double[] duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("double[] duration sec %.3f\n", t2 - t1);
+                System.out.printf("double[] duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
         {
             p.clear();
@@ -71,8 +80,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("long duration sec %.3f\n", t2 - t1);
-            System.out.printf("long duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("long duration sec %.3f\n", t2 - t1);
+                System.out.printf("long duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
         {
             p.clear();
@@ -82,8 +93,10 @@ class UdpPrimitiveProtocol2PerformanceTest {
                     p.clear();
             }
             double t2 = Takt.actual();
-            System.out.printf("string duration sec %.3f\n", t2 - t1);
-            System.out.printf("string duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            if (kPrint) {
+                System.out.printf("string duration sec %.3f\n", t2 - t1);
+                System.out.printf("string duration per row us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            }
         }
     }
 }

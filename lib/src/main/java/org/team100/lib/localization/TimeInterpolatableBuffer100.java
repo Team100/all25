@@ -159,4 +159,13 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
     public Entry<Double, T> ceilingEntry(double arg0) {
         return m_pastSnapshots.ceilingEntry(arg0);
     }
+
+    int size() {
+        return m_pastSnapshots.size();
+    }
+
+    /** Timestamp of the most-recent snapshot. */
+    double lastKey() {
+        return m_pastSnapshots.lastKey();
+    }
 }

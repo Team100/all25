@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.Pose2dWithMotion;
-import org.team100.lib.geometry.Vector2d;
 import org.team100.lib.localization.Blip24;
 import org.team100.lib.logging.primitive.PrimitiveLogger;
 import org.team100.lib.motion.arm.ArmAngles;
@@ -410,30 +409,6 @@ public class LoggerFactory {
 
     public Translation2dLogger translation2dLogger(Level level, String leaf) {
         return new Translation2dLogger(level, leaf);
-    }
-
-    public class Vector2dLogger {
-        private final Level m_level;
-        private final DoubleLogger m_xLogger;
-        private final DoubleLogger m_yLogger;
-
-        Vector2dLogger(Level level, String leaf) {
-            m_level = level;
-            m_xLogger = doubleLogger(level, join(leaf, "x"));
-            m_yLogger = doubleLogger(level, join(leaf, "y"));
-        }
-
-        public void log(Supplier<Vector2d> vals) {
-            if (!allow(m_level))
-                return;
-            Vector2d val = vals.get();
-            m_xLogger.log(val::getX);
-            m_yLogger.log(val::getY);
-        }
-    }
-
-    public Vector2dLogger vector2dLogger(Level level, String leaf) {
-        return new Vector2dLogger(level, leaf);
     }
 
     public class Rotation2dLogger {

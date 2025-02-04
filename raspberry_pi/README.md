@@ -1,6 +1,23 @@
 # Raspberry Pi
 
-This is for the 2025 season, not ready yet.
+This is for the 2025 season.
+
+The full raspberry pi project is in studies.
+
+This is pared down, just what we need for 2025 comps.
+
+I removed the parts that we're not going to use in 2025:
+
+* Network tables gyro (the Redux gyro works fine)
+* GTSAM (needs more offseason development)
+* network support for GTSAM, including tag corners and camera calibration
+* kinodynamics (used for GTSAM odometry)
+
+I left the logging listener in, since I'm not yet sure if we need it.
+
+
+---
+
 
 See the __doc__ directory for more documentation.
 
@@ -9,13 +26,37 @@ Team 100 uses Raspberry Pis for coprocessing, with several different workloads:
 * AprilTag vision
 * Game piece vision
 * Friend/foe vision
-* Gyroscope
 * Logging UDP listener
-* Localization using GTSAM
 
-All these different workloads use the same deployed artifact, built out of this directory, using the board identity to select behavior.
+All these different workloads use the same deployed artifact, built out of this directory,
+using the board identity to select behavior.
 
-The key is that python can load modules out of zip files, so you zip up the source directory and upload it. There's also a very short python script, runapp.py, that runs the zip file -- you just upload this one time.
+The key is that python can load modules out of zip files, so you zip up the source directory
+and upload it. There's also a very short python script, runapp.py, that runs the zip
+file -- you just upload this one time.
+
+# How to install python support in vscode
+
+If you get a lot of import errors, your environment isn't set up correctly.
+
+In linux:
+
+```
+python3 -m pip install --break-system-packages opencv-python
+python3 -m pip install --break-system-packages robotpy
+python3 -m pip install --break-system-packages robotpy-apriltag
+python3 -m pip install --break-system-packages robotpy-cscore
+
+python3 -m pip install numpy
+python3 -m pip install wpilib
+```
+
+Vscode may ask about creating a virtual environment, since you are "breaking system packages."
+After briefly cursing the sad state of python packaging and dependency management,
+you should decline the offer: don't use a virtual environment, these are not system packages.
+
+You may want to reload the python environment, which is only possible using the "command palette"
+(ctrl-shift-P) and finding "python: clear cache and reload window". 
 
 # How to run locally
 

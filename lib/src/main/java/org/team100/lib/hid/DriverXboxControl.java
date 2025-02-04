@@ -122,10 +122,7 @@ public class DriverXboxControl implements DriverControl {
      * velocity() output above.
      */
     private Speed speed() {
-        // TODO 2025 version
-        // if (m_controller.getLeftBumperButton())
-        // TODO 2024 version
-        if (m_controller.getLeftBumper())
+        if (m_controller.getLeftBumperButton())
             return Speed.SLOW;
         if (m_controller.getLeftTriggerAxis() > .9)
             return Speed.MEDIUM;

@@ -16,6 +16,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
 public class OnboardLinearDutyCyclePositionServoTest implements Timeless {
+    private static final boolean kPrint = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test
@@ -37,12 +38,13 @@ public class OnboardLinearDutyCyclePositionServoTest implements Timeless {
         for (double t = 0; t < 3; t += 0.02) {
             s.setPosition(1, 0);
             stepTime(0.02);
-            Util.printf("%f, %f, %f, %f, %f\n",
-                    t,
-                    driveMotor.getVelocityRad_S(),
-                    driveEncoder.getVelocityRad_S().getAsDouble(),
-                    driveEncoder.getPositionRad().getAsDouble(),
-                    mech.getPositionM().getAsDouble());
+            if (kPrint)
+                Util.printf("%f, %f, %f, %f, %f\n",
+                        t,
+                        driveMotor.getVelocityRad_S(),
+                        driveEncoder.getVelocityRad_S().getAsDouble(),
+                        driveEncoder.getPositionRad().getAsDouble(),
+                        mech.getPositionM().getAsDouble());
         }
 
     }

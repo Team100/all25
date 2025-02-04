@@ -6,13 +6,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * Three-axis gyro, NWU.
- * 
- * TODO: extrapolate measurements to the current instant
- * TODO: make all these optionals in case the gyro fails
- * TODO: maybe include timestamp here somehow?
  */
 public interface Gyro extends Glassy {
-    /** Yaw in radians, NWU, counterclockwise positive. */
+    /**
+     * Yaw in radians, NWU, counterclockwise positive.
+     * Implementations should extrapolate using the yaw rate,
+     * to get the yaw at the current Takt time.
+     */
     Rotation2d getYawNWU();
 
     /** Yaw rate in rad/s, NWU, counterclockwise positive. */

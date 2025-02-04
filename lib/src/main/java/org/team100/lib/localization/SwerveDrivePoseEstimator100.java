@@ -16,14 +16,21 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDeltas;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.util.DriveUtil;
-import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
 public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
-    private static final double kBufferDuration = 1.5;
+    /**
+     * The buffer only needs to be long enough to catch stale-but-still-helpful
+     * vision updates.
+     * 
+     * The current Raspberry Pi cameras seem to be able to provide frames to RoboRIO
+     * code with about 75-100 ms latency.  There will never be a vision update
+     * older than about 200 ms.
+     */
+    static final double kBufferDuration = 0.2;
 
     private final SwerveKinodynamics m_kinodynamics;
     private final TimeInterpolatableBuffer100<InterpolationRecord> m_poseBuffer;
@@ -196,7 +203,7 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
                 currentTimeS);
 
         if (lowerEntry == null) {
-            Util.println("lower entry is null");
+            // Util.println("lower entry is null");
             // We're at the beginning. There's nothing to apply the wheel position delta to.
             // This should never happen.
             return;
@@ -238,6 +245,14 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
                 currentTimeS,
                 new InterpolationRecord(
                         m_kinodynamics.getKinematics(), swerveState, wheelPositions));
+    }
+
+    int size() {
+        return m_poseBuffer.size();
+    }
+
+    double lastKey() {
+        return m_poseBuffer.lastKey();
     }
 
     ///////////////////////////////////////

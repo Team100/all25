@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.team100.lib.config.Camera;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.SimulatedCamera;
-import org.team100.lib.util.ObjectPicker;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 

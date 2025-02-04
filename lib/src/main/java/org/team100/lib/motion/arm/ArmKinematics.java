@@ -83,7 +83,7 @@ public class ArmKinematics {
         if (Math.abs(pos.th1 - pos.th2) < 0.001) {
             // when th1 and th2 are the same, the arm is straight.
             // in that case, any movement along the arm requires infinite joint velocity
-            Util.warn("STRAIGHT ARM in ArmKinematics.inverseVel()");
+            // Util.warn("STRAIGHT ARM in ArmKinematics.inverseVel()");
             return new ArmAngles(0, 0);
         }
 

@@ -10,6 +10,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 
 class SwerveUtilTest {
+    private static final boolean kPrint = false;
     private static final double kDelta = 0.001;
 
     @Test
@@ -210,13 +211,14 @@ class SwerveUtilTest {
 
     @Test
     void simMinAccel() {
-        // simulate full-throttle to see the exponential curve. 
+        // simulate full-throttle to see the exponential curve.
         // https://docs.google.com/spreadsheets/d/1k-g8_blQP3X1RNtjFQgk1CJXyzzvNLNuUbWhaNLduvw
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
         double v = 0;
         final double dt = 0.02;
         for (double t = 0; t < 3; t += dt) {
-            System.out.printf("%5.3f %5.3f\n", t, v);
+            if (kPrint)
+                System.out.printf("%5.3f %5.3f\n", t, v);
             double a = SwerveUtil.minAccel(limits, v);
             v += dt * a;
         }

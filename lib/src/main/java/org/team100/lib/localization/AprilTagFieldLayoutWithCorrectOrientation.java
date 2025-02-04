@@ -22,16 +22,18 @@ import edu.wpi.first.wpilibj.Filesystem;
  * rotation with respect to the *outward* normal, which is the opposite of the
  * Apriltags convention to use the *inward* normal.
  * 
- * This wrapper "fixes"     the orientations so they match the Apriltag convention,
+ * This wrapper "fixes" the orientations so they match the Apriltag convention,
  * and thus match the result of camera pose estimates. Without this fix, we
  * would have to sprinkle inversions here and there, which would result in bugs.
  * 
- * in 2024 the pose returned from the camera has zero rotation when facing the
+ * In 2024 the pose returned from the camera has zero rotation when facing the
  * tag, which corresponds to the "inward normal" orientation.
  * 
- * the 2024 game map retains the "outward normal" orientation, and we're using
+ * The 2024 game map retains the "outward normal" orientation, and we're using
  * the WPILib wrapper around the Apriltag library, which does NOT invert the
  * canonical tag orientation.
+ * 
+ * The 2025 game map is the same.
  * 
  * AprilTagPoseEstimator.cpp seems to wrap the apriltag library, and then
  * transform the returned pose array into WPI the domain object with no
@@ -42,7 +44,6 @@ import edu.wpi.first.wpilibj.Filesystem;
  */
 public class AprilTagFieldLayoutWithCorrectOrientation {
     private static final String kProdFilename = "2025-reefscape.json";
-    private static final String kPracticeFilename = "practice-field.json";
 
     // Inverts yaw
     private static final Transform3d kFix = new Transform3d(
@@ -50,7 +51,6 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
             new Rotation3d(0, 0, Math.PI));
 
     private final Map<Alliance, AprilTagFieldLayout> layouts = new EnumMap<>(Alliance.class);
-    private final Map<Alliance, AprilTagFieldLayout> practiceLayouts = new EnumMap<>(Alliance.class);
 
     public AprilTagFieldLayoutWithCorrectOrientation() throws IOException {
         Path path = Filesystem.getDeployDirectory().toPath().resolve(kProdFilename);
@@ -63,17 +63,6 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
 
         layouts.put(Alliance.Red, redLayout);
         layouts.put(Alliance.Blue, blueLayout);
-
-        Path practicePath = Filesystem.getDeployDirectory().toPath().resolve(kPracticeFilename);
-
-        AprilTagFieldLayout bluePracticeLayout = new AprilTagFieldLayout(practicePath);
-        bluePracticeLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-
-        AprilTagFieldLayout redPracticeLayout = new AprilTagFieldLayout(practicePath);
-        redPracticeLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-
-        practiceLayouts.put(Alliance.Red, redPracticeLayout);
-        practiceLayouts.put(Alliance.Blue, bluePracticeLayout);
     }
 
     /** Always use prod layouts. */
@@ -94,9 +83,6 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
     }
 
     private AprilTagFieldLayout getLayout(Alliance alliance, int id) {
-        if (id >= 100) {
-            return practiceLayouts.get(alliance);
-        }
         return layouts.get(alliance);
     }
 }

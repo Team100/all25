@@ -61,13 +61,15 @@ public class ReduxGyro implements Gyro {
         double yaw = q.getYaw();
         double rate = m_gyro.getAngularVelocityYaw();
         double dt = Takt.get() - t;
-        if (dt < 0) {
-            Util.warn("Gyro data from the future!");
+        // it's ok if takt is slightly behind the gyro, in case a CAN packet came in
+        // before we got here.
+        if (dt < -0.1) {
+            Util.warn("Gyro data is from the distant future!");
             dt = 0;
         }
         if (dt > 0.1) {
             Util.warn("Gyro data is very old!");
-            dt = 0.1;
+            dt = 0;
         }
         double correctedYaw = yaw + rate * dt;
         Rotation2d yawNWU = Rotation2d.fromRotations(correctedYaw);

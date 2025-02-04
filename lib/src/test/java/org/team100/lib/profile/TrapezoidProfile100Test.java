@@ -17,7 +17,7 @@ import org.team100.lib.util.Util;
  * of max velocity.
  */
 class TrapezoidProfile100Test {
-    private static final boolean actuallyPrint = true;
+    private static final boolean actuallyPrint = false;
     private static final double k10ms = 0.01;
     private static final double kDelta = 0.001;
 
@@ -64,11 +64,13 @@ class TrapezoidProfile100Test {
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
-        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb,   eta\n");
+        if (actuallyPrint)
+            Util.printf(" t,      x,      v,      a,      y,      ydot,  fb,   eta\n");
 
         // log initial state
-        Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0, 0.0);
+        if (actuallyPrint)
+            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                    0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0, 0.0);
 
         // eta to goal
         double etaS = 0;
@@ -77,15 +79,16 @@ class TrapezoidProfile100Test {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                    currentTime,
-                    setpointControl.x(),
-                    setpointControl.v(),
-                    setpointControl.a(),
-                    sim.y,
-                    sim.yDot,
-                    feedback,
-                    etaS);
+            if (actuallyPrint)
+                Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                        currentTime,
+                        setpointControl.x(),
+                        setpointControl.v(),
+                        setpointControl.a(),
+                        sim.y,
+                        sim.yDot,
+                        feedback,
+                        etaS);
 
             // compute feedback using the "previous" setpoint, which is for the current
             // instant

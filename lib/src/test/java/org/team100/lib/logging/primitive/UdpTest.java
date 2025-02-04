@@ -15,6 +15,7 @@ import org.team100.lib.util.Takt;
 
 /** Timing is on my desktop, real address (not localhost), no listener. */
 class UdpTest {
+    private static final boolean kPrint = false;
     private static final int PACKET_BUF_SIZE = 1472;
     private static final byte[] SOCKET_ADDR = new byte[] { 10, 1, 0, 16 };
     private static final int PORT = 1995;
@@ -48,8 +49,10 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        System.out.printf("1: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("1: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("1: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("1: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         m_socket.close();
     }
 
@@ -74,8 +77,10 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        System.out.printf("2: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("2: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("2: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("2: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         m_socket.close();
     }
 
@@ -103,8 +108,10 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        System.out.printf("3: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("3: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("3: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("3: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         channel.close();
     }
 
@@ -127,8 +134,10 @@ class UdpTest {
             channel.send(m_bb, sockAddr);
         }
         double t1 = Takt.actual();
-        System.out.printf("4: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("4: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("4: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("4: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         channel.close();
     }
 
@@ -150,8 +159,10 @@ class UdpTest {
             channel.send(m_bb, sockAddr);
         }
         double t1 = Takt.actual();
-        System.out.printf("5: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("5: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("5: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("5: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         channel.close();
     }
 
@@ -174,8 +185,10 @@ class UdpTest {
             channel.write(m_bb);
         }
         double t1 = Takt.actual();
-        System.out.printf("6: duration sec %5.3f\n", (t1 - t0));
-        System.out.printf("6: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        if (kPrint) {
+            System.out.printf("6: duration sec %5.3f\n", (t1 - t0));
+            System.out.printf("6: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
+        }
         channel.close();
     }
 }

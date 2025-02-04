@@ -12,8 +12,8 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class ProfiledControllerTest {
+    private static final boolean kPrint = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-
     private static final double kDelta = 0.001;
 
     /** Double integrator system simulator, kinda */
@@ -74,20 +74,22 @@ public class ProfiledControllerTest {
         sim.y = 0;
         sim.yDot = 0;
         double u_FB = 0;
-        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
+        if (kPrint)
+            Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                    currentTime,
-                    setpointControl.x(),
-                    setpointControl.v(),
-                    setpointControl.a(),
-                    sim.y,
-                    sim.yDot,
-                    u_FB);
+            if (kPrint)
+                Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                        currentTime,
+                        setpointControl.x(),
+                        setpointControl.v(),
+                        setpointControl.a(),
+                        sim.y,
+                        sim.yDot,
+                        u_FB);
 
             ProfiledController.Result result = c.calculate(sim.state(), goal);
             setpointControl = result.feedforward();
@@ -118,25 +120,28 @@ public class ProfiledControllerTest {
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
-        Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
+        if (kPrint)
+            Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         // log initial state
-        Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
+        if (kPrint)
+            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                    0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
 
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
-                    currentTime,
-                    setpointControl.x(),
-                    setpointControl.v(),
-                    setpointControl.a(),
-                    sim.y,
-                    sim.yDot,
-                    u_FB);
+            if (kPrint)
+                Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
+                        currentTime,
+                        setpointControl.x(),
+                        setpointControl.v(),
+                        setpointControl.a(),
+                        sim.y,
+                        sim.yDot,
+                        u_FB);
 
             // compute feedback using the "previous" setpoint, which is for the current
             // instant
