@@ -1,0 +1,16 @@
+plugins {
+    id 'distribution'
+}
+
+// to run this task, choose "distZip" from the vscode 
+distributions {
+    main {
+        distributionBaseName = 'app'
+        contents {
+            from ('app') {
+                into('/app')
+            }
+            exclude '**/__pycache__'
+        }
+    }
+}
