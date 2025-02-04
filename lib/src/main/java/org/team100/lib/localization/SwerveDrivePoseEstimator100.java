@@ -204,7 +204,7 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
                 currentTimeS);
 
         if (lowerEntry == null) {
-            Util.println("lower entry is null");
+            // Util.println("lower entry is null");
             // We're at the beginning. There's nothing to apply the wheel position delta to.
             // This should never happen.
             return;

@@ -57,7 +57,8 @@ public class TrajectoryPlanner {
             // catches various kinds of malformed input, returns a no-op.
             // this should never actually happen.
             Util.warn("Bad trajectory input!!");
-            e.printStackTrace();
+            // print the stack trace if you want to know who is calling
+            // e.printStackTrace();
             return new Trajectory100();
         }
     }

@@ -11,6 +11,7 @@ import org.team100.lib.util.Takt;
 
 /** Learning how to use ByteBuffer encoders. */
 class ByteBufferTest {
+    private static final boolean kPrint = false;
 
     @Test
     void testBuffer() {
@@ -47,9 +48,10 @@ class ByteBufferTest {
                 b[0] = (byte) 1;
             }
             double t1 = Takt.actual();
-            System.out.printf("array fill duration (ms) %5.1f\n", 1e3 * (t1 - t0));
-            System.out.printf("array fill per op (ns)   %5.1f\n", 1e9 * (t1 - t0) / N);
-
+            if (kPrint) {
+                System.out.printf("array fill duration (ms) %5.1f\n", 1e3 * (t1 - t0));
+                System.out.printf("array fill per op (ns)   %5.1f\n", 1e9 * (t1 - t0) / N);
+            }
         }
         // the methods below are all about the same -- it gets a little faster by the
         // third case, but that's not a real effect
@@ -61,9 +63,10 @@ class ByteBufferTest {
                 b[0] = (byte) 1;
             }
             double t1 = Takt.actual();
-            System.out.printf("new array duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
-            System.out.printf("new array per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
-
+            if (kPrint) {
+                System.out.printf("new array duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
+                System.out.printf("new array per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
+            }
         }
         {
             // 15 ms
@@ -74,9 +77,10 @@ class ByteBufferTest {
                 bb.put((byte) 1);
             }
             double t1 = Takt.actual();
-            System.out.printf("buf wrap duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
-            System.out.printf("buf wrap per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
-
+            if (kPrint) {
+                System.out.printf("buf wrap duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
+                System.out.printf("buf wrap per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
+            }
         }
         {
             // 15 ms
@@ -86,9 +90,10 @@ class ByteBufferTest {
                 b.put((byte) 1);
             }
             double t1 = Takt.actual();
-            System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
-            System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
-
+            if (kPrint) {
+                System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
+                System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
+            }
         }
         {
             // 7 seconds (!!)
@@ -101,9 +106,10 @@ class ByteBufferTest {
 
             }
             double t1 = Takt.actual();
-            System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
-            System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
-
+            if (kPrint) {
+                System.out.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
+                System.out.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
+            }
         }
     }
 
@@ -122,8 +128,10 @@ class ByteBufferTest {
             }
         }
         double t2 = Takt.actual();
-        System.out.printf("string duration sec %.3f\n", t2 - t1);
-        System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        if (kPrint) {
+            System.out.printf("string duration sec %.3f\n", t2 - t1);
+            System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        }
     }
 
     @Test
@@ -146,9 +154,11 @@ class ByteBufferTest {
             }
         }
         double t2 = Takt.actual();
-        System.out.printf("total %f\n", total);
-        System.out.printf("string duration sec %.3f\n", t2 - t1);
-        System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        if (kPrint) {
+            System.out.printf("total %f\n", total);
+            System.out.printf("string duration sec %.3f\n", t2 - t1);
+            System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        }
     }
 
     @Test
@@ -173,9 +183,12 @@ class ByteBufferTest {
                 total += db.get();
             }
         }
-        System.out.printf("total %f\n", total);
+        if (kPrint)
+            System.out.printf("total %f\n", total);
         double t2 = Takt.actual();
-        System.out.printf("string duration sec %.3f\n", t2 - t1);
-        System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        if (kPrint) {
+            System.out.printf("string duration sec %.3f\n", t2 - t1);
+            System.out.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
+        }
     }
 }
