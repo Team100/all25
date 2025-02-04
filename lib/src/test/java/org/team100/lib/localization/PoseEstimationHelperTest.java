@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 
 class PoseEstimationHelperTest {
+    private static final boolean kPrint = false;
     private static final double kDelta = 0.01;
 
     @Test
@@ -169,6 +170,52 @@ class PoseEstimationHelperTest {
         assertEquals(0, robotPoseInFieldCoords.getRotation().getX(), kDelta);
         assertEquals(0, robotPoseInFieldCoords.getRotation().getY(), kDelta);
         assertEquals(0, robotPoseInFieldCoords.getRotation().getZ(), kDelta);
+    }
+
+    /**
+     * Is handling the camera input a performance issue?
+     * 
+     * On my desktop (i5-9400F at 2.9 Ghz), this test pegs one cpu core,
+     * and takes about 270 ns per call. The roboRio 2.0 goes at 866 Mhz
+     * so maybe 1/4 the speed, so this will take around 1 microsecond per call.
+     * the total cycle budget is 20000 microseconds, though it would be good to
+     * take much less than that; say 5000 microseconds. with a few cameras,
+     * the total load would be, say, 0.1 percent of the budget.
+     * 
+     * So, not an issue.
+     */
+    @Test
+    void posePerformance() {
+        Transform3d cameraInRobotCoords = new Transform3d(
+                new Translation3d(1, 1, 1),
+                new Rotation3d(0, 0, 0));
+        Pose3d tagInFieldCoords = new Pose3d(2, 1, 1, new Rotation3d(0, 0, 0));
+
+        // identity rotation
+        // one meter range (Z forward)
+        Blip24 blip = new Blip24(5,
+                new Transform3d(
+                        new Translation3d(0, 0, 1),
+                        new Rotation3d(0, 0, 0)));
+
+        Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d();
+        LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
+        PoseEstimationHelper helper = new PoseEstimationHelper(logger);
+
+        final int iterations = 10000000;
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < iterations; ++i) {
+            Pose3d robotPoseInFieldCoords = helper.getRobotPoseInFieldCoords(
+                    cameraInRobotCoords,
+                    tagInFieldCoords,
+                    blip,
+                    robotRotationInFieldCoordsFromGyro);
+        }
+        long finishTime = System.currentTimeMillis();
+        if (kPrint) {
+            System.out.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
+            System.out.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
+        }
     }
 
     @Test
