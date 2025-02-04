@@ -22,5 +22,8 @@
         "**/*.pyc": true
     },
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.diagnosticMode": "workspace"
+    "python.analysis.diagnosticMode": "workspace",
+    "editor.stickyScroll.scrollWithEditor": false,
+    "workbench.tree.enableStickyScroll": false,
+    "editor.stickyScroll.enabled": false
 }

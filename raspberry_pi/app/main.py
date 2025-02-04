@@ -17,8 +17,6 @@ from app.camera.camera_loop import CameraLoop
 from app.config.identity import Identity
 from app.framework.looper import Looper
 from app.network.network import Network
-from app.sensors.gyro_factory import GyroFactory
-from app.sensors.gyro_loop import GyroLoop
 
 
 def main() -> None:
@@ -60,9 +58,6 @@ def main() -> None:
             # detector11 = TagDetector(identity, camera1, 3, display11, network)
             # loops.append(CameraLoop(camera1, [detector1, detector11], done))
             loops.append(CameraLoop(camera1, [detector1], done))
-
-        gyro = GyroFactory.get(identity, network)
-        loops.append(GyroLoop(gyro, done))
 
         for loop in loops:
             Thread(target=loop.run).start()
