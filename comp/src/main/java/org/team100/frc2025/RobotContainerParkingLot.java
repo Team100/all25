@@ -6,7 +6,6 @@ import java.util.function.BooleanSupplier;
 
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
-import org.team100.lib.commands.drivetrain.DriveToState101;
 import org.team100.lib.commands.drivetrain.DriveToWaypoint100;
 import org.team100.lib.commands.drivetrain.FullStateTrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.PermissiveTrajectoryListCommand;
@@ -36,7 +35,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
@@ -175,46 +173,6 @@ public class RobotContainerParkingLot implements Glassy {
                         goal,
                         m_drive,
                         driveFF,
-                        swerveKinodynamics,
-                        1,
-                        viz));
-
-        ///////////////////////
-
-        // 254 Pursuit follower
-        DriveTrajectoryFollower drivePP = DriveTrajectoryFollowerFactory.purePursuit(driveLogger, swerveKinodynamics);
-
-        whileTrue(driverControl::test,
-                new DriveToWaypoint100(
-                        driveLogger,
-                        goal,
-                        m_drive,
-                        drivePP,
-                        swerveKinodynamics,
-                        1,
-                        viz));
-
-        whileTrue(driverControl::test,
-                new DriveToState101(
-                        driveLogger,
-                        goal,
-                        new FieldRelativeVelocity(2, 0, 0),
-                        m_drive,
-                        drivePP,
-                        swerveKinodynamics,
-                        viz));
-
-        ///////////////////////
-
-        // 254 Ramsete follower
-        // this one seems to have a pretty high tolerance?
-        DriveTrajectoryFollower driveRam = DriveTrajectoryFollowerFactory.ramsete(driveLogger);
-        whileTrue(driverControl::never,
-                new DriveToWaypoint100(
-                        driveLogger,
-                        goal,
-                        m_drive,
-                        driveRam,
                         swerveKinodynamics,
                         1,
                         viz));

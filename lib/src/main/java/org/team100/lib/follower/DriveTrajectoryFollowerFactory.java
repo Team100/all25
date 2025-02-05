@@ -1,12 +1,7 @@
 package org.team100.lib.follower;
 
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-
 /**
  * Known-good controller settings.
- * 
- * joel 20240311 changed ptheta from 2 to 1.3
  */
 public class DriveTrajectoryFollowerFactory {
 
@@ -50,14 +45,6 @@ public class DriveTrajectoryFollowerFactory {
 
     public DriveTrajectoryFollower ffOnly(DrivePIDFFollower.Log log) {
         return new DrivePIDFFollower(log, m_util, true, 2.4, 1.3);
-    }
-
-    public static DriveTrajectoryFollower purePursuit(LoggerFactory parent, SwerveKinodynamics swerveKinodynamics) {
-        return new DrivePursuitFollower(parent, swerveKinodynamics);
-    }
-
-    public static DriveTrajectoryFollower ramsete(LoggerFactory parent) {
-        return new DriveRamseteFollower(parent);
     }
 
     public DriveTrajectoryFollower testPIDF(DrivePIDFFollower.Log log) {
