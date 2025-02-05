@@ -45,43 +45,6 @@ class DriveToWaypoint100Test extends Fixtured {
     }
 
     @Test
-    void testWithPursuit() {
-        DriveTrajectoryFollower controller = DriveTrajectoryFollowerFactory.purePursuit(logger, fixture.swerveKinodynamics);
-        // the trajectory here should be a no-op.
-        DriveToWaypoint100 command = new DriveToWaypoint100(
-                logger,
-                GeometryUtil.kPoseZero,
-                fixture.drive,
-                controller,
-                fixture.swerveKinodynamics,
-                0,
-                viz);
-        assertEquals(GeometryUtil.kPoseZero, fixture.drive.getPose());
-        command.initialize();
-        assertEquals(0, fixture.drive.getPose().getX(), kDelta);
-        command.execute();
-        command.end(false);
-    }
-
-    @Test
-    void testWithRamsete() {
-        DriveTrajectoryFollower controller = DriveTrajectoryFollowerFactory.ramsete(logger);
-        // the trajectory here should be a no-op.
-        DriveToWaypoint100 command = new DriveToWaypoint100(
-                logger,
-                GeometryUtil.kPoseZero,
-                fixture.drive,
-                controller,
-                fixture.swerveKinodynamics,
-                0,
-                viz);
-        command.initialize();
-        assertEquals(0, fixture.drive.getPose().getX(), kDelta);
-        command.execute();
-        command.end(false);
-    }
-
-    @Test
     void testWithFF() {
         DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
         DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
