@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -32,9 +31,6 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * The goal rotation is used as the setpoint the entire time, which will put
  * a lot of error into the rotational controller.
- * 
- * If you want a holonomic trajectory follower, try the
- * {@link DriveTrajectoryFollower} classes.
  */
 public class DriveToWaypoint3 extends Command implements Glassy {
     /**

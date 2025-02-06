@@ -25,9 +25,9 @@ import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
+import org.team100.lib.follower.FieldRelativeDrivePIDFFollower;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -153,7 +153,7 @@ public class RobotContainer implements Glassy {
 
         final DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(comLog);
         final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(comLog);
+        FieldRelativeDrivePIDFFollower.Log PIDFlog = new FieldRelativeDrivePIDFFollower.Log(comLog);
 
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
@@ -223,7 +223,7 @@ public class RobotContainer implements Glassy {
                 new FancyTrajectory(
                         comLog,
                         m_drive,
-                        driveControllerFactory.fancyPIDF(PIDFlog),
+                        driveControllerFactory.fieldRelativeFancyPIDF(PIDFlog),
                         swerveKinodynamics));
 
         // OPERATOR BUTTONS

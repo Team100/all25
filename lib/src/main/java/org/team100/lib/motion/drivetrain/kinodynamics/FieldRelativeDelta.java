@@ -59,4 +59,8 @@ public class FieldRelativeDelta {
         return m_rotation;
     }
 
+    public double getRadians() {
+        return m_rotation.getRadians();
+    }
+
 }

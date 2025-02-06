@@ -16,6 +16,7 @@ import org.team100.lib.motion.arm.ArmAngles;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.state.Control100;
@@ -584,6 +585,33 @@ public class LoggerFactory {
 
     public ChassisSpeedsLogger chassisSpeedsLogger(Level level, String leaf) {
         return new ChassisSpeedsLogger(level, leaf);
+    }
+
+    public class FieldRelativeDeltaLogger {
+        private final Level m_level;
+        private final DoubleLogger m_xLogger;
+        private final DoubleLogger m_yLogger;
+        private final DoubleLogger m_thetaLogger;
+
+        FieldRelativeDeltaLogger(Level level, String leaf) {
+            m_level = level;
+            m_xLogger = doubleLogger(level, join(leaf, "x m_s"));
+            m_yLogger = doubleLogger(level, join(leaf, "y m_s"));
+            m_thetaLogger = doubleLogger(level, join(leaf, "theta rad_s"));
+        }
+
+        public void log(Supplier<FieldRelativeDelta> vals) {
+            if (!allow(m_level))
+                return;
+            FieldRelativeDelta val = vals.get();
+            m_xLogger.log(val::getX);
+            m_yLogger.log(val::getY);
+            m_thetaLogger.log(val::getRadians);
+        }
+    }
+
+    public FieldRelativeDeltaLogger fieldRelativeDeltaLogger(Level level, String leaf) {
+        return new FieldRelativeDeltaLogger(level, leaf);
     }
 
     public class FieldRelativeVelocityLogger {

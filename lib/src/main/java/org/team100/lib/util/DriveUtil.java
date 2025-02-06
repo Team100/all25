@@ -74,42 +74,6 @@ public class DriveUtil {
         return new DriverControl.Velocity(ratio * input.x(), ratio * input.y(), input.theta());
     }
 
-    /** crash the robot in simulation or just substitute zero in prod */
-    public static void checkSpeeds(ChassisSpeeds speeds) {
-        try {
-            if (Double.isNaN(speeds.vxMetersPerSecond))
-                throw new IllegalStateException("vx is NaN");
-            if (Double.isNaN(speeds.vyMetersPerSecond))
-                throw new IllegalStateException("vy is NaN");
-            if (Double.isNaN(speeds.omegaRadiansPerSecond))
-                throw new IllegalStateException("omega is NaN");
-        } catch (IllegalStateException e) {
-            if (RobotBase.isReal()) {
-                Util.warn("NaN speeds!");
-                speeds.vxMetersPerSecond = 0;
-                speeds.vyMetersPerSecond = 0;
-                speeds.omegaRadiansPerSecond = 0;
-                throw e;
-                // return;
-            }
-            // in test/sim, it's ok to throw
-            throw e;
-        }
-    }
-
-    public static void checkTwist(Twist2d twist) {
-        try {
-            if (Double.isNaN(twist.dx))
-                throw new IllegalStateException("dx is Nan");
-            if (Double.isNaN(twist.dy))
-                throw new IllegalStateException("dy is Nan");
-            if (Double.isNaN(twist.dtheta))
-                throw new IllegalStateException("dtheta is Nan");
-        } catch (IllegalStateException e) {
-            throw e;
-        }
-    }
-
     /**
      * The inverse kinematics wants this to represent a geodesic, which
      * means that the steering doesn't change between start and end.

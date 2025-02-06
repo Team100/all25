@@ -8,6 +8,10 @@ import edu.wpi.first.math.MathUtil;
 
 /**
  * Allows iterating over the schedule of a trajectory.
+ * 
+ * I think what we really want is not these "advance" and "preview" kinds of
+ * things, but really just direct access to the sampler would be fine.
+ * TODO: so get rid of this.
  */
 public class TrajectoryTimeIterator {
     private final TrajectoryTimeSampler m_sampler;
