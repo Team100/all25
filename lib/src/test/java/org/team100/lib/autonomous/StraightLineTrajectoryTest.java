@@ -60,8 +60,7 @@ class StraightLineTrajectoryTest {
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(-1, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
-        // u-turn trajectories are not allowed.
-        assertTrue(traj.isEmpty());
+        assertEquals(0.87, traj.getTotalTimeSeconds(), kDelta);
     }
 
     @Test

@@ -148,12 +148,13 @@ class TrajectoryUtilTest {
         List<Rotation2d> headings = List.of(
                 GeometryUtil.kRotationZero,
                 GeometryUtil.kRotationZero);
-        assertThrows(IllegalArgumentException.class, () -> TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(
+        Path100 path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(
                 waypoints,
                 headings,
                 0.0127,
                 0.0127,
-                Math.toRadians(1.0)));
+                Math.toRadians(1.0));
+        assertEquals(10, path.length());
     }
 
     /**

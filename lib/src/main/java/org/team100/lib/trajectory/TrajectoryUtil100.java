@@ -28,6 +28,23 @@ public class TrajectoryUtil100 {
         return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
     }
 
+    public static Path100 trajectoryFromWaypointsAndHeadings(
+            final List<Pose2d> waypoints,
+            final List<Rotation2d> headings,
+            double maxDx,
+            double maxDy,
+            double maxDTheta,
+            final List<Double> mN) {
+        List<HolonomicSpline> splines = new ArrayList<>(waypoints.size() - 1);
+        for (int i = 1; i < waypoints.size(); ++i) {
+            splines.add(new HolonomicSpline(
+                    waypoints.get(i - 1), waypoints.get(i),
+                    headings.get(i - 1), headings.get(i), mN.get(i)) );
+        }
+        HolonomicSpline.optimizeSpline(splines);
+        return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+    }
+
     private TrajectoryUtil100() {
     }
 }
