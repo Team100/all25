@@ -9,10 +9,13 @@ import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Rotation2dLogger;
 import org.team100.lib.logging.LoggerFactory.Twist2dLogger;
+import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
@@ -68,6 +71,11 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
         return u_FF;
     }
 
+    public FieldRelativeVelocity fieldRelativeFeedforward(TimedPose setpoint) {
+        SwerveModel model = SwerveModel.fromTimedPose(setpoint);
+        return model.velocity();
+    }
+
     private ChassisSpeeds ff(TimedPose setpoint, double velocity_m, Optional<Rotation2d> rot) {
         // heading rate is rad/m of movement, so multiply by m/s to get rad/s
         double omega = velocity_m * setpoint.state().getHeadingRate();
@@ -119,6 +127,19 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
         return u_FB;
     }
 
+    public FieldRelativeVelocity fieldRelativeFeedback(
+            SwerveModel measurement,
+            TimedPose setpoint,
+            double kPCart,
+            double kPTheta) {
+        Transform2d positionError = fieldRelativeError(measurement.pose(), setpoint);
+        FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
+                kPCart * positionError.getX(),
+                kPCart * positionError.getY(),
+                kPTheta * positionError.getRotation().getRadians());
+        return u_FB;
+    }
+
     public ChassisSpeeds feedbackLocked(
             Pose2d currentPose,
             TimedPose setpoint,
@@ -133,6 +154,21 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
                 kPTheta * thetaError.getRadians());
         m_log_u_FB.log(() -> u_FB);
         return u_FB;
+    }
+
+    public FieldRelativeVelocity fieldRelativeVelocityFeedback(
+            SwerveModel currentPose,
+            TimedPose setpoint,
+            final double kPCartV,
+            final double kPThetaV) {
+        final FieldRelativeVelocity velocityError = getFieldRelativeVelocityError(
+                currentPose,
+                setpoint);
+        final FieldRelativeVelocity u_VFB = new FieldRelativeVelocity(
+                kPCartV * velocityError.x(),
+                kPCartV * velocityError.y(),
+                kPThetaV * velocityError.theta());
+        return u_VFB;
     }
 
     public ChassisSpeeds velocityFeedback(
@@ -190,6 +226,31 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
         return u_XFB.plus(u_VFB);
     }
 
+    public FieldRelativeVelocity fieldRelativeFullFeedback(
+            SwerveModel measurement,
+            TimedPose setpoint,
+            final double kPCart,
+            final double kPTheta,
+            final double kPCartV,
+            final double kPThetaV) {
+
+        // POSITION
+        final FieldRelativeVelocity u_XFB = fieldRelativeFeedback(
+                measurement,
+                setpoint,
+                kPCart,
+                kPTheta);
+
+        // VELOCITY
+        final FieldRelativeVelocity u_VFB = fieldRelativeVelocityFeedback(
+                measurement,
+                setpoint,
+                kPCartV,
+                kPThetaV);
+
+        return u_XFB.plus(u_VFB);
+    }
+
     ChassisSpeeds getVelocityError(
             Pose2d currentPose,
             TimedPose setpoint,
@@ -215,10 +276,20 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
                 omega - currentRobotRelativeVelocity.omegaRadiansPerSecond);
     }
 
+    FieldRelativeVelocity getFieldRelativeVelocityError(
+            SwerveModel measurement,
+            TimedPose setpoint) {
+        return SwerveModel.fromTimedPose(setpoint).minus(measurement).velocity();
+    }
+
     /**
      * Returns robot-relative twist representing the position error
      */
     public static Twist2d getErrorTwist(Pose2d measurement, TimedPose setpoint) {
         return measurement.log(setpoint.state().getPose());
+    }
+
+    public static Transform2d fieldRelativeError(Pose2d measurement, TimedPose setpoint) {
+        return setpoint.state().getPose().minus(measurement);
     }
 }

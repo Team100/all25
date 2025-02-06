@@ -22,6 +22,9 @@ public interface FieldRelativeDriveTrajectoryFollower extends Glassy {
      */
     FieldRelativeVelocity update(double timestamp, SwerveModel measurement);
 
+    /**
+     * Note that even though the follower is done, the controller might not be.
+     */
     boolean isDone();
 
 }

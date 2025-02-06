@@ -112,6 +112,7 @@ public class SwerveModel {
 
         double velocityM_s = timedPose.velocityM_S();
         Optional<Rotation2d> course = timedPose.state().getCourse();
+        // TODO: using rotation zero here seems like a bug
         Rotation2d motion_direction = course.isPresent() ? course.get() : GeometryUtil.kRotationZero;
         double xv = motion_direction.getCos() * velocityM_s;
         double yv = motion_direction.getSin() * velocityM_s;
