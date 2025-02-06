@@ -69,8 +69,10 @@ class TrajectoryPlannerTest {
         Trajectory100 t = TrajectoryPlanner.generateTrajectory(
                 waypoints,
                 headings, constraints, start_vel, end_vel);
-        // u-turn trajectories are not allowed.
-        assertTrue(t.isEmpty());
+        TrajectoryPoint p = t.getPoint(40);
+        assertEquals(0.18, p.state().state().getPose().getX(), kDelta);
+        assertEquals(0, p.state().state().getHeadingRate(), kDelta);
+
     }
 
     /**

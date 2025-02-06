@@ -5,12 +5,7 @@ import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.lib.follower.DriveTrajectoryFollower;
-import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.BooleanLogger;
-import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
-import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.TimingConstraintFactory;
@@ -26,27 +21,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveTo_GH extends Command implements Planner2025 {
+public class DriveTo_GH extends Navigator {
     /** Creates a new TrajectoryCommandWithPose100. */
-    public static class Log {
-        private final Pose2dLogger m_log_goal;
-        private final ChassisSpeedsLogger m_log_chassis_speeds;
-        private final DoubleLogger m_log_THETA_ERROR;
-        private final BooleanLogger m_log_FINSIHED;
 
-        public Log(LoggerFactory parent) {
-            LoggerFactory log = parent.child("DriveToGH");
-            m_log_goal = log.pose2dLogger(Level.TRACE, "goal");
-            m_log_chassis_speeds = log.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
-            m_log_THETA_ERROR = log.doubleLogger(Level.TRACE, "THETA ERROR");
-            m_log_FINSIHED = log.booleanLogger(Level.TRACE, "FINSIHED");
-        }
-    }
-
-    private final Log m_log;
+    private final Navigator.Log m_log;
     private final SwerveDriveSubsystem m_robotDrive;
     private final DriveTrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
@@ -58,12 +38,14 @@ public class DriveTo_GH extends Command implements Planner2025 {
     
 
     public DriveTo_GH(
-            Log log,
+            LoggerFactory log,
             SwerveDriveSubsystem robotDrive,
             DriveTrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-        m_log = log;
+        super(log, robotDrive, controller, viz, kinodynamics);
+
+        m_log = super.m_log;
         m_robotDrive = robotDrive;
         m_controller = controller;
         m_viz = viz;
@@ -79,7 +61,7 @@ public class DriveTo_GH extends Command implements Planner2025 {
 
         FieldConstants.FieldSector originSector = FieldConstants.getSector(currPose);
         FieldConstants.FieldSector destinationSector = FieldConstants.FieldSector.GH;
-        FieldConstants.ReefPoint destinationPoint = FieldConstants.ReefPoint.CENTER;
+        FieldConstants.ReefDestination destinationPoint = FieldConstants.ReefDestination.CENTER;
 
         List<Pose2d> waypointsM = new ArrayList<>();
         List<Rotation2d> headings = new ArrayList<>();
