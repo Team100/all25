@@ -30,6 +30,9 @@ public interface TimingConstraint {
 
     /**
      * Minimum and maximum allowed acceleration m/s^2.
+     * 
+     * The acceleration here is purely *along* the path, it doesn't have anything to
+     * do with cross-track accelerations due to curvature.
      */
     MinMaxAcceleration getMinMaxAcceleration(Pose2dWithMotion state, double velocityM_S);
 

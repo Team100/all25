@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 class SwerveModelTest {
@@ -33,7 +33,7 @@ class SwerveModelTest {
                 new TimedPose(
                         new Pose2dWithMotion(
                                 new Pose2d(0, 0, new Rotation2d()),
-                                new Twist2d(0, 0, 0), 0, 0),
+                                new MotionDirection(0, 0, 0), 0, 0),
                         0, 0, 0));
         assertEquals(0, s.x().x(), kDelta);
         assertEquals(0, s.x().v(), kDelta);
@@ -49,7 +49,7 @@ class SwerveModelTest {
                 new TimedPose(
                         new Pose2dWithMotion(
                                 new Pose2d(0, 0, new Rotation2d()),
-                                new Twist2d(0, 0, 0), 0, 0),
+                                new MotionDirection(0, 0, 0), 0, 0),
                         0, 0, 1));
         assertEquals(0, s.x().x(), kDelta);
         assertEquals(0, s.x().v(), kDelta);
@@ -65,7 +65,7 @@ class SwerveModelTest {
                 new TimedPose(
                         new Pose2dWithMotion(
                                 new Pose2d(0, 0, new Rotation2d()),
-                                new Twist2d(1, 0, 0), 0, 0),
+                                new MotionDirection(1, 0, 0), 0, 0),
                         0, 1, 0));
         assertEquals(0, s.x().x(), kDelta);
         assertEquals(1, s.x().v(), kDelta);
@@ -82,7 +82,7 @@ class SwerveModelTest {
                 new TimedPose(
                         new Pose2dWithMotion(
                                 new Pose2d(0, 0, new Rotation2d()),
-                                new Twist2d(1, 0, 0), 1, 0),
+                                new MotionDirection(1, 0, 0), 1, 0),
                         0, 1, 0));
         assertEquals(0, s.x().x(), kDelta);
         assertEquals(1, s.x().v(), kDelta);

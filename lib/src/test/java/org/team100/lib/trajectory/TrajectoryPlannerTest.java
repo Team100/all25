@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.timing.CentripetalAccelerationConstraint;
+import org.team100.lib.timing.CapsizeAccelerationConstraint;
 import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.SwerveDriveDynamicsConstraint;
 import org.team100.lib.timing.TimingConstraint;
@@ -63,7 +63,7 @@ class TrajectoryPlannerTest {
                         new ConstantConstraint(limits.getMaxDriveVelocityM_S(), limits.getMaxDriveAccelerationM_S2()),
                         new SwerveDriveDynamicsConstraint(limits),
                         new YawRateConstraint(limits, 0.2),
-                        new CentripetalAccelerationConstraint(limits, 0.2));
+                        new CapsizeAccelerationConstraint(limits, 0.2));
         double start_vel = 1;
         double end_vel = 0;
         Trajectory100 t = TrajectoryPlanner.generateTrajectory(

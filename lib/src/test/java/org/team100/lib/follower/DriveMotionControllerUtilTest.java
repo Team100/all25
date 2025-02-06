@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -15,7 +16,6 @@ import org.team100.lib.timing.TimedPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 
 class DriveMotionControllerUtilTest {
     private static final double kDelta = 0.001;
@@ -26,7 +26,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -55,7 +55,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is the same
         Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -84,7 +84,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is tangential to the x axis but turning left
-        Twist2d motionDirection = new Twist2d(1, 0, 1);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 1);
         // driving and turning
         double curvatureRad_M = 1;
         // no change in curvature
@@ -115,7 +115,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -147,7 +147,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is +x, facing down y
         Pose2d setpointPose = new Pose2d(1, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -178,7 +178,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -216,7 +216,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -254,7 +254,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -294,7 +294,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is the same
         Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -331,7 +331,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is parallel at the origin
         Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -368,7 +368,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -405,7 +405,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d motionDirection = new Twist2d(1, 0, 0);
+        MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -443,7 +443,7 @@ class DriveMotionControllerUtilTest {
         // setpoint is also at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
-        Twist2d fieldRelativeMotionDirection = new Twist2d(1, 0, 0);
+        MotionDirection fieldRelativeMotionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -485,7 +485,7 @@ class DriveMotionControllerUtilTest {
         // setpoint postion is the same
         Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d fieldRelativeMotionDirection = new Twist2d(1, 0, 0);
+        MotionDirection fieldRelativeMotionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
@@ -528,7 +528,7 @@ class DriveMotionControllerUtilTest {
         // setpoint postion is ahead in x and y and theta
         Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
         // motion is in a straight line, down the x axis
-        Twist2d fieldRelativeMotionDirection = new Twist2d(1, 0, 0);
+        MotionDirection fieldRelativeMotionDirection = new MotionDirection(1, 0, 0);
         // no curvature
         double curvatureRad_M = 0;
         // no change in curvature
