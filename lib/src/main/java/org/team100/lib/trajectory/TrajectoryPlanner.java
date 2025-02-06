@@ -32,6 +32,22 @@ public class TrajectoryPlanner {
                 0.0);
     }
 
+    public static Trajectory100 restToRest(
+            List<Pose2d> waypoints,
+            List<Rotation2d> headings,
+            List<TimingConstraint> constraints,
+            List<Double> mN) {
+        return generateTrajectory(
+                waypoints,
+                headings,
+                constraints,
+                0.0,
+                0.0,
+                mN);
+    }
+
+
+
     /**
      * If you want a max velocity or max accel constraint, use ConstantConstraint.
      */
@@ -59,6 +75,34 @@ public class TrajectoryPlanner {
             Util.warn("Bad trajectory input!!");
             // print the stack trace if you want to know who is calling
             // e.printStackTrace();
+            return new Trajectory100();
+        }
+    }
+
+    public static Trajectory100 generateTrajectory(
+            List<Pose2d> waypoints,
+            List<Rotation2d> headings,
+            List<TimingConstraint> constraints,
+            double start_vel,
+            double end_vel,
+            List<Double> mN) {
+        try {
+            // Create a path from splines.
+            Path100 path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(
+                    waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta, mN);
+            // Generate the timed trajectory.
+            var view = new PathDistanceSampler(path);
+            TimingUtil u = new TimingUtil(constraints);
+            return u.timeParameterizeTrajectory(
+                    view,
+                    kMaxDx,
+                    start_vel,
+                    end_vel);
+        } catch (IllegalArgumentException e) {
+            // catches various kinds of malformed input, returns a no-op.
+            // this should never actually happen.
+            Util.warn("Bad trajectory input!!");
+            e.printStackTrace();
             return new Trajectory100();
         }
     }
