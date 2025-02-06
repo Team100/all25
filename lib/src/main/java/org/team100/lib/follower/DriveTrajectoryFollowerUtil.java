@@ -10,12 +10,12 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Rotation2dLogger;
 import org.team100.lib.logging.LoggerFactory.Twist2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
@@ -132,7 +132,7 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
             TimedPose setpoint,
             double kPCart,
             double kPTheta) {
-        Transform2d positionError = fieldRelativeError(measurement.pose(), setpoint);
+        FieldRelativeDelta positionError = fieldRelativeError(measurement.pose(), setpoint);
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
                 kPCart * positionError.getX(),
                 kPCart * positionError.getY(),
@@ -289,7 +289,7 @@ public class DriveTrajectoryFollowerUtil implements Glassy {
         return measurement.log(setpoint.state().getPose());
     }
 
-    public static Transform2d fieldRelativeError(Pose2d measurement, TimedPose setpoint) {
-        return setpoint.state().getPose().minus(measurement);
+    public static FieldRelativeDelta fieldRelativeError(Pose2d measurement, TimedPose setpoint) {
+        return FieldRelativeDelta.delta(measurement, setpoint.state().getPose());
     }
 }
