@@ -11,7 +11,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleHeadings;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
@@ -132,12 +131,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         setModuleStates(swerveModuleStates);
         // previous setpoint should be at rest with the current states
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), swerveModuleStates);
-        m_swerveKinodynamics.resetHeadings(
-                new SwerveModuleHeadings(
-                        swerveModuleStates.frontLeft().angle.orElse(null),
-                        swerveModuleStates.frontRight().angle.orElse(null),
-                        swerveModuleStates.rearLeft().angle.orElse(null),
-                        swerveModuleStates.rearRight().angle.orElse(null)));
         return Util.all(atGoal());
     }
 
@@ -170,19 +163,12 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     /**
      * Set the module states without desaturating.
      * 
-     * This "raw" mode is just for testing.
+     * Works fine with empty angles.
      * 
-     * Resets the kinematics headings, which affects what
-     * kinematics.toSwerveModuleStates does when the desired speed is zero.
+     * This "raw" mode is just for testing.
      */
     public void setRawModuleStates(SwerveModuleStates targetModuleStates) {
         m_modules.setRawDesiredStates(targetModuleStates);
-        m_swerveKinodynamics.resetHeadings(
-                new SwerveModuleHeadings(
-                        targetModuleStates.frontLeft().angle.orElse(null),
-                        targetModuleStates.frontRight().angle.orElse(null),
-                        targetModuleStates.rearLeft().angle.orElse(null),
-                        targetModuleStates.rearRight().angle.orElse(null)));
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -268,6 +254,8 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /**
      * Desaturation mutates states.
+     * 
+     * Works fine with empty angles.
      */
     private void setModuleStates(SwerveModuleStates states) {
         SwerveDriveKinematics100.desaturateWheelSpeeds(

@@ -161,6 +161,8 @@ public class SwerveModuleCollection {
     /**
      * Optimizes.
      * 
+     * Works fine with empty angles.
+     * 
      * @param swerveModuleStates
      */
     public void setDesiredStates(SwerveModuleStates swerveModuleStates) {
@@ -174,6 +176,8 @@ public class SwerveModuleCollection {
      * Does not optimize.
      * 
      * This "raw" mode is just for testing.
+     * 
+     * Works fine with empty angles.
      */
     public void setRawDesiredStates(SwerveModuleStates swerveModuleStates) {
         m_frontLeft.setRawDesiredState(swerveModuleStates.frontLeft());

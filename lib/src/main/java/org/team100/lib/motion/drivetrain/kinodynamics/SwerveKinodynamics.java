@@ -95,7 +95,7 @@ public class SwerveKinodynamics implements Glassy {
         m_radius = Math.hypot(track / 2, m_wheelbase / 2);
         m_kinematics = get(m_fronttrack, m_backtrack, m_wheelbase, frontoffset);
         // fulcrum is the distance from the center to the nearest edge.
-        double fulcrum = Math.min(Math.min(m_fronttrack,m_backtrack) / 2, m_wheelbase / 2);
+        double fulcrum = Math.min(Math.min(m_fronttrack, m_backtrack) / 2, m_wheelbase / 2);
         m_MaxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
 
         setMaxDriveVelocityM_S(maxDriveVelocity);
@@ -148,7 +148,7 @@ public class SwerveKinodynamics implements Glassy {
         m_radius = Math.hypot((fronttrack + backtrack) / 4, m_wheelbase / 2);
         m_kinematics = get(m_fronttrack, m_backtrack, m_wheelbase, m_frontoffset);
         // fulcrum is the distance from the center to the nearest edge.
-        double fulcrum = Math.min(Math.min(m_fronttrack,m_backtrack) / 2, m_wheelbase / 2);
+        double fulcrum = Math.min(Math.min(m_fronttrack, m_backtrack) / 2, m_wheelbase / 2);
         m_MaxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
 
         setMaxDriveVelocityM_S(maxDriveVelocity);
@@ -282,11 +282,6 @@ public class SwerveKinodynamics implements Glassy {
                 new Translation2d(frontoffset - wheelbase, -backtrack / 2));
     }
 
-    /** arg elements are nullable */
-    public void resetHeadings(SwerveModuleHeadings moduleHeadings) {
-        m_kinematics.resetHeadings(moduleHeadings);
-    }
-
     /**
      * Inverse kinematics, chassis speeds => module states.
      * 
@@ -297,6 +292,8 @@ public class SwerveKinodynamics implements Glassy {
      * It also does extra veering correction proportional to rotation rate and
      * translational acceleration.
      * 
+     * States may include empty angles for motionless wheels.
+     * 
      * @param in            chassis speeds to transform
      * @param gyroRateRad_S current gyro rate, or the trajectory gyro rate
      */
@@ -304,7 +301,11 @@ public class SwerveKinodynamics implements Glassy {
         return toSwerveModuleStates(in, gyroRateRad_S, TimedRobot100.LOOP_PERIOD_S);
     }
 
-    /** For testing only */
+    /**
+     * For testing only.
+     * 
+     * States may include empty angles for motionless wheels.
+     */
     SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
         // This is the extra correction angle ...
         Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));

@@ -14,7 +14,6 @@ import org.team100.lib.util.Util;
 public class ProfiledControllerTest {
     private static final boolean kPrint = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-    private static final double kDelta = 0.001;
 
     /** Double integrator system simulator, kinda */
     static class Sim {

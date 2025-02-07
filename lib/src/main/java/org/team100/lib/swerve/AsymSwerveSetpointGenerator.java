@@ -263,9 +263,13 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 dtheta,
                 min_s);
         // the speeds in these states are always positive.
+        // the kinematics produces an empty angle for zero speed, but here we
+        // know the previous state so use that.
         SwerveModuleStates setpointStates = m_limits.toSwerveModuleStates(
                 setpointSpeeds,
                 setpointSpeeds.omegaRadiansPerSecond);
+        setpointStates.overwriteEmpty(prevModuleStates);
+
         applyOverrides(overrideSteering, setpointStates);
         flipIfRequired(prevModuleStates, setpointStates);
 

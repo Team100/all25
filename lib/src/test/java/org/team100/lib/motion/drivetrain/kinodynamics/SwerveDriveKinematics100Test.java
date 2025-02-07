@@ -349,9 +349,10 @@ class SwerveDriveKinematics100Test {
         assertEquals(1.571, m.frontLeft().angle.get().getRadians(), kDelta);
         assertEquals(1, m.frontLeft().speedMetersPerSecond, kDelta);
         s = new ChassisSpeeds(0, 0, 0);
-        // still the same even though the velocity is zero.
+        // this used to be the same even though the velocity is zero.
+        // now it's just empty.
         m = k.toSwerveModuleStates(s);
-        assertEquals(1.571, m.frontLeft().angle.get().getRadians(), kDelta);
+        assertTrue(m.frontLeft().angle.isEmpty());
         assertEquals(0, m.frontLeft().speedMetersPerSecond, kDelta);
     }
 
@@ -497,45 +498,39 @@ class SwerveDriveKinematics100Test {
         m_kinematics.toSwerveModuleStates(speeds);
         var moduleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
 
-        // Robot is stationary, but module angles are preserved.
+        // This used to preserve module angles.
+        // Now it returns empty angles, and the right thing happens downstream.
 
         assertAll(
                 () -> assertEquals(0.0, moduleStates.frontLeft().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.frontRight().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.rearLeft().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.rearRight().speedMetersPerSecond, kEpsilon),
-                () -> assertEquals(135.0, moduleStates.frontLeft().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(45.0, moduleStates.frontRight().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(-135.0, moduleStates.rearLeft().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(-45.0, moduleStates.rearRight().angle.get().getDegrees(), kEpsilon));
+                () -> assertTrue(moduleStates.frontLeft().angle.isEmpty()),
+                () -> assertTrue(moduleStates.frontRight().angle.isEmpty()),
+                () -> assertTrue(moduleStates.rearLeft().angle.isEmpty()),
+                () -> assertTrue(moduleStates.rearRight().angle.isEmpty()));
     }
 
     @Test
     void testResetWheelAngle() {
-        Rotation2d fl = new Rotation2d(0);
-        Rotation2d fr = new Rotation2d(Math.PI / 2);
-        Rotation2d bl = new Rotation2d(Math.PI);
-        Rotation2d br = new Rotation2d(3 * Math.PI / 2);
-        m_kinematics.resetHeadings(new SwerveModuleHeadings(fl, fr, bl, br));
-        var moduleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
-
-        // Robot is stationary, but module angles are preserved.
-
+        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
+        // Robot is stationary, so module angles are empty.
         assertAll(
                 () -> assertEquals(0.0, moduleStates.frontLeft().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.frontRight().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.rearLeft().speedMetersPerSecond, kEpsilon),
                 () -> assertEquals(0.0, moduleStates.rearRight().speedMetersPerSecond, kEpsilon),
-                () -> assertEquals(0.0, moduleStates.frontLeft().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(90.0, moduleStates.frontRight().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(180.0, moduleStates.rearLeft().angle.get().getDegrees(), kEpsilon),
-                () -> assertEquals(270.0, moduleStates.rearRight().angle.get().getDegrees(), kEpsilon));
+                () -> assertTrue(moduleStates.frontLeft().angle.isEmpty()),
+                () -> assertTrue(moduleStates.frontRight().angle.isEmpty()),
+                () -> assertTrue(moduleStates.rearLeft().angle.isEmpty()),
+                () -> assertTrue(moduleStates.rearRight().angle.isEmpty()));
     }
 
     @Test
     void testTurnInPlaceInverseKinematics() {
         ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 2 * Math.PI);
-        var moduleStates = m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(speeds);
 
         /*
          * The circumference of the wheels about the COR is π * diameter, or 2π * radius

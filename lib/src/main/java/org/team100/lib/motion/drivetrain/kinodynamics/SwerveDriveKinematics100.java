@@ -19,7 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * gyro instead. see https://github.com/Team100/all24/issues/350
  */
 public class SwerveDriveKinematics100 {
-    private static final double kEpsilon = 1e-6;
     private final int m_numModules;
     private final Translation2d[] m_moduleLocations;
 
@@ -83,11 +82,6 @@ public class SwerveDriveKinematics100 {
      * </pre>
      */
     final SimpleMatrix m_forwardKinematics;
-    /**
-     * Used when velocity is zero, to keep the steering the same.
-     * elements are nullable.
-     */
-    private SwerveModuleHeadings m_moduleHeadings;
 
     /**
      * array order:
@@ -105,34 +99,20 @@ public class SwerveDriveKinematics100 {
         m_moduleLocations = Arrays.copyOf(moduleTranslationsM, m_numModules);
         m_inverseKinematics = inverseMatrix(m_moduleLocations);
         m_forwardKinematics = m_inverseKinematics.pseudoInverse();
-        // nulls avoid startup transient
-        m_moduleHeadings = nulls();
-    }
-
-    /**
-     * Reset the internal swerve module headings
-     * 
-     * arg elements are nullable
-     */
-    public void resetHeadings(SwerveModuleHeadings moduleHeadings) {
-        m_moduleHeadings = moduleHeadings;
     }
 
     /**
      * INVERSE: chassis speeds -> module states
      * 
      * The resulting module state speeds are always positive.
+     * 
+     * States may include empty angles for motionless wheels.
      */
     public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds chassisSpeeds) {
-        if (fullStop(chassisSpeeds)) {
-            return constantModuleHeadings(); // avoid steering when stopped
-        }
         // [vx; vy; omega] (3 x 1)
         SimpleMatrix chassisSpeedsVector = chassisSpeeds2Vector(chassisSpeeds);
         // [v cos; v sin; ...] (2n x 1)
-        SwerveModuleStates states = statesFromVector(chassisSpeedsVector);
-        updateHeadings(states);
-        return states;
+        return statesFromVector(chassisSpeedsVector);
     }
 
     /**
@@ -141,15 +121,15 @@ public class SwerveDriveKinematics100 {
      * This assumes the wheel paths are geodesics; steering does not change.
      * 
      * Only used in tests for now.
+     * 
+     * States may include empty angles for motionless wheels.
      */
     public SwerveModuleDeltas toSwerveModuleDelta(Twist2d twist) {
         // [dx; dy; dtheta] (3 x 1)
         SimpleMatrix twistVector = twist2Vector(twist);
         // [d cos; d sin; ...] (2n x 1)
         SimpleMatrix deltaVector = m_inverseKinematics.mult(twistVector);
-        SwerveModuleDeltas deltas = deltasFromVector(deltaVector);
-        updateHeadings(deltas);
-        return deltas;
+        return deltasFromVector(deltaVector);
     }
 
     /**
@@ -286,22 +266,6 @@ public class SwerveDriveKinematics100 {
         return new Twist2d(v.get(0, 0), v.get(1, 0), v.get(2, 0));
     }
 
-    /** True if speeds are (nearly) stopped. Deadband upstream for this to work. */
-    private boolean fullStop(ChassisSpeeds chassisSpeeds) {
-        return Math.abs(chassisSpeeds.vxMetersPerSecond) < kEpsilon
-                && Math.abs(chassisSpeeds.vyMetersPerSecond) < kEpsilon
-                && Math.abs(chassisSpeeds.omegaRadiansPerSecond) < kEpsilon;
-    }
-
-    /** Zero velocity, same heading as before. */
-    private SwerveModuleStates constantModuleHeadings() {
-        return new SwerveModuleStates(
-                new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.frontLeft())),
-                new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.frontRight())),
-                new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.rearLeft())),
-                new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.rearRight())));
-    }
-
     /**
      * [v cos; v sin; ... ] (2n x 1) -> states[]
      * 
@@ -345,30 +309,6 @@ public class SwerveDriveKinematics100 {
                 new SwerveModuleDelta(moduleDeltaVector.get(2, 0), moduleDeltaVector.get(3, 0)),
                 new SwerveModuleDelta(moduleDeltaVector.get(4, 0), moduleDeltaVector.get(5, 0)),
                 new SwerveModuleDelta(moduleDeltaVector.get(6, 0), moduleDeltaVector.get(7, 0)));
-    }
-
-    /** Keep a copy of headings in case we need them for full-stop. */
-    private void updateHeadings(SwerveModuleStates moduleStates) {
-        // use new angle if available, otherwise keep the old one
-        m_moduleHeadings = new SwerveModuleHeadings(
-                moduleStates.frontLeft().angle.orElse(m_moduleHeadings.frontLeft()),
-                moduleStates.frontRight().angle.orElse(m_moduleHeadings.frontRight()),
-                moduleStates.rearLeft().angle.orElse(m_moduleHeadings.rearLeft()),
-                moduleStates.rearRight().angle.orElse(m_moduleHeadings.rearRight()));
-    }
-
-    private void updateHeadings(SwerveModuleDeltas mods) {
-        // use new angle if available, otherwise keep the old one
-        m_moduleHeadings = new SwerveModuleHeadings(
-                mods.frontLeft().angle.orElse(m_moduleHeadings.frontLeft()),
-                mods.frontRight().angle.orElse(m_moduleHeadings.frontRight()),
-                mods.rearLeft().angle.orElse(m_moduleHeadings.rearLeft()),
-                mods.rearRight().angle.orElse(m_moduleHeadings.rearRight()));
-    }
-
-    /** Module headings null to start to avoid transients? */
-    private static SwerveModuleHeadings nulls() {
-        return new SwerveModuleHeadings(null, null, null, null);
     }
 
     /** module locations -> inverse kinematics matrix (2n x 3) */
