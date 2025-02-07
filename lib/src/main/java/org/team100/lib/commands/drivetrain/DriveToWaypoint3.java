@@ -110,7 +110,14 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             cancel(); // this should not happen
             return;
         }
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+        TimedPose state = curOpt.get().state();
+        if (state.velocityM_S() > 0) {
+            // if we're moving, don't worry about the steering.
+            // this catches the "start from rest" case and allows
+            // "start from moving" to work without interference.
+            m_steeringAligned = true;
+        }
+        SwerveModel currentReference = SwerveModel.fromTimedPose(state);
 
         if (m_steeringAligned) {
             Optional<TrajectorySamplePoint> nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
