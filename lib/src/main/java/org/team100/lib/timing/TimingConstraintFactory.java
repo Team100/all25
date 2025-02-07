@@ -42,7 +42,6 @@ public class TimingConstraintFactory {
 
     private List<TimingConstraint> scaled(double vScale, double aScale, double centripetalScale, double yawRateScale) {
         return List.of(
-                new SoftStartConstraint(),
                 new ConstantConstraint(
                         vScale * m_limits.getMaxDriveVelocityM_S(),
                         aScale * m_limits.getMaxDriveAccelerationM_S2()),
