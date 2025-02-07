@@ -87,7 +87,8 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     /**
-     * Updates the setpoint to the "next step" value.
+     * Sets the goal, updates the setpoint to the "next step" value towards it,
+     * gives the setpoint to the outboard mechanism.
      * 
      * The outboard measurement does not wrap, but the goal does.
      * 

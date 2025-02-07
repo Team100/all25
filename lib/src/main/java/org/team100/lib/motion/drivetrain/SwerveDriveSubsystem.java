@@ -147,7 +147,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     /**
-     * Does not desaturate.
+     * Does not desaturate or optimize.
+     * 
+     * This "raw" mode is just for testing.
      */
     public void setRawModuleStates(SwerveModuleStates states) {
         m_swerveLocal.setRawModuleStates(states);

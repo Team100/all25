@@ -29,7 +29,7 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     /**
-     * Only SwerveModuleCollection calls this.
+     * Optimizes.
      */
     void setDesiredState(SwerveModuleState100 desiredState) {
         OptionalDouble position = m_turningServo.getPosition();
@@ -41,16 +41,14 @@ public abstract class SwerveModule100 implements Glassy {
         if (position.isEmpty())
             desiredState = new SwerveModuleState100(desiredState.speedMetersPerSecond, Optional.of(previousPosition));
 
-        setRawDesiredState(
-                SwerveModuleState100.optimize(
-                        desiredState,
-                        new Rotation2d(position.getAsDouble())));
+        SwerveModuleState100 optimized = SwerveModuleState100.optimize(
+                desiredState,
+                new Rotation2d(position.getAsDouble()));
+        setRawDesiredState(optimized);
     }
 
     /**
-     * Only SwerveModuleCollection calls this.
-     * 
-     * This is for testing only, it does not optimize.
+     * Does not optimize.
      */
     void setRawDesiredState(SwerveModuleState100 state) {
         if (Double.isNaN(state.speedMetersPerSecond))

@@ -320,7 +320,9 @@ public class SwerveDriveKinematics100 {
     /**
      * [v cos; v sin; ... ] (2n x 1) -> states[]
      * 
-     * The resulting module speed is always positive.
+     * Speed is always non-negative.
+     * 
+     * Angle can be empty if speed is about zero.
      * 
      * @param chassisSpeedsVector [vx0; vy0; vx1; ...]
      */
@@ -333,6 +335,7 @@ public class SwerveDriveKinematics100 {
                 stateFromVector(moduleStatesMatrix.get(6, 0), moduleStatesMatrix.get(7, 0)));
     }
 
+    /** Returns empty angle if velocity is about zero. */
     private SwerveModuleState100 stateFromVector(double x, double y) {
         if (Math.abs(x) < 0.004 && Math.abs(y) < 0.004) {
             return new SwerveModuleState100(0.0, Optional.empty());
