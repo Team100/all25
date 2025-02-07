@@ -23,7 +23,7 @@ public class VelocityBareEncoder implements IncrementalBareEncoder {
         m_log_velocity = child.optionalDoubleLogger(Level.TRACE, "velocity (rad_s)");
     }
 
-    /** Cached. */
+    /** Value should be updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getVelocityRad_S() {
         double m_rate = m_motor.getVelocityRad_S();

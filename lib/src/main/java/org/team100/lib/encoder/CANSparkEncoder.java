@@ -28,13 +28,6 @@ public class CANSparkEncoder implements IncrementalBareEncoder {
         m_log_velocity = child.optionalDoubleLogger(Level.TRACE, "velocity (rad_s)");
     }
 
-    // /** Position in meters. */
-    // @Override
-    // public void setPosition(double positionM) {
-    // double motorPositionRev = positionM / m_distancePerTurn;
-    // m_motor.setEncoderPosition(motorPositionRev);
-    // }
-
     @Override
     public void reset() {
         m_motor.resetEncoderPosition();
@@ -47,7 +40,9 @@ public class CANSparkEncoder implements IncrementalBareEncoder {
 
     //////////////////////////////////
 
-    /** Nearly cached. */
+    /**
+     * Value is updated in Robot.robotPeriodic().
+     */
     @Override
     public OptionalDouble getPositionRad() {
         // raw position is in rotations
@@ -57,7 +52,9 @@ public class CANSparkEncoder implements IncrementalBareEncoder {
         return OptionalDouble.of(positionRad);
     }
 
-    /** Nearly cached. */
+    /**
+     * Value is updated in Robot.robotPeriodic().
+     */
     @Override
     public OptionalDouble getVelocityRad_S() {
         // raw velocity is in RPM

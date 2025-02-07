@@ -26,13 +26,13 @@ public interface RotaryMechanism {
             double outputVelocityRad_S,
             double outputTorqueNm);
 
-    /** nearly cached */
+    /** Value should be updated in Robot.robotPeriodic(). */
     OptionalDouble getVelocityRad_S();
 
     /** For checking calibration, very slow, do not use outside tests. */
     double getPositionBlockingRad();
 
-    /** nearly cached */
+    /** Value should be updated in Robot.robotPeriodic(). */
     OptionalDouble getPositionRad();
 
     void stop();

@@ -8,7 +8,7 @@ import org.team100.lib.dashboard.Glassy;
 public interface IncrementalBareEncoder extends Glassy {
 
     /**
-     * Should be cached.
+     * Value should be updated in Robot.robotPeriodic().
      * 
      * Note some rate implementations can be noisy.
      * 
@@ -20,7 +20,7 @@ public interface IncrementalBareEncoder extends Glassy {
     OptionalDouble getVelocityRad_S();
 
     /**
-     * Should be cached.
+     * Value should be updated in Robot.robotPeriodic().
      * 
      * If the encoder can't return a valid measurement (e.g. because hardware is not
      * connected), return empty.

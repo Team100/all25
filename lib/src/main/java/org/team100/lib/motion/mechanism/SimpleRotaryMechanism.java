@@ -72,7 +72,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
                 outputTorqueNm / m_gearRatio);
     }
 
-    /** nearly cached */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getVelocityRad_S() {
         OptionalDouble velocityRad_S = m_encoder.getVelocityRad_S();
@@ -87,7 +87,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         return m_encoder.getPositionBlockingRad() / m_gearRatio;
     }
 
-    /** nearly cached */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getPositionRad() {
         OptionalDouble positionRad = m_encoder.getPositionRad();

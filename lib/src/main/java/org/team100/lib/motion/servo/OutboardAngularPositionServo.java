@@ -87,7 +87,9 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     /**
-     * The outboard measurement does not wrap, but the goal does
+     * Updates the setpoint to the "next step" value.
+     * 
+     * The outboard measurement does not wrap, but the goal does.
      * 
      * @param goalRad             [-pi, pi]
      * @param goalVelocityRad_S
@@ -129,16 +131,23 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         setPositionWithVelocity(goal, 0.0, feedForwardTorqueNm);
     }
 
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getPosition() {
         return m_encoder.getPositionRad();
     }
 
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getVelocity() {
         return m_encoder.getRateRad_S();
     }
 
+    /**
+     * Compares robotPeriodic-updated measurements to the setpoint,
+     * so you need to know when the setpoint was updated: is it for the
+     * current Takt time, or the next step?
+     */
     @Override
     public boolean atSetpoint() {
         OptionalDouble positionRad = getPosition();
@@ -153,6 +162,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
+    /**
+     * Note the setpoint may reflect the curent time, or the next time, depending on
+     * whether setPosition has been called during this cycle.
+     */
     private boolean setpointAtGoal() {
         double positionError = MathUtil.angleModulus(m_goal.x() - m_setpoint.x());
         double velocityError = m_goal.v() - m_setpoint.v();
@@ -160,6 +173,15 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
+    /**
+     * Note this is affected by the setpoint update.
+     * 
+     * It really makes the most sense to call this *before* updating the setpoint,
+     * because the measurement comes from the recent-past Takt and the updated
+     * setpoint will be aiming at the next one.
+     * 
+     * TODO: clean this up.
+     */
     @Override
     public boolean atGoal() {
         return atSetpoint() && setpointAtGoal();

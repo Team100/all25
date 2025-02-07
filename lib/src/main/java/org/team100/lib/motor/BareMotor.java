@@ -36,7 +36,7 @@ public interface BareMotor extends Glassy {
             double torqueNm);
 
     /**
-     * Should be cached.
+     * Value should be updated in Robot.robotPeriodic().
      * 
      * Motor shaft speed.
      */
