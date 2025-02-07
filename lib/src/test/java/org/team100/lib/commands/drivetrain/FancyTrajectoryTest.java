@@ -3,9 +3,7 @@ package org.team100.lib.commands.drivetrain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
-import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
-import org.team100.lib.follower.FieldRelativeDrivePIDFFollower;
+import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -21,13 +19,10 @@ class FancyTrajectoryTest extends Fixtured {
     void testSimple() {
         SwerveKinodynamics kSmoothKinematicLimits = SwerveKinodynamicsFactory.forTest();
         SwerveDriveSubsystem drive = fixture.drive;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        FieldRelativeDrivePIDFFollower.Log PIDFlog = new FieldRelativeDrivePIDFFollower.Log(logger);
         FancyTrajectory command = new FancyTrajectory(
                 logger,
                 drive,
-                driveControllerFactory.fieldRelativeFancyPIDF(PIDFlog),
+                TrajectoryFollowerFactory.fieldRelativeFancyPIDF(logger),
                 kSmoothKinematicLimits);
         command.initialize();
         command.execute();

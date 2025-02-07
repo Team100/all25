@@ -3,7 +3,7 @@ package org.team100.lib.commands.drivetrain;
 import java.util.List;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.FieldRelativeDriveTrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DriveToWaypoint100 extends Command implements Glassy {
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
-    private final FieldRelativeDriveTrajectoryFollower m_controller;
+    private final TrajectoryFollower m_controller;
     private final List<TimingConstraint> m_constraints;
 
     private final double m_timeBuffer;
@@ -48,7 +48,7 @@ public class DriveToWaypoint100 extends Command implements Glassy {
             LoggerFactory parent,
             Pose2d goal,
             SwerveDriveSubsystem drivetrain,
-            FieldRelativeDriveTrajectoryFollower controller,
+            TrajectoryFollower controller,
             SwerveKinodynamics swerveKinodynamics,
             double timeBuffer,
             TrajectoryVisualization viz) {

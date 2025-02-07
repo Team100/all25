@@ -69,11 +69,8 @@ class DriveMotionPlannerTest {
                 start_vel,
                 end_vel);
 
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeDrivePIDFFollower.Log PIDFlog = new FieldRelativeDrivePIDFFollower.Log(logger);
-
-        FieldRelativeDrivePIDFFollower controller = new FieldRelativeDrivePIDFFollower(
-                PIDFlog, util, false, 2.4, 2.4);
+        TrajectoryFollower controller = new TrajectoryFollower(
+                logger, 2.4, 2.4, 1.0, 1.0);
 
         TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(
                 new TrajectoryTimeSampler(timed_trajectory));
@@ -99,14 +96,11 @@ class DriveMotionPlannerTest {
         assertEquals(0, pose.getRotation().getRadians(), 0.05);
     }
 
-
-
     @Test
     void testAllFieldRelativeTrajectories() {
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeDrivePIDFFollower.Log PIDFlog = new FieldRelativeDrivePIDFFollower.Log(logger);
-        FieldRelativeDrivePIDFFollower controller = new FieldRelativeDrivePIDFFollower(
-                PIDFlog, util, false, 2.4, 2.4);
+        // note no velocity feedback here
+        TrajectoryFollower controller = new TrajectoryFollower(
+                logger, 2.4, 2.4, 0.0, 0.0);
         TrajectoryGenerator100 generator = new TrajectoryGenerator100();
         Map<String, Trajectory100> trajectories = generator.getTrajectorySet().getAllTrajectories();
 

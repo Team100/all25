@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
-import org.team100.lib.follower.FieldRelativeDriveTrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -42,7 +42,7 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     public final Log m_log;
     private final SwerveDriveSubsystem m_robotDrive;
-    private final FieldRelativeDriveTrajectoryFollower m_controller;
+    private final TrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
     private final TrajectoryVisualization m_viz;
 
@@ -51,7 +51,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     public Navigator(
             LoggerFactory parent,
             SwerveDriveSubsystem robotDrive,
-            FieldRelativeDriveTrajectoryFollower controller,
+            TrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         m_log = new Log(parent);

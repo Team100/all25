@@ -55,9 +55,7 @@ class DriveFeedforwardControllerTest {
         TrajectoryTimeSampler view = new TrajectoryTimeSampler(trajectory);
 
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(view);
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeDrivePIDFFollower.Log PIDFlog = new FieldRelativeDrivePIDFFollower.Log(logger);
-        FieldRelativeDrivePIDFFollower controller = new FieldRelativeDrivePIDFFollower(PIDFlog, util, true, 2.4, 2.4);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 0, 0, 0, 0);
         controller.setTrajectory(iter);
 
         // this is a series of perfect trajectory following states,
@@ -92,7 +90,7 @@ class DriveFeedforwardControllerTest {
             assertEquals(0.979, path_setpoint.velocityM_S(), 0.01);
             assertEquals(-0.008, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = DriveTrajectoryFollowerUtil.fieldRelativeError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
             assertEquals(0, positionError.getX(), 0.05);
             assertEquals(0, positionError.getY(), 0.05);
             assertEquals(0, positionError.getRadians(), 0.05);
@@ -112,7 +110,7 @@ class DriveFeedforwardControllerTest {
             assertEquals(0.955, path_setpoint.velocityM_S(), 0.001);
             assertEquals(0, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = DriveTrajectoryFollowerUtil.fieldRelativeError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
             assertEquals(0, positionError.getX(), 0.01);
             assertEquals(0, positionError.getY(), 0.01);
             assertEquals(-0.03, positionError.getRadians(), 0.01);

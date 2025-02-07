@@ -42,9 +42,9 @@ class DriveMotionControllerUtilTest {
         // constant speed
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
         // feedforward should be straight ahead, no rotation.
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedforward(setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.feedforward(setpoint);
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
         assertEquals(0, speeds.theta(), kDelta);
@@ -71,9 +71,9 @@ class DriveMotionControllerUtilTest {
         // constant speed
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
         // feedforward should be -y, robot relative, no rotation.
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedforward(setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.feedforward(setpoint);
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
         assertEquals(0, speeds.theta(), kDelta);
@@ -100,9 +100,9 @@ class DriveMotionControllerUtilTest {
         // constant speed
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
         // feedforward should be ahead and rotating.
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedforward(setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.feedforward(setpoint);
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
         assertEquals(1, speeds.theta(), kDelta);
@@ -131,10 +131,9 @@ class DriveMotionControllerUtilTest {
         // constant speed
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-
         // we're exactly on the setpoint so zero error
-        FieldRelativeDelta positionError = DriveTrajectoryFollowerUtil.fieldRelativeError(
-                currentState, setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
+        FieldRelativeDelta positionError = controller.positionError(currentState, setpoint);
         assertEquals(0, positionError.getX(), kDelta);
         assertEquals(0, positionError.getY(), kDelta);
         assertEquals(0, positionError.getRadians(), kDelta);
@@ -164,8 +163,8 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // error is +x but robot is facing +y so error is -y
-        FieldRelativeDelta positionError = DriveTrajectoryFollowerUtil.fieldRelativeError(
-                currentState, setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
+        FieldRelativeDelta positionError = controller.positionError(currentState, setpoint);
         assertEquals(1, positionError.getX(), kDelta);
         assertEquals(0, positionError.getY(), kDelta);
         assertEquals(0, positionError.getRadians(), kDelta);
@@ -198,11 +197,8 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        final double kPCart = 1.0;
-        final double kPTheta = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.positionFeedback(measurement, setpoint);
         // we're exactly on the setpoint so zero feedback
         assertEquals(0, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -236,11 +232,8 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.positionFeedback(measurement, setpoint);
         // setpoint should be negative y
         assertEquals(0, speeds.x(), kDelta);
         assertEquals(-1, speeds.y(), kDelta);
@@ -274,11 +267,8 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.positionFeedback(measurement, setpoint);
         // robot is on the setpoint in translation
         // but needs negative rotation
         // setpoint should be negative theta
@@ -313,11 +303,8 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.positionFeedback(measurement, setpoint);
         // on target
         assertEquals(0, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -350,11 +337,8 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity speeds = controller.positionFeedback(measurement, setpoint);
         // feedback is -y field relative
         assertEquals(0, speeds.x(), kDelta);
         assertEquals(-1, speeds.y(), kDelta);
@@ -387,11 +371,8 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity error = util.getFieldRelativeVelocityError(
-                measurement,
-                setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity error = controller.velocityError(measurement, setpoint);
         // we're exactly on the setpoint so zero error
         assertEquals(0, error.x(), kDelta);
         assertEquals(0, error.y(), kDelta);
@@ -425,11 +406,8 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(0, 1, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity error = util.getFieldRelativeVelocityError(
-                measurement,
-                setpoint);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FieldRelativeVelocity error = controller.velocityError(measurement, setpoint);
         // error should include both components
         assertEquals(1, error.x(), kDelta);
         assertEquals(-1, error.y(), kDelta);
@@ -463,15 +441,8 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        double kPCartV = 1.0;
-        double kPThetaV = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFullFeedback(
-                measurement, setpoint,
-                kPCart, kPTheta,
-                kPCartV, kPThetaV);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+        FieldRelativeVelocity speeds = controller.fullFeedback(measurement, setpoint);
         // we're exactly on the setpoint so zero feedback
         assertEquals(0, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -505,15 +476,8 @@ class DriveMotionControllerUtilTest {
                 currentPose,
                 new FieldRelativeVelocity(0.5, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        double kPCartV = 1.0;
-        double kPThetaV = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        FieldRelativeVelocity speeds = util.fieldRelativeFullFeedback(
-                measurement, setpoint,
-                kPCart, kPTheta,
-                kPCartV, kPThetaV);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+        FieldRelativeVelocity speeds = controller.fullFeedback(measurement, setpoint);
         // speed up
         assertEquals(0.5, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -545,18 +509,14 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         // measurement is too slow
         SwerveModel measurement = new SwerveModel(
-            currentPose,
-            new FieldRelativeVelocity(0.5, 0, 0));
+                currentPose,
+                new FieldRelativeVelocity(0.5, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        double kPCart = 1.0;
-        double kPTheta = 1.0;
-        double kPCartV = 1.0;
-        double kPThetaV = 1.0;
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
 
-        FieldRelativeVelocity positionFeedback = util.fieldRelativeFeedback(
-                measurement, setpoint, kPCart, kPTheta);
+        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+
+        FieldRelativeVelocity positionFeedback = controller.positionFeedback(measurement, setpoint);
         // field-relative x is ahead
         assertEquals(-0.1, positionFeedback.x(), kDelta);
         // field-relative y is ahead
@@ -564,18 +524,13 @@ class DriveMotionControllerUtilTest {
         // pull back theta
         assertEquals(-0.1, positionFeedback.theta(), kDelta);
 
-        FieldRelativeVelocity velocityFeedback = util.fieldRelativeVelocityFeedback(
-                measurement, setpoint, kPCartV, kPThetaV);
+        FieldRelativeVelocity velocityFeedback = controller.velocityFeedback(measurement, setpoint);
 
         assertEquals(0.5, velocityFeedback.x(), kDelta);
         assertEquals(0, velocityFeedback.y(), kDelta);
         assertEquals(0, velocityFeedback.theta(), kDelta);
 
-        FieldRelativeVelocity speeds = util.fieldRelativeFullFeedback(
-                measurement,
-                setpoint,
-                kPCart, kPTheta,
-                kPCartV, kPThetaV);
+        FieldRelativeVelocity speeds = controller.fullFeedback(measurement, setpoint);
         // this is just the sum
         assertEquals(0.4, speeds.x(), kDelta);
         assertEquals(-0.1, speeds.y(), kDelta);

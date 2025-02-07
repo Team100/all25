@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.FieldRelativeDriveTrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveWithTrajectory extends Command implements Glassy {
     private final SwerveDriveSubsystem m_swerve;
-    private final FieldRelativeDriveTrajectoryFollower m_controller;
+    private final TrajectoryFollower m_controller;
     private final Trajectory100 trajectory;
     private final TrajectoryVisualization m_viz;
 
@@ -37,7 +37,7 @@ public class DriveWithTrajectory extends Command implements Glassy {
     public DriveWithTrajectory(
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
-            FieldRelativeDriveTrajectoryFollower controller,
+            TrajectoryFollower controller,
             SwerveKinodynamics limits,
             String fileName,
             TrajectoryVisualization viz) {
