@@ -20,14 +20,20 @@ import edu.wpi.first.util.struct.StructSerializable;
  */
 public class SwerveModuleState100
         implements Comparable<SwerveModuleState100>, ProtobufSerializable, StructSerializable {
+    private double speedMetersPerSecond;
     /** Speed of the wheel of the module. */
-    public double speedMetersPerSecond;
+    public double speedMetersPerSecond() {
+        return speedMetersPerSecond;
+    }
 
     /**
      * Angle of the module. It can be empty, in cases where the angle is
      * indeterminate (e.g. calculating the angle required for zero speed).
      */
-    public Optional<Rotation2d> angle = Optional.empty();
+    private Optional<Rotation2d> angle = Optional.empty();
+    public Optional<Rotation2d> angle() {
+        return angle;
+    }
 
     /** SwerveModuleState protobuf for serialization. */
     public static final SwerveModuleStateProto proto = new SwerveModuleStateProto();

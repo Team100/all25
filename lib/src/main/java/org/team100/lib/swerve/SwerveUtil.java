@@ -110,7 +110,7 @@ public class SwerveUtil {
         SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
         if (GeometryUtil.isZero(desiredState)) {
             for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-                desiredModuleStatesAll[i].angle = prevModuleStatesAll[i].angle;
+                desiredModuleStatesAll[i].angle = prevModuleStatesAll[i].angle();
                 desiredModuleStatesAll[i].speedMetersPerSecond = 0.0;
             }
             return true;

@@ -70,17 +70,17 @@ class SwerveDriveDynamicsConstraintTest {
         // start with too-fast speed.
         ChassisSpeeds s = new ChassisSpeeds(1, 0, 10);
         SwerveModuleStates ms = l.toSwerveModuleStates(s, 10);
-        assertEquals(2.661, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4.061, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(3.243, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4.464, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(2.661, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4.061, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(3.243, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4.464, ms.rearRight().speedMetersPerSecond(), kDelta);
 
         // this is slowed to the max possible wheel speed
         SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
-        assertEquals(2.384, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(3.639, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(2.906, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(2.384, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(3.639, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.906, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4, ms.rearRight().speedMetersPerSecond(), kDelta);
 
         // the resulting chassis speeds. This slows to try to
         // to maintain the rotational speed

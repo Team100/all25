@@ -37,8 +37,8 @@ class AsymSwerveSetpointGeneratorTest {
         for (int i = 0; i < prevStates.length; ++i) {
             final SwerveModuleState100 prevModule = prevStates[i];
             final SwerveModuleState100 nextModule = nextStates[i];
-            Optional<Rotation2d> prevAngleOpt = prevModule.angle;
-            Optional<Rotation2d> nextAngleOpt = nextModule.angle;
+            Optional<Rotation2d> prevAngleOpt = prevModule.angle();
+            Optional<Rotation2d> nextAngleOpt = nextModule.angle();
             Rotation2d diffRotation = GeometryUtil.kRotationZero;
             if (prevAngleOpt.isPresent() && nextAngleOpt.isPresent()) {
                 diffRotation = prevAngleOpt.get().unaryMinus().rotateBy(nextAngleOpt.get());
@@ -50,18 +50,18 @@ class AsymSwerveSetpointGeneratorTest {
                             diffRotation.getRadians(),
                             kKinematicLimits.getMaxSteeringVelocityRad_S(),
                             kMaxSteeringVelocityError));
-            assertTrue(Math.abs(nextModule.speedMetersPerSecond) <= kKinematicLimits.getMaxDriveVelocityM_S(),
+            assertTrue(Math.abs(nextModule.speedMetersPerSecond()) <= kKinematicLimits.getMaxDriveVelocityM_S(),
                     String.format("%d %d %f %f", iteration, i,
-                            nextModule.speedMetersPerSecond,
+                            nextModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveVelocityM_S()));
             double actual = Math.abs(
-                    nextModule.speedMetersPerSecond - prevModule.speedMetersPerSecond)
+                    nextModule.speedMetersPerSecond() - prevModule.speedMetersPerSecond())
                     / kDt;
             double limit = kKinematicLimits.getMaxDriveAccelerationM_S2() + kMaxAccelerationError;
             assertTrue(actual <= limit,
                     String.format("%d %d %f %f %f %f %f %f", iteration, i, actual, limit,
-                            nextModule.speedMetersPerSecond,
-                            prevModule.speedMetersPerSecond,
+                            nextModule.speedMetersPerSecond(),
+                            prevModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveAccelerationM_S2(),
                             kMaxAccelerationError));
         }
@@ -302,8 +302,8 @@ class AsymSwerveSetpointGeneratorTest {
                         i, currentPose.getX(), currentPose.getY(),
                         setpoint.getChassisSpeeds().vxMetersPerSecond,
                         setpoint.getChassisSpeeds().vyMetersPerSecond,
-                        setpoint.getModuleStates().frontLeft().speedMetersPerSecond,
-                        setpoint.getModuleStates().frontLeft().angle.get().getRadians(),
+                        setpoint.getModuleStates().frontLeft().speedMetersPerSecond(),
+                        setpoint.getModuleStates().frontLeft().angle().get().getRadians(),
                         ax, ay, a);
             prev = setpoint;
         }

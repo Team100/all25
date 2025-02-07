@@ -25,9 +25,9 @@ class SpinTest extends Fixtured implements Timeless {
         assertEquals(0, command.m_initialRotation, kDelta);
         assertEquals(0, command.m_angleRad, kDelta);
         assertEquals(0.01, command.m_speedRad_S, kDelta);
-        assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond, kDelta);
+        assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
         // larger tolerance makes this not move?  not sure.
-        assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle.get().getRadians(), 0.01);
+        assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), 0.01);
 
         for (int i = 0; i < 273; ++i) {
             command.execute();
@@ -42,14 +42,14 @@ class SpinTest extends Fixtured implements Timeless {
 
         SwerveModuleStates desiredStates = fixture.drive.getSwerveLocal().getDesiredStates();
 
-        assertEquals(-0.176, desiredStates.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(-Math.PI / 4, desiredStates.frontLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0.176, desiredStates.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(Math.PI / 4, desiredStates.frontRight().angle.get().getRadians(), kDelta);
-        assertEquals(-0.176, desiredStates.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(Math.PI / 4, desiredStates.rearLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0.176, desiredStates.rearRight().speedMetersPerSecond, kDelta);
-        assertEquals(-Math.PI / 4, desiredStates.rearRight().angle.get().getRadians(), kDelta);
+        assertEquals(-0.176, desiredStates.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(-Math.PI / 4, desiredStates.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.176, desiredStates.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(Math.PI / 4, desiredStates.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-0.176, desiredStates.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(Math.PI / 4, desiredStates.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.176, desiredStates.rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(-Math.PI / 4, desiredStates.rearRight().angle().get().getRadians(), kDelta);
     }
 
 }

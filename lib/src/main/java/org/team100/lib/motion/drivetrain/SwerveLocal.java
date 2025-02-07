@@ -103,6 +103,13 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         setChassisSpeedsNormally(speeds, 0);
     }
 
+    public void setChassisSpeedsNormally(ChassisSpeeds speeds, double gyroRateRad_S) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+        setModuleStates(states);
+        m_prevSetpoint = new SwerveSetpoint(speeds, states);
+        m_log_chassis_speed.log(() -> speeds);
+    }
+
     /**
      * True if wheels are aligned with the desired speed.
      * Does no actuation, mutates nothing. This would be "const" if it were a thing
@@ -119,7 +126,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      */
     public boolean steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
         // this indicates that during the steering the goal is fixed
-        // Informs SwerveDriveKinematics of the module states.
         final SwerveModuleStates swerveModuleStates = m_swerveKinodynamics.toSwerveModuleStates(
                 speeds, gyroRateRad_S);
 
@@ -223,14 +229,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         m_prevSetpoint = setpoint;
     }
 
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds, double gyroRateRad_S) {
-        // Informs SwerveDriveKinematics of the module states.
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
-        setModuleStates(states);
-        m_prevSetpoint = new SwerveSetpoint(speeds, states);
-        m_log_chassis_speed.log(() -> speeds);
-    }
-
     /** Updates visualization. */
     void periodic() {
         m_modules.periodic();
@@ -261,7 +259,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         SwerveDriveKinematics100.desaturateWheelSpeeds(
                 states,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S());
-        // all the callers of setModuleStates inform kinematics.
         m_modules.setDesiredStates(states);
     }
 }

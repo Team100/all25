@@ -176,19 +176,16 @@ public class SwerveDriveKinematics100 {
      * Scale wheel speeds to limit maximum.
      *
      * @param states      WILL BE MUTATED! TODO: don't do that
-     * @param maxSpeedM_s Max module speed
+     * @param limit Max module speed
      */
-    public static void desaturateWheelSpeeds(
-            SwerveModuleStates states,
-            double maxSpeedM_s) {
-        double realMaxSpeed = 0;
+    public static void desaturateWheelSpeeds(SwerveModuleStates states, final double limit) {
+        double desired = 0;
         for (SwerveModuleState100 moduleState : states.all()) {
-            realMaxSpeed = Math.max(realMaxSpeed, Math.abs(moduleState.speedMetersPerSecond));
+            desired = Math.max(desired, Math.abs(moduleState.speedMetersPerSecond()));
         }
-        if (realMaxSpeed > maxSpeedM_s) {
+        if (desired > limit) {
             for (SwerveModuleState100 moduleState : states.all()) {
-                moduleState.speedMetersPerSecond = moduleState.speedMetersPerSecond / realMaxSpeed
-                        * maxSpeedM_s;
+                moduleState.speedMetersPerSecond = moduleState.speedMetersPerSecond() * limit / desired ;
             }
         }
     }
@@ -201,13 +198,13 @@ public class SwerveDriveKinematics100 {
         SimpleMatrix moduleStatesMatrix = new SimpleMatrix(m_numModules * 2, 1);
         for (int i = 0; i < m_numModules; i++) {
             SwerveModuleState100 module = moduleStatesAll[i];
-            if (Math.abs(module.speedMetersPerSecond) < 1e-6 || module.angle.isEmpty()) {
+            if (Math.abs(module.speedMetersPerSecond()) < 1e-6 || module.angle().isEmpty()) {
                 // wheel is stopped, or angle is invalid so pretend it's stopped.
                 moduleStatesMatrix.set(i * 2, 0, 0);
                 moduleStatesMatrix.set(i * 2 + 1, 0, 0);
             } else {
-                moduleStatesMatrix.set(i * 2, 0, module.speedMetersPerSecond * module.angle.get().getCos());
-                moduleStatesMatrix.set(i * 2 + 1, 0, module.speedMetersPerSecond * module.angle.get().getSin());
+                moduleStatesMatrix.set(i * 2, 0, module.speedMetersPerSecond() * module.angle().get().getCos());
+                moduleStatesMatrix.set(i * 2 + 1, 0, module.speedMetersPerSecond() * module.angle().get().getSin());
 
             }
         }

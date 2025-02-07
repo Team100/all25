@@ -44,9 +44,9 @@ public abstract class SwerveModule100 implements Glassy {
             Util.warn("Empty steering angle measurement!");
         }
 
-        if (desiredState.angle.isEmpty()) {
+        if (desiredState.angle().isEmpty()) {
             desiredState = new SwerveModuleState100(
-                    desiredState.speedMetersPerSecond, Optional.of(m_previousPosition));
+                    desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
         }
 
         Rotation2d currentAngle = new Rotation2d(position.getAsDouble());
@@ -61,12 +61,12 @@ public abstract class SwerveModule100 implements Glassy {
      * Works fine with empty angles.
      */
     void setRawDesiredState(SwerveModuleState100 desiredState) {
-        if (desiredState.angle.isEmpty()) {
+        if (desiredState.angle().isEmpty()) {
             desiredState = new SwerveModuleState100(
-                    desiredState.speedMetersPerSecond, Optional.of(m_previousPosition));
+                    desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
         }
-        m_driveServo.setVelocityM_S(desiredState.speedMetersPerSecond);
-        m_turningServo.setPosition(desiredState.angle.get().getRadians(), 0);
+        m_driveServo.setVelocityM_S(desiredState.speedMetersPerSecond());
+        m_turningServo.setPosition(desiredState.angle().get().getRadians(), 0);
     }
 
     /** For testing */

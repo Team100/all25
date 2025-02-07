@@ -22,7 +22,7 @@ class SwerveLocalTest extends Fixtured {
         SwerveLocal local = fixture.swerveLocal;
 
         local.setChassisSpeeds(new ChassisSpeeds(), 0);
-        assertEquals(0, modules.getDesiredStates().frontLeft().speedMetersPerSecond, 0.001);
+        assertEquals(0, modules.getDesiredStates().frontLeft().speedMetersPerSecond(), 0.001);
         local.defense();
         local.stop();
         local.setRawModuleStates(new SwerveModuleStates(

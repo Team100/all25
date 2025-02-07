@@ -778,10 +778,10 @@ class SwerveDrivePoseEstimator100Test {
             SwerveModuleState100[] moduleStatesAll = moduleStates.all();
             SwerveModulePosition100[] positionsAll = positions.all();
             for (int i = 0; i < moduleStatesAll.length; i++) {
-                positionsAll[i].distanceMeters += moduleStatesAll[i].speedMetersPerSecond
+                positionsAll[i].distanceMeters += moduleStatesAll[i].speedMetersPerSecond()
                         * (1 - rand.nextGaussian() * 0.05)
                         * dt;
-                Optional<Rotation2d> angle = moduleStatesAll[i].angle;
+                Optional<Rotation2d> angle = moduleStatesAll[i].angle();
                 Rotation2d noise = new Rotation2d(rand.nextGaussian() * 0.005);
                 if (angle.isPresent()) {
                     positionsAll[i].angle = Optional.of(angle.get().plus(noise));
