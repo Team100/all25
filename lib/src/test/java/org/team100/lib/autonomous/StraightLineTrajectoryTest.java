@@ -32,7 +32,7 @@ class StraightLineTrajectoryTest {
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
-        assertEquals(0.894, traj.getTotalTimeSeconds(), kDelta);
+        assertEquals(0.904, traj.getTotalTimeSeconds(), kDelta);
         double maxDriveVelocityM_S = swerveKinodynamics.getMaxDriveVelocityM_S();
         double maxDriveAccelerationM_S2 = swerveKinodynamics.getMaxDriveAccelerationM_S2();
         assertEquals(5, maxDriveVelocityM_S);
@@ -51,7 +51,7 @@ class StraightLineTrajectoryTest {
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(1, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
-        assertEquals(0.738, traj.getTotalTimeSeconds(), kDelta);
+        assertEquals(0.744, traj.getTotalTimeSeconds(), kDelta);
     }
 
     @Test
@@ -60,7 +60,7 @@ class StraightLineTrajectoryTest {
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(-1, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
-        assertEquals(0.87, traj.getTotalTimeSeconds(), kDelta);
+        assertEquals(0.877, traj.getTotalTimeSeconds(), kDelta);
     }
 
     @Test
@@ -69,6 +69,6 @@ class StraightLineTrajectoryTest {
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 1, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
-        assertEquals(1.037, traj.getTotalTimeSeconds(), kDelta);
+        assertEquals(1.247, traj.getTotalTimeSeconds(), kDelta);
     }
 }

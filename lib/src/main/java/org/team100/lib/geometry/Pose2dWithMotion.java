@@ -66,6 +66,26 @@ public class Pose2dWithMotion {
                     MathUtil.interpolate(dy, other.dy, x),
                     MathUtil.interpolate(dtheta, other.dtheta, x));
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            MotionDirection other = (MotionDirection) obj;
+            if (!MathUtil.isNear(dx, other.dx, 1e-6))
+                return false;
+            if (!MathUtil.isNear(dy, other.dy, 1e-6))
+                return false;
+            if (!MathUtil.isNear(dtheta, other.dtheta, 1e-6))
+                return false;
+            return true;
+        }
+
+        
     }
 
     public static final Pose2dWithMotion kIdentity = new Pose2dWithMotion(
