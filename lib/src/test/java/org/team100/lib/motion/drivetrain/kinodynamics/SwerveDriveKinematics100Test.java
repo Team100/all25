@@ -330,6 +330,50 @@ class SwerveDriveKinematics100Test {
         assertEquals(0.141, twist.dtheta, kDelta);
     }
 
+    /**
+     * The WPI kinematics class keeps module state so that it can return
+     * old steering values for future zero-speed cases, but this seems like
+     * a bad place to put the state. Instead, this memory should be handled
+     * closer to the actuators, because that's all we're trying to optimize.
+     */
+    @Test
+    void testStopped() {
+        SwerveDriveKinematics100 k = new SwerveDriveKinematics100(
+                new Translation2d(0.5, 0.5),
+                new Translation2d(0.5, -0.5),
+                new Translation2d(-0.5, 0.5),
+                new Translation2d(-0.5, -0.5));
+        ChassisSpeeds s = new ChassisSpeeds(0, 1, 0);
+        // this sets the steering
+        SwerveModuleStates m = k.toSwerveModuleStates(s);
+        assertEquals(1.571, m.frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(1, m.frontLeft().speedMetersPerSecond, kDelta);
+        s = new ChassisSpeeds(0, 0, 0);
+        // still the same even though the velocity is zero.
+        m = k.toSwerveModuleStates(s);
+        assertEquals(1.571, m.frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(0, m.frontLeft().speedMetersPerSecond, kDelta);
+    }
+
+    @Test
+    void testStoppedDelta() {
+        SwerveDriveKinematics100 k = new SwerveDriveKinematics100(
+                new Translation2d(0.5, 0.5),
+                new Translation2d(0.5, -0.5),
+                new Translation2d(-0.5, 0.5),
+                new Translation2d(-0.5, -0.5));
+        Twist2d s = new Twist2d(0, 1, 0);
+        // this sets the steering
+        SwerveModuleDeltas m = k.toSwerveModuleDelta(s);
+        assertEquals(1.571, m.frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(1, m.frontLeft().distanceMeters, kDelta);
+        s = new Twist2d(0, 0, 0);
+        // there's no positional state anymore so steering is empty.
+        m = k.toSwerveModuleDelta(s);
+        assertTrue(m.frontLeft().angle.isEmpty());
+        assertEquals(0, m.frontLeft().distanceMeters, kDelta);
+    }
+
     @Test
     void testWithTime() {
         SwerveDriveKinematics100 kinematics = new SwerveDriveKinematics100(

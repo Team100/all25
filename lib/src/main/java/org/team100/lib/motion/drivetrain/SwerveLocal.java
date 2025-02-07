@@ -105,6 +105,17 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
+     * True if wheels are aligned with the desired speed.
+     * Does no actuation, mutates nothing. This would be "const" if it were a thing
+     * in Java.
+     */
+    // public boolean aligned(ChassisSpeeds speeds, double gyroRateRad_S) {
+    //     final SwerveModuleStates swerveModuleStates = m_swerveKinodynamics.toSwerveModuleStates(
+    //             speeds, gyroRateRad_S);
+
+    // }
+
+    /**
      * @return true if aligned
      */
     public boolean steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
@@ -158,7 +169,9 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /**
      * Set the module states without desaturating.
-     * You had better know what you're doing if you call this method.
+     * 
+     * This "raw" mode is just for testing.
+     * 
      * Resets the kinematics headings, which affects what
      * kinematics.toSwerveModuleStates does when the desired speed is zero.
      */

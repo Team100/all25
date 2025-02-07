@@ -139,11 +139,10 @@ public class SwerveDriveKinematics100 {
      * INVERSE: twist -> module position deltas
      * 
      * This assumes the wheel paths are geodesics; steering does not change.
+     * 
+     * Only used in tests for now.
      */
     public SwerveModuleDeltas toSwerveModuleDelta(Twist2d twist) {
-        if (fullStop(twist)) {
-            return constantModulePositions();
-        }
         // [dx; dy; dtheta] (3 x 1)
         SimpleMatrix twistVector = twist2Vector(twist);
         // [d cos; d sin; ...] (2n x 1)
@@ -196,7 +195,7 @@ public class SwerveDriveKinematics100 {
     /**
      * Scale wheel speeds to limit maximum.
      *
-     * @param states      WILL BE MUTATED!
+     * @param states      WILL BE MUTATED! TODO: don't do that
      * @param maxSpeedM_s Max module speed
      */
     public static void desaturateWheelSpeeds(
@@ -294,12 +293,6 @@ public class SwerveDriveKinematics100 {
                 && Math.abs(chassisSpeeds.omegaRadiansPerSecond) < kEpsilon;
     }
 
-    private boolean fullStop(Twist2d twist) {
-        return Math.abs(twist.dx) < kEpsilon
-                && Math.abs(twist.dy) < kEpsilon
-                && Math.abs(twist.dtheta) < kEpsilon;
-    }
-
     /** Zero velocity, same heading as before. */
     private SwerveModuleStates constantModuleHeadings() {
         return new SwerveModuleStates(
@@ -307,14 +300,6 @@ public class SwerveDriveKinematics100 {
                 new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.frontRight())),
                 new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.rearLeft())),
                 new SwerveModuleState100(0.0, Optional.ofNullable(m_moduleHeadings.rearRight())));
-    }
-
-    private SwerveModuleDeltas constantModulePositions() {
-        return new SwerveModuleDeltas(
-                new SwerveModuleDelta(0.0, Optional.ofNullable(m_moduleHeadings.frontLeft())),
-                new SwerveModuleDelta(0.0, Optional.ofNullable(m_moduleHeadings.frontRight())),
-                new SwerveModuleDelta(0.0, Optional.ofNullable(m_moduleHeadings.rearLeft())),
-                new SwerveModuleDelta(0.0, Optional.ofNullable(m_moduleHeadings.rearRight())));
     }
 
     /**
