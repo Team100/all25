@@ -24,12 +24,6 @@ public class Maker {
     FieldRelativeDrivePIDFFollower.Log m_PIDFLog;
 
     LoggerFactory m_logger;
-    DriveTo_GH.Log m_driveToGHLog;
-    DriveTo_IJ.Log m_driveToIJLog;
-    DriveTo_KL.Log m_driveToKLLog;
-    DriveTo_AB.Log m_driveToABLog;
-    DriveTo_CD.Log m_driveToCDLog;
-    DriveTo_EF.Log m_driveToEFLog;
 
     SwerveDriveSubsystem m_swerve;
     DriveTrajectoryFollowerFactory m_factory;
@@ -46,14 +40,6 @@ public class Maker {
             TrajectoryVisualization viz) {
         m_logger = parent.child("Maker");
         m_PIDFLog = new FieldRelativeDrivePIDFFollower.Log(m_logger);
-
-        m_driveToGHLog = new DriveTo_GH.Log(m_logger);
-        m_driveToIJLog = new DriveTo_IJ.Log(m_logger);
-        m_driveToKLLog = new DriveTo_KL.Log(m_logger);
-        m_driveToABLog = new DriveTo_AB.Log(m_logger);
-        m_driveToCDLog = new DriveTo_CD.Log(m_logger);
-        m_driveToEFLog = new DriveTo_EF.Log(m_logger);
-
         m_factory = factory;
         m_swerve = swerve;
         constraints = new TimingConstraintFactory(kinodynamics);

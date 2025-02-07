@@ -102,7 +102,8 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public void execute() {
         if (m_trajectory == null)
             return;
-        SwerveModel measurement = m_swerve.getState();
+        final SwerveModel measurement = m_swerve.getState();
+        
         Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
         if (curOpt.isEmpty()) {
             Util.warn("broken trajectory, cancelling!");
