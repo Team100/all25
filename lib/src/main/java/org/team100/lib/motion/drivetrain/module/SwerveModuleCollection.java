@@ -12,7 +12,10 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.state.Control100;
 import org.team100.lib.util.Util;
 
-/** Represents the modules in the drivetrain. */
+/**
+ * Represents the modules in the drivetrain.
+ * Do not put logic here; this is just for bundling the modules together.
+ */
 public class SwerveModuleCollection {
     private static final String kSwerveModules = "Swerve Modules";
     private static final String kFrontLeft = "Front Left";
@@ -155,7 +158,13 @@ public class SwerveModuleCollection {
     // Actuators
     //
 
-
+    /**
+     * Optimizes.
+     * 
+     * Works fine with empty angles.
+     * 
+     * @param swerveModuleStates
+     */
     public void setDesiredStates(SwerveModuleStates swerveModuleStates) {
         m_frontLeft.setDesiredState(swerveModuleStates.frontLeft());
         m_frontRight.setDesiredState(swerveModuleStates.frontRight());
@@ -163,6 +172,13 @@ public class SwerveModuleCollection {
         m_rearRight.setDesiredState(swerveModuleStates.rearRight());
     }
 
+    /**
+     * Does not optimize.
+     * 
+     * This "raw" mode is just for testing.
+     * 
+     * Works fine with empty angles.
+     */
     public void setRawDesiredStates(SwerveModuleStates swerveModuleStates) {
         m_frontLeft.setRawDesiredState(swerveModuleStates.frontLeft());
         m_frontRight.setRawDesiredState(swerveModuleStates.frontRight());

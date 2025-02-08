@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.path.Path100;
@@ -23,7 +24,6 @@ import org.team100.lib.trajectory.Trajectory100;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 
 public class TimingUtilTest {
     public static final double kTestEpsilon = 1e-12;
@@ -103,12 +103,12 @@ public class TimingUtilTest {
                         new Pose2d(
                                 new Translation2d(0.0, 0.0),
                                 GeometryUtil.kRotationZero),
-                        new Twist2d(0, 0, 1), 0, 0),
+                        new MotionDirection(0, 0, 1), 0, 0),
                 new Pose2dWithMotion(
                         new Pose2d(
                                 new Translation2d(0.0, 0.0),
                                 GeometryUtil.kRotation180),
-                        new Twist2d(0, 0, 1), 0, 0)));
+                        new MotionDirection(0, 0, 1), 0, 0)));
         PathDistanceSampler dist_view = new PathDistanceSampler(traj);
 
         // Triangle profile.
@@ -176,7 +176,7 @@ public class TimingUtilTest {
         // Triangle profile.
         Trajectory100 timed_traj = buildAndCheckTrajectory(sampler,
                 1.0,
-                List.of(new CentripetalAccelerationConstraint(limits, 1.0)), 0.0, 0.0, 20.0, 5.0);
+                List.of(new CapsizeAccelerationConstraint(limits, 1.0)), 0.0, 0.0, 20.0, 5.0);
         assertEquals(66, timed_traj.length());
         assertNotNull(timed_traj);
 

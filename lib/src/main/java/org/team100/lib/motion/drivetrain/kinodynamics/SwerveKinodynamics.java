@@ -38,77 +38,21 @@ public class SwerveKinodynamics implements Glassy {
     private final double m_radius;
     private final double m_vcg;
     private final SwerveDriveKinematics100 m_kinematics;
-    private final double m_MaxCapsizeAccelM_S2;
+    private final double m_maxCapsizeAccelM_S2;
 
     // configured inputs
-    private double m_MaxDriveVelocityM_S;
-    private double m_StallAccelerationM_S2;
-    private double m_MaxDriveAccelerationM_S2;
-    private double m_MaxDriveDecelerationM_S2;
-    private double m_MaxSteeringVelocityRad_S;
-    private double m_maxSteeringAccelerationRad_S2;
+    private final double m_maxDriveVelocityM_S;
+    private final double m_stallAccelerationM_S2;
+    private final double m_maxDriveAccelerationM_S2;
+    private final double m_maxDriveDecelerationM_S2;
+    private final double m_maxSteeringVelocityRad_S;
 
     // calculated
-    private double m_maxAngleSpeedRad_S;
-    private double m_maxAngleAccelRad_S2;
-    private Profile100 m_steeringProfile;
+    private final double m_maxAngleSpeedRad_S;
+    private final double m_maxAngleAccelRad_S2;
+    private final Profile100 m_steeringProfile;
 
     /**
-     * Use the factory
-     * 
-     * @param maxDriveVelocity        module drive speed m/s
-     * @param stallAcceleration       acceleration at stall, used to compute
-     *                                back-EMF-limited acceleration at higher RPMs
-     * @param maxDriveAcceleration    module drive accel m/s^2
-     * @param maxDriveDeceleration    module drive decel m/s^2. Should be higher
-     *                                than accel limit, this is a positive number.
-     * @param maxSteeringVelocity     module steering axis rate rad/s
-     * @param maxSteeringAcceleration module steering axis accel rad/s^2
-     * @param track                   meters
-     * @param wheelbase               meters
-     * @param frontoffset             distance from front wheels to center of mass,
-     *                                meters
-     * @param vcg                     vertical center of gravity, meters
-     */
-    SwerveKinodynamics(
-            double maxDriveVelocity,
-            double stallAcceleration,
-            double maxDriveAcceleration,
-            double maxDriveDeceleration,
-            double maxSteeringVelocity,
-            double maxSteeringAcceleration,
-            double track,
-            double wheelbase,
-            double frontoffset,
-            double vcg) {
-        if (track < 0.1)
-            throw new IllegalArgumentException();
-        if (wheelbase < 0.1)
-            throw new IllegalArgumentException();
-
-        m_fronttrack = track;
-        m_backtrack = track;
-        m_wheelbase = wheelbase;
-        m_frontoffset = frontoffset;
-        m_vcg = vcg;
-        // distance from center to wheel
-        m_radius = Math.hypot(track / 2, m_wheelbase / 2);
-        m_kinematics = get(m_fronttrack, m_backtrack, m_wheelbase, frontoffset);
-        // fulcrum is the distance from the center to the nearest edge.
-        double fulcrum = Math.min(Math.min(m_fronttrack,m_backtrack) / 2, m_wheelbase / 2);
-        m_MaxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
-
-        setMaxDriveVelocityM_S(maxDriveVelocity);
-        setStallAccelerationM_S2(stallAcceleration);
-        setMaxDriveAccelerationM_S2(maxDriveAcceleration);
-        setMaxDriveDecelerationM_S2(maxDriveDeceleration);
-        setMaxSteeringVelocityRad_S(maxSteeringVelocity);
-        setMaxSteeringAccelerationRad_S2(maxSteeringAcceleration);
-    }
-
-    /**
-     * Use the factory
-     * 
      * @param maxDriveVelocity        module drive speed m/s
      * @param stallAcceleration       acceleration at stall, used to compute
      *                                back-EMF-limited acceleration at higher RPMs
@@ -120,6 +64,8 @@ public class SwerveKinodynamics implements Glassy {
      * @param fronttrack              meters
      * @param backtrack               meters
      * @param wheelbase               meters
+     * @param frontoffset             distance from the center of mass to the front
+     *                                wheels, meters
      * @param vcg                     vertical center of gravity, meters
      */
     SwerveKinodynamics(
@@ -146,63 +92,32 @@ public class SwerveKinodynamics implements Glassy {
         m_vcg = vcg;
         // distance from center to wheel
         m_radius = Math.hypot((fronttrack + backtrack) / 4, m_wheelbase / 2);
-        m_kinematics = get(m_fronttrack, m_backtrack, m_wheelbase, m_frontoffset);
+        m_kinematics = new SwerveDriveKinematics100(
+                new Translation2d(m_frontoffset, m_fronttrack / 2),
+                new Translation2d(m_frontoffset, -m_fronttrack / 2),
+                new Translation2d(m_frontoffset - m_wheelbase, m_backtrack / 2),
+                new Translation2d(m_frontoffset - m_wheelbase, -m_backtrack / 2));
+
         // fulcrum is the distance from the center to the nearest edge.
-        double fulcrum = Math.min(Math.min(m_fronttrack,m_backtrack) / 2, m_wheelbase / 2);
-        m_MaxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
+        double fulcrum = Math.min(Math.min(m_fronttrack, m_backtrack) / 2, m_wheelbase / 2);
+        m_maxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
 
-        setMaxDriveVelocityM_S(maxDriveVelocity);
-        setStallAccelerationM_S2(stallAcceleration);
-        setMaxDriveAccelerationM_S2(maxDriveAcceleration);
-        setMaxDriveDecelerationM_S2(maxDriveDeceleration);
-        setMaxSteeringVelocityRad_S(maxSteeringVelocity);
-        setMaxSteeringAccelerationRad_S2(maxSteeringAcceleration);
-    }
+        m_maxDriveVelocityM_S = maxDriveVelocity;
 
-    private void setMaxDriveVelocityM_S(double maxDriveVelocityM_S) {
-        m_MaxDriveVelocityM_S = maxDriveVelocityM_S;
-        setAngleSpeed();
-    }
+        m_stallAccelerationM_S2 = stallAcceleration;
+        m_maxDriveAccelerationM_S2 = maxDriveAcceleration;
+        m_maxDriveDecelerationM_S2 = maxDriveDeceleration;
+        m_maxSteeringVelocityRad_S = maxSteeringVelocity;
+        m_maxAngleSpeedRad_S = m_maxDriveVelocityM_S / m_radius;
 
-    private void setStallAccelerationM_S2(double stallAccelerationM_S2) {
-        m_StallAccelerationM_S2 = stallAccelerationM_S2;
-    }
-
-    private void setMaxDriveAccelerationM_S2(double maxDriveAccelerationM_S2) {
-        m_MaxDriveAccelerationM_S2 = maxDriveAccelerationM_S2;
-        setAngleAccel();
-    }
-
-    private void setMaxDriveDecelerationM_S2(double maxDriveDecelerationM_S2) {
-        m_MaxDriveDecelerationM_S2 = maxDriveDecelerationM_S2;
-        setAngleAccel();
-    }
-
-    private void setMaxSteeringVelocityRad_S(double maxSteeringVelocityRad_S) {
-        m_MaxSteeringVelocityRad_S = maxSteeringVelocityRad_S;
-        setSteeringProfile();
-    }
-
-    private void setMaxSteeringAccelerationRad_S2(double maxSteeringAccelerationRad_S2) {
-        m_maxSteeringAccelerationRad_S2 = maxSteeringAccelerationRad_S2;
-        setSteeringProfile();
-    }
-
-    private void setAngleSpeed() {
-        m_maxAngleSpeedRad_S = m_MaxDriveVelocityM_S / m_radius;
-    }
-
-    private void setAngleAccel() {
-        double accel = Math.max(m_MaxDriveAccelerationM_S2, m_MaxDriveDecelerationM_S2);
+        double accel = Math.max(m_maxDriveAccelerationM_S2, m_maxDriveDecelerationM_S2);
         m_maxAngleAccelRad_S2 = 12 * accel * m_radius
                 / (m_fronttrack * m_backtrack + m_wheelbase * m_wheelbase);
-    }
 
-    private void setSteeringProfile() {
         m_steeringProfile = new TrapezoidProfile100(
-                m_MaxSteeringVelocityRad_S,
-                m_maxSteeringAccelerationRad_S2,
-                0.02);
+                m_maxSteeringVelocityRad_S,
+                maxSteeringAcceleration,
+                0.02); // one degree
     }
 
     public Profile100 getSteeringProfile() {
@@ -211,7 +126,7 @@ public class SwerveKinodynamics implements Glassy {
 
     /** Cruise speed, m/s. */
     public double getMaxDriveVelocityM_S() {
-        return m_MaxDriveVelocityM_S;
+        return m_maxDriveVelocityM_S;
     }
 
     /**
@@ -219,12 +134,12 @@ public class SwerveKinodynamics implements Glassy {
      * back-EMF-limited torque available at higher RPMs.
      */
     public double getStallAccelerationM_S2() {
-        return m_StallAccelerationM_S2;
+        return m_stallAccelerationM_S2;
     }
 
     /** Motor-torque-limited acceleration rate, m/s^2 */
     public double getMaxDriveAccelerationM_S2() {
-        return m_MaxDriveAccelerationM_S2;
+        return m_maxDriveAccelerationM_S2;
     }
 
     /**
@@ -232,17 +147,12 @@ public class SwerveKinodynamics implements Glassy {
      * slowing down than speeding up, so this should be larger than the accel rate.
      */
     public double getMaxDriveDecelerationM_S2() {
-        return m_MaxDriveDecelerationM_S2;
+        return m_maxDriveDecelerationM_S2;
     }
 
     /** Cruise speed of the swerve steering axes, rad/s. */
     public double getMaxSteeringVelocityRad_S() {
-        return m_MaxSteeringVelocityRad_S;
-    }
-
-    /** Cruise speed of the swerve steering axes, rad/s. */
-    public double getMaxSteeringAccelRad_S2() {
-        return m_maxSteeringAccelerationRad_S2;
+        return m_maxSteeringVelocityRad_S;
     }
 
     /** Spin cruise speed, rad/s. Computed from drive and frame size. */
@@ -263,28 +173,7 @@ public class SwerveKinodynamics implements Glassy {
      * vertical center of gravity and frame size.
      */
     public double getMaxCapsizeAccelM_S2() {
-        return m_MaxCapsizeAccelM_S2;
-    }
-
-    /**
-     * @param fronttrack
-     * @param backtrack
-     * @param wheelbase
-     * @param frontoffset distance from center of mass to front wheel
-     * @return
-     */
-    private static SwerveDriveKinematics100 get(double fronttrack, double backtrack, double wheelbase,
-            double frontoffset) {
-        return new SwerveDriveKinematics100(
-                new Translation2d(frontoffset, fronttrack / 2),
-                new Translation2d(frontoffset, -fronttrack / 2),
-                new Translation2d(frontoffset - wheelbase, backtrack / 2),
-                new Translation2d(frontoffset - wheelbase, -backtrack / 2));
-    }
-
-    /** arg elements are nullable */
-    public void resetHeadings(SwerveModuleHeadings moduleHeadings) {
-        m_kinematics.resetHeadings(moduleHeadings);
+        return m_maxCapsizeAccelM_S2;
     }
 
     /**
@@ -297,6 +186,8 @@ public class SwerveKinodynamics implements Glassy {
      * It also does extra veering correction proportional to rotation rate and
      * translational acceleration.
      * 
+     * States may include empty angles for motionless wheels.
+     * 
      * @param in            chassis speeds to transform
      * @param gyroRateRad_S current gyro rate, or the trajectory gyro rate
      */
@@ -304,7 +195,11 @@ public class SwerveKinodynamics implements Glassy {
         return toSwerveModuleStates(in, gyroRateRad_S, TimedRobot100.LOOP_PERIOD_S);
     }
 
-    /** For testing only */
+    /**
+     * For testing only.
+     * 
+     * States may include empty angles for motionless wheels.
+     */
     SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
         // This is the extra correction angle ...
         Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));

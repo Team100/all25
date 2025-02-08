@@ -28,10 +28,6 @@ public enum Experiment {
      */
     DriveToNoteWithRotation,
     /**
-     * Use full state feedback for trajectory following
-     */
-    FullStateTrajectoryFollower,
-    /**
      * Use softer vision update gains
      */
     AvoidVisionJitter,

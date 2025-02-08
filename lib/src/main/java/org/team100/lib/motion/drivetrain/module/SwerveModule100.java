@@ -19,7 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public abstract class SwerveModule100 implements Glassy {
     private final LinearVelocityServo m_driveServo;
     private final AngularPositionServo m_turningServo;
-    private Rotation2d previousPosition = new Rotation2d();
+    private Rotation2d m_previousPosition = new Rotation2d();
 
     protected SwerveModule100(
             LinearVelocityServo driveServo,
@@ -29,40 +29,44 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     /**
-     * Only SwerveModuleCollection calls this.
+     * Optimizes.
+     * 
+     * Works fine with empty angles.
      */
     void setDesiredState(SwerveModuleState100 desiredState) {
         OptionalDouble position = m_turningServo.getPosition();
 
         if (position.isPresent()) {
-            previousPosition = new Rotation2d(position.getAsDouble());
+            // Use this in case we get an empty angle.
+            m_previousPosition = new Rotation2d(position.getAsDouble());
+        } else {
+            // This should never happen.
+            Util.warn("Empty steering angle measurement!");
         }
 
-        if (position.isEmpty())
-            desiredState = new SwerveModuleState100(desiredState.speedMetersPerSecond, Optional.of(previousPosition));
+        if (desiredState.angle().isEmpty()) {
+            desiredState = new SwerveModuleState100(
+                    desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
+        }
 
-        setRawDesiredState(
-                SwerveModuleState100.optimize(
-                        desiredState,
-                        new Rotation2d(position.getAsDouble())));
+        Rotation2d currentAngle = new Rotation2d(position.getAsDouble());
+        SwerveModuleState100 optimized = SwerveModuleState100.optimize(
+                desiredState, currentAngle);
+        setRawDesiredState(optimized);
     }
 
     /**
-     * Only SwerveModuleCollection calls this.
+     * Does not optimize.
      * 
-     * This is for testing only, it does not optimize.
+     * Works fine with empty angles.
      */
-    void setRawDesiredState(SwerveModuleState100 state) {
-        if (Double.isNaN(state.speedMetersPerSecond))
-            throw new IllegalArgumentException("speed is NaN");
-        if (state.angle.isEmpty()) {
-            // Util.warn("SwerveModule100.setRawDesiredState: empty angle!");
-            m_driveServo.setVelocityM_S(0);
-            return;
-            // throw new IllegalArgumentException();
+    void setRawDesiredState(SwerveModuleState100 desiredState) {
+        if (desiredState.angle().isEmpty()) {
+            desiredState = new SwerveModuleState100(
+                    desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
         }
-        m_driveServo.setVelocityM_S(state.speedMetersPerSecond);
-        m_turningServo.setPosition(state.angle.get().getRadians(), 0);
+        m_driveServo.setVelocityM_S(desiredState.speedMetersPerSecond());
+        m_turningServo.setPosition(desiredState.angle().get().getRadians(), 0);
     }
 
     /** For testing */

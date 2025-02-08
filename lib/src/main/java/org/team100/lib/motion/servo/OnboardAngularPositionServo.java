@@ -89,6 +89,9 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setTorqueLimit(torqueNm);
     }
 
+    /**
+     * Sets the goal, updates the setpoint to the "next step" value towards it.
+     */
     @Override
     public void setPositionWithVelocity(
             double goalRad,

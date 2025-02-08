@@ -25,9 +25,7 @@ import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DrivePIDFFollower;
-import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
-import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
+import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -151,10 +149,6 @@ public class RobotContainer implements Glassy {
         HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(comLog);
         HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog, hlog);
 
-        final DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(comLog);
-        final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(comLog);
-
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
 
@@ -212,10 +206,10 @@ public class RobotContainer implements Glassy {
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
                         new FullStateDriveController(hlog), swerveKinodynamics));
         whileTrue(driverControl::fullCycle,
-                new FullCycle(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
+                new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
         whileTrue(driverControl::test,
-                new FullCycle2(manLog, m_drive, viz, driveControllerFactory, swerveKinodynamics, holonomicController));
+                new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
@@ -223,7 +217,7 @@ public class RobotContainer implements Glassy {
                 new FancyTrajectory(
                         comLog,
                         m_drive,
-                        driveControllerFactory.fancyPIDF(PIDFlog),
+                        TrajectoryFollowerFactory.fieldRelativeFancyPIDF(comLog),
                         swerveKinodynamics));
 
         // OPERATOR BUTTONS

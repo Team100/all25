@@ -3,10 +3,8 @@ package org.team100.lib.commands.drivetrain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.follower.DrivePIDFFollower;
-import org.team100.lib.follower.DriveTrajectoryFollower;
-import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
-import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
+import org.team100.lib.follower.TrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -24,11 +22,7 @@ class DriveToWaypoint100Test extends Fixtured {
 
     @Test
     void testWithPID() {
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(logger);
-
-        DriveTrajectoryFollower controller = driveControllerFactory.testPIDF(PIDFlog);
+        TrajectoryFollower controller = TrajectoryFollowerFactory.testFieldRelativePIDF(logger);
         // the trajectory here should be a no-op.
         DriveToWaypoint100 command = new DriveToWaypoint100(
                 logger,
@@ -46,10 +40,7 @@ class DriveToWaypoint100Test extends Fixtured {
 
     @Test
     void testWithFF() {
-        DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(logger);
-        DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(logger);
-        DriveTrajectoryFollower controller = driveControllerFactory.testFFOnly(PIDFlog);
+        TrajectoryFollower controller = TrajectoryFollowerFactory.testFieldRelativeFFOnly(logger);
         // the trajectory here should be a no-op.
         DriveToWaypoint100 command = new DriveToWaypoint100(
                 logger,

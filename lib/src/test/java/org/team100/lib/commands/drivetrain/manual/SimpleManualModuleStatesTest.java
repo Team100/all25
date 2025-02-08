@@ -21,15 +21,15 @@ class SimpleManualModuleStatesTest {
         SimpleManualModuleStates s = new SimpleManualModuleStates(logger, limits);
         DriverControl.Velocity input = new DriverControl.Velocity(0, 0, 0);
         SwerveModuleStates ms = s.apply(input);
-        assertEquals(0, ms.frontLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.frontRight().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.rearLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.rearRight().angle.get().getRadians(), kDelta);
+        assertEquals(0, ms.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.rearRight().angle().get().getRadians(), kDelta);
 
-        assertEquals(0, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(0, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.rearRight().speedMetersPerSecond(), kDelta);
     }
 
     @Test
@@ -38,15 +38,15 @@ class SimpleManualModuleStatesTest {
         SimpleManualModuleStates s = new SimpleManualModuleStates(logger, limits);
         DriverControl.Velocity input = new DriverControl.Velocity(0, 0, 0.5);
         SwerveModuleStates ms = s.apply(input);
-        assertEquals(Math.PI / 2, ms.frontLeft().angle.get().getRadians(), kDelta);
-        assertEquals(Math.PI / 2, ms.frontRight().angle.get().getRadians(), kDelta);
-        assertEquals(Math.PI / 2, ms.rearLeft().angle.get().getRadians(), kDelta);
-        assertEquals(Math.PI / 2, ms.rearRight().angle.get().getRadians(), kDelta);
+        assertEquals(Math.PI / 2, ms.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(Math.PI / 2, ms.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(Math.PI / 2, ms.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(Math.PI / 2, ms.rearRight().angle().get().getRadians(), kDelta);
 
-        assertEquals(0, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(0, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0, ms.rearRight().speedMetersPerSecond(), kDelta);
     }
 
     @Test
@@ -55,15 +55,15 @@ class SimpleManualModuleStatesTest {
         SimpleManualModuleStates s = new SimpleManualModuleStates(logger, limits);
         DriverControl.Velocity input = new DriverControl.Velocity(0.5, 0, 0);
         SwerveModuleStates ms = s.apply(input);
-        assertEquals(0, ms.frontLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.frontRight().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.rearLeft().angle.get().getRadians(), kDelta);
-        assertEquals(0, ms.rearRight().angle.get().getRadians(), kDelta);
+        assertEquals(0, ms.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0, ms.rearRight().angle().get().getRadians(), kDelta);
 
-        assertEquals(0.5, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0.5, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(0.5, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(0.5, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(0.5, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.5, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(0.5, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.5, ms.rearRight().speedMetersPerSecond(), kDelta);
     }
 
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -11,7 +12,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.timing.TimingConstraint.MinMaxAcceleration;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 class SwerveDriveDynamicsConstraintTest {
@@ -33,7 +33,7 @@ class SwerveDriveDynamicsConstraintTest {
         // moving in +x, no curvature, no rotation
         m = c.getMaxVelocity(new Pose2dWithMotion(
                 new Pose2d(),
-                new Twist2d(1, 0, 0),
+                new MotionDirection(1, 0, 0),
                 0, 0)).getValue();
         // max allowed velocity is full speed
         assertEquals(5, m, kDelta);
@@ -41,7 +41,7 @@ class SwerveDriveDynamicsConstraintTest {
         // moving in +x, 5 rad/meter
         m = c.getMaxVelocity(new Pose2dWithMotion(
                 new Pose2d(),
-                new Twist2d(1, 0, 5),
+                new MotionDirection(1, 0, 5),
                 0, 0)).getValue();
         // at 5 rad/m with 0.5m sides the fastest you can go is 1.55 m/s.
         assertEquals(1.887, m, kDelta);
@@ -70,17 +70,17 @@ class SwerveDriveDynamicsConstraintTest {
         // start with too-fast speed.
         ChassisSpeeds s = new ChassisSpeeds(1, 0, 10);
         SwerveModuleStates ms = l.toSwerveModuleStates(s, 10);
-        assertEquals(2.661, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4.061, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(3.243, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4.464, ms.rearRight().speedMetersPerSecond, kDelta);
+        assertEquals(2.661, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4.061, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(3.243, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4.464, ms.rearRight().speedMetersPerSecond(), kDelta);
 
         // this is slowed to the max possible wheel speed
-        SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
-        assertEquals(2.384, ms.frontLeft().speedMetersPerSecond, kDelta);
-        assertEquals(3.639, ms.frontRight().speedMetersPerSecond, kDelta);
-        assertEquals(2.906, ms.rearLeft().speedMetersPerSecond, kDelta);
-        assertEquals(4, ms.rearRight().speedMetersPerSecond, kDelta);
+        ms = SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
+        assertEquals(2.384, ms.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(3.639, ms.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.906, ms.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(4, ms.rearRight().speedMetersPerSecond(), kDelta);
 
         // the resulting chassis speeds. This slows to try to
         // to maintain the rotational speed
@@ -98,7 +98,7 @@ class SwerveDriveDynamicsConstraintTest {
         // possible at 5 rad/s; this is about 8 rad/m.
         ChassisSpeeds s = new ChassisSpeeds(0.62, 0, 5);
         SwerveModuleStates ms = l.toSwerveModuleStates(s, 5);
-        SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
+        ms = SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
 
         ChassisSpeeds implied = l.toChassisSpeeds(ms);
         assertEquals(0.611, implied.vxMetersPerSecond, kDelta);

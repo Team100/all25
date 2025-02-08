@@ -48,18 +48,18 @@ public class SteeringOverride implements Glassy {
         double maxThetaStepRad = TimedRobot100.LOOP_PERIOD_S * m_limits.getMaxSteeringVelocityRad_S();
         double min_s = 1.0;
         for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-            if (Math.abs(prevModuleStatesAll[i].speedMetersPerSecond) <= kEpsilon) {
+            if (Math.abs(prevModuleStatesAll[i].speedMetersPerSecond()) <= kEpsilon) {
                 // If module is stopped, we know that we will need to move straight to the final
                 // steering angle, so limit based purely on rotation in place.
-                if (Math.abs(desiredModuleStatesAll[i].speedMetersPerSecond) <= kEpsilon) {
+                if (Math.abs(desiredModuleStatesAll[i].speedMetersPerSecond()) <= kEpsilon) {
                     // Both previous and desired states are stopped.
                     // Just leave module at its current angle.
-                    if (prevModuleStatesAll[i].angle.isEmpty()) {
+                    if (prevModuleStatesAll[i].angle().isEmpty()) {
                         // there is no current angle, give up
                         overrideSteering[i] = null;
                         continue;
                     } else {
-                        overrideSteering[i] = prevModuleStatesAll[i].angle.get();
+                        overrideSteering[i] = prevModuleStatesAll[i].angle().get();
                         continue;
                     }
                 }
@@ -76,17 +76,17 @@ public class SteeringOverride implements Glassy {
                     // goal is achievable in one time step.
                     // note this angle is the *unflipped* one, which means that something downstream
                     // may decide to flip it.
-                    if (desiredModuleStatesAll[i].angle.isEmpty()) {
+                    if (desiredModuleStatesAll[i].angle().isEmpty()) {
                         overrideSteering[i] = null;
                     } else {
-                        overrideSteering[i] = desiredModuleStatesAll[i].angle.get();
+                        overrideSteering[i] = desiredModuleStatesAll[i].angle().get();
                     }
                 } else {
                     // goal is not achievable, so move as much as possible in one step.
                     // note this moves in the "flipped" direction if required.
                     Rotation2d oneStepOfRotation = Rotation2d
                             .fromRadians(Math.signum(rotationRad.getAsDouble()) * maxThetaStepRad);
-                    overrideSteering[i] = prevModuleStatesAll[i].angle.get().rotateBy(oneStepOfRotation);
+                    overrideSteering[i] = prevModuleStatesAll[i].angle().get().rotateBy(oneStepOfRotation);
                     // stop all drive motors until steering is aligned
                     min_s = 0.0;
                 }
@@ -99,10 +99,10 @@ public class SteeringOverride implements Glassy {
 
     /** Actual rotation required, taking flipping into account. */
     private OptionalDouble rotationRad(SwerveModuleState100 desiredModuleState, SwerveModuleState100 prevModuleState) {
-        if (desiredModuleState.angle.isEmpty() || prevModuleState.angle.isEmpty()) {
+        if (desiredModuleState.angle().isEmpty() || prevModuleState.angle().isEmpty()) {
             return OptionalDouble.empty();
         }
-        Rotation2d necessaryRotation = desiredModuleState.angle.get().minus(prevModuleState.angle.get());
+        Rotation2d necessaryRotation = desiredModuleState.angle().get().minus(prevModuleState.angle().get());
         if (SwerveUtil.shouldFlip(necessaryRotation)) {
             necessaryRotation = necessaryRotation.rotateBy(GeometryUtil.kRotation180);
         }

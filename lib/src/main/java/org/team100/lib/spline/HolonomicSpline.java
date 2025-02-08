@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
@@ -12,7 +13,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 
 /**
  * Holonomic spline.
@@ -131,7 +131,7 @@ public class HolonomicSpline {
 
         return new Pose2dWithMotion(
                 getPose2d(p),
-                new Twist2d(dx, dy, dtheta),
+                new MotionDirection(dx, dy, dtheta),
                 getCurvature(p),
                 getDCurvatureDs(p));
     }

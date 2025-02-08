@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import org.team100.lib.util.Math100;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 
 /**
  * This is from 254 2023 motion planning; the main reason to include it
@@ -18,13 +18,7 @@ import edu.wpi.first.math.geometry.Twist2d;
  * Note, Pose2dWithMotion is a purely spatial construct.
  */
 public class Pose2dWithMotion {
-    public static final Pose2dWithMotion kIdentity = new Pose2dWithMotion(
-            GeometryUtil.kPoseZero, GeometryUtil.kTwist2dIdentity, 0, 0);
-
-    private final Pose2d m_pose;
-
     /**
-     * Even though this Twist provides scalar values for dx, dy, and dtheta,
      * Pose2dWithMotion is purely a spatial construct. It has no sense of time. So
      * rather than being in units of distance-per-time (or radians-per-time), the
      * denominator here is actually distance as well. Thus, it isn't really
@@ -39,7 +33,67 @@ public class Pose2dWithMotion {
      * Additionally, this means dtheta is in radians-per-distance if there is
      * translation, or radians-per-radian otherwise.
      */
-    private final Twist2d m_fieldRelativeMotionDirection;
+    public static class MotionDirection {
+        public double dx;
+        public double dy;
+        public double dtheta;
+
+        public MotionDirection(double dx, double dy, double dtheta) {
+            this.dx = dx;
+            this.dy = dy;
+            this.dtheta = dtheta;
+        }
+
+        /**
+         * Magnitude of the translational part of the motion.
+         */
+        double norm() {
+            return Math.hypot(dx, dy);
+        }
+
+        /**
+         * Direction of the translational part of the motion, or empty if motionless.
+         */
+        Optional<Rotation2d> course() {
+            if (norm() > 1e-12)
+                return Optional.of(new Rotation2d(dx, dy));
+            return Optional.empty();
+        }
+
+        MotionDirection interpolate(MotionDirection other, double x) {
+            return new MotionDirection(
+                    MathUtil.interpolate(dx, other.dx, x),
+                    MathUtil.interpolate(dy, other.dy, x),
+                    MathUtil.interpolate(dtheta, other.dtheta, x));
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            MotionDirection other = (MotionDirection) obj;
+            if (!MathUtil.isNear(dx, other.dx, 1e-6))
+                return false;
+            if (!MathUtil.isNear(dy, other.dy, 1e-6))
+                return false;
+            if (!MathUtil.isNear(dtheta, other.dtheta, 1e-6))
+                return false;
+            return true;
+        }
+
+        
+    }
+
+    public static final Pose2dWithMotion kIdentity = new Pose2dWithMotion(
+            GeometryUtil.kPoseZero, new MotionDirection(0, 0, 0), 0, 0);
+
+    private final Pose2d m_pose;
+
+    private final MotionDirection m_fieldRelativeMotionDirection;
 
     /**
      * Curvature is change in angle per change in distance, rad/m.
@@ -57,7 +111,7 @@ public class Pose2dWithMotion {
      * @param pose
      */
     public Pose2dWithMotion(Pose2d pose) {
-        this(pose, GeometryUtil.kTwist2dIdentity, 0, 0);
+        this(pose, new MotionDirection(0, 0, 0), 0, 0);
     }
 
     /**
@@ -73,7 +127,7 @@ public class Pose2dWithMotion {
      */
     public Pose2dWithMotion(
             Pose2d pose,
-            Twist2d fieldRelativeMotionDirection,
+            MotionDirection fieldRelativeMotionDirection,
             double curvatureRad_M,
             double dCurvatureDsRad_M2) {
         m_pose = pose;
@@ -86,7 +140,7 @@ public class Pose2dWithMotion {
         return m_pose;
     }
 
-    /** Radians per meter. */
+    /** Radians per meter, which is the reciprocal of the radius. */
     public double getCurvature() {
         return m_curvatureRad_M;
     }
@@ -109,7 +163,7 @@ public class Pose2dWithMotion {
     // motion direction always derive the angle anyway?
     public Pose2dWithMotion interpolate(final Pose2dWithMotion other, double x) {
         return new Pose2dWithMotion(getPose().interpolate(other.getPose(), x),
-                GeometryUtil.interpolate(m_fieldRelativeMotionDirection, other.m_fieldRelativeMotionDirection, x),
+                m_fieldRelativeMotionDirection.interpolate(other.m_fieldRelativeMotionDirection, x),
                 Math100.interpolate(getCurvature(), other.getCurvature(), x),
                 Math100.interpolate(getDCurvatureDs(), other.getDCurvatureDs(), x));
     }
@@ -145,7 +199,7 @@ public class Pose2dWithMotion {
      * Direction of the translational part of the motion, or empty if motionless.
      */
     public Optional<Rotation2d> getCourse() {
-        return GeometryUtil.getCourse(m_fieldRelativeMotionDirection);
+        return m_fieldRelativeMotionDirection.course();
     }
 
     /**

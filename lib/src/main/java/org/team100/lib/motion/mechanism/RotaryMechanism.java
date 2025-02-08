@@ -11,28 +11,31 @@ import java.util.OptionalDouble;
  * The included encoder is the incremental motor encoder.
  */
 public interface RotaryMechanism {
-    
+
+    /** Should actuate immediately. */
     void setDutyCycle(double output);
 
     void setTorqueLimit(double torqueNm);
 
+    /** Should actuate immediately. */
     void setVelocity(
             double outputRad_S,
             double outputAccelRad_S2,
             double outputTorqueNm);
 
+    /** Should actuate immediately. */
     void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
             double outputTorqueNm);
 
-    /** nearly cached */
+    /** Value should be updated in Robot.robotPeriodic(). */
     OptionalDouble getVelocityRad_S();
 
     /** For checking calibration, very slow, do not use outside tests. */
     double getPositionBlockingRad();
 
-    /** nearly cached */
+    /** Value should be updated in Robot.robotPeriodic(). */
     OptionalDouble getPositionRad();
 
     void stop();

@@ -88,7 +88,7 @@ public abstract class Talon6Motor implements BareMotor {
         m_velocityVoltage = new VelocityVoltage(0);
         m_dutyCycleOut = new DutyCycleOut(0);
         m_positionVoltage = new PositionVoltage(0);
-        // make control synchronous.
+        // make control synchronous, i.e. "actuate immediately."
         // see
         // https://github.com/Team254/FRC-2024-Public/blob/040f653744c9b18182be5f6bc51a7e505e346e59/src/main/java/com/team254/lib/ctre/swerve/SwerveModule.java#L210
         m_velocityVoltage.UpdateFreqHz = 0;
@@ -175,6 +175,7 @@ public abstract class Talon6Motor implements BareMotor {
         child.intLogger(Level.TRACE, "Device ID").log(() -> canId);
     }
 
+    /** Set duty cycle immediately. */
     @Override
     public void setDutyCycle(double output) {
         Phoenix100.warn(() -> m_motor.setControl(m_dutyCycleOut
@@ -193,6 +194,8 @@ public abstract class Talon6Motor implements BareMotor {
     /**
      * Use VelocityVoltage outboard PID control to hold the given velocity, with
      * friction, velocity, acceleration, and torque feedforwards.
+     * 
+     * Actuates immediately.
      */
     @Override
     public void setVelocity(double motorRad_S, double motorAccelRad_S2, double motorTorqueNm) {
@@ -232,6 +235,8 @@ public abstract class Talon6Motor implements BareMotor {
      * Use PositionVoltage outboard PID control to hold the given position, with
      * friction, velocity, and torque feedforwards.
      * 
+     * Actuates immediately.
+     * 
      * Motor revolutions wind up, so setting 0 revs and 1 rev are different.
      */
     @Override
@@ -261,7 +266,7 @@ public abstract class Talon6Motor implements BareMotor {
         log();
     }
 
-    /** Cached, almost */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public double getVelocityRad_S() {
         return getVelocityRev_S() * 2 * Math.PI;
@@ -311,12 +316,12 @@ public abstract class Talon6Motor implements BareMotor {
         setEncoderPosition(motorPositionRev);
     }
 
-    /** Cached. */
+    /** Updated in Robot.robotPeriodic(). */
     public double getVelocityRev_S() {
         return m_velocity.getAsDouble();
     }
 
-    /** Position is latency-compensated. Cached. */
+    /** Updated in Robot.robotPeriodic(). */
     public double getPositionRev() {
         return m_position.getAsDouble();
     }

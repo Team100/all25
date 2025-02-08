@@ -3,15 +3,11 @@ package org.team100.lib.swerve;
 import java.util.function.DoubleBinaryOperator;
 
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class SwerveUtil {
     /**
@@ -96,26 +92,6 @@ public class SwerveUtil {
         double offset = f_0 + Math.signum(diff) * max_vel_step;
         DoubleBinaryOperator func = (x, y) -> (Math.hypot(x, y) - offset);
         return Math100.findRoot(func, x_0, y_0, f_0 - offset, x_1, y_1, f_1 - offset, max_iterations);
-    }
-
-    /**
-     * DesiredState is a complete stop. In this case, module angle is
-     * arbitrary, so just use the previous angle.
-     */
-    public static boolean desiredIsStopped(
-            ChassisSpeeds desiredState,
-            SwerveModuleStates desiredModuleStates,
-            SwerveModuleStates prevModuleStates) {
-        SwerveModuleState100[] desiredModuleStatesAll = desiredModuleStates.all();
-        SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
-        if (GeometryUtil.isZero(desiredState)) {
-            for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-                desiredModuleStatesAll[i].angle = prevModuleStatesAll[i].angle;
-                desiredModuleStatesAll[i].speedMetersPerSecond = 0.0;
-            }
-            return true;
-        }
-        return false;
     }
 
     /**

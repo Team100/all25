@@ -47,7 +47,7 @@ public class TimingConstraintFactory {
                         aScale * m_limits.getMaxDriveAccelerationM_S2()),
                 new SwerveDriveDynamicsConstraint(m_limits),
                 new YawRateConstraint(m_limits, yawRateScale),
-                new CentripetalAccelerationConstraint(m_limits, centripetalScale));
+                new CapsizeAccelerationConstraint(m_limits, centripetalScale));
     }
 
 }

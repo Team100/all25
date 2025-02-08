@@ -1,6 +1,5 @@
 package org.team100.lib.swerve;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.team100.lib.dashboard.Glassy;
@@ -73,7 +72,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStatesWithoutDiscretization(
                 desiredState);
         desiredState = desaturate(desiredState, desiredModuleStates);
-        boolean desiredIsStopped = SwerveUtil.desiredIsStopped(desiredState, desiredModuleStates, prevModuleStates);
+
+        if (GeometryUtil.isZero(desiredState)) {
+            desiredModuleStates = prevModuleStates.motionless();
+        }
 
         // For each module, compute local Vx and Vy vectors.
         double[] prev_vx = computeVx(prevModuleStates);
@@ -109,6 +111,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         // we are at desiredState.
 
         double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(dx, dy);
+        System.out.printf("centripetal %f\n", centripetal_min_s);
 
         double min_s = centripetal_min_s;
 
@@ -119,12 +122,12 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
         Rotation2d[] overrideSteering = new Rotation2d[prevModuleStatesAll.length];
 
-        if (desiredIsStopped) {
+        if (GeometryUtil.isZero(desiredState)) {
             for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-                if (prevModuleStatesAll[i].angle.isEmpty()) {
+                if (prevModuleStatesAll[i].angle().isEmpty()) {
                     overrideSteering[i] = null;
                 } else {
-                    overrideSteering[i] = prevModuleStatesAll[i].angle.get();
+                    overrideSteering[i] = prevModuleStatesAll[i].angle().get();
                 }
             }
         } else {
@@ -132,6 +135,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desiredModuleStates,
                     prevModuleStates,
                     overrideSteering);
+            System.out.printf("override %f\n", override_min_s);
             min_s = Math.min(min_s, override_min_s);
 
             double steering_min_s = m_steeringRateLimiter.enforceSteeringLimit(
@@ -142,6 +146,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desired_vy,
                     desired_heading,
                     overrideSteering);
+            System.out.printf("steering %f\n", steering_min_s);
             min_s = Math.min(min_s, steering_min_s);
         }
 
@@ -150,10 +155,13 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 prev_vy,
                 desired_vx,
                 desired_vy);
+        System.out.printf("accel %f\n", accel_min_s);
 
         min_s = Math.min(min_s, accel_min_s);
 
         double battery_min_s = m_BatterySagLimiter.get();
+        System.out.printf("battery %f\n", battery_min_s);
+
         min_s = Math.min(min_s, battery_min_s);
 
         return makeSetpoint(
@@ -173,10 +181,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         double[] vx = new double[statesAll.length];
         for (int i = 0; i < statesAll.length; ++i) {
             SwerveModuleState100 state = statesAll[i];
-            if (Math.abs(state.speedMetersPerSecond) < 1e-6 || state.angle.isEmpty()) {
+            if (Math.abs(state.speedMetersPerSecond()) < 1e-6 || state.angle().isEmpty()) {
                 vx[i] = 0;
             } else {
-                vx[i] = state.angle.get().getCos() * state.speedMetersPerSecond;
+                vx[i] = state.angle().get().getCos() * state.speedMetersPerSecond();
             }
         }
         return vx;
@@ -187,10 +195,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         double[] vy = new double[statesAll.length];
         for (int i = 0; i < statesAll.length; ++i) {
             SwerveModuleState100 state = statesAll[i];
-            if (Math.abs(state.speedMetersPerSecond) < 1e-6 || state.angle.isEmpty()) {
+            if (Math.abs(state.speedMetersPerSecond()) < 1e-6 || state.angle().isEmpty()) {
                 vy[i] = 0;
             } else {
-                vy[i] = state.angle.get().getSin() * state.speedMetersPerSecond;
+                vy[i] = state.angle().get().getSin() * state.speedMetersPerSecond();
             }
         }
         return vy;
@@ -205,12 +213,12 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleState100[] statesAll = states.all();
         Rotation2d[] heading = new Rotation2d[statesAll.length];
         for (int i = 0; i < statesAll.length; ++i) {
-            if (statesAll[i].angle.isEmpty()) {
+            if (statesAll[i].angle().isEmpty()) {
                 heading[i] = null;
                 continue;
             }
-            heading[i] = statesAll[i].angle.get();
-            if (statesAll[i].speedMetersPerSecond < 0.0) {
+            heading[i] = statesAll[i].angle().get();
+            if (statesAll[i].speedMetersPerSecond() < 0.0) {
                 heading[i] = GeometryUtil.flip(heading[i]);
             }
         }
@@ -242,7 +250,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             ChassisSpeeds desiredState,
             SwerveModuleStates desiredModuleStates) {
         if (m_limits.getMaxDriveVelocityM_S() > 0.0) {
-            SwerveDriveKinematics100.desaturateWheelSpeeds(desiredModuleStates, m_limits.getMaxDriveVelocityM_S());
+            desiredModuleStates = SwerveDriveKinematics100.desaturateWheelSpeeds(desiredModuleStates,
+                    m_limits.getMaxDriveVelocityM_S());
             desiredState = m_limits.toChassisSpeeds(desiredModuleStates);
         }
         return desiredState;
@@ -263,47 +272,17 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 dtheta,
                 min_s);
         // the speeds in these states are always positive.
+        // the kinematics produces an empty angle for zero speed, but here we
+        // know the previous state so use that.
         SwerveModuleStates setpointStates = m_limits.toSwerveModuleStates(
                 setpointSpeeds,
                 setpointSpeeds.omegaRadiansPerSecond);
-        applyOverrides(overrideSteering, setpointStates);
-        flipIfRequired(prevModuleStates, setpointStates);
+        setpointStates = setpointStates.overwriteEmpty(prevModuleStates);
+
+        setpointStates = setpointStates.override(overrideSteering);
+        setpointStates = setpointStates.flipIfRequired(prevModuleStates);
 
         return new SwerveSetpoint(setpointSpeeds, setpointStates);
-    }
-
-    /** Overwrite the states with the supplied steering overrides, if any. */
-    private void applyOverrides(Rotation2d[] overrides, SwerveModuleStates states) {
-        SwerveModuleState100[] statesAll = states.all();
-        for (int i = 0; i < statesAll.length; ++i) {
-            if (statesAll[i].angle.isEmpty()) {
-                continue;
-            }
-            final Rotation2d maybeOverride = overrides[i];
-            if (maybeOverride != null) {
-                Rotation2d override = maybeOverride;
-                if (SwerveUtil.shouldFlip(override.minus(statesAll[i].angle.get()))) {
-                    statesAll[i].speedMetersPerSecond *= -1.0;
-                }
-                statesAll[i].angle = Optional.of(override);
-            }
-        }
-    }
-
-    private void flipIfRequired(SwerveModuleStates prevStates, SwerveModuleStates setpointStates) {
-        SwerveModuleState100[] prevStatesAll = prevStates.all();
-        SwerveModuleState100[] setpointStatesAll = setpointStates.all();
-
-        for (int i = 0; i < prevStatesAll.length; ++i) {
-            if (setpointStatesAll[i].angle.isEmpty() || prevStatesAll[i].angle.isEmpty()) {
-                continue;
-            }
-            final Rotation2d deltaRotation = setpointStatesAll[i].angle.get().minus(prevStatesAll[i].angle.get());
-            if (SwerveUtil.shouldFlip(deltaRotation)) {
-                setpointStatesAll[i].angle = Optional.of(GeometryUtil.flip(setpointStatesAll[i].angle.get()));
-                setpointStatesAll[i].speedMetersPerSecond *= -1.0;
-            }
-        }
     }
 
     /**

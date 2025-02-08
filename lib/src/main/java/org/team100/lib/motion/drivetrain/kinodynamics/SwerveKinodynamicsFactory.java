@@ -50,6 +50,7 @@ public class SwerveKinodynamicsFactory {
                         13, // steering rate rad/s
                         20 * Math.PI, // steering accel rad/s/s
                         0.380, // track m
+                        0.380, // track m
                         0.445, // wheelbase m
                         0.2225, // front offset m
                         0.3); // vcg m
@@ -69,9 +70,9 @@ public class SwerveKinodynamicsFactory {
             case BLANK:
                 // this is used for tests and simulation; the limits should be kept in sync
                 // with the comp config, so that the simulator provides realistic
-                // feedback.  it's not *identical* to the comp config because it affects
+                // feedback. it's not *identical* to the comp config because it affects
                 // a whole lots of tests, which you'll have to touch every time you
-                // change it.  :-(
+                // change it. :-(
                 return new SwerveKinodynamics(
                         5, // vel m/s
                         10, // stall m/s/s
@@ -79,6 +80,7 @@ public class SwerveKinodynamicsFactory {
                         20, // decel m/s/s
                         40, // steering rate rad/s
                         120, // steering accel rad/s/s
+                        0.5, // track m
                         0.5, // track m
                         0.5, // wheelbase m
                         .25, // front offset m
@@ -98,6 +100,7 @@ public class SwerveKinodynamicsFactory {
                 // the beta bot has very low VCG.
                 return new SwerveKinodynamics(
                         5, // max vel m/s
+                        10, // stall m/s/s
                         20, // max accel m/s/s
                         50, // max decel m/s/s
                         20, // max module steering rate rad/s
@@ -108,9 +111,9 @@ public class SwerveKinodynamicsFactory {
                         0.29, // front offset m
                         0.1); // vcg m
             default:
-            Util.warn("***");
-            Util.warn("*** Using default kinodynamics, this should never happen.");
-            Util.warn("***");
+                Util.warn("***");
+                Util.warn("*** Using default kinodynamics, this should never happen.");
+                Util.warn("***");
                 return new SwerveKinodynamics(
                         5, // vel m/s
                         20, // stall m/s/s
@@ -118,6 +121,7 @@ public class SwerveKinodynamicsFactory {
                         5, // decel m/s/s
                         13, // steering rate rad/s
                         20 * Math.PI, // steering accel rad/s/s
+                        0.5, // track m
                         0.5, // track m
                         0.5, // wheelbase m
                         .25, // front offset m
@@ -140,6 +144,7 @@ public class SwerveKinodynamicsFactory {
                 20 * Math.PI,
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.3); // vcg m
@@ -155,6 +160,7 @@ public class SwerveKinodynamicsFactory {
                 20 * Math.PI,
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.3); // vcg m
@@ -168,6 +174,7 @@ public class SwerveKinodynamicsFactory {
                 1, // decel m/s/s
                 1, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
                 0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
@@ -183,6 +190,7 @@ public class SwerveKinodynamicsFactory {
                 1, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.6); // vcg m
@@ -196,6 +204,7 @@ public class SwerveKinodynamicsFactory {
                 1, // decel m/s/s
                 1, // steering rate rad/s
                 1, // steering accel rad/s/s
+                2, // track m
                 2, // track m
                 2, // wheelbase m
                 1, // front offset m
@@ -214,6 +223,7 @@ public class SwerveKinodynamicsFactory {
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.001); // vcg m
@@ -227,6 +237,7 @@ public class SwerveKinodynamicsFactory {
                 10, // decel m/s/s
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
                 0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
@@ -242,6 +253,7 @@ public class SwerveKinodynamicsFactory {
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.1); // vcg m
@@ -255,6 +267,7 @@ public class SwerveKinodynamicsFactory {
                 10, // decel m/s/s
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
                 0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
@@ -270,6 +283,7 @@ public class SwerveKinodynamicsFactory {
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m
+                0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m
                 0.3); // vcg m
@@ -284,6 +298,7 @@ public class SwerveKinodynamicsFactory {
                 10, // decel m/s/s
                 5, // steering rate rad/s
                 20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
                 0.5, // track m
                 0.5, // wheelbase m
                 .25, // front offset m

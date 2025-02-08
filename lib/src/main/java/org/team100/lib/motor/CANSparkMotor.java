@@ -168,7 +168,7 @@ public abstract class CANSparkMotor implements BareMotor {
         log();
     }
 
-    /** Cached, almost. */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public double getVelocityRad_S() {
         return getRateRPM() * 2 * Math.PI / 60;
@@ -190,7 +190,7 @@ public abstract class CANSparkMotor implements BareMotor {
     }
 
     /**
-     * Cached, almost.
+     * Value is updated in Robot.robotPeriodic().
      * 
      * @return torque in Nm
      */
@@ -199,7 +199,7 @@ public abstract class CANSparkMotor implements BareMotor {
     }
 
     /**
-     * Cached.
+     * Value is updated in Robot.robotPeriodic().
      * 
      * @return integrated sensor position in rotations.
      */
@@ -208,7 +208,7 @@ public abstract class CANSparkMotor implements BareMotor {
     }
 
     /**
-     * Cached.
+     * Value is updated in Robot.robotPeriodic().
      * 
      * @return integrated sensor velocity in RPM
      */

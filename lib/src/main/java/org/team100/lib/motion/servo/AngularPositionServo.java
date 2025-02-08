@@ -18,7 +18,7 @@ public interface AngularPositionServo extends Glassy {
     void reset();
 
     /**
-     * Resets the encoder position, is very slow, so 
+     * Resets the encoder position, is very slow, so
      * only do this on startup
      * 
      * @param positionRad The position of the encoder
@@ -33,8 +33,8 @@ public interface AngularPositionServo extends Glassy {
      * The measurements here are output measurements, e.g. shaft radians, not motor
      * radians.
      * 
-     * @param goalRad           radians
-     * @param feedForwardTorque used for gravity compensation
+     * @param goalRad             radians
+     * @param feedForwardTorqueNm used for gravity compensation
      */
     void setPosition(double goalRad, double feedForwardTorqueNm);
 
@@ -44,17 +44,20 @@ public interface AngularPositionServo extends Glassy {
      * The measurements here are output measurements, e.g. shaft radians, not motor
      * radians.
      * 
-     * @param goalRad           radians
-     * @param goalVelocityRad_S rad/s
-     * @param feedForwardTorque used for gravity compensation
+     * @param goalRad             radians
+     * @param goalVelocityRad_S   rad/s
+     * @param feedForwardTorqueNm used for gravity compensation
      */
     void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm);
 
     /**
+     * Value should be updated in Robot.robotPeriodic().
+     * 
      * @return Current position measurement, radians.
      */
     OptionalDouble getPosition();
 
+    /** Value should be updated in Robot.robotPeriodic(). */
     OptionalDouble getVelocity();
 
     boolean atSetpoint();

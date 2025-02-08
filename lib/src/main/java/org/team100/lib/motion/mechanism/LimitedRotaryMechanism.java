@@ -102,7 +102,7 @@ public class LimitedRotaryMechanism implements RotaryMechanism {
                 outputTorqueNm);
     }
 
-    /** nearly cached */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getVelocityRad_S() {
         return m_delegate.getVelocityRad_S();
@@ -114,7 +114,7 @@ public class LimitedRotaryMechanism implements RotaryMechanism {
         return m_delegate.getPositionBlockingRad();
     }
 
-    /** nearly cached */
+    /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getPositionRad() {
         return m_delegate.getPositionRad();

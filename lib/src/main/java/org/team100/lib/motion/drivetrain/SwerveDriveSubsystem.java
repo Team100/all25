@@ -82,6 +82,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * 
      * @param v Field coordinate velocities in meters and radians per second.
      */
+    @Override
     public void driveInFieldCoords(FieldRelativeVelocity vIn) {
         m_log_input.log(() -> vIn);
 
@@ -114,8 +115,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * the new direction happens not to be aligned with the wheels.
      * 
      * @return true if aligned
-     * 
      */
+    @Override
     public boolean steerAtRest(FieldRelativeVelocity twist) {
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 twist.x(),
@@ -146,7 +147,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     /**
-     * Does not desaturate.
+     * Does not desaturate or optimize.
+     * 
+     * This "raw" mode is just for testing.
      */
     public void setRawModuleStates(SwerveModuleStates states) {
         m_swerveLocal.setRawModuleStates(states);
@@ -167,6 +170,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_swerveLocal.steer90();
     }
 
+    @Override
     public void stop() {
         m_swerveLocal.stop();
     }
@@ -197,6 +201,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * SwerveState representing the drivetrain's field-relative pose, velocity, and
      * acceleration.
      */
+    @Override
     public SwerveModel getState() {
         return m_stateSupplier.get();
     }
@@ -253,17 +258,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         return m_poseEstimator.get(now);
     }
 
-    @Override
-    public void drive(FieldRelativeVelocity setpoint) {
-        driveInFieldCoords(setpoint);
-    }
-
-    @Override
     public Pose2d getPose() {
         return m_stateSupplier.get().pose();
     }
 
-    @Override
     public FieldRelativeVelocity getVelocity() {
         return m_stateSupplier.get().velocity();
     }
@@ -272,5 +270,4 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         return m_stateSupplier.get().chassisSpeeds();
     }
 
-    
 }

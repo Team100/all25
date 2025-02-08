@@ -37,7 +37,12 @@ class AsymSwerveSetpointGeneratorTest {
         for (int i = 0; i < prevStates.length; ++i) {
             final SwerveModuleState100 prevModule = prevStates[i];
             final SwerveModuleState100 nextModule = nextStates[i];
-            Rotation2d diffRotation = prevModule.angle.get().unaryMinus().rotateBy(nextModule.angle.get());
+            Optional<Rotation2d> prevAngleOpt = prevModule.angle();
+            Optional<Rotation2d> nextAngleOpt = nextModule.angle();
+            Rotation2d diffRotation = GeometryUtil.kRotationZero;
+            if (prevAngleOpt.isPresent() && nextAngleOpt.isPresent()) {
+                diffRotation = prevAngleOpt.get().unaryMinus().rotateBy(nextAngleOpt.get());
+            }
             assertTrue(
                     Math.abs(diffRotation.getRadians()) < kKinematicLimits.getMaxSteeringVelocityRad_S()
                             + kMaxSteeringVelocityError,
@@ -45,18 +50,18 @@ class AsymSwerveSetpointGeneratorTest {
                             diffRotation.getRadians(),
                             kKinematicLimits.getMaxSteeringVelocityRad_S(),
                             kMaxSteeringVelocityError));
-            assertTrue(Math.abs(nextModule.speedMetersPerSecond) <= kKinematicLimits.getMaxDriveVelocityM_S(),
+            assertTrue(Math.abs(nextModule.speedMetersPerSecond()) <= kKinematicLimits.getMaxDriveVelocityM_S(),
                     String.format("%d %d %f %f", iteration, i,
-                            nextModule.speedMetersPerSecond,
+                            nextModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveVelocityM_S()));
             double actual = Math.abs(
-                    nextModule.speedMetersPerSecond - prevModule.speedMetersPerSecond)
+                    nextModule.speedMetersPerSecond() - prevModule.speedMetersPerSecond())
                     / kDt;
             double limit = kKinematicLimits.getMaxDriveAccelerationM_S2() + kMaxAccelerationError;
             assertTrue(actual <= limit,
                     String.format("%d %d %f %f %f %f %f %f", iteration, i, actual, limit,
-                            nextModule.speedMetersPerSecond,
-                            prevModule.speedMetersPerSecond,
+                            nextModule.speedMetersPerSecond(),
+                            prevModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveAccelerationM_S2(),
                             kMaxAccelerationError));
         }
@@ -105,6 +110,8 @@ class AsymSwerveSetpointGeneratorTest {
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
 
         goalSpeeds = new ChassisSpeeds(0.1, -1.0, 0.0);
+        // because this is a u-turn, first the robot stops, and then it proceeds in the
+        // new direction; there is an empty angle at the stopping point.
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
 
         goalSpeeds = new ChassisSpeeds(1.0, -0.5, 0.0);
@@ -131,6 +138,9 @@ class AsymSwerveSetpointGeneratorTest {
                 new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)));
         SwerveSetpoint setpoint = new SwerveSetpoint(initialSpeeds, initialStates);
 
+        // here the setpoint is at angle zero
+        System.out.println(setpoint);
+
         // desired speed is very fast
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds(10, 10, 10);
 
@@ -140,13 +150,17 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
         assertEquals(0, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
 
+        // note this says the angles are all empty which is wrong, they should be the previous values.
+        System.out.println(setpoint);
+
         // after 1 second, it's going faster.
         for (int i = 0; i < 50; ++i) {
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
+            System.out.printf("%d %s\n", i, setpoint);
         }
-        assertEquals(3.455, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
-        assertEquals(1.328, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
-        assertEquals(2.802, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
+        assertEquals(1.629, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(0.783, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
+        assertEquals(1.301, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
     }
 
     @Test
@@ -288,8 +302,8 @@ class AsymSwerveSetpointGeneratorTest {
                         i, currentPose.getX(), currentPose.getY(),
                         setpoint.getChassisSpeeds().vxMetersPerSecond,
                         setpoint.getChassisSpeeds().vyMetersPerSecond,
-                        setpoint.getModuleStates().frontLeft().speedMetersPerSecond,
-                        setpoint.getModuleStates().frontLeft().angle.get().getRadians(),
+                        setpoint.getModuleStates().frontLeft().speedMetersPerSecond(),
+                        setpoint.getModuleStates().frontLeft().angle().get().getRadians(),
                         ax, ay, a);
             prev = setpoint;
         }

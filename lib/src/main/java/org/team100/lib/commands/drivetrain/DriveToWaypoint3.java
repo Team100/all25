@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DriveTrajectoryFollower;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -32,9 +31,6 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * The goal rotation is used as the setpoint the entire time, which will put
  * a lot of error into the rotational controller.
- * 
- * If you want a holonomic trajectory follower, try the
- * {@link DriveTrajectoryFollower} classes.
  */
 public class DriveToWaypoint3 extends Command implements Glassy {
     /**
@@ -106,14 +102,22 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public void execute() {
         if (m_trajectory == null)
             return;
-        SwerveModel measurement = m_swerve.getState();
+        final SwerveModel measurement = m_swerve.getState();
+        
         Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
         if (curOpt.isEmpty()) {
             Util.warn("broken trajectory, cancelling!");
             cancel(); // this should not happen
             return;
         }
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+        TimedPose state = curOpt.get().state();
+        if (state.velocityM_S() > 0) {
+            // if we're moving, don't worry about the steering.
+            // this catches the "start from rest" case and allows
+            // "start from moving" to work without interference.
+            m_steeringAligned = true;
+        }
+        SwerveModel currentReference = SwerveModel.fromTimedPose(state);
 
         if (m_steeringAligned) {
             Optional<TrajectorySamplePoint> nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);

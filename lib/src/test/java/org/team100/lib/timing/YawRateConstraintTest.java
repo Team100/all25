@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Twist2d;
 
 class YawRateConstraintTest {
     private static final double kDelta = 0.001;
@@ -20,7 +20,7 @@ class YawRateConstraintTest {
         // one radian/m in place i.e. no constraint
         YawRateConstraint c = new YawRateConstraint(SwerveKinodynamicsFactory.forTest(), kYawRateScale);
         Pose2dWithMotion p = new Pose2dWithMotion(
-                new Pose2d(), new Twist2d(0, 0, 1), 0, 0);
+                new Pose2d(), new MotionDirection(0, 0, 1), 0, 0);
         assertEquals(Double.NEGATIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMinAccel(), kDelta);
         assertEquals(Double.POSITIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMaxAccel(), kDelta);
         assertEquals(Double.MAX_VALUE, c.getMaxVelocity(p).getValue(), kDelta);
@@ -33,7 +33,7 @@ class YawRateConstraintTest {
         YawRateConstraint c = new YawRateConstraint(SwerveKinodynamicsFactory.forTest(), kYawRateScale);
         Pose2dWithMotion p = new Pose2dWithMotion(
                 new Pose2d(),
-                new Twist2d(1, 0, 1), // spatial, so rad/m
+                new MotionDirection(1, 0, 1), // spatial, so rad/m
                 0, 0);
         assertEquals(Double.NEGATIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMinAccel(), kDelta);
         assertEquals(Double.POSITIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMaxAccel(), kDelta);
@@ -46,7 +46,7 @@ class YawRateConstraintTest {
         YawRateConstraint c = new YawRateConstraint(SwerveKinodynamicsFactory.forTest2(), kYawRateScale);
         Pose2dWithMotion p = new Pose2dWithMotion(
                 new Pose2d(),
-                new Twist2d(1, 0, 1), // spatial, so rad/m
+                new MotionDirection(1, 0, 1), // spatial, so rad/m
                 0, 0);
         assertEquals(Double.NEGATIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMinAccel(), kDelta);
         assertEquals(Double.POSITIVE_INFINITY, c.getMinMaxAcceleration(p, 0).getMaxAccel(), kDelta);

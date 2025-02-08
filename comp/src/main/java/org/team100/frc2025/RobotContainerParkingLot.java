@@ -18,10 +18,8 @@ import org.team100.lib.commands.drivetrain.for_testing.Spin;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DrivePIDFFollower;
-import org.team100.lib.follower.DriveTrajectoryFollower;
-import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
-import org.team100.lib.follower.DriveTrajectoryFollowerUtil;
+import org.team100.lib.follower.TrajectoryFollowerFactory;
+import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -145,12 +143,7 @@ public class RobotContainerParkingLot implements Glassy {
         Pose2d goal = new Pose2d(1.877866, 7.749999, GeometryUtil.kRotation90);
         List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
 
-        // 254 PID follower
-        final DriveTrajectoryFollowerUtil util = new DriveTrajectoryFollowerUtil(driveLogger);
-        final DriveTrajectoryFollowerFactory driveControllerFactory = new DriveTrajectoryFollowerFactory(util);
-        DrivePIDFFollower.Log PIDFlog = new DrivePIDFFollower.Log(driveLogger);
-
-        DriveTrajectoryFollower drivePID = driveControllerFactory.autoPIDF(PIDFlog);
+        TrajectoryFollower drivePID = TrajectoryFollowerFactory.autoFieldRelativePIDF(driveLogger);
         whileTrue(driverControl::never,
                 new DriveToWaypoint100(
                         driveLogger,
@@ -161,11 +154,7 @@ public class RobotContainerParkingLot implements Glassy {
                         1,
                         viz));
 
-        ////////////////////////
-
-        // 254 FF follower
-
-        DriveTrajectoryFollower driveFF = driveControllerFactory.ffOnly(PIDFlog);
+        TrajectoryFollower driveFF = TrajectoryFollowerFactory.fieldRelativeFfOnly(driveLogger);
 
         whileTrue(driverControl::never,
                 new DriveToWaypoint100(

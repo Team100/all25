@@ -1,5 +1,7 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /**
  * Container for swerve module states.
  * 
@@ -11,6 +13,7 @@ public record SwerveModuleStates(
         SwerveModuleState100 frontRight,
         SwerveModuleState100 rearLeft,
         SwerveModuleState100 rearRight) {
+
     /** For when you don't care about which is which. */
     public SwerveModuleState100[] all() {
         return new SwerveModuleState100[] {
@@ -19,5 +22,65 @@ public record SwerveModuleStates(
                 rearLeft,
                 rearRight
         };
+    }
+
+    public double maxSpeed() {
+        double desired = 0;
+        desired = Math.max(desired, Math.abs(frontLeft.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(frontRight.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(rearLeft.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(rearRight.speedMetersPerSecond()));
+        return desired;
+    }
+
+    /**
+     * Make a copy with the supplied angle, where ours is empty.
+     */
+    public SwerveModuleStates overwriteEmpty(SwerveModuleStates other) {
+        return new SwerveModuleStates(
+                frontLeft.overwriteEmpty(other.frontLeft),
+                frontRight.overwriteEmpty(other.frontRight),
+                rearLeft.overwriteEmpty(other.rearLeft),
+                rearRight.overwriteEmpty(other.rearRight));
+    }
+
+    /**
+     * Make a copy with no drive component.
+     */
+    public SwerveModuleStates motionless() {
+        return new SwerveModuleStates(
+                new SwerveModuleState100(0, frontLeft.angle()),
+                new SwerveModuleState100(0, frontRight.angle()),
+                new SwerveModuleState100(0, rearLeft.angle()),
+                new SwerveModuleState100(0, rearRight.angle()));
+    }
+
+    /**
+     * Make a scaled copy.
+     */
+    public SwerveModuleStates scale(double scale) {
+        return new SwerveModuleStates(
+                frontLeft.scale(scale),
+                frontRight.scale(scale),
+                rearLeft.scale(scale),
+                rearRight.scale(scale));
+    }
+
+    /** Overwrite the states with the supplied steering overrides, if any. */
+    public SwerveModuleStates override(Rotation2d[] overrides) {
+        return new SwerveModuleStates(
+                frontLeft.override(overrides[0]),
+                frontRight.override(overrides[1]),
+                rearLeft.override(overrides[2]),
+                rearRight.override(overrides[3]));
+    }
+
+    public SwerveModuleStates flipIfRequired(SwerveModuleStates prev) {
+        return new SwerveModuleStates(
+                frontLeft.flipIfRequired(prev.frontLeft),
+                frontRight.flipIfRequired(prev.frontRight),
+                rearLeft.flipIfRequired(prev.rearLeft),
+                rearRight.flipIfRequired(prev.rearRight));
+
     }
 }

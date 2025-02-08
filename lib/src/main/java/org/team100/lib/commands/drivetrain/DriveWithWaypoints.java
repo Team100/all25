@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DriveTrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
+import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
@@ -17,32 +18,30 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryTimeSampler;
-import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveWithWaypoints extends Command implements Glassy {
     private final SwerveDriveSubsystem m_swerve;
-    private final DriveTrajectoryFollower m_controller;
+    private final TrajectoryFollower m_controller;
     private final List<TimingConstraint> constraints;
     private final Supplier<List<Pose2d>> m_goal;
 
     // LOGGERS
-    private final ChassisSpeedsLogger m_log_chassis_speeds;
+    private final FieldRelativeVelocityLogger m_log_speed;
 
     public DriveWithWaypoints(
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
-            DriveTrajectoryFollower controller,
+            TrajectoryFollower controller,
             SwerveKinodynamics limits,
             Supplier<List<Pose2d>> goal) {
         LoggerFactory child = parent.child(this);
-        m_log_chassis_speeds = child.chassisSpeedsLogger(Level.TRACE, "chassis speeds");
+        m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
         m_swerve = drivetrain;
         m_controller = controller;
         constraints = new TimingConstraintFactory(limits).fast();
@@ -73,12 +72,9 @@ public class DriveWithWaypoints extends Command implements Glassy {
     @Override
     public void execute() {
         double now = Takt.get();
-        Pose2d currentPose = m_swerve.getPose();
-        ChassisSpeeds currentSpeed = m_swerve.getChassisSpeeds();
-        ChassisSpeeds output = m_controller.update(now, currentPose, currentSpeed);
-        m_log_chassis_speeds.log(() -> output);
-        DriveUtil.checkSpeeds(output);
-        m_swerve.setChassisSpeeds(output);
+        FieldRelativeVelocity output = m_controller.update(now, m_swerve.getState());
+        m_log_speed.log(() -> output);
+        m_swerve.driveInFieldCoords(output);
     }
 
     @Override

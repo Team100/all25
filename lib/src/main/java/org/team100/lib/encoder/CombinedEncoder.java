@@ -91,13 +91,21 @@ public class CombinedEncoder implements RotaryPositionSensor {
         m_incremental.setEncoderPosition(absolutePosition);
     }
 
-    /** The secondary (incremental motor-integrated) measurement. */
+    /**
+     * Value is updated in Robot.robotPeriodic().
+     * 
+     * The secondary (incremental motor-integrated) measurement.
+     */
     @Override
     public OptionalDouble getPositionRad() {
         return m_incremental.getPositionRad();
     }
 
-    /** The secondary (incremental motor-integrated) measurement */
+    /**
+     * Value is updated in Robot.robotPeriodic().
+     * 
+     * The secondary (incremental motor-integrated) measurement
+     */
     @Override
     public OptionalDouble getRateRad_S() {
         return m_incremental.getVelocityRad_S();

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.DriveTrajectoryFollowerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -30,7 +29,6 @@ public class FullCycle2 extends SequentialCommandGroup implements Glassy {
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
             TrajectoryVisualization viz,
-            DriveTrajectoryFollowerFactory factory,
             SwerveKinodynamics kinodynamics,
             HolonomicFieldRelativeController controller) {
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(parent.child(this));
