@@ -711,8 +711,8 @@ class SwerveDriveKinematics100Test {
         SwerveModuleState100 bl = new SwerveModuleState100(4, Optional.of(new Rotation2d()));
         SwerveModuleState100 br = new SwerveModuleState100(7, Optional.of(new Rotation2d()));
 
-        SwerveModuleStates arr = new SwerveModuleStates(fl, fr, bl, br);
-        SwerveDriveKinematics100.desaturateWheelSpeeds(arr, 5.5);
+        SwerveModuleStates arr2 = new SwerveModuleStates(fl, fr, bl, br);
+        SwerveModuleStates arr = SwerveDriveKinematics100.desaturateWheelSpeeds(arr2, 5.5);
 
         double factor = 5.5 / 7.0;
 
@@ -730,8 +730,8 @@ class SwerveDriveKinematics100Test {
         SwerveModuleState100 bl = new SwerveModuleState100(-2, Optional.of(new Rotation2d()));
         SwerveModuleState100 br = new SwerveModuleState100(-2, Optional.of(new Rotation2d()));
 
-        SwerveModuleStates arr = new SwerveModuleStates(fl, fr, bl, br);
-        SwerveDriveKinematics100.desaturateWheelSpeeds(arr, 1);
+        SwerveModuleStates arr2 = new SwerveModuleStates(fl, fr, bl, br);
+        SwerveModuleStates arr = SwerveDriveKinematics100.desaturateWheelSpeeds(arr2, 1);
 
         assertAll(
                 () -> assertEquals(0.5, arr.frontLeft().speedMetersPerSecond(), kEpsilon),

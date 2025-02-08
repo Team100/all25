@@ -76,7 +76,7 @@ class SwerveDriveDynamicsConstraintTest {
         assertEquals(4.464, ms.rearRight().speedMetersPerSecond(), kDelta);
 
         // this is slowed to the max possible wheel speed
-        SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
+        ms = SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
         assertEquals(2.384, ms.frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(3.639, ms.frontRight().speedMetersPerSecond(), kDelta);
         assertEquals(2.906, ms.rearLeft().speedMetersPerSecond(), kDelta);
@@ -98,7 +98,7 @@ class SwerveDriveDynamicsConstraintTest {
         // possible at 5 rad/s; this is about 8 rad/m.
         ChassisSpeeds s = new ChassisSpeeds(0.62, 0, 5);
         SwerveModuleStates ms = l.toSwerveModuleStates(s, 5);
-        SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
+        ms = SwerveDriveKinematics100.desaturateWheelSpeeds(ms, maxV);
 
         ChassisSpeeds implied = l.toChassisSpeeds(ms);
         assertEquals(0.611, implied.vxMetersPerSecond, kDelta);

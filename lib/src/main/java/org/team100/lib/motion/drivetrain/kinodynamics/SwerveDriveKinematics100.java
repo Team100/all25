@@ -173,19 +173,12 @@ public class SwerveDriveKinematics100 {
     }
 
     /**
-     * Scale wheel speeds to limit maximum.
-     *
-     * @param states WILL BE MUTATED! TODO: don't do that
-     * @param limit  Max module speed
+     * If wheels are too fast, return a copy scaled below the limit.
      */
     public static SwerveModuleStates desaturateWheelSpeeds(SwerveModuleStates states, final double limit) {
-        double desired = 0;
-        for (SwerveModuleState100 moduleState : states.all()) {
-            desired = Math.max(desired, Math.abs(moduleState.speedMetersPerSecond()));
-        }
+        double desired = states.maxSpeed();
         if (desired <= limit)
             return states;
-
         double scale = limit / desired;
         return states.scale(scale);
     }

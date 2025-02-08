@@ -3,6 +3,7 @@ package org.team100.lib.motion.drivetrain.kinodynamics;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.swerve.SwerveUtil;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -63,6 +64,7 @@ public class SwerveModuleState100
         return new SwerveModuleState100(speedMetersPerSecond * scale, angle);
     }
 
+    /** Overwrite the states with the supplied steering overrides, if any. */
     public SwerveModuleState100 override(Rotation2d override) {
         if (angle.isEmpty())
             return this;
@@ -72,6 +74,19 @@ public class SwerveModuleState100
             return new SwerveModuleState100(speedMetersPerSecond * -1.0, Optional.of(override));
         }
         return new SwerveModuleState100(speedMetersPerSecond, Optional.of(override));
+    }
+
+    /** Flip direction and angle if this is within 90 degrees of the previous. */
+    public SwerveModuleState100 flipIfRequired(SwerveModuleState100 prev) {
+        if (angle.isEmpty() || prev.angle.isEmpty())
+            return this;
+        final Rotation2d deltaRotation = angle.get().minus(prev.angle.get());
+        if (!SwerveUtil.shouldFlip(deltaRotation))
+            return this;
+        return new SwerveModuleState100(
+                speedMetersPerSecond *= -1.0,
+                Optional.of(GeometryUtil.flip(angle.get())));
+
     }
 
     /**

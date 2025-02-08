@@ -254,7 +254,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * Works fine with empty angles.
      */
     private void setModuleStates(SwerveModuleStates states) {
-        SwerveDriveKinematics100.desaturateWheelSpeeds(
+        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
                 states,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S());
         m_modules.setDesiredStates(states);

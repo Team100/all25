@@ -1,5 +1,7 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /**
  * Container for swerve module states.
  * 
@@ -20,6 +22,15 @@ public record SwerveModuleStates(
                 rearLeft,
                 rearRight
         };
+    }
+
+    public double maxSpeed() {
+        double desired = 0;
+        desired = Math.max(desired, Math.abs(frontLeft.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(frontRight.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(rearLeft.speedMetersPerSecond()));
+        desired = Math.max(desired, Math.abs(rearRight.speedMetersPerSecond()));
+        return desired;
     }
 
     /**
@@ -53,5 +64,23 @@ public record SwerveModuleStates(
                 frontRight.scale(scale),
                 rearLeft.scale(scale),
                 rearRight.scale(scale));
+    }
+
+    /** Overwrite the states with the supplied steering overrides, if any. */
+    public SwerveModuleStates override(Rotation2d[] overrides) {
+        return new SwerveModuleStates(
+                frontLeft.override(overrides[0]),
+                frontRight.override(overrides[1]),
+                rearLeft.override(overrides[2]),
+                rearRight.override(overrides[3]));
+    }
+
+    public SwerveModuleStates flipIfRequired(SwerveModuleStates prev) {
+        return new SwerveModuleStates(
+                frontLeft.flipIfRequired(prev.frontLeft),
+                frontRight.flipIfRequired(prev.frontRight),
+                rearLeft.flipIfRequired(prev.rearLeft),
+                rearRight.flipIfRequired(prev.rearRight));
+
     }
 }

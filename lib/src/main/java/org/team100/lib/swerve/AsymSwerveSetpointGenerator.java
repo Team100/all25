@@ -1,6 +1,5 @@
 package org.team100.lib.swerve;
 
-import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.team100.lib.dashboard.Glassy;
@@ -112,6 +111,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         // we are at desiredState.
 
         double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(dx, dy);
+        System.out.printf("centripetal %f\n", centripetal_min_s);
 
         double min_s = centripetal_min_s;
 
@@ -135,6 +135,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desiredModuleStates,
                     prevModuleStates,
                     overrideSteering);
+            System.out.printf("override %f\n", override_min_s);
             min_s = Math.min(min_s, override_min_s);
 
             double steering_min_s = m_steeringRateLimiter.enforceSteeringLimit(
@@ -145,6 +146,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desired_vy,
                     desired_heading,
                     overrideSteering);
+            System.out.printf("steering %f\n", steering_min_s);
             min_s = Math.min(min_s, steering_min_s);
         }
 
@@ -153,10 +155,13 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 prev_vy,
                 desired_vx,
                 desired_vy);
+        System.out.printf("accel %f\n", accel_min_s);
 
         min_s = Math.min(min_s, accel_min_s);
 
         double battery_min_s = m_BatterySagLimiter.get();
+        System.out.printf("battery %f\n", battery_min_s);
+
         min_s = Math.min(min_s, battery_min_s);
 
         return makeSetpoint(
@@ -245,7 +250,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             ChassisSpeeds desiredState,
             SwerveModuleStates desiredModuleStates) {
         if (m_limits.getMaxDriveVelocityM_S() > 0.0) {
-            SwerveDriveKinematics100.desaturateWheelSpeeds(desiredModuleStates, m_limits.getMaxDriveVelocityM_S());
+            desiredModuleStates = SwerveDriveKinematics100.desaturateWheelSpeeds(desiredModuleStates,
+                    m_limits.getMaxDriveVelocityM_S());
             desiredState = m_limits.toChassisSpeeds(desiredModuleStates);
         }
         return desiredState;
@@ -273,35 +279,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 setpointSpeeds.omegaRadiansPerSecond);
         setpointStates = setpointStates.overwriteEmpty(prevModuleStates);
 
-        setpointStates = applyOverrides(overrideSteering, setpointStates);
-        flipIfRequired(prevModuleStates, setpointStates);
+        setpointStates = setpointStates.override(overrideSteering);
+        setpointStates = setpointStates.flipIfRequired(prevModuleStates);
 
         return new SwerveSetpoint(setpointSpeeds, setpointStates);
-    }
-
-    /** Overwrite the states with the supplied steering overrides, if any. */
-    private SwerveModuleStates applyOverrides(Rotation2d[] overrides, SwerveModuleStates states) {
-        return new SwerveModuleStates(
-                states.frontLeft().override(overrides[0]),
-                states.frontRight().override(overrides[1]),
-                states.rearLeft().override(overrides[2]),
-                states.rearRight().override(overrides[3]));
-    }
-
-    private void flipIfRequired(SwerveModuleStates prevStates, SwerveModuleStates setpointStates) {
-        SwerveModuleState100[] prevStatesAll = prevStates.all();
-        SwerveModuleState100[] setpointStatesAll = setpointStates.all();
-
-        for (int i = 0; i < prevStatesAll.length; ++i) {
-            if (setpointStatesAll[i].angle().isEmpty() || prevStatesAll[i].angle().isEmpty()) {
-                continue;
-            }
-            final Rotation2d deltaRotation = setpointStatesAll[i].angle().get().minus(prevStatesAll[i].angle().get());
-            if (SwerveUtil.shouldFlip(deltaRotation)) {
-                setpointStatesAll[i].angle = Optional.of(GeometryUtil.flip(setpointStatesAll[i].angle().get()));
-                setpointStatesAll[i].speedMetersPerSecond *= -1.0;
-            }
-        }
     }
 
     /**
