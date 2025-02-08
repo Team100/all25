@@ -21,17 +21,32 @@ public record SwerveModuleStates(
         };
     }
 
+    SwerveModuleState100 overwrite (SwerveModuleState100 base, SwerveModuleState100 overwrite) {
+        
+    }
     /**
      * For empty angles, use the supplied angle instead (e.g. the previous state).
      */
     public void overwriteEmpty(SwerveModuleStates prevModuleStates) {
+        SwerveModuleState100 fl;
         if (frontLeft.angle().isEmpty())
-            frontLeft.angle = prevModuleStates.frontLeft().angle();
+            fl = new SwerveModuleState100(
+                    frontLeft.speedMetersPerSecond(),
+                    prevModuleStates.frontLeft().angle());
+        else
+            fl = frontLeft;
+    
         if (frontRight.angle().isEmpty())
-            frontRight.angle = prevModuleStates.frontRight().angle();
+            frontRight = new SwerveModuleState100(
+                    frontRight.speedMetersPerSecond(),
+                    prevModuleStates.frontRight().angle());
         if (rearLeft.angle().isEmpty())
-            rearLeft.angle = prevModuleStates.rearLeft().angle();
+            rearLeft = new SwerveModuleState100(
+                    rearLeft.speedMetersPerSecond(),
+                    prevModuleStates.rearLeft().angle());
         if (rearRight.angle().isEmpty())
-            rearRight.angle = prevModuleStates.rearRight().angle();
+            rearRight = new SwerveModuleState100(
+                    rearRight.speedMetersPerSecond(),
+                    prevModuleStates.rearRight().angle());
     }
 }

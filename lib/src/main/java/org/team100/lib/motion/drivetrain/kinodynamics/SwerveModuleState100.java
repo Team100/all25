@@ -21,6 +21,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 public class SwerveModuleState100
         implements Comparable<SwerveModuleState100>, ProtobufSerializable, StructSerializable {
     private double speedMetersPerSecond;
+
     /** Speed of the wheel of the module. */
     public double speedMetersPerSecond() {
         return speedMetersPerSecond;
@@ -31,6 +32,7 @@ public class SwerveModuleState100
      * indeterminate (e.g. calculating the angle required for zero speed).
      */
     private Optional<Rotation2d> angle = Optional.empty();
+
     public Optional<Rotation2d> angle() {
         return angle;
     }
@@ -54,7 +56,9 @@ public class SwerveModuleState100
      * @param speedMetersPerSecond The speed of the wheel of the module.
      * @param angle                The angle of the module.
      */
-    public SwerveModuleState100(double speedMetersPerSecond, Optional<Rotation2d> angle) {
+    public SwerveModuleState100(
+            double speedMetersPerSecond,
+            Optional<Rotation2d> angle) {
         this.speedMetersPerSecond = speedMetersPerSecond;
         this.angle = angle;
     }
