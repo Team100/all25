@@ -73,7 +73,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStatesWithoutDiscretization(
                 desiredState);
         desiredState = desaturate(desiredState, desiredModuleStates);
-        boolean desiredIsStopped = SwerveUtil.desiredIsStopped(desiredState, desiredModuleStates, prevModuleStates);
+
+        if (GeometryUtil.isZero(desiredState)) {
+            desiredModuleStates = prevModuleStates.motionless();
+        }
 
         // For each module, compute local Vx and Vy vectors.
         double[] prev_vx = computeVx(prevModuleStates);
@@ -119,7 +122,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
         Rotation2d[] overrideSteering = new Rotation2d[prevModuleStatesAll.length];
 
-        if (desiredIsStopped) {
+        if (GeometryUtil.isZero(desiredState)) {
             for (int i = 0; i < prevModuleStatesAll.length; ++i) {
                 if (prevModuleStatesAll[i].angle().isEmpty()) {
                     overrideSteering[i] = null;
@@ -268,30 +271,21 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         SwerveModuleStates setpointStates = m_limits.toSwerveModuleStates(
                 setpointSpeeds,
                 setpointSpeeds.omegaRadiansPerSecond);
-        setpointStates.overwriteEmpty(prevModuleStates);
+        setpointStates = setpointStates.overwriteEmpty(prevModuleStates);
 
-        applyOverrides(overrideSteering, setpointStates);
+        setpointStates = applyOverrides(overrideSteering, setpointStates);
         flipIfRequired(prevModuleStates, setpointStates);
 
         return new SwerveSetpoint(setpointSpeeds, setpointStates);
     }
 
     /** Overwrite the states with the supplied steering overrides, if any. */
-    private void applyOverrides(Rotation2d[] overrides, SwerveModuleStates states) {
-        SwerveModuleState100[] statesAll = states.all();
-        for (int i = 0; i < statesAll.length; ++i) {
-            if (statesAll[i].angle().isEmpty()) {
-                continue;
-            }
-            final Rotation2d maybeOverride = overrides[i];
-            if (maybeOverride != null) {
-                Rotation2d override = maybeOverride;
-                if (SwerveUtil.shouldFlip(override.minus(statesAll[i].angle().get()))) {
-                    statesAll[i].speedMetersPerSecond *= -1.0;
-                }
-                statesAll[i].angle() = Optional.of(override);
-            }
-        }
+    private SwerveModuleStates applyOverrides(Rotation2d[] overrides, SwerveModuleStates states) {
+        return new SwerveModuleStates(
+                states.frontLeft().override(overrides[0]),
+                states.frontRight().override(overrides[1]),
+                states.rearLeft().override(overrides[2]),
+                states.rearRight().override(overrides[3]));
     }
 
     private void flipIfRequired(SwerveModuleStates prevStates, SwerveModuleStates setpointStates) {

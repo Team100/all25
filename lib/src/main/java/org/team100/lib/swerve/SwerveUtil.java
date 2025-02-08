@@ -99,26 +99,6 @@ public class SwerveUtil {
     }
 
     /**
-     * DesiredState is a complete stop. In this case, module angle is
-     * arbitrary, so just use the previous angle.
-     */
-    public static boolean desiredIsStopped(
-            ChassisSpeeds desiredState,
-            SwerveModuleStates desiredModuleStates,
-            SwerveModuleStates prevModuleStates) {
-        SwerveModuleState100[] desiredModuleStatesAll = desiredModuleStates.all();
-        SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
-        if (GeometryUtil.isZero(desiredState)) {
-            for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-                desiredModuleStatesAll[i].angle = prevModuleStatesAll[i].angle();
-                desiredModuleStatesAll[i].speedMetersPerSecond = 0.0;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Find the desired dv. Project it on to the previous v: if the projection is
      * positive, we're accelerating, so use the accel limit to find the maximum
      * allowed dv for the supplied dt. Otherwise use the decel limit.

@@ -11,6 +11,7 @@ public record SwerveModuleStates(
         SwerveModuleState100 frontRight,
         SwerveModuleState100 rearLeft,
         SwerveModuleState100 rearRight) {
+
     /** For when you don't care about which is which. */
     public SwerveModuleState100[] all() {
         return new SwerveModuleState100[] {
@@ -21,32 +22,36 @@ public record SwerveModuleStates(
         };
     }
 
-    SwerveModuleState100 overwrite (SwerveModuleState100 base, SwerveModuleState100 overwrite) {
-        
-    }
     /**
-     * For empty angles, use the supplied angle instead (e.g. the previous state).
+     * Make a copy with the supplied angle, where ours is empty.
      */
-    public void overwriteEmpty(SwerveModuleStates prevModuleStates) {
-        SwerveModuleState100 fl;
-        if (frontLeft.angle().isEmpty())
-            fl = new SwerveModuleState100(
-                    frontLeft.speedMetersPerSecond(),
-                    prevModuleStates.frontLeft().angle());
-        else
-            fl = frontLeft;
-    
-        if (frontRight.angle().isEmpty())
-            frontRight = new SwerveModuleState100(
-                    frontRight.speedMetersPerSecond(),
-                    prevModuleStates.frontRight().angle());
-        if (rearLeft.angle().isEmpty())
-            rearLeft = new SwerveModuleState100(
-                    rearLeft.speedMetersPerSecond(),
-                    prevModuleStates.rearLeft().angle());
-        if (rearRight.angle().isEmpty())
-            rearRight = new SwerveModuleState100(
-                    rearRight.speedMetersPerSecond(),
-                    prevModuleStates.rearRight().angle());
+    public SwerveModuleStates overwriteEmpty(SwerveModuleStates other) {
+        return new SwerveModuleStates(
+                frontLeft.overwriteEmpty(other.frontLeft),
+                frontRight.overwriteEmpty(other.frontRight),
+                rearLeft.overwriteEmpty(other.rearLeft),
+                rearRight.overwriteEmpty(other.rearRight));
+    }
+
+    /**
+     * Make a copy with no drive component.
+     */
+    public SwerveModuleStates motionless() {
+        return new SwerveModuleStates(
+                new SwerveModuleState100(0, frontLeft.angle()),
+                new SwerveModuleState100(0, frontRight.angle()),
+                new SwerveModuleState100(0, rearLeft.angle()),
+                new SwerveModuleState100(0, rearRight.angle()));
+    }
+
+    /**
+     * Make a scaled copy.
+     */
+    public SwerveModuleStates scale(double scale) {
+        return new SwerveModuleStates(
+                frontLeft.scale(scale),
+                frontRight.scale(scale),
+                rearLeft.scale(scale),
+                rearRight.scale(scale));
     }
 }

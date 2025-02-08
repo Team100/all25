@@ -3,6 +3,8 @@ package org.team100.lib.motion.drivetrain.kinodynamics;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.team100.lib.swerve.SwerveUtil;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.proto.SwerveModuleStateProto;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
@@ -20,22 +22,9 @@ import edu.wpi.first.util.struct.StructSerializable;
  */
 public class SwerveModuleState100
         implements Comparable<SwerveModuleState100>, ProtobufSerializable, StructSerializable {
+
     private double speedMetersPerSecond;
-
-    /** Speed of the wheel of the module. */
-    public double speedMetersPerSecond() {
-        return speedMetersPerSecond;
-    }
-
-    /**
-     * Angle of the module. It can be empty, in cases where the angle is
-     * indeterminate (e.g. calculating the angle required for zero speed).
-     */
     private Optional<Rotation2d> angle = Optional.empty();
-
-    public Optional<Rotation2d> angle() {
-        return angle;
-    }
 
     /** SwerveModuleState protobuf for serialization. */
     public static final SwerveModuleStateProto proto = new SwerveModuleStateProto();
@@ -63,48 +52,33 @@ public class SwerveModuleState100
         this.angle = angle;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SwerveModuleState100) {
-            SwerveModuleState100 other = (SwerveModuleState100) obj;
-            return Math.abs(other.speedMetersPerSecond - speedMetersPerSecond) < 1E-9
-                    && angle.equals(other.angle);
+    /** Replace empty angle in this state with the supplied angle */
+    SwerveModuleState100 overwriteEmpty(SwerveModuleState100 other) {
+        if (angle.isPresent())
+            return this;
+        return new SwerveModuleState100(speedMetersPerSecond, other.angle);
+    }
+
+    SwerveModuleState100 scale(double scale) {
+        return new SwerveModuleState100(speedMetersPerSecond * scale, angle);
+    }
+
+    public SwerveModuleState100 override(Rotation2d override) {
+        if (angle.isEmpty())
+            return this;
+        if (override == null)
+            return this;
+        if (SwerveUtil.shouldFlip(override.minus(angle.get()))) {
+            return new SwerveModuleState100(speedMetersPerSecond * -1.0, Optional.of(override));
         }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(speedMetersPerSecond, angle);
-    }
-
-    /**
-     * Compares two swerve module states. One swerve module is "greater" than the
-     * other if its speed
-     * is higher than the other.
-     *
-     * @param other The other swerve module.
-     * @return 1 if this is greater, 0 if both are equal, -1 if other is greater.
-     */
-    @Override
-    public int compareTo(SwerveModuleState100 other) {
-        return Double.compare(this.speedMetersPerSecond, other.speedMetersPerSecond);
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "SwerveModuleState(Speed: %.2f m/s, Angle: %s)",
-                speedMetersPerSecond, angle);
+        return new SwerveModuleState100(speedMetersPerSecond, Optional.of(override));
     }
 
     /**
      * Minimize the change in heading the desired swerve module state would require
-     * by potentially
-     * reversing the direction the wheel spins. If this is used with the
-     * PIDController class's
-     * continuous input functionality, the furthest a wheel will ever rotate is 90
-     * degrees.
+     * by potentially reversing the direction the wheel spins. If this is used with
+     * the PIDController class's continuous input functionality, the furthest a
+     * wheel will ever rotate is 90 degrees.
      *
      * @param desiredState The desired state.
      * @param currentAngle The current module angle.
@@ -128,4 +102,52 @@ public class SwerveModuleState100
                     desiredState.angle);
         }
     }
+
+    /** Speed of the wheel of the module. */
+    public double speedMetersPerSecond() {
+        return speedMetersPerSecond;
+    }
+
+    /**
+     * Angle of the module. It can be empty, in cases where the angle is
+     * indeterminate (e.g. calculating the angle required for zero speed).
+     */
+    public Optional<Rotation2d> angle() {
+        return angle;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "SwerveModuleState(Speed: %.2f m/s, Angle: %s)",
+                speedMetersPerSecond, angle);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(speedMetersPerSecond, angle);
+    }
+
+    /**
+     * Compares two swerve module states. One swerve module is "greater" than the
+     * other if its speed is higher than the other.
+     *
+     * @param other The other swerve module.
+     * @return 1 if this is greater, 0 if both are equal, -1 if other is greater.
+     */
+    @Override
+    public int compareTo(SwerveModuleState100 other) {
+        return Double.compare(this.speedMetersPerSecond, other.speedMetersPerSecond);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SwerveModuleState100) {
+            SwerveModuleState100 other = (SwerveModuleState100) obj;
+            return Math.abs(other.speedMetersPerSecond - speedMetersPerSecond) < 1E-9
+                    && angle.equals(other.angle);
+        }
+        return false;
+    }
+
 }
