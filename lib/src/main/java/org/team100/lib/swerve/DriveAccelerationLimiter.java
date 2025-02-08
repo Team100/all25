@@ -19,8 +19,8 @@ public class DriveAccelerationLimiter implements Glassy {
     private final DoubleLogger m_log_s;
 
     public DriveAccelerationLimiter(LoggerFactory parent, SwerveKinodynamics limits) {
-        m_limits = limits;
         LoggerFactory child = parent.child(this);
+        m_limits = limits;
         m_log_max_step = child.doubleLogger(Level.TRACE, "max_vel_step");
         m_log_s = child.doubleLogger(Level.TRACE, "s");
     }

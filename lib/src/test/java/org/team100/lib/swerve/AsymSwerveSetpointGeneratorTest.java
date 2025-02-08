@@ -139,12 +139,57 @@ class AsymSwerveSetpointGeneratorTest {
         SwerveSetpoint setpoint = new SwerveSetpoint(initialSpeeds, initialStates);
 
         // here the setpoint is at angle zero
-        System.out.println(setpoint);
+        // System.out.println(setpoint);
 
         // desired speed is very fast
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds(10, 10, 10);
 
         // initially it's not moving fast at all
+        setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
+        assertEquals(0, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
+
+        // note this says the angles are all empty which is wrong, they should be the previous values.
+        // System.out.println(setpoint);
+
+        // after 1 second, it's going faster.
+        for (int i = 0; i < 50; ++i) {
+            setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
+            // System.out.printf("%d %s\n", i, setpoint);
+        }
+        assertEquals(1.629, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(0.783, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
+        assertEquals(1.301, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
+    }
+
+    // simple accel case: are we limiting the right amount?
+    @Test
+    void testAccel() {
+        // limit accel is 10 m/s^2
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.limiting();
+        AsymSwerveSetpointGenerator swerveSetpointGenerator = new AsymSwerveSetpointGenerator(
+                logger,
+                limits,
+                () -> 12);
+
+        // initially at rest, wheels facing forward.
+        ChassisSpeeds initialSpeeds = new ChassisSpeeds(0, 0, 0);
+        SwerveModuleStates initialStates = new SwerveModuleStates(
+                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
+                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
+                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
+                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)));
+        SwerveSetpoint setpoint = new SwerveSetpoint(initialSpeeds, initialStates);
+
+        // initial setpoint steering is at angle zero
+        System.out.println(setpoint);
+
+        // desired speed +x
+        ChassisSpeeds desiredSpeeds = new ChassisSpeeds(10, 0, 0);
+
+        // the first setpoint should be accel limited: 10 m/s^2, 0.02 sec,
+        // so v = 0.2 m/s
         setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
         assertEquals(0, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
         assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);

@@ -39,6 +39,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     private final SteeringOverride m_SteeringOverride;
     private final SteeringRateLimiter m_steeringRateLimiter;
     private final DriveAccelerationLimiter m_DriveAccelerationLimiter;
+    private final SpeedLimiter m_SpeedLimiter;
     private final BatterySagLimiter m_BatterySagLimiter;
 
     public AsymSwerveSetpointGenerator(
@@ -50,6 +51,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         m_SteeringOverride = new SteeringOverride(parent, limits);
         m_steeringRateLimiter = new SteeringRateLimiter(parent, limits);
         m_DriveAccelerationLimiter = new DriveAccelerationLimiter(parent, limits);
+        m_SpeedLimiter = new SpeedLimiter(parent, limits);
         m_BatterySagLimiter = new BatterySagLimiter(batteryVoltage);
     }
 
@@ -67,11 +69,16 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     public SwerveSetpoint generateSetpoint(
             SwerveSetpoint prevSetpoint,
             ChassisSpeeds desiredState) {
+        double min_s = 1.0;
+
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
         // the desired module state speeds are always positive.
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStatesWithoutDiscretization(
                 desiredState);
-        desiredState = desaturate(desiredState, desiredModuleStates);
+        // desiredState = desaturate(desiredState, desiredModuleStates);
+        double speed_min_s = m_SpeedLimiter.enforceSpeedLimit(desiredModuleStates);
+        System.out.printf("speed %f\n", speed_min_s);
+        min_s = Math.min(min_s, speed_min_s);
 
         if (GeometryUtil.isZero(desiredState)) {
             desiredModuleStates = prevModuleStates.motionless();
@@ -107,13 +114,15 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         double dy = desiredState.vyMetersPerSecond - chassisSpeeds.vyMetersPerSecond;
         double dtheta = desiredState.omegaRadiansPerSecond - chassisSpeeds.omegaRadiansPerSecond;
 
+        System.out.printf("dx=%f dy=%f dtheta=%f\n", dx, dy, dtheta);
+
         // 's' interpolates between start and goal. At 0, we are at prevState and at 1,
         // we are at desiredState.
 
         double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(dx, dy);
         System.out.printf("centripetal %f\n", centripetal_min_s);
 
-        double min_s = centripetal_min_s;
+        min_s = Math.min(min_s, centripetal_min_s);
 
         // In cases where an individual module is stopped, we want to remember the right
         // steering angle to command (since
@@ -265,12 +274,14 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             double dtheta,
             double min_s,
             Rotation2d[] overrideSteering) {
+        System.out.printf("make setpoint dx=%f min_s=%f\n", dx, min_s);
         ChassisSpeeds setpointSpeeds = makeSpeeds(
                 prevSetpoint.getChassisSpeeds(),
                 dx,
                 dy,
                 dtheta,
                 min_s);
+        System.out.printf("speeds %s\n", setpointSpeeds);
         // the speeds in these states are always positive.
         // the kinematics produces an empty angle for zero speed, but here we
         // know the previous state so use that.
@@ -302,6 +313,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             double dy,
             double dtheta,
             double min_s) {
+        System.out.printf("make speeds %f\n", min_s);
+
         double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
         double drift = -1.0 * omega * TimedRobot100.LOOP_PERIOD_S;
         double vx = prev.vxMetersPerSecond * Math.cos(drift)

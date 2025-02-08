@@ -27,6 +27,7 @@ public class CapsizeAccelerationLimiter implements Glassy {
      * @return
      */
     public double enforceCentripetalLimit(double dx, double dy) {
+        System.out.printf("centripetal accel limit is %f\n", m_limits.getMaxCapsizeAccelM_S2());
         double min_s = 1.0;
         double dv = Math.hypot(dx, dy);
         if (Math.abs(dv) > 1e-6) {
