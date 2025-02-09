@@ -1,9 +1,13 @@
-package org.team100.frc2025;
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
-import org.team100.lib.util.Util;
+package org.team100.frc2025;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,17 +48,20 @@ public class FieldConstants {
     }
 
     public enum ReefDestination {
-        CCW,
-        CW,
+        LEFT,
+        RIGHT,
         CENTER
+    }
+
+    public enum ReefAproach {
+        CCW,
+        CW
     }
 
     public static FieldConstants.FieldSector getSector(Pose2d pose){
         Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
         Rotation2d targetAngle = target.getAngle();
         double angle = targetAngle.getDegrees();
-
-        Util.println("ANGLEEEE" + angle);
 
         if(angle >= -30 && angle <= 30){
             return FieldSector.AB;
@@ -92,22 +99,97 @@ public class FieldConstants {
         }
     }
 
-    public static Rotation2d getLandingAngleCCW(FieldSector sector){
+    public static Rotation2d getLandingAngle(FieldSector sector, ReefAproach approach){
+        Rotation2d rotation = new Rotation2d(-90);
+
+
+        // switch (approach){
+        //     case CCW:
+        //         switch(sector){
+        //             case AB:
+        //                 return Rotation2d.fromDegrees(-90);
+        //             case CD:
+        //                 return Rotation2d.fromDegrees(-30);
+        //             case EF:
+        //                 return Rotation2d.fromDegrees(30);
+        //             case GH:
+        //                 return Rotation2d.fromDegrees(90);
+        //             case IJ:
+        //                 return Rotation2d.fromDegrees(150);
+        //             case KL:
+        //                 return Rotation2d.fromDegrees(210);
+        //             default:
+        //                 return Rotation2d.fromDegrees(0);
+        //         }
+
+        //     case CW:
+        //         switch(sector){
+        //             case AB:
+        //                 return Rotation2d.fromDegrees(90);
+        //             case CD:
+        //                 return Rotation2d.fromDegrees(150);
+        //             case EF:
+        //                 return Rotation2d.fromDegrees(210);
+        //             case GH:
+        //                 return Rotation2d.fromDegrees(-90);
+        //             case IJ:
+        //                 return Rotation2d.fromDegrees(-30);
+        //             case KL:
+        //                 return Rotation2d.fromDegrees(30);
+        //             default:
+        //                 return Rotation2d.fromDegrees(0);
+        //         }
+
+        //     default:
+        //         return Rotation2d.fromDegrees(0);
+                
+        // }
+
         switch(sector){
             case AB:
-                return Rotation2d.fromDegrees(-90);
+                rotation = Rotation2d.fromDegrees(-90);
+                break;
             case CD:
-                return Rotation2d.fromDegrees(-30);
+                rotation = Rotation2d.fromDegrees(-30);
+                break;
             case EF:
-                return Rotation2d.fromDegrees(30);
+                rotation = Rotation2d.fromDegrees(30);
+                break;
             case GH:
-                return Rotation2d.fromDegrees(90);
+                rotation = Rotation2d.fromDegrees(90);
+                break;
             case IJ:
-                return Rotation2d.fromDegrees(150);
+                rotation = Rotation2d.fromDegrees(150);
+                break;
             case KL:
-                return Rotation2d.fromDegrees(210);
+                rotation = Rotation2d.fromDegrees(210);
+                break;
             default:
-                return Rotation2d.fromDegrees(0);
+                rotation = Rotation2d.fromDegrees(0);
+                break;
+        }
+
+        switch(approach){
+            case CCW:
+                return rotation;
+            case CW:
+                return rotation.rotateBy(Rotation2d.fromDegrees(180));
+            default:
+                return rotation;
+        }
+
+
+        
+    }
+
+    public static Rotation2d calculateAnchorPointDelta(Rotation2d originalRotation, ReefAproach approach){
+        switch(approach){
+            case CCW:
+                return originalRotation.plus(Rotation2d.fromDegrees(30));
+            case CW:
+                return originalRotation.minus(Rotation2d.fromDegrees(30));
+            default:
+                return originalRotation;
         }
     }
 
@@ -162,7 +244,7 @@ public class FieldConstants {
 
     }
 
-    public static Translation2d getOrbitLandingZone(FieldSector destinationSector, ReefDestination destinationPoint){
+    public static Translation2d getOrbitLandingZone(FieldSector destinationSector, ReefAproach approach){
         Translation2d reefCenter = getReefCenter();
         Rotation2d sectorAngle = getSectorAngle(destinationSector);
 
@@ -180,13 +262,11 @@ public class FieldConstants {
         dx = (1.0 * Math.cos(newRotation.getRadians()));
 
         
-        switch(destinationPoint){
+        switch(approach){
             case CW:
                 return new Translation2d(x += dx, y += dy);
             case CCW:
                 return new Translation2d(x -= dx, y -= dy);
-            case CENTER:
-                return new Translation2d(x, y);
         
         }
 
@@ -213,9 +293,9 @@ public class FieldConstants {
 
         
         switch(destinationPoint){
-            case CW:
+            case RIGHT:
                 return new Translation2d(x += dx, y += dy);
-            case CCW:
+            case LEFT:
                 return new Translation2d(x -= dx, y -= dy);
             case CENTER:
                 return new Translation2d(x, y);
@@ -226,7 +306,7 @@ public class FieldConstants {
 
     }
 
-    public static List<Integer> findShortestPath(int start, int target) {
+    public static ReefPath findShortestPath(int start, int target) {
         List<Integer> pathClockwise = new ArrayList<>();
         List<Integer> pathCounterClockwise = new ArrayList<>();
 
@@ -249,9 +329,9 @@ public class FieldConstants {
         // Return the shorter path
 
         if(pathClockwise.size() < pathCounterClockwise.size()){
-            return pathClockwise;
+            return new ReefPath(pathClockwise, ReefAproach.CW);
         } else{
-            return pathCounterClockwise;
+            return new ReefPath(pathCounterClockwise, ReefAproach.CCW);
         }
         // return (pathClockwise.size() < pathCounterClockwise.size()) ? pathClockwise : pathCounterClockwise;
     }
