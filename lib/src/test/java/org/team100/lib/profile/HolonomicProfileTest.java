@@ -6,6 +6,7 @@ import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.Takt;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -22,7 +23,7 @@ class HolonomicProfileTest {
         for (double t = 0; t < 10; t += 0.02) {
             s = hp.calculate(s.model(), g);
             if (PRINT)
-                System.out.printf("%.2f %.3f %.3f\n", t, s.x().x(), s.y().x());
+                Util.printf("%.2f %.3f %.3f\n", t, s.x().x(), s.y().x());
         }
     }
 
@@ -36,7 +37,7 @@ class HolonomicProfileTest {
         for (double t = 0; t < 10; t += 0.02) {
             s = hp.calculate(s.model(), g);
             if (PRINT)
-                System.out.printf("%.2f %.3f %.3f\n", t, s.x().x(), s.y().x());
+                Util.printf("%.2f %.3f %.3f\n", t, s.x().x(), s.y().x());
         }
     }
 
@@ -56,8 +57,8 @@ class HolonomicProfileTest {
         }
         double t1 = Takt.actual();
         if (PRINT)
-            System.out.printf("duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
+            Util.printf("duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
         if (PRINT)
-            System.out.printf("per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
+            Util.printf("per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
     }
 }

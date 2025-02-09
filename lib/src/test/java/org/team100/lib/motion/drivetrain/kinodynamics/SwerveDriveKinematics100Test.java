@@ -704,39 +704,4 @@ class SwerveDriveKinematics100Test {
                 () -> assertEquals(1.5, twist.dtheta, 0.1));
     }
 
-    @Test
-    void testDesaturate() {
-        SwerveModuleState100 fl = new SwerveModuleState100(5, Optional.of(new Rotation2d()));
-        SwerveModuleState100 fr = new SwerveModuleState100(6, Optional.of(new Rotation2d()));
-        SwerveModuleState100 bl = new SwerveModuleState100(4, Optional.of(new Rotation2d()));
-        SwerveModuleState100 br = new SwerveModuleState100(7, Optional.of(new Rotation2d()));
-
-        SwerveModuleStates arr2 = new SwerveModuleStates(fl, fr, bl, br);
-        SwerveModuleStates arr = SwerveDriveKinematics100.desaturateWheelSpeeds(arr2, 5.5);
-
-        double factor = 5.5 / 7.0;
-
-        assertAll(
-                () -> assertEquals(5.0 * factor, arr.frontLeft().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(6.0 * factor, arr.frontRight().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(4.0 * factor, arr.rearLeft().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(7.0 * factor, arr.rearRight().speedMetersPerSecond(), kEpsilon));
-    }
-
-    @Test
-    void testDesaturateNegativeSpeed() {
-        SwerveModuleState100 fl = new SwerveModuleState100(1, Optional.of(new Rotation2d()));
-        SwerveModuleState100 fr = new SwerveModuleState100(1, Optional.of(new Rotation2d()));
-        SwerveModuleState100 bl = new SwerveModuleState100(-2, Optional.of(new Rotation2d()));
-        SwerveModuleState100 br = new SwerveModuleState100(-2, Optional.of(new Rotation2d()));
-
-        SwerveModuleStates arr2 = new SwerveModuleStates(fl, fr, bl, br);
-        SwerveModuleStates arr = SwerveDriveKinematics100.desaturateWheelSpeeds(arr2, 1);
-
-        assertAll(
-                () -> assertEquals(0.5, arr.frontLeft().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(0.5, arr.frontRight().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(-1.0, arr.rearLeft().speedMetersPerSecond(), kEpsilon),
-                () -> assertEquals(-1.0, arr.rearRight().speedMetersPerSecond(), kEpsilon));
-    }
 }

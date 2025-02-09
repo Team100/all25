@@ -28,7 +28,6 @@ class MinTimeControllerTest {
 
     @Test
     void testDelayWithAccel() {
-        // System.out.println("testDelayWithAccel");
         // if actuation uses the acceleration field, then delay causes lag in control
         // (equal to the delay) and oscillation around the goal.
         final MinTimeController c = new MinTimeController(
@@ -61,13 +60,11 @@ class MinTimeControllerTest {
             Control100 newState = applyAccelOnly(tSec, actualCurrentState, u);
             queue.add(newState.model());
             actualCurrentState = newState.model();
-            // System.out.println(u);
         }
     }
 
     @Test
     void testDelayWithVelocity() {
-        // System.out.println("testDelayWithVelocity");
         // if actuation uses the velocity field only, e.g. as input to the outboard
         // velocity controller, then delay slows the controller by the
         // ratio of the delay and the timestep (!)
@@ -109,7 +106,6 @@ class MinTimeControllerTest {
     /** What happens when we try to go from -pi to pi? */
     @Test
     void testAngleWrapping() {
-        // System.out.println("testAngleWrapping");
         final MinTimeController c = new MinTimeController(
                 logger,
                 MathUtil::angleModulus,
@@ -163,7 +159,6 @@ class MinTimeControllerTest {
      */
     @Test
     void testMovingAngleWrapping() {
-        // System.out.println("testMovingAngleWrapping");
         final MinTimeController c = new MinTimeController(
                 logger,
                 MathUtil::angleModulus,
@@ -204,7 +199,6 @@ class MinTimeControllerTest {
 
     @Test
     void testDelayWithClosedLoop() {
-        // System.out.println("testDelayWithClosedLoop");
         // what we actually do is pass the velocity to the outboard closed-loop velocity
         // controller, and use kV and kA to make a feedforward voltage.
 
@@ -246,14 +240,11 @@ class MinTimeControllerTest {
             Model100 newStateRad = closedLoop(x -> x, tSec, noise, 1.0, actualCurrentStateRad, u);
             queue.add(newStateRad);
             actualCurrentStateRad = newStateRad;
-            // System.out.println(u);
         }
     }
 
     @Test
     void testMaxVClosedLoop() {
-        // System.out.println("testMaxVClosedLoop");
-
         // motor real max accel is about 1 rad/s^2
         // so to allow some headroom, use 20% less.
         // max vel = 1 rad/s
@@ -295,7 +286,6 @@ class MinTimeControllerTest {
 
     @Test
     void testMovingGoalDelayWithClosedLoop() {
-        // System.out.println("testMovingGoalDelayWithClosedLoop");
         // what we actually do is pass the velocity to the outboard closed-loop velocity
         // controller, and use kV and kA to make a feedforward voltage.
 
@@ -345,7 +335,6 @@ class MinTimeControllerTest {
      */
     @Test
     void testUnderdrive() {
-        // System.out.println("testUnderdrive");
         final MinTimeController c = new MinTimeController(
                 logger,
                 x -> x,
@@ -389,7 +378,6 @@ class MinTimeControllerTest {
      */
     @Test
     void testOverdrive() {
-        // System.out.println("testOverdrive");
         final MinTimeController c = new MinTimeController(
                 logger,
                 x -> x,
@@ -441,7 +429,6 @@ class MinTimeControllerTest {
      */
     @Test
     void testDelayAndNoiseWithClosedLoop() {
-        // System.out.println("testDelayAndNoiseWithClosedLoop");
         // what we actually do is pass the velocity to the outboard closed-loop velocity
         // controller, and use kV and kA to make a feedforward voltage.
 
@@ -491,14 +478,12 @@ class MinTimeControllerTest {
     private static Control100 applyAccelOnly(double tSec, Model100 currentMeasurement, Control100 u) {
         double x = currentMeasurement.x() + currentMeasurement.v() * kDt + 0.5 * u.a() * Math.pow(kDt, 2);
         double v = currentMeasurement.v() + u.a() * kDt;
-        // System.out.printf("%5.3f, %5.3f, %5.3f, %5.3f\n", tSec, x, v, u.a());
         return new Control100(x, v, u.a());
     }
 
     private static Control100 applyVelocityOnly(double tSec, Model100 currentMeasurement, Control100 u) {
         double x = currentMeasurement.x() + u.v() * kDt;
         double v = u.v();
-        // System.out.printf("%5.3f, %5.3f, %5.3f, %5.3f\n", tSec, x, v, 0.0);
         return new Control100(x, v, 0);
     }
 
@@ -577,14 +562,6 @@ class MinTimeControllerTest {
             double a = drive * torqueNm / kMomentOfInertiaKgM2;
             double v = speedRad_S + a * dt;
             double x = modulus.applyAsDouble(positionRad + speedRad_S * dt + 0.5 * a * dt * dt);
-            // System.out.printf("%5.3f, %5.3f, %5.3f, %5.3f\n", tSec, x, v, a);
-
-            // System.out.printf("%6.3f, %6.3f, %6.3f, %6.3f,, %6.3f, %6.3f, %6.3f, %6.3f,
-            // %6.3f,, %6.3f, %6.3f\n",
-            // tSec, x, v, a,
-            // u_FFVolts, u_FBVolts, u_TOTALVolts, netVolts, currentAmps,
-            // u.v(), u.a());
-
             resultRad = new Model100(x, v);
         }
 

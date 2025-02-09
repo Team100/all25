@@ -29,11 +29,12 @@ public class CapsizeAccelerationLimiter implements Glassy {
     public double enforceCentripetalLimit(double dx, double dy) {
         double min_s = 1.0;
         double dv = Math.hypot(dx, dy);
+        double a = dv / TimedRobot100.LOOP_PERIOD_S;
         if (Math.abs(dv) > 1e-6) {
-            min_s = Math.min(1, TimedRobot100.LOOP_PERIOD_S * m_limits.getMaxCapsizeAccelM_S2() / dv);
+            min_s = Math.min(1, m_limits.getMaxCapsizeAccelM_S2() / a);
         }
         double s = min_s;
-        m_log_s.log( () -> s);
+        m_log_s.log(() -> s);
         return s;
     }
 

@@ -37,7 +37,6 @@ public class StraightLineTrajectory {
 
     private Trajectory100 movingToRest(SwerveModel startState, Pose2d end) {
         if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON) {
-            // System.out.println("not actually moving, use rest-to-rest");
             return m_maker.restToRest(startState.pose(), end);
         }
 

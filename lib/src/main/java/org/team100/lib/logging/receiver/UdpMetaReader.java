@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
 
 import org.team100.lib.logging.primitive.UdpSender;
+import org.team100.lib.util.Util;
 import org.team100.lib.logging.primitive.UdpPrimitiveProtocol.ProtocolException;
 
 public class UdpMetaReader implements Runnable {
@@ -28,7 +29,7 @@ public class UdpMetaReader implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("meta reader running...");
+        Util.println("meta reader running...");
         while (true) {
             try {
                 m_buffer.clear();
@@ -37,7 +38,7 @@ public class UdpMetaReader implements Runnable {
                 m_buffer.limit(m_buffer.position());
                 m_buffer.position(0);
                 if (!m_decoder.validateTimestamp(m_buffer)) {
-                    System.out.println("meta timestamp is bad, bail");
+                    Util.warn("meta timestamp is bad, bail");
                     return;
                 }
                 while (m_buffer.remaining() > 0) {

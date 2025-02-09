@@ -14,6 +14,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.sensors.MockGyro;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -81,8 +82,8 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
         }
         long finishTime = System.currentTimeMillis();
         if (kPrint) {
-            System.out.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
-            System.out.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
+            Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
+            Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
         }
         assertEquals(11, poseEstimator.size());
         assertEquals(0.2, poseEstimator.lastKey(), kDelta);
@@ -95,8 +96,8 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
         }
         finishTime = System.currentTimeMillis();
         if (kPrint) {
-            System.out.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
-            System.out.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
+            Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
+            Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
         }
         assertEquals(11, poseEstimator.size());
         assertEquals(0.2, poseEstimator.lastKey(), kDelta);

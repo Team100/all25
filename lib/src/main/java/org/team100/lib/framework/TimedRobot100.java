@@ -8,6 +8,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.util.Takt;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -126,7 +127,7 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
         }
 
         // Tell the DS that the robot is ready to be enabled
-        System.out.println("********** Robot program startup complete **********");
+        Util.println("********** Robot program startup complete **********");
         DriverStationJNI.observeUserProgramStarting();
 
         // Loop forever, calling the appropriate mode-dependent function

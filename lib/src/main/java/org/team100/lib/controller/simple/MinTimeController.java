@@ -248,13 +248,11 @@ public class MinTimeController implements Glassy {
 
         if (Double.isNaN(t1IplusGminus)) {
             // the valid path is I-G+, assume we're on I-
-            // System.out.printf("on I- %6.3f\n", t1IminusGplus);
             return handleIminus(dt, initial, goal, t1IminusGplus);
         }
 
         if (Double.isNaN(t1IminusGplus)) {
             // the valid path is I+G-, assume we're on I+
-            // System.out.printf("on I+ %6.3f\n", t1IplusGminus);
             return handleIplus(dt, initial, goal, t1IplusGminus);
         }
 
@@ -271,7 +269,6 @@ public class MinTimeController implements Glassy {
             return fullG(dt, initial, -1);
         }
 
-        // System.out.println("nonzero");
 
         // There can be two non-zero-duration paths. As above, this happens when we're
         // on the goal path. The difference is that in this case, the goal has non-zero

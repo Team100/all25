@@ -62,16 +62,18 @@ public class AsymSwerveSetpointGenerator implements Glassy {
      * @param desiredState The desired state of motion, such as from the driver
      *                     sticks or a path following algorithm.
      * @return A Setpoint object that satisfies all of the KinematicLimits while
-     *         converging to desiredState quickly.
+     *         converging to desiredState quickly. Module states are discretized.
      */
     public SwerveSetpoint generateSetpoint(
             SwerveSetpoint prevSetpoint,
             ChassisSpeeds desiredState) {
+        double min_s = 1.0;
+
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
         // the desired module state speeds are always positive.
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStatesWithoutDiscretization(
                 desiredState);
-        desiredState = desaturate(desiredState, desiredModuleStates);
+        // desiredState = desaturate(desiredState, desiredModuleStates);
 
         if (GeometryUtil.isZero(desiredState)) {
             desiredModuleStates = prevModuleStates.motionless();
@@ -107,13 +109,13 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         double dy = desiredState.vyMetersPerSecond - chassisSpeeds.vyMetersPerSecond;
         double dtheta = desiredState.omegaRadiansPerSecond - chassisSpeeds.omegaRadiansPerSecond;
 
+
         // 's' interpolates between start and goal. At 0, we are at prevState and at 1,
         // we are at desiredState.
 
         double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(dx, dy);
-        System.out.printf("centripetal %f\n", centripetal_min_s);
 
-        double min_s = centripetal_min_s;
+        min_s = Math.min(min_s, centripetal_min_s);
 
         // In cases where an individual module is stopped, we want to remember the right
         // steering angle to command (since
@@ -135,7 +137,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desiredModuleStates,
                     prevModuleStates,
                     overrideSteering);
-            System.out.printf("override %f\n", override_min_s);
             min_s = Math.min(min_s, override_min_s);
 
             double steering_min_s = m_steeringRateLimiter.enforceSteeringLimit(
@@ -146,7 +147,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desired_vy,
                     desired_heading,
                     overrideSteering);
-            System.out.printf("steering %f\n", steering_min_s);
             min_s = Math.min(min_s, steering_min_s);
         }
 
@@ -155,12 +155,10 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 prev_vy,
                 desired_vx,
                 desired_vy);
-        System.out.printf("accel %f\n", accel_min_s);
 
         min_s = Math.min(min_s, accel_min_s);
 
         double battery_min_s = m_BatterySagLimiter.get();
-        System.out.printf("battery %f\n", battery_min_s);
 
         min_s = Math.min(min_s, battery_min_s);
 
@@ -243,20 +241,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         return true;
     }
 
-    /**
-     * Make sure desiredState respects velocity limits.
-     */
-    private ChassisSpeeds desaturate(
-            ChassisSpeeds desiredState,
-            SwerveModuleStates desiredModuleStates) {
-        if (m_limits.getMaxDriveVelocityM_S() > 0.0) {
-            desiredModuleStates = SwerveDriveKinematics100.desaturateWheelSpeeds(desiredModuleStates,
-                    m_limits.getMaxDriveVelocityM_S());
-            desiredState = m_limits.toChassisSpeeds(desiredModuleStates);
-        }
-        return desiredState;
-    }
-
+    /** States are discretized. */
     private SwerveSetpoint makeSetpoint(
             final SwerveSetpoint prevSetpoint,
             SwerveModuleStates prevModuleStates,
@@ -275,26 +260,23 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         // the kinematics produces an empty angle for zero speed, but here we
         // know the previous state so use that.
         SwerveModuleStates setpointStates = m_limits.toSwerveModuleStates(
-                setpointSpeeds,
-                setpointSpeeds.omegaRadiansPerSecond);
+                setpointSpeeds, setpointSpeeds.omegaRadiansPerSecond);
         setpointStates = setpointStates.overwriteEmpty(prevModuleStates);
-
         setpointStates = setpointStates.override(overrideSteering);
         setpointStates = setpointStates.flipIfRequired(prevModuleStates);
+
+        // sync up the speeds with the states. is this needed?
+        setpointSpeeds = m_limits.toChassisSpeedsWithDiscretization(
+                setpointSpeeds.omegaRadiansPerSecond, TimedRobot100.LOOP_PERIOD_S, setpointStates);
 
         return new SwerveSetpoint(setpointSpeeds, setpointStates);
     }
 
     /**
-     * Applies two transforms to the previous speed:
-     * 
-     * 1. Scales the commanded accelerations by min_s, i.e. applies the constraints
+     * Scales the commanded accelerations by min_s, i.e. applies the constraints
      * calculated earlier.
      * 
-     * 2. Transforms translations according to the rotational velocity, regardless
-     * of
-     * min_s -- essentially modeling inertia. This part was missing before, which I
-     * think must just be a mistake.
+     * This used to also apply the rotation to the translation in a way that I think was wrong.
      */
     private ChassisSpeeds makeSpeeds(
             ChassisSpeeds prev,
@@ -302,14 +284,9 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             double dy,
             double dtheta,
             double min_s) {
+        double vx = prev.vxMetersPerSecond + min_s * dx;
+        double vy = prev.vyMetersPerSecond + min_s * dy;
         double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
-        double drift = -1.0 * omega * TimedRobot100.LOOP_PERIOD_S;
-        double vx = prev.vxMetersPerSecond * Math.cos(drift)
-                - prev.vyMetersPerSecond * Math.sin(drift)
-                + min_s * dx;
-        double vy = prev.vxMetersPerSecond * Math.sin(drift)
-                + prev.vyMetersPerSecond * Math.cos(drift)
-                + min_s * dy;
         return new ChassisSpeeds(vx, vy, omega);
     }
 }

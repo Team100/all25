@@ -56,7 +56,7 @@ public class DriverControlProxy implements DriverControl {
     }
 
     private static DriverControl getDriverControl(LoggerFactory parent, String name) {
-        System.out.printf("Trying to match HID name '%s'\n", name);
+        Util.printf("Trying to match HID name '%s'\n", name);
         if (name.contains("F310")) {
             return new DriverXboxControl(parent);
         }
@@ -84,7 +84,7 @@ public class DriverControlProxy implements DriverControl {
         if (name.contains("InterLinkDX")) {
             return new InterLinkDX();
         }
-        System.out.println("No HID Match!");
+        Util.warn("No HID Match!");
         return new NoDriverControl();
     }
 

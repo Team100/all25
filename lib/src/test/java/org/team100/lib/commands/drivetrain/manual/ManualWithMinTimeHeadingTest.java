@@ -356,7 +356,6 @@ class ManualWithMinTimeHeadingTest {
 
         for (int i = 0; i < 100; ++i) {
             u = m_profile.calculate(0.02, u.model(), goalRaw);
-            // System.out.printf("%6.3f, %6.3f, %6.3f\n", u.x(), u.v(), u.a());
         }
     }
 

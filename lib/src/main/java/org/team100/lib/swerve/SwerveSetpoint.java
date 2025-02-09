@@ -40,8 +40,7 @@ public class SwerveSetpoint {
 
     @Override
     public String toString() {
-        String ret = m_ChassisSpeeds.toString() + "\n";
-        ret += "  " + m_ModuleStates.toString() + "\n";
-        return ret;
+        return m_ChassisSpeeds.toString() + "  "
+                + m_ModuleStates.toString() + "\n";
     }
 }

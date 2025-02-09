@@ -81,7 +81,6 @@ public class Memo {
         }
 
         public synchronized void reset() {
-            // System.out.println("CotemporalCache.reset()");
             m_value = null;
         }
     }

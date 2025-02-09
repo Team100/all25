@@ -3,8 +3,9 @@ package org.team100.lib.logging.receiver;
 import java.nio.ByteBuffer;
 
 import org.team100.lib.logging.primitive.UdpPrimitiveProtocol;
-import org.team100.lib.logging.primitive.UdpType;
 import org.team100.lib.logging.primitive.UdpPrimitiveProtocol.ProtocolException;
+import org.team100.lib.logging.primitive.UdpType;
+import org.team100.lib.util.Util;
 
 public class UdpDataDecoder {
     private static final int kFlushFrequency = 50;
@@ -57,7 +58,7 @@ public class UdpDataDecoder {
                 String v = UdpPrimitiveProtocol.decodeString(buf);
                 m_consumers.acceptString(key, v);
             }
-            default -> System.out.println("unknown data decoder type");
+            default -> Util.warn("unknown data decoder type");
         }
         if (flushCounter++ > kFlushFrequency) {
             m_consumers.flush();

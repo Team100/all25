@@ -141,11 +141,6 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         // velocity reference
         ArmAngles rdot = getThetaVelReference(desiredState, r);
 
-        // System.out.printf("%5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f\n",
-        // measurement.get().th1, measurement.get().th2,
-        // r.th1, r.th2,
-        // velocityMeasurement.get().th1, velocityMeasurement.get().th2,
-        // rdot.th1, rdot.th2);
 
         // feedforward velocity
         // this is a guess.

@@ -40,11 +40,9 @@ class DriveManuallyTest extends Fixtured implements Timeless {
 
         command.overrideMode(() -> desiredMode);
 
-        // System.out.println("command init");
         command.initialize();
 
         desiredMode = "MODULE_STATE";
-        // System.out.println("command exec");
         command.execute();
 
         stepTime(0.02);

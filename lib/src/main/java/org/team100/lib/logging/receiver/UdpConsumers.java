@@ -12,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.team100.lib.logging.primitive.UdpType;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
@@ -65,7 +66,7 @@ public class UdpConsumers implements UdpConsumersInterface {
 
     public UdpConsumers() {
         scheduler.scheduleAtFixedRate(
-                () -> System.out.printf("counter %d\n", counter.getAndSet(0)),
+                () -> Util.printf("counter %d\n", counter.getAndSet(0)),
                 0, 1, SECONDS);
         if (PUB) {
             // inst = NetworkTableInstance.getDefault();
@@ -80,7 +81,6 @@ public class UdpConsumers implements UdpConsumersInterface {
     @Override
     public boolean validateTimestamp(long timestamp) {
         if (timestamp == 0) {
-            System.out.println("zero timestamp");
             // not a real timestamp, this only happens on startup
             // before the DS connects to the robot. Since we don't
             // know what the timestamp is, there's no reason to record
@@ -89,7 +89,6 @@ public class UdpConsumers implements UdpConsumersInterface {
             return true;
         }
         if (m_timestamp == 0 || timestamp != m_timestamp) {
-            System.out.println("new timestamp");
             m_timestamp = 0;
             
             booleanPublishers.clear();
@@ -107,7 +106,7 @@ public class UdpConsumers implements UdpConsumersInterface {
             if (log_file != null)
                 log_file.close();
             log_file = new DataLogBackgroundWriter("", "", 0.1);
-            System.out.println("impl " + log_file.getImpl());
+            Util.println("impl " + log_file.getImpl());
             Instant i = Instant.ofEpochSecond(timestamp);
             // TODO: sometimes this fails because the internal
             // "impl" is somehow null!?
@@ -130,7 +129,6 @@ public class UdpConsumers implements UdpConsumersInterface {
         if (m_timestamp == 0)
             return;
         counter.incrementAndGet();
-        System.out.println("bool " + val);
         if (PUB) {
             BooleanPublisher pub = booleanPublishers.get(key);
             if (pub != null)
@@ -257,7 +255,7 @@ public class UdpConsumers implements UdpConsumersInterface {
                     });
                 }
                 default -> {
-                    System.out.println("unknown meta type 1");
+                    Util.warn("unknown meta type 1");
                 }
             }
         }
@@ -274,7 +272,7 @@ public class UdpConsumers implements UdpConsumersInterface {
                 case STRING -> stringEntries.computeIfAbsent(key,
                         k -> new StringLogEntry(log_file, val));
                 default -> {
-                    System.out.println("unknown meta type 2");
+                    Util.println("unknown meta type 2");
                 }
             }
         }

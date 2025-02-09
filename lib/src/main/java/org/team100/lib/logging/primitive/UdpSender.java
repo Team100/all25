@@ -68,16 +68,11 @@ public class UdpSender implements Consumer<ByteBuffer> {
     @Override
     public void accept(ByteBuffer bb) {
         if (m_channel == null) {
-            System.out.println("no channel");
             return;
         }
         try {
             // should write bb.remaining() bytes.
-            // int bytesWritten = m_channel.write(bb);
             m_channel.write(bb);
-            // m_counter++;
-            // System.out.println("counter " + m_counter);
-            // System.out.println("bytes " + bytesWritten);
         } catch (IOException e) {
             e.printStackTrace();
         }
