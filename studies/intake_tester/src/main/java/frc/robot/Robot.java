@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     inst.startServer();
-    Constraints constraints = new Constraints(0.5, 0.5);
+    Constraints constraints = new Constraints(14,55);
     profile = new TrapezoidProfile(constraints);
 
     extend = new TalonFX(2);
@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
       extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", true);     
     } else {
-      state = profile.calculate(kDefaultPeriod, state, new State(0, 0));
+      state = profile.calculate(kDefaultPeriod, state, new State(1.5, 0));
       extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", false);
     }
