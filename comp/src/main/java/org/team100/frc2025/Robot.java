@@ -1,7 +1,7 @@
 package org.team100.frc2025;
 
 import java.io.IOException;
-
+import au.grapplerobotics.CanBridge;
 import org.team100.lib.config.Identity;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -52,6 +52,8 @@ public class Robot extends TimedRobot100 {
         m_log_active_auton_routine = m_robotLogger.stringLogger(Level.COMP, "active auton routine");
         m_log_voltage = m_robotLogger.doubleLogger(Level.TRACE, "voltage");
         m_jvmLogger = new JvmLogger(m_robotLogger);
+        CanBridge.runTCP();
+
     }
 
     ///////////////////////////////////////////////////////////////////////

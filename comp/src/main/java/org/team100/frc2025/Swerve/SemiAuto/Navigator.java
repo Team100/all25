@@ -141,15 +141,19 @@ public abstract class Navigator extends Command implements Planner2025 {
         return new PoseSet(waypointsWithPose, headingsWithPose);
     }
 
-    public static Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation,
-            Translation2d vectorFromCenterToRobot, Rotation2d rotationAngle, double magicNumber) {
+    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation, Translation2d vectorFromCenterToRobot, Rotation2d rotationAngle, double magicNumber){
+
+        double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
+
         Translation2d translationToTarget = targetPoint.minus(currTranslation);
 
         Rotation2d tangentAngle = vectorFromCenterToRobot.rotateBy(rotationAngle).getAngle();
 
-        Rotation2d tangentAngleAdjusted = tangentAngle.times(magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
+        Rotation2d tangentAngleAdjusted = tangentAngle.times((1/distanceToReef) * magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
 
-        return translationToTarget.getAngle().minus(tangentAngleAdjusted);
+        Rotation2d pointToWaypoint =  translationToTarget.getAngle();
+
+        return pointToWaypoint.minus(tangentAngleAdjusted);
 
     }
 
