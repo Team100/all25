@@ -12,6 +12,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,35 +26,39 @@ public class Robot extends TimedRobot {
   private final PositionVoltage positionCommand;
   private final SparkMax roller;
   private final XboxController controller;
+  private final TrapezoidProfile profile;
+
+  private State state;
 
   public Robot() {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     inst.startServer();
+    Constraints constraints = new Constraints(0.5, 0.5);
+    profile = new TrapezoidProfile(constraints);
 
     extend = new TalonFX(2);
     TalonFXConfigurator talonFXConfigurator = extend.getConfigurator();
     CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
-    currentConfigs.SupplyCurrentLimit = 50;
+    currentConfigs.SupplyCurrentLimit = 80;
     currentConfigs.SupplyCurrentLimitEnable = true;
-    currentConfigs.StatorCurrentLimit = 200;
+    currentConfigs.StatorCurrentLimit = 110;
     currentConfigs.StatorCurrentLimitEnable = false;
-    if (talonFXConfigurator.apply(currentConfigs, 0.1).isError()) {
-      throw new RuntimeException();
-    }
+    talonFXConfigurator.apply(currentConfigs, 0.1);
+    
 
     Slot0Configs slot0Configs = new Slot0Configs();
     slot0Configs.kV = 0.0;
     slot0Configs.kP = 10;
     slot0Configs.kI = 0;
-    slot0Configs.kD = 0;
-    if (talonFXConfigurator.apply(slot0Configs, 0.1).isError()) {
-      throw new RuntimeException();
-    }
+    slot0Configs.kD = 0 ;
+    talonFXConfigurator.apply(slot0Configs, 0.1);
+
+
 
     positionCommand = new PositionVoltage(0).withEnableFOC(false);
 
     SparkMaxConfig rollerConf = new SparkMaxConfig();
-    rollerConf.smartCurrentLimit(10, 10);
+    rollerConf.smartCurrentLimit(20, 0);
     roller = new SparkMax(5, MotorType.kBrushless);
     roller.configure(rollerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -65,27 +72,32 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("position", extend.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("duty cycle", extend.getDutyCycle().getValueAsDouble());
     SmartDashboard.putNumber("roller amps", roller.getOutputCurrent());
+    SmartDashboard.putNumber("roller speeed", roller.getEncoder().getVelocity());
+
   }
 
   @Override
   public void teleopInit() {
     extend.setPosition(0);
+    state = new State(0, 0);
   }
 
   @Override
   public void teleopPeriodic() {
     if (controller.getXButton()) {
-      extend.setControl(positionCommand.withPosition(0.5));
-      SmartDashboard.putBoolean("out", true);
+      state = profile.calculate(kDefaultPeriod, state, new State(1.6, 0));
+      extend.setControl(positionCommand.withPosition(state.position));
+      SmartDashboard.putBoolean("out", true);     
     } else {
-      extend.setControl(positionCommand.withPosition(0));
+      state = profile.calculate(kDefaultPeriod, state, new State(0, 0));
+      extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", false);
     }
     if (controller.getYButton()) {
-      extend.set(0.1);
+      roller.set(1);
       SmartDashboard.putBoolean("roll", true);
     } else {
-      extend.set(0.0);
+      roller.set(0.0);
       SmartDashboard.putBoolean("roll", true);
     }
   }
