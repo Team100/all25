@@ -2,13 +2,16 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2024.Swerve.SemiAuto;
+package org.team100.frc2024.Swerve.SemiAuto.SemiAuto_i3;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2024.FieldConstants;
 import org.team100.frc2024.FieldConstants.ReefDestination;
+import org.team100.frc2024.Swerve.SemiAuto.Navigator;
+import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
+import org.team100.frc2024.Swerve.SemiAuto.Navigator.Log;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
@@ -36,7 +39,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DriveTo_ABNew extends Navigator implements Planner2025 {
+public class DriveTo_ABI3 extends Navigator implements Planner2025 {
     /** Creates a new TrajectoryCommandWithPose100. */
     private final SwerveDriveSubsystem m_robotDrive;
     private final DriveTrajectoryFollower m_controller;
@@ -46,7 +49,7 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
 
     TimingConstraintFactory m_constraints;
 
-    public DriveTo_ABNew(
+    public DriveTo_ABI3(
             LoggerFactory parent,
             SwerveDriveSubsystem robotDrive,
             DriveTrajectoryFollower controller,
@@ -126,7 +129,6 @@ public class DriveTo_ABNew extends Navigator implements Planner2025 {
                         0.1);
                 break;
             case GH:
-                // waypointsM.add(new Pose2d(2.71, 4.04 + 1.5, Rotation2d.fromDegrees(-110)));
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitLandingZone(destinationSector, FieldConstants.ReefDestination.CCW),
                         Rotation2d.fromDegrees(-110)));
                 waypointsM.add(new Pose2d(FieldConstants.getOrbitDestination(destinationSector, destinationPoint),

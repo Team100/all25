@@ -4,19 +4,45 @@
 
 package org.team100.frc2024;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /** Add your docs here. */
 public class FieldConstants {
+
     public enum FieldSector {
-        AB,
-        CD,
-        EF,
-        GH,
-        IJ,
-        KL
+        AB(1),
+        CD(2),
+        EF(3),
+        GH(4),
+        IJ(5),
+        KL(6);
+    
+        private final int value; // Field to store the number
+    
+        // Constructor
+        FieldSector(int value) {
+            this.value = value;
+        }
+    
+        // Getter to retrieve the value
+        public int getValue() {
+            return value;
+        }
+
+        public static FieldSector fromValue(int value) {
+            for (FieldSector sector : FieldSector.values()) {
+                if (sector.getValue() == value) {
+                    return sector;
+                }
+            }
+            throw new IllegalArgumentException("Invalid sector number: " + value);
+        }
+
     }
 
     public enum ReefDestination {
@@ -68,10 +94,35 @@ public class FieldConstants {
         }
     }
 
+    public static Rotation2d getLandingAngleCCW(FieldSector sector){
+        switch(sector){
+            case AB:
+                return Rotation2d.fromDegrees(-90);
+            case CD:
+                return Rotation2d.fromDegrees(-30);
+            case EF:
+                return Rotation2d.fromDegrees(30);
+            case GH:
+                return Rotation2d.fromDegrees(90);
+            case IJ:
+                return Rotation2d.fromDegrees(150);
+            case KL:
+                return Rotation2d.fromDegrees(210);
+            default:
+                return Rotation2d.fromDegrees(0);
+        }
+    }
+
     public static double getDistanceToReefCenter(Pose2d pose){
         Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
         return target.getNorm();
     }
+
+    public static double getDistanceToReefCenter(Translation2d translation){
+        Translation2d target = FieldConstants.getReefCenter().minus(translation);
+        return target.getNorm();
+    }
+
 
     public static Rotation2d angleToReefCenter(Pose2d pose){
         Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
@@ -175,5 +226,35 @@ public class FieldConstants {
 
         return new Translation2d(x, y);
 
+    }
+
+    public static List<Integer> findShortestPath(int start, int target) {
+        List<Integer> pathClockwise = new ArrayList<>();
+        List<Integer> pathCounterClockwise = new ArrayList<>();
+
+        // Clockwise path
+        int side = start;
+        while (side != target) {
+            pathCounterClockwise.add(side);
+            side = (side % 6) + 1; // Move clockwise
+        }
+        pathCounterClockwise.add(target); // Add target side
+
+        // Counterclockwise path
+        side = start;
+        while (side != target) {
+            pathClockwise.add(side);
+            side = (side - 2 + 6) % 6 + 1; // Move counterclockwise
+        }
+        pathClockwise.add(target); // Add target side
+
+        // Return the shorter path
+
+        if(pathClockwise.size() < pathCounterClockwise.size()){
+            return pathClockwise;
+        } else{
+            return pathCounterClockwise;
+        }
+        // return (pathClockwise.size() < pathCounterClockwise.size()) ? pathClockwise : pathCounterClockwise;
     }
 }

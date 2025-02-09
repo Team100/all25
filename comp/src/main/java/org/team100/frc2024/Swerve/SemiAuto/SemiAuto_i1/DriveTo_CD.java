@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2024.Swerve.SemiAuto;
+package org.team100.frc2024.Swerve.SemiAuto.SemiAuto_i1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 
 import org.team100.frc2024.FieldConstants;
 import org.team100.frc2024.FieldConstants.ReefDestination;
+import org.team100.frc2024.Swerve.SemiAuto.Navigator;
+import org.team100.frc2024.Swerve.SemiAuto.Planner2025;
+import org.team100.frc2024.Swerve.SemiAuto.Navigator.Log;
 import org.team100.lib.follower.DrivePIDFFollower;
 import org.team100.lib.follower.DrivePIDFLockFollower;
 import org.team100.lib.follower.DriveTrajectoryFollower;
