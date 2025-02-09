@@ -1,9 +1,10 @@
-package org.team100.frc2025.Swerve.SemiAuto;
+package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i1;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
+import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;

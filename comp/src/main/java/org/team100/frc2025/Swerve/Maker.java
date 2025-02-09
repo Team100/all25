@@ -1,6 +1,6 @@
 package org.team100.frc2025.Swerve;
 
-import org.team100.frc2025.Swerve.SemiAuto.DriveTo_ABNew;
+import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i1.DriveTo_AB;
 import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -39,7 +39,7 @@ public class Maker {
 
     public Command test() {
 
-        return new DriveTo_ABNew(
+        return new DriveTo_AB(
                 m_logger,
                 m_swerve,
                 TrajectoryFollowerFactory.fieldRelativeGoodPIDF(m_logger),
