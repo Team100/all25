@@ -6,8 +6,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
 
-import org.team100.lib.logging.primitive.UdpSender;
 import org.team100.lib.logging.primitive.UdpPrimitiveProtocol.ProtocolException;
+import org.team100.lib.logging.primitive.UdpSender;
+import org.team100.lib.util.Util;
 
 public class UdpDataReader implements Runnable {
     private final UdpDataDecoder m_decoder;
@@ -28,7 +29,6 @@ public class UdpDataReader implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("data reader running...");
         while (true) {
             try {
                 m_buffer.clear();
@@ -37,7 +37,7 @@ public class UdpDataReader implements Runnable {
                 m_buffer.limit(m_buffer.position());
                 m_buffer.position(0);
                 if (!m_decoder.validateTimestamp(m_buffer)) {
-                    System.out.println("data timestamp is bad, bail");
+                    Util.warn("data timestamp is bad, bail");
                     return;
                 }
                 while (m_buffer.remaining() > 0) {

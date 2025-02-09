@@ -1,8 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2025;
+
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,7 +28,7 @@ public class FieldConstants {
         Rotation2d targetAngle = target.getAngle();
         double angle = targetAngle.getDegrees();
 
-        System.out.println("ANGLEEEE" + angle);
+        Util.println("ANGLEEEE" + angle);
 
         if(angle >= -30 && angle <= 30){
             return FieldSector.AB;

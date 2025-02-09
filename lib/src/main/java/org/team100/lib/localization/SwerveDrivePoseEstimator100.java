@@ -81,7 +81,6 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
      */
     @Override
     public SwerveModel get(double timestampSeconds) {
-        // System.out.println("SwerveDrivePoseEstimator.get() " + timestampSeconds);
         return m_poseBuffer.get(timestampSeconds).m_state;
     }
 

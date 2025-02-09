@@ -58,11 +58,9 @@ public class OscillateProfile extends Command implements Glassy {
     public void execute() {
         SwerveModel measurement = m_swerve.getState();
         SwerveControl nextSetpoint = m_profile.calculate(m_setpoint.model(), m_goal);
-        // System.out.println("measurement " + measurement + " setpoint " + m_setpoint);
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, m_setpoint.model(), nextSetpoint.model());
         m_setpoint = nextSetpoint;
-        // System.out.println(fieldRelativeTarget);
         m_swerve.driveInFieldCoords(fieldRelativeTarget);
     }
 

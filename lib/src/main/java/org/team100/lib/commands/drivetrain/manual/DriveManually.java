@@ -78,13 +78,11 @@ public class DriveManually extends Command implements Glassy {
     @Override
     public void execute() {
         String manualMode = m_mode.get();
-        // System.out.println("manual mode " + manualMode);
         if (manualMode == null) {
             return;
         }
 
         if (!(manualMode.equals(currentManualMode))) {
-            // System.out.println("reset mode");
             currentManualMode = manualMode;
             // there's state in there we'd like to forget
             SwerveModel p = m_drive.getState();
@@ -95,7 +93,6 @@ public class DriveManually extends Command implements Glassy {
 
         // input in [-1,1] control units
         DriverControl.Velocity input = m_twistSupplier.get();
-        // System.out.println("input" + input);
         SwerveModel state = m_drive.getState();
         Driver d = m_drivers.getOrDefault(manualMode, m_defaultDriver);
         d.apply(state, input);
@@ -118,13 +115,11 @@ public class DriveManually extends Command implements Glassy {
 
     /** Register a driver for module state mode */
     public void register(String name, boolean isDefault, ModuleStateDriver d) {
-        // System.out.println("register " + name);
         addName(name, isDefault);
         m_drivers.put(
                 name,
                 new Driver() {
                     public void apply(SwerveModel s, DriverControl.Velocity t) {
-                        // System.out.println("apply t " + t);
                         m_drive.setRawModuleStates(d.apply(t));
                     }
 

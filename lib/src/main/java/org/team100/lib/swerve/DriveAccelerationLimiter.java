@@ -9,6 +9,9 @@ import org.team100.lib.util.Math100;
 
 /**
  * Enforces drive motor torque constraints.
+ * 
+ * This limits both acceleration (assuming a current limit) and speed (using
+ * back EMF), so there's no need for a separate speed limiter.
  */
 public class DriveAccelerationLimiter implements Glassy {
     private static final int kMaxIterations = 10;
@@ -39,7 +42,6 @@ public class DriveAccelerationLimiter implements Glassy {
                     desired_vx[i],
                     desired_vy[i]);
             m_log_max_step.log(() -> max_vel_step);
-
             // reduces the size of the search space if min_s is already constrained (by
             // earlier modules)
             double vx_min_s = Math100.interpolate(prev_vx[i], desired_vx[i], min_s);

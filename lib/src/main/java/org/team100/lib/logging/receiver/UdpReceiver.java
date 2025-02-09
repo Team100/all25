@@ -18,7 +18,6 @@ public class UdpReceiver {
         metaReaderThread.start();
         // these should block forever.
         dataReaderThread.join();
-        System.out.println("done");
         consumers.close();
     }
 

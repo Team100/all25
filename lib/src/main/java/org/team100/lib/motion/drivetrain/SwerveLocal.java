@@ -249,14 +249,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * Desaturation mutates states.
-     * 
+     * No longer desaturates.  If you want desaturation, use the setpoint generator.
      * Works fine with empty angles.
      */
     private void setModuleStates(SwerveModuleStates states) {
-        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
-                states,
-                m_swerveKinodynamics.getMaxDriveVelocityM_S());
         m_modules.setDesiredStates(states);
     }
 }

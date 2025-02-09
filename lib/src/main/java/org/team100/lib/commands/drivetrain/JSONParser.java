@@ -14,7 +14,6 @@ public class JSONParser {
 
         // try (FileReader fileReader = new FileReader(src)) {
             // Parse JSON from file
-            // System.out.println("Aj");
             // JSONTokener jsonTokener = new JSONTokener(fileReader);
             // JSONObject jsonObject = new JSONObject(jsonTokener);
 

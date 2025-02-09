@@ -249,7 +249,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /** used by the supplier */
     private SwerveModel update() {
         double now = Takt.get();
-        // System.out.println("SwerveDriveSubsystem.update() " + now);
         m_poseEstimator.put(
                 now,
                 m_gyro,

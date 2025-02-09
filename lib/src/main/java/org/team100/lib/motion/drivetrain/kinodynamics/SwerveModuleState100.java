@@ -118,6 +118,18 @@ public class SwerveModuleState100
         }
     }
 
+    public double deltaV(SwerveModuleState100 other) {
+        return speedMetersPerSecond - other.speedMetersPerSecond;
+    }
+
+    public double limit(SwerveModuleState100 next, double limit) {
+        if (Math.abs(next.speedMetersPerSecond) <= limit)
+            return 1.0;
+        double d = Math.abs(next.speedMetersPerSecond) - Math.abs(speedMetersPerSecond);
+        double dd = limit - Math.abs(speedMetersPerSecond);
+        return dd / d;
+    }
+
     /** Speed of the wheel of the module. */
     public double speedMetersPerSecond() {
         return speedMetersPerSecond;

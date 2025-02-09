@@ -21,7 +21,6 @@ class OscillateDirectTest extends RealisticFixtured implements Timeless {
             stepTime(0.02);
             od.execute();
             fixture.drive.periodic();
-            // System.out.println(fixture.drive.getState().x().v());
         }
 
         // stopped

@@ -81,6 +81,14 @@ public record SwerveModuleStates(
                 frontRight.flipIfRequired(prev.frontRight),
                 rearLeft.flipIfRequired(prev.rearLeft),
                 rearRight.flipIfRequired(prev.rearRight));
+    }
 
+    public double limit( SwerveModuleStates next, double limit) {
+        double s = 1.0;
+        s = Math.min(s, frontLeft().limit(next.frontLeft(), limit));
+        s = Math.min(s, frontRight().limit(next.frontRight(), limit));
+        s = Math.min(s, rearLeft().limit(next.rearLeft(), limit));
+        s = Math.min(s, rearRight().limit(next.rearRight(), limit));
+        return Math.max(s, 0);
     }
 }

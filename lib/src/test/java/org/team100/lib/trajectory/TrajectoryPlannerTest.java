@@ -15,6 +15,7 @@ import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.SwerveDriveDynamicsConstraint;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.YawRateConstraint;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -98,8 +99,8 @@ class TrajectoryPlannerTest {
         long endTimeNs = System.nanoTime();
         double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
         if (kPrint) {
-            System.out.printf("total duration ms: %5.3f\n", totalDurationMs);
-            System.out.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
+            Util.printf("total duration ms: %5.3f\n", totalDurationMs);
+            Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }
         assertEquals(131, t.m_points.size());
         TrajectoryPoint p = t.getPoint(40);

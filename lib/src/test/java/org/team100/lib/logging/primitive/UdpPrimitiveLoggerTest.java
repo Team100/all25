@@ -20,6 +20,7 @@ import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveBooleanLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveIntLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger.PrimitiveStringLogger;
 import org.team100.lib.util.Takt;
+import org.team100.lib.util.Util;
 
 class UdpPrimitiveLoggerTest {
     private static final boolean kPrint = false;
@@ -193,7 +194,7 @@ class UdpPrimitiveLoggerTest {
             loggers[j] = logger.doubleLogger(Level.COMP, "doublekey" + j);
         }
         if (kPrint)
-            System.out.println("expected keys per second: " + expected_keys_per_sec);
+            Util.println("expected keys per second: " + expected_keys_per_sec);
         double t1 = Takt.actual();
         for (int i = 0; i < (total_time / interval); ++i) {
             double d = Takt.actual() - t0;
@@ -207,7 +208,7 @@ class UdpPrimitiveLoggerTest {
         }
         double t2 = Takt.actual();
         if (kPrint)
-            System.out.printf("et %.3f\n", t2 - t1);
+            Util.printf("et %.3f\n", t2 - t1);
     }
 
     /**
@@ -253,10 +254,10 @@ class UdpPrimitiveLoggerTest {
         }
         double t2 = Takt.actual();
         if (kPrint) {
-            System.out.printf("duration sec %.3f\n", t2 - t1);
-            System.out.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
-            System.out.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
-            System.out.printf("keys per second %.0f\n", ITERATIONS * KEYS / (t2 - t1));
+            Util.printf("duration sec %.3f\n", t2 - t1);
+            Util.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            Util.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
+            Util.printf("keys per second %.0f\n", ITERATIONS * KEYS / (t2 - t1));
         }
     }
 
@@ -301,12 +302,12 @@ class UdpPrimitiveLoggerTest {
         }
         double t2 = Takt.actual();
         if (kPrint) {
-            System.out.printf("duration sec %.3f\n", t2 - t1);
-            System.out.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
-            System.out.printf("duration per packet us %.3f\n", 1000000 * (t2 - t1) / (dataSink.getCounter()));
-            System.out.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
-            System.out.printf("keys per second %.0f\n", ITERATIONS * KEYS / (t2 - t1));
-            System.out.printf("packets per second %.0f\n", dataSink.getCounter() / (t2 - t1));
+            Util.printf("duration sec %.3f\n", t2 - t1);
+            Util.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
+            Util.printf("duration per packet us %.3f\n", 1000000 * (t2 - t1) / (dataSink.getCounter()));
+            Util.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
+            Util.printf("keys per second %.0f\n", ITERATIONS * KEYS / (t2 - t1));
+            Util.printf("packets per second %.0f\n", dataSink.getCounter() / (t2 - t1));
         }
     }
 
