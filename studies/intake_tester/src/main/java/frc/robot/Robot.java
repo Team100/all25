@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
     roller.configure(rollerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     controller = new XboxController(0);
+    state = new State(0, 0);
   }
 
   @Override
@@ -73,7 +74,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("duty cycle", extend.getDutyCycle().getValueAsDouble());
     SmartDashboard.putNumber("roller amps", roller.getOutputCurrent());
     SmartDashboard.putNumber("roller speeed", roller.getEncoder().getVelocity());
-
+    SmartDashboard.putNumber("stateP", state.position);
+    SmartDashboard.putNumber("stateV", state.velocity); 
   }
 
   @Override
@@ -85,7 +87,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if (controller.getXButton()) {
-      state = profile.calculate(kDefaultPeriod, state, new State(1.6, 0));
+      state = profile.calculate(kDefaultPeriod, state, new State(5, 0));
       extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", true);     
     } else {
