@@ -69,7 +69,10 @@ public abstract class SwerveModule100 implements Glassy {
         m_turningServo.setPosition(desiredState.angle().get().getRadians(), 0);
     }
 
-    /** For testing */
+    /**
+     * The state corresponding to the current setpoint (for drive) and goal (for
+     * angle).
+     */
     SwerveModuleState100 getDesiredState() {
         return new SwerveModuleState100(
                 m_driveServo.getSetpoint(),
@@ -127,6 +130,14 @@ public abstract class SwerveModule100 implements Glassy {
         return new SwerveModulePosition100(
                 driveDistance.getAsDouble(),
                 Optional.of(new Rotation2d(turningPosition.getAsDouble())));
+    }
+
+    public OptionalDouble turningPosition() {
+        return m_turningServo.getPosition();
+    }
+
+    public OptionalDouble turningVelocity() {
+        return m_turningServo.getVelocity();
     }
 
     boolean atSetpoint() {
