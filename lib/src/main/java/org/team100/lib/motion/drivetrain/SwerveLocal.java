@@ -1,6 +1,7 @@
 package org.team100.lib.motion.drivetrain;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.experiments.Experiment;
@@ -9,7 +10,6 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -20,6 +20,7 @@ import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -29,6 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
+    private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
@@ -111,30 +113,51 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * True if wheels are aligned with the desired speed.
-     * Does no actuation, mutates nothing. This would be "const" if it were a thing
-     * in Java.
+     * True if current wheel steering positions are aligned with the positions
+     * implied by the desired speed.
      */
-    // public boolean aligned(ChassisSpeeds speeds, double gyroRateRad_S) {
-    // final SwerveModuleStates swerveModuleStates =
-    // m_swerveKinodynamics.toSwerveModuleStates(
-    // speeds, gyroRateRad_S);
-
-    // }
+    public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
+        // These measurements include empty angles for motionless wheels.
+        // Otherwise angle is always within [-pi, pi].
+        OptionalDouble[] measurements = m_modules.turningPosition();
+        SwerveModuleState100[] setpoints = m_swerveKinodynamics.toSwerveModuleStates(
+                desiredSpeeds, gyroRateRad_S).all();
+        for (int i = 0; i < measurements.length; ++i) {
+            if (measurements[i].isEmpty()) {
+                // Util.warn("broken sensor, this should never happen");
+                return false;
+            }
+            double measurement = measurements[i].getAsDouble();
+            if (setpoints[i].angle().isEmpty()) {
+                // This can happen if the desired wheel speed is zero, which can happen even if
+                // the other desired wheel speeds are not zero.
+                // Util.printf("angle %d empty\n", i);
+                continue;
+            }
+            double setpoint = setpoints[i].angle().get().getRadians();
+            double error = MathUtil.angleModulus(setpoint - measurement);
+            if (Math.abs(error) > kPositionToleranceRad) {
+                // Util.printf("angle %d error %f  outside tolerance\n", i, error);
+                return false;
+            }
+        }
+        // Util.println("all good");
+        return true;
+    }
 
     /**
      * @return true if aligned
      */
     public boolean steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
         // this indicates that during the steering the goal is fixed
-        SwerveModuleStates swerveModuleStates = m_swerveKinodynamics.toSwerveModuleStates(
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(
                 speeds, gyroRateRad_S);
 
-        swerveModuleStates = swerveModuleStates.motionless();
+        states = states.motionless();
 
-        setModuleStates(swerveModuleStates);
+        setModuleStates(states);
         // previous setpoint should be at rest with the current states
-        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), swerveModuleStates);
+        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
         return Util.all(atGoal());
     }
 
@@ -249,7 +272,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * No longer desaturates.  If you want desaturation, use the setpoint generator.
+     * No longer desaturates. If you want desaturation, use the setpoint generator.
      * Works fine with empty angles.
      */
     private void setModuleStates(SwerveModuleStates states) {

@@ -199,6 +199,7 @@ public class SwerveKinodynamics implements Glassy {
      * For testing only.
      * 
      * States may include empty angles for motionless wheels.
+     * Otherwise angle is always within [-pi, pi].
      */
     SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
         // This is the extra correction angle ...
