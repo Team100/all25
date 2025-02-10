@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj.simulation.SimHooks;
  * Sets up FPGA time stepping for unit tests.
  * 
  * Pausing the timer makes the tests deterministic.
+ * 
+ * use stepTime(0.02) to simulate the passage of time.
+ * 
+ * You'll also need to reset whatever caches you use, perhaps in their periodic.
  */
 public interface Timeless {
 

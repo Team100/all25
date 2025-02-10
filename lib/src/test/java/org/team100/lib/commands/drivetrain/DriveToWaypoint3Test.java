@@ -22,6 +22,7 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
@@ -35,7 +36,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-class DriveToWaypoint3Test extends Fixtured {
+class DriveToWaypoint3Test extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);

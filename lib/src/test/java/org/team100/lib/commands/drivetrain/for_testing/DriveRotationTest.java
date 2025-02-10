@@ -6,8 +6,9 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.Fixtured;
+import org.team100.lib.testing.Timeless;
 
-class DriveRotationTest extends Fixtured {
+class DriveRotationTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private final double desiredRotation = 1;
 

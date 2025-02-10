@@ -14,10 +14,14 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
 import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
+import org.team100.lib.testing.Timeless;
 
 /**
  * A real swerve subsystem populated with simulated motors and encoders,
  * for testing.
+ * 
+ * Uses simulated position sensors, must be used with clock control (e.g.
+ * {@link Timeless}).
  */
 public class RealisticFixture {
     public SwerveModuleCollection collection;

@@ -124,6 +124,10 @@ public class ServoFactory {
                 controller);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     public static AngularPositionServo simulatedAngleServo(
             LoggerFactory parent,
             double maxVelocity,

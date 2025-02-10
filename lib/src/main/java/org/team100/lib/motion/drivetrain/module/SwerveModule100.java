@@ -52,6 +52,7 @@ public abstract class SwerveModule100 implements Glassy {
         Rotation2d currentAngle = new Rotation2d(position.getAsDouble());
         SwerveModuleState100 optimized = SwerveModuleState100.optimize(
                 desiredState, currentAngle);
+        // Util.printf("optimized %s\n", optimized);
         setRawDesiredState(optimized);
     }
 
@@ -66,6 +67,7 @@ public abstract class SwerveModule100 implements Glassy {
                     desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
         }
         m_driveServo.setVelocityM_S(desiredState.speedMetersPerSecond());
+        // Util.printf("desired angle %f\n", desiredState.angle().get().getRadians());
         m_turningServo.setPosition(desiredState.angle().get().getRadians(), 0);
     }
 

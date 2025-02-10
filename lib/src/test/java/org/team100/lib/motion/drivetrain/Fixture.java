@@ -14,10 +14,14 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
 import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
+import org.team100.lib.testing.Timeless;
 
 /**
  * A real swerve subsystem populated with simulated motors and encoders,
  * for testing.
+ * 
+ * Uses simulated position sensors, must be used with clock control (e.g.
+ * {@link Timeless}).
  */
 public class Fixture {
     public SwerveModuleCollection collection;
@@ -34,6 +38,7 @@ public class Fixture {
         logger = new TestLoggerFactory(new TestPrimitiveLogger());
         fieldLogger = new TestLoggerFactory(new TestPrimitiveLogger());
         swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
+        // uses simulated modules
         collection = SwerveModuleCollection.get(logger, 10, 20, swerveKinodynamics);
         gyro = new SimulatedGyro(swerveKinodynamics, collection);
         final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(

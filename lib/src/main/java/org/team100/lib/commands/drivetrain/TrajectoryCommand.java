@@ -36,7 +36,7 @@ public class TrajectoryCommand extends Command implements Glassy {
 
     private Trajectory100 m_trajectory;
     private TrajectoryTimeIterator m_iter;
-    private boolean m_aligned;
+    boolean m_aligned;
     private boolean done;
 
     public TrajectoryCommand(
@@ -98,6 +98,7 @@ public class TrajectoryCommand extends Command implements Glassy {
                 return;
             }
             TimedPose desiredState = nextOpt.get().state();
+            // Util.printf("advance %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);
@@ -113,11 +114,13 @@ public class TrajectoryCommand extends Command implements Glassy {
                 return;
             }
             TimedPose desiredState = nextOpt.get().state();
+            // Util.printf("preview %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                     measurement, currentReference, nextReference);
+            // Util.printf("target %s\n", fieldRelativeTarget);
             m_aligned = m_swerve.steerAtRest(fieldRelativeTarget);
         }
     }

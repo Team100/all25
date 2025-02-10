@@ -154,6 +154,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
                 speeds, gyroRateRad_S);
 
         states = states.motionless();
+        // Util.printf("states %s\n", states);
 
         setModuleStates(states);
         // previous setpoint should be at rest with the current states

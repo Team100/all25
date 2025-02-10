@@ -130,6 +130,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      */
     @Override
     public boolean steerAtRest(FieldRelativeVelocity v) {
+        // Util.printf("v %s\n", v);
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 v.x(),
                 v.y(),

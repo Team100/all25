@@ -20,6 +20,10 @@ import org.team100.lib.profile.Profile100;
 
 import edu.wpi.first.math.MathUtil;
 
+/**
+ * Uses simulated position sensors, must be used with clock control (e.g.
+ * {@link Timeless}).
+ */
 public class SimulatedSwerveModule100 extends SwerveModule100 {
 
     public static SimulatedSwerveModule100 get(
@@ -47,6 +51,10 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 mech);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     private static AngularPositionServo simulatedTurningServo(
             LoggerFactory parent,
             SwerveKinodynamics kinodynamics) {

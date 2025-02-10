@@ -121,6 +121,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
         final double u_TOTAL = u_FB + u_FF;
 
+        // Util.printf("u_TOTAL %f\n", u_TOTAL);
+
         m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
@@ -136,6 +138,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
+        // Util.printf("goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 

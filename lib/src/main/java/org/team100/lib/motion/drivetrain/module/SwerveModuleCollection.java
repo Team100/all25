@@ -147,6 +147,10 @@ public class SwerveModuleCollection {
             case BLANK:
             default:
                 Util.println("************** SIMULATED MODULES **************");
+                /*
+                 * Uses simulated position sensors, must be used with clock control (e.g.
+                 * {@link Timeless}).
+                 */
                 return new SwerveModuleCollection(
                         SimulatedSwerveModule100.get(frontLeftLogger, kinodynamics),
                         SimulatedSwerveModule100.get(frontRightLogger, kinodynamics),
@@ -232,21 +236,21 @@ public class SwerveModuleCollection {
                 m_rearRight.getPosition());
     }
 
-     public OptionalDouble[] turningPosition() {
+    public OptionalDouble[] turningPosition() {
         return new OptionalDouble[] {
-            m_frontLeft.turningPosition(),
-            m_frontRight.turningPosition(),
-            m_rearLeft.turningPosition(),
-            m_rearRight.turningPosition()
+                m_frontLeft.turningPosition(),
+                m_frontRight.turningPosition(),
+                m_rearLeft.turningPosition(),
+                m_rearRight.turningPosition()
         };
     }
 
     public OptionalDouble[] turningVelocity() {
         return new OptionalDouble[] {
-            m_frontLeft.turningVelocity(),
-            m_frontRight.turningVelocity(),
-            m_rearLeft.turningVelocity(),
-            m_rearRight.turningVelocity()
+                m_frontLeft.turningVelocity(),
+                m_frontRight.turningVelocity(),
+                m_rearLeft.turningVelocity(),
+                m_rearRight.turningVelocity()
         };
     }
 
