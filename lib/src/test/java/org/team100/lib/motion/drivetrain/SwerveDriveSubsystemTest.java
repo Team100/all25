@@ -1,10 +1,13 @@
 package org.team100.lib.motion.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -93,6 +96,30 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
         verify(drive, 0.06, 1.00, 0.0);
 
         drive.close();
+    }
+
+    @Test
+    void testAligned() {
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
+        SwerveDriveSubsystem drive = fixture.drive;
+
+        drive.resetPose(new Pose2d());
+
+        stepTime(0.02);
+        drive.periodic();
+
+        verify(drive, 0, 0, 0);
+        // if the desired speed is zero, it's always ok
+        assertTrue(drive.aligned(new FieldRelativeVelocity(0, 0, 0)));
+        // the initial positions happen to be +x
+        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
+        // so we can't go in +y
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+
+        // go 1 m/s in +x
+        drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
+        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
     }
 
     private void verify(SwerveDriveSubsystem drive, double x, double v, double a) {

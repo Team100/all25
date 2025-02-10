@@ -25,6 +25,12 @@ public class Memo {
     private static final List<Runnable> updaters = new ArrayList<>();
     private static final List<BaseStatusSignal> signals = new ArrayList<>();
 
+    /**
+     * Adds the delegate to the set that is reset and updated synchronously by
+     * Robot.robotPeriodic(), so the time represented by the value is as close to
+     * the hardware interrupt time as possible, all values of cached quantities are
+     * consistent and constant through the whole cycle.
+     */
     public static <T> CotemporalCache<T> of(Supplier<T> delegate) {
         CotemporalCache<T> cache = new CotemporalCache<>(delegate);
         resetters.add(cache::reset);
