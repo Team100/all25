@@ -106,6 +106,10 @@ public class Feedforward100 {
         return new Feedforward100(0.110, 0.000, 0.000, 0.900, 0.1);
     }
 
+    public static Feedforward100 makeKraken6Elevator() {
+        return new Feedforward100(0.150, 0.010, 0.080, 0.100, 0.5);
+    }
+
     public double velocityFFVolts(double motorRev_S) {
         return kV * motorRev_S;
     }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
+import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -79,7 +80,7 @@ public abstract class Navigator extends Command implements Planner2025 {
         // m_controller.setThetaError(thetaError);
         FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
 
-        m_robotDrive.driveInFieldCoords(output);
+        m_robotDrive.driveInFieldCoordsVerbatim(output);
 
         m_log.m_log_chassis_speeds.log(() -> output);
         double thetaErrorRad = m_goal.getRotation().getRadians()
@@ -141,12 +142,22 @@ public abstract class Navigator extends Command implements Planner2025 {
         return new PoseSet(waypointsWithPose, headingsWithPose);
     }
 
-    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation, Translation2d vectorFromCenterToRobot, Rotation2d rotationAngle, double magicNumber){
+    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation, Translation2d vectorFromCenterToRobot, ReefAproach approach, double magicNumber){
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 
         Translation2d translationToTarget = targetPoint.minus(currTranslation);
+        
+        Rotation2d rotationAngle = new Rotation2d();
 
+        switch(approach){
+            case CCW:
+                rotationAngle = Rotation2d.fromDegrees(90);
+                break;
+            case CW:
+                rotationAngle = Rotation2d.fromDegrees(-90);
+                break;
+        }
         Rotation2d tangentAngle = vectorFromCenterToRobot.rotateBy(rotationAngle).getAngle();
 
         Rotation2d tangentAngleAdjusted = tangentAngle.times((1/distanceToReef) * magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
