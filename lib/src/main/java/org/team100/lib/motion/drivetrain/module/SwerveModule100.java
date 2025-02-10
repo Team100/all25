@@ -60,6 +60,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Does not optimize.
      * 
      * Works fine with empty angles.
+     * 
+     * Turning servo commands always include zero velocity.
      */
     void setRawDesiredState(SwerveModuleState100 desiredState) {
         if (desiredState.angle().isEmpty()) {
@@ -135,7 +137,9 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     public OptionalDouble turningPosition() {
-        return m_turningServo.getPosition();
+        OptionalDouble position = m_turningServo.getPosition();
+        Util.printf("position %s\n", position);
+        return position;
     }
 
     public OptionalDouble turningVelocity() {
@@ -147,7 +151,9 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     boolean atGoal() {
-        return m_turningServo.atGoal();
+        boolean atGoal = m_turningServo.atGoal();
+        Util.printf("module atgoal %b\n", atGoal);
+        return atGoal;
     }
 
     void stop() {

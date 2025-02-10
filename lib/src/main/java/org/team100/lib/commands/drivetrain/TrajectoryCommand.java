@@ -66,6 +66,7 @@ public class TrajectoryCommand extends Command implements Glassy {
 
     @Override
     public void execute() {
+        Util.println("********** EXECUTE");
         if (m_iter.isDone()) {
             done = true;
             return;
@@ -74,6 +75,7 @@ public class TrajectoryCommand extends Command implements Glassy {
         // now there is a trajectory to follow
 
         SwerveModel measurement = m_swerve.getState();
+        Util.printf("TrajectoryCommand measurement %s\n", measurement);
         Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
         if (curOpt.isEmpty()) {
             Util.warn("broken trajectory, cancelling!");
@@ -98,7 +100,7 @@ public class TrajectoryCommand extends Command implements Glassy {
                 return;
             }
             TimedPose desiredState = nextOpt.get().state();
-            // Util.printf("advance %s\n", desiredState);
+            Util.printf("advance %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);
@@ -114,13 +116,13 @@ public class TrajectoryCommand extends Command implements Glassy {
                 return;
             }
             TimedPose desiredState = nextOpt.get().state();
-            // Util.printf("preview %s\n", desiredState);
+            Util.printf("preview %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                     measurement, currentReference, nextReference);
-            // Util.printf("target %s\n", fieldRelativeTarget);
+            Util.printf("target %s\n", fieldRelativeTarget);
             m_aligned = m_swerve.steerAtRest(fieldRelativeTarget);
         }
     }

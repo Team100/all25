@@ -25,6 +25,7 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -167,6 +168,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
 
         // the side-effect is to set the "aligned" flag.
         assertTrue(command.m_aligned);
+        // and we are actually aligned (as we have been the whole time)
+        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
         // now we advance a little.
         command.execute();
@@ -205,37 +208,68 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         assertFalse(command.m_aligned);
 
         // steering at rest for awhile, for the wheels to turn 90 degrees.
-        // this is 16 cycles of 20 ms which is 0.32 sec, a long time.  the profile
+        // this is 16 cycles of 20 ms which is 0.32 sec, a long time. the profile
         // here is acceleration-limited, 20pi/s^2, which is just what the limits say.
         // https://docs.google.com/spreadsheets/d/19N-rQBjlWM-fb_Hd5wJeKuihzoglmGVK7MT7RYU-9bY
-        for (int i = 0; i < 16; ++i) {
+        for (int i = 0; i < 21; ++i) {
+            // command thinks we're not aligned
             assertFalse(command.m_aligned);
+            // drive thinks we're not aligned to the target (0,1)
+            assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+
             stepTime(0.02);
             fixture.drive.periodic();
+            // this calls steerAtRest, using the previewed state.
             command.execute();
-            // assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
-            // assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
-            System.out.println(fixture.collection.states().frontLeft().angle().get());
+            // assertEquals(0,
+            // fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
+            // assertEquals(0,
+            // fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
+            Util.printf("angle %s\n", fixture.collection.states().frontLeft().angle().get());
+            Util.printf("p %s\n", fixture.collection.turningPosition()[0].getAsDouble());
+            Util.printf("v %s\n", fixture.collection.turningVelocity()[0].getAsDouble());
         }
-        assertTrue(command.m_aligned);
+        // at this point the most-recent steering PID input measurement is 1.533 rad, and the setpoint
+        // is 1.563 rad, so the PID is within tolerance -- the PID is *always* within tolerance
+        // in tests.
+        //
+        Util.println("aligned?");
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+        // 
+        assertFalse(command.m_aligned);
         // note the steering tolerance means we're not *exactly* in the right place.
         assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(1.533, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(1.567, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(1.567, fixture.collection.turningPosition()[0].getAsDouble(), kDelta);
+        assertEquals(0.068, fixture.collection.turningVelocity()[0].getAsDouble(), kDelta);
 
         // now we advance in +y.
+
+        // increment the clock
         stepTime(0.02);
+
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+        // nothing in the command has changed
+        assertFalse(command.m_aligned);
+
         command.execute();
+        
+        // nothing should change here since the clock is stopped.
+
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+        // nothing in the command has changed
+        assertFalse(command.m_aligned);
+
         assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.545, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(1.567, fixture.collection.turningPosition()[0].getAsDouble(), kDelta);
+        assertEquals(0.068, fixture.collection.turningVelocity()[0].getAsDouble(), kDelta);
 
         // speeding up, steering finishing the last couple of degrees.
         stepTime(0.02);
         command.execute();
         assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.555, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
-
-
-
 
     }
 

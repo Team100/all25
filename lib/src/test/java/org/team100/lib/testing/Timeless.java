@@ -32,6 +32,7 @@ public interface Timeless {
         HAL.shutdown();
     }
 
+    /** Increments the clock and resets all the memoized quantities. */
     default void stepTime(double t) {
         SimHooks.stepTiming(t);
         Takt.update();

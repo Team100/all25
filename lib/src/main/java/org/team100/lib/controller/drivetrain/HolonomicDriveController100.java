@@ -5,6 +5,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Util;
 
 /**
  * PID x, PID y, PID theta, and (optionally) PID omega.
@@ -52,6 +53,7 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
             SwerveModel measurement,
             SwerveModel currentReference,
             SwerveModel nextReference) {
+        Util.printf("controller measurement %s curr %s next %s\n", measurement, currentReference, nextReference);
         m_log.measurement.log(() -> measurement);
         m_log.reference.log(() -> currentReference);
         m_log.error.log(() -> currentReference.minus(measurement));
