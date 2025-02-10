@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -16,13 +19,31 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ExampleSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
-  SparkMax neo550 = new SparkMax(5, MotorType.kBrushless);
+  TalonFX starboard = new TalonFX(0);
+  TalonFX port = new TalonFX(1);
+
   public ExampleSubsystem() {
 
-    SparkMaxConfig conf = new SparkMaxConfig();
-    conf.smartCurrentLimit(20,40);
-    neo550.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-        
+    double supply = 10;
+    double stator = 10;
+
+    TalonFXConfigurator starboardConfig = starboard.getConfigurator();
+    TalonFXConfigurator portConfig = port.getConfigurator();
+
+    CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
+    currentConfigs.SupplyCurrentLimit = supply;
+    currentConfigs.SupplyCurrentLimitEnable = true;
+    currentConfigs.StatorCurrentLimit = stator;
+    currentConfigs.StatorCurrentLimitEnable = true;
+
+    starboardConfig.apply(currentConfigs);
+    portConfig.apply(currentConfigs);
+  }
+
+  public void setDuty(double value){
+    starboard.set(value);
+    port.set(value);
+
   }
 
   /**
@@ -51,7 +72,7 @@ public class ExampleSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    neo550.set(0.3);
+    // neo550.set(0.3);
 
   }
 
