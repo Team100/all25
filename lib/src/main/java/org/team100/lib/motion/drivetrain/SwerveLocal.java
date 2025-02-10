@@ -30,6 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
+    private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
@@ -112,29 +113,36 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * True if wheels are aligned with the desired speed.
-     * Does no actuation, mutates nothing. This would be "const" if it were a thing
-     * in Java.
+     * True if current wheel steering positions are aligned with the positions
+     * implied by the desired speed.
      */
-    public boolean aligned(ChassisSpeeds speeds, double gyroRateRad_S) {
-        // these measurements include empty angles for motionless wheels.
+    public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
+        // These measurements include empty angles for motionless wheels.
         // Otherwise angle is always within [-pi, pi].
-        final SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(
-                speeds, gyroRateRad_S).motionless();
-
-        OptionalDouble[] positions = m_modules.turningPosition();
-        OptionalDouble[] velocities = m_modules.turningVelocity();
-        SwerveModuleState100[] all = states.all();
-        for (int i = 0; i < positions.length; ++i) {
-            double setpointPosition = all[i].angle().orElseThrow().getRadians();
-            // the servo "at setpoint" also measures velocity error but there is no
-            // angle velocity in the desired speed.
-
-            double positionError = MathUtil.angleModulus(m_setpoint.x() - positionRad.getAsDouble());
-            double velocityError = m_setpoint.v() - velocityRad_S.getAsDouble();
-            return Math.abs(positionError) < kPositionTolerance
-                    && Math.abs(velocityError) < kVelocityTolerance;
+        OptionalDouble[] measurements = m_modules.turningPosition();
+        SwerveModuleState100[] setpoints = m_swerveKinodynamics.toSwerveModuleStates(
+                desiredSpeeds, gyroRateRad_S).all();
+        for (int i = 0; i < measurements.length; ++i) {
+            if (measurements[i].isEmpty()) {
+                // Util.warn("broken sensor, this should never happen");
+                return false;
+            }
+            double measurement = measurements[i].getAsDouble();
+            if (setpoints[i].angle().isEmpty()) {
+                // This can happen if the desired wheel speed is zero, which can happen even if
+                // the other desired wheel speeds are not zero.
+                // Util.printf("angle %d empty\n", i);
+                continue;
+            }
+            double setpoint = setpoints[i].angle().get().getRadians();
+            double error = MathUtil.angleModulus(setpoint - measurement);
+            if (Math.abs(error) > kPositionToleranceRad) {
+                // Util.printf("angle %d error %f  outside tolerance\n", i, error);
+                return false;
+            }
         }
+        // Util.println("all good");
+        return true;
     }
 
     /**
