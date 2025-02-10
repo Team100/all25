@@ -80,7 +80,7 @@ public abstract class Navigator extends Command implements Planner2025 {
         // m_controller.setThetaError(thetaError);
         FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
 
-        m_robotDrive.driveInFieldCoords(output);
+        m_robotDrive.driveInFieldCoordsVerbatim(output);
 
         m_log.m_log_chassis_speeds.log(() -> output);
         double thetaErrorRad = m_goal.getRotation().getRadians()

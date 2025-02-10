@@ -33,6 +33,11 @@ public class TimingConstraintFactory {
         return scaled(0.25, 0.25, 0.25, 0.25);
     }
 
+     /** Very slow, 25% speed. */
+     public List<TimingConstraint> medium() {
+        return scaled(0.5, 0.5, 0.5, 0.5);
+    }
+
     /**
      * Use absolute max as the constraints. Shouldn't be used on a real robot.
      */

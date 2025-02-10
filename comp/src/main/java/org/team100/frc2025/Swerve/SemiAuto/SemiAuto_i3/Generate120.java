@@ -34,7 +34,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class Generate120 extends Navigator {
   /** Creates a new Generate180. */
 
-  private final double kTangentScale = 0;
+  private final double kTangentScale = 0.2;
   private final double kEntranceCurveFactor = 1.2;
 
   private final SwerveDriveSubsystem m_robotDrive;
@@ -93,27 +93,40 @@ public class Generate120 extends Navigator {
     Rotation2d landingSpline = FieldConstants.getLandingAngle(end, path.approach()).times(kEntranceCurveFactor);
     Rotation2d destinationSpline = FieldConstants.getLandingAngle(end, path.approach()).div(kEntranceCurveFactor);
 
-    waypointsM.add( new Pose2d(landingZone, landingSpline));
-    waypointsM.add( new Pose2d(destination, destinationSpline));
-
-    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
-    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
-
-
-    
     Rotation2d initialSpline = calculateInitialSpline(
         anchorWaypoint,
         currTranslation,
         currTranslation.minus(FieldConstants.getReefCenter()), //vector from robot to reef center
         approach,
         kTangentScale);
+
+    double distance = 0.5; // Distance to move
+    double newX = currTranslation.getX() + (distance * initialSpline.getCos());
+    double newY = currTranslation.getY() + (distance * initialSpline.getSin());
+
+    Translation2d newTranslation = new Translation2d(newX, newY);
+    Pose2d newPose = new Pose2d(newTranslation, initialSpline);
+    Translation2d vecFomReefToRobot = FieldConstants.getReefCenter().minus(newTranslation);
+
+
+    waypointsM.add(newPose);
+    waypointsM.add( new Pose2d(landingZone, landingSpline));
+    waypointsM.add( new Pose2d(destination, destinationSpline));
+
+    headings.add(vecFomReefToRobot.getAngle());
+    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
+    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
+
+
+    
+    
   
 
     
     PoseSet poseSet = addRobotPose(currPose, waypointsM, headings, initialSpline);
 
      Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(),
-                m_constraints.fast());
+                m_constraints.medium());
     m_viz.setViz(trajectory);
     TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
     m_controller.setTrajectory(iter);
