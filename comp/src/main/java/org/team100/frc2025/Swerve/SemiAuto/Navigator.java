@@ -158,14 +158,18 @@ public abstract class Navigator extends Command implements Planner2025 {
                 rotationAngle = Rotation2d.fromDegrees(-90);
                 break;
         }
-        Rotation2d tangentAngle = vectorFromCenterToRobot.rotateBy(rotationAngle).getAngle();
 
-        Rotation2d tangentAngleAdjusted = tangentAngle.times((1/distanceToReef) * magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
 
-        Rotation2d pointToWaypoint =  translationToTarget.getAngle();
+        Translation2d tangentVector = vectorFromCenterToRobot.rotateBy(rotationAngle);
 
-        return pointToWaypoint.minus(tangentAngleAdjusted);
 
+        Translation2d tangentVectorAdjusted = tangentVector.times((1/distanceToReef) * magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
+
+        Translation2d finalVector = translationToTarget.plus(tangentVectorAdjusted);
+
+        Rotation2d finalAngle =  finalVector.getAngle();
+
+        return finalAngle;
     }
 
     public static Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation) {

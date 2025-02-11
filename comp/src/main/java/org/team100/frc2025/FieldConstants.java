@@ -7,6 +7,7 @@ package org.team100.frc2025;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -102,49 +103,6 @@ public class FieldConstants {
     public static Rotation2d getLandingAngle(FieldSector sector, ReefAproach approach){
         Rotation2d rotation = new Rotation2d(-90);
 
-
-        // switch (approach){
-        //     case CCW:
-        //         switch(sector){
-        //             case AB:
-        //                 return Rotation2d.fromDegrees(-90);
-        //             case CD:
-        //                 return Rotation2d.fromDegrees(-30);
-        //             case EF:
-        //                 return Rotation2d.fromDegrees(30);
-        //             case GH:
-        //                 return Rotation2d.fromDegrees(90);
-        //             case IJ:
-        //                 return Rotation2d.fromDegrees(150);
-        //             case KL:
-        //                 return Rotation2d.fromDegrees(210);
-        //             default:
-        //                 return Rotation2d.fromDegrees(0);
-        //         }
-
-        //     case CW:
-        //         switch(sector){
-        //             case AB:
-        //                 return Rotation2d.fromDegrees(90);
-        //             case CD:
-        //                 return Rotation2d.fromDegrees(150);
-        //             case EF:
-        //                 return Rotation2d.fromDegrees(210);
-        //             case GH:
-        //                 return Rotation2d.fromDegrees(-90);
-        //             case IJ:
-        //                 return Rotation2d.fromDegrees(-30);
-        //             case KL:
-        //                 return Rotation2d.fromDegrees(30);
-        //             default:
-        //                 return Rotation2d.fromDegrees(0);
-        //         }
-
-        //     default:
-        //         return Rotation2d.fromDegrees(0);
-                
-        // }
-
         switch(sector){
             case AB:
                 rotation = Rotation2d.fromDegrees(-90);
@@ -174,10 +132,10 @@ public class FieldConstants {
                 return rotation;
             case CW:
                 return rotation.rotateBy(Rotation2d.fromDegrees(180));
+                // return rotation;
             default:
                 return rotation;
         }
-
 
         
     }
@@ -235,14 +193,27 @@ public class FieldConstants {
 
     }
 
-    public static Translation2d getOrbitWaypoint(FieldSector sector){
-        Translation2d reefCenter = getReefCenter();
-        double x = reefCenter.getX() + getOrbitWaypointRadius() * getSectorAngle(sector).getCos();
-        double y = reefCenter.getY() + getOrbitWaypointRadius() * getSectorAngle(sector).getSin();
+   public static LandingDestinationGroup getRotationGroup(ReefAproach approach, FieldSector end, double kScaleFactor ){
+        Translation2d parallelLandingVector = new Translation2d(1, FieldConstants.getLandingAngle(end, approach));
+        Translation2d parallelLandingVectorUnit = new Translation2d(kScaleFactor, FieldConstants.getLandingAngle(end, approach));
 
-        return new Translation2d(x, y);
 
-    }
+        Translation2d perpendicularLandingVector;
+        Translation2d perpendicularDestinationVector;
+
+        if(approach == ReefAproach.CCW){
+            perpendicularLandingVector = parallelLandingVectorUnit.rotateBy(Rotation2d.fromDegrees(-90));
+            perpendicularDestinationVector = parallelLandingVectorUnit.rotateBy(Rotation2d.fromDegrees(90));
+        } else{
+            perpendicularLandingVector = parallelLandingVectorUnit.rotateBy(Rotation2d.fromDegrees(90));
+            perpendicularDestinationVector = parallelLandingVectorUnit.rotateBy(Rotation2d.fromDegrees(-90));
+        }
+
+        Translation2d landingVector = parallelLandingVector.plus(perpendicularLandingVector);
+        Translation2d destVec = parallelLandingVector.plus(perpendicularDestinationVector);
+
+        return new LandingDestinationGroup(landingVector.getAngle(), destVec.getAngle());
+   }
 
     public static Translation2d getOrbitLandingZone(FieldSector destinationSector, ReefAproach approach){
         Translation2d reefCenter = getReefCenter();

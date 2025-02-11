@@ -35,7 +35,7 @@ public class TimingConstraintFactory {
 
      /** Very slow, 25% speed. */
      public List<TimingConstraint> medium() {
-        return scaled(0.5, 0.5, 0.5, 0.5);
+        return scaled(0.75, 0.75, 0.75, 0.75);
     }
 
     /**

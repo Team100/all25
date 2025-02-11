@@ -12,6 +12,7 @@ import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.follower.TrajectoryFollower;
@@ -34,8 +35,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class Generate120 extends Navigator {
   /** Creates a new Generate180. */
 
-  private final double kTangentScale = 0.2;
-  private final double kEntranceCurveFactor = 1.2;
+  private final double kTangentScale = 1;
+  private final double kEntranceCurveFactor = 0.25;
 
   private final SwerveDriveSubsystem m_robotDrive;
   private final TrajectoryFollower m_controller;
@@ -68,7 +69,7 @@ public class Generate120 extends Navigator {
 
     FieldSector start = FieldConstants.getSector(m_robotDrive.getPose());
     FieldSector end = FieldSector.AB;
-    ReefDestination reefDestination = ReefDestination.LEFT;
+    ReefDestination reefDestination = ReefDestination.CENTER;
     
     Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
 
@@ -83,15 +84,14 @@ public class Generate120 extends Navigator {
     Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(anchorPreviousRotation, approach);
     Translation2d anchorWaypoint =  FieldConstants.getOrbitWaypoint(anchorPointRotation);
     
-
     Translation2d landingZone = FieldConstants.getOrbitLandingZone(end, approach);
 
 
     List<Pose2d> waypointsM = new ArrayList<>();
     List<Rotation2d> headings = new ArrayList<>();
 
-    Rotation2d landingSpline = FieldConstants.getLandingAngle(end, path.approach()).times(kEntranceCurveFactor);
-    Rotation2d destinationSpline = FieldConstants.getLandingAngle(end, path.approach()).div(kEntranceCurveFactor);
+    LandingDestinationGroup rotationGroup = FieldConstants.getRotationGroup(approach, end, kEntranceCurveFactor);
+
 
     Rotation2d initialSpline = calculateInitialSpline(
         anchorWaypoint,
@@ -106,16 +106,16 @@ public class Generate120 extends Navigator {
 
     Translation2d newTranslation = new Translation2d(newX, newY);
     Pose2d newPose = new Pose2d(newTranslation, initialSpline);
-    Translation2d vecFomReefToRobot = FieldConstants.getReefCenter().minus(newTranslation);
+    Rotation2d rotationToReef = FieldConstants.angleToReefCenter(newPose);
 
 
     waypointsM.add(newPose);
-    waypointsM.add( new Pose2d(landingZone, landingSpline));
-    waypointsM.add( new Pose2d(destination, destinationSpline));
+    waypointsM.add( new Pose2d(landingZone, rotationGroup.landingSpline()));
+    waypointsM.add( new Pose2d(destination, rotationGroup.destinationSpline()));
 
-    headings.add(vecFomReefToRobot.getAngle());
-    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
-    headings.add(FieldConstants.getSectorAngle(end).plus(Rotation2d.fromDegrees(180)));
+    headings.add(rotationToReef);
+    headings.add(FieldConstants.angleToReefCenter(new Pose2d(landingZone, rotationGroup.landingSpline())));
+    headings.add(FieldConstants.angleToReefCenter( new Pose2d(destination, rotationGroup.destinationSpline())));
 
 
     
