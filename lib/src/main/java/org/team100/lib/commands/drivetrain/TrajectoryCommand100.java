@@ -11,8 +11,6 @@ import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -47,7 +45,6 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
     private final Trajectory100 m_trajectory;
     private final Pose2d m_goal;
     private final TrajectoryVisualization m_viz;
-    private final TrajectoryTimeIterator m_iter;
 
     public TrajectoryCommand100(
             Log log,
@@ -59,41 +56,16 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
         m_robotDrive = robotDrive;
         m_trajectory = trajectory;
         m_controller = controller;
-        m_goal = m_trajectory.getLastPoint().state().state().getPose();
+        m_goal = m_trajectory.getLastPoint().state().getPose();
         m_viz = viz;
         log.m_log_goal.log(() -> m_goal);
-        m_iter = null;
-        addRequirements(m_robotDrive);
-    }
-
-    public TrajectoryCommand100(
-            Log log,
-            SwerveDriveSubsystem robotDrive,
-            Trajectory100 trajectory,
-            TrajectoryFollower controller,
-            TrajectoryVisualization viz,
-            TrajectoryTimeIterator iter) {
-        m_log = log;
-        m_robotDrive = robotDrive;
-        m_trajectory = trajectory;
-        m_controller = controller;
-        m_goal = m_trajectory.getLastPoint().state().state().getPose();
-        m_viz = viz;
-        log.m_log_goal.log(() -> m_goal);
-        m_iter = iter;
         addRequirements(m_robotDrive);
     }
 
     @Override
     public void initialize() {
         m_viz.setViz(m_trajectory);
-        TrajectoryTimeIterator iter;
-        if(m_iter == null){
-            iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(m_trajectory));
-        } else{
-            iter = m_iter;
-        }
-        m_controller.setTrajectory(iter);
+        m_controller.setTrajectory(m_trajectory);
     }
 
     @Override

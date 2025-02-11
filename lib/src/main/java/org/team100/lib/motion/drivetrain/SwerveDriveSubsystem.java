@@ -110,6 +110,18 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     /**
+     * True if wheel steering is aligned to the desired motion.
+     */
+    public boolean aligned(FieldRelativeVelocity v) {
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                v.x(),
+                v.y(),
+                v.theta(),
+                getPose().getRotation());
+        return m_swerveLocal.aligned(targetChassisSpeeds, m_gyro.getYawRateNWU());
+    }
+
+    /**
      * steer the wheels to match the target but don't drive them. This is for the
      * beginning of trajectories, like the "square" project or any other case where
      * the new direction happens not to be aligned with the wheels.
@@ -117,13 +129,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * @return true if aligned
      */
     @Override
-    public boolean steerAtRest(FieldRelativeVelocity v) {
+    public void steerAtRest(FieldRelativeVelocity v) {
+        // Util.printf("steer at rest v %s\n", v);
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 v.x(),
                 v.y(),
                 v.theta(),
                 getPose().getRotation());
-        return m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
     }
 
     /**
@@ -257,14 +270,17 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         return m_poseEstimator.get(now);
     }
 
+    /** Return cached pose. */
     public Pose2d getPose() {
         return m_stateSupplier.get().pose();
     }
 
+    /** Return cached velocity. */
     public FieldRelativeVelocity getVelocity() {
         return m_stateSupplier.get().velocity();
     }
 
+    /** Return cached speeds. */
     public ChassisSpeeds getChassisSpeeds() {
         return m_stateSupplier.get().chassisSpeeds();
     }

@@ -19,8 +19,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -52,11 +50,8 @@ class DriveFeedforwardControllerTest {
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
         assertEquals(1300, trajectory.length());
 
-        TrajectoryTimeSampler view = new TrajectoryTimeSampler(trajectory);
-
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(view);
         TrajectoryFollower controller = new TrajectoryFollower(logger, 0, 0, 0, 0);
-        controller.setTrajectory(iter);
+        controller.setTrajectory(trajectory);
 
         // this is a series of perfect trajectory following states,
         // based on the trajectory itself.

@@ -14,6 +14,7 @@ public interface Feedback100 {
 
     double calculate(Model100 measurement, Model100 setpoint);
 
+    /** True if the most-recent calculation inputs are within tolerance. */
     boolean atSetpoint();
 
     void reset();

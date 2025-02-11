@@ -65,6 +65,10 @@ public class Neo550Factory {
                 gearRatio);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     public static OutboardGravityServo getNEO550GravityServo(
             String name,
             LoggerFactory parent,
@@ -119,6 +123,10 @@ public class Neo550Factory {
                 simulatedLinearMechanism(parent));
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     public static OutboardGravityServo simulatedGravityServo(LoggerFactory parent) {
         SimulatedBareMotor driveMotor = new SimulatedBareMotor(parent, 5);
         RotaryMechanism rotaryMechanism = new SimpleRotaryMechanism(parent, driveMotor,

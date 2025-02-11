@@ -23,6 +23,9 @@ import edu.wpi.first.math.MathUtil;
  * OnboardPositionServo.
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
+    private static final double kXTolerance = 0.05;
+    private static final double kVTolerance = 0.05;
+
     private final RotaryMechanism m_mechanism;
     private final RotaryPositionSensor m_positionSensor;
     private final ProfiledController m_controller;
@@ -111,7 +114,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         }
         m_goal = new Model100(goalRad, goalVelocityRad_S);
 
+        // Util.printf("servo measurement position %f\n", position.getAsDouble());
+
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+        // Util.printf("servo measurement %s\n", measurement);
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         Control100 setpointRad = result.feedforward();
 
@@ -120,6 +126,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         final double u_FB = result.feedback();
 
         final double u_TOTAL = u_FB + u_FF;
+
+        // Util.printf("u_TOTAL %f\n", u_TOTAL);
 
         m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
 
@@ -136,6 +144,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
+        // Util.printf("servo goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 
@@ -175,9 +184,20 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setEncoderPosition(positionRad);
     }
 
+    /**
+     * position and velocity errors are both under their tolerances.
+     */
     @Override
     public boolean atGoal() {
-        return m_controller.atGoal(m_goal);
+        OptionalDouble position = getPosition();
+        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+        if (position.isEmpty() || velocity.isEmpty()) {
+            Util.warn("Broken sensor!");
+            return false;
+        }
+        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+        // Util.printf("servo measurement %s goal %s\n", measurement, m_goal);
+        return measurement.near(m_goal, kXTolerance, kVTolerance);
     }
 
     @Override

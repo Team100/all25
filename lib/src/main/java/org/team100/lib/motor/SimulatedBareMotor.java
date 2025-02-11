@@ -3,6 +3,8 @@ package org.team100.lib.motor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.util.Memo;
+import org.team100.lib.util.Memo.DoubleCache;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
@@ -15,11 +17,14 @@ public class SimulatedBareMotor implements BareMotor {
 
     private double m_velocity = 0;
 
+    private DoubleCache m_velocityCache;
+
     public SimulatedBareMotor(LoggerFactory parent, double freeSpeedRad_S) {
         LoggerFactory child = parent.child(this);
         m_freeSpeedRad_S = freeSpeedRad_S;
         m_log_duty = child.doubleLogger(Level.DEBUG, "duty_cycle");
         m_log_velocity = child.doubleLogger(Level.DEBUG, "velocity (rad_s)");
+        m_velocityCache = Memo.ofDouble(() -> m_velocity);
     }
 
     @Override
@@ -32,6 +37,7 @@ public class SimulatedBareMotor implements BareMotor {
 
     @Override
     public void setVelocity(double velocityRad_S, double accelRad_S2, double torqueNm) {
+        // Util.printf("motor v %f\n", velocityRad_S);
         m_velocity = MathUtil.clamp(
                 Util.notNaN(velocityRad_S), -m_freeSpeedRad_S, m_freeSpeedRad_S);
         m_log_velocity.log(() -> m_velocity);
@@ -66,7 +72,7 @@ public class SimulatedBareMotor implements BareMotor {
 
     @Override
     public double getVelocityRad_S() {
-        return m_velocity;
+        return m_velocityCache.getAsDouble();
     }
 
     @Override

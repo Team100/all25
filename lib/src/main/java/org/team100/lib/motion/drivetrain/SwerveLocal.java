@@ -31,6 +31,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
+    private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
             new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
@@ -113,52 +114,58 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
+     * Align wheels with the directions implied by speeds, don't move drives.
+     */
+    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+        states = states.motionless();
+        setModuleStates(states);
+        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
+    }
+
+    /**
      * True if current wheel steering positions are aligned with the positions
      * implied by the desired speed.
      */
     public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
         // These measurements include empty angles for motionless wheels.
         // Otherwise angle is always within [-pi, pi].
-        OptionalDouble[] measurements = m_modules.turningPosition();
-        SwerveModuleState100[] setpoints = m_swerveKinodynamics.toSwerveModuleStates(
+        OptionalDouble[] positions = m_modules.turningPosition();
+        OptionalDouble[] velocities = m_modules.turningVelocity();
+        SwerveModuleState100[] desiredStates = m_swerveKinodynamics.toSwerveModuleStates(
                 desiredSpeeds, gyroRateRad_S).all();
-        for (int i = 0; i < measurements.length; ++i) {
-            if (measurements[i].isEmpty()) {
+        for (int i = 0; i < positions.length; ++i) {
+            if (positions[i].isEmpty() && velocities[i].isEmpty()) {
                 // Util.warn("broken sensor, this should never happen");
                 return false;
             }
-            double measurement = measurements[i].getAsDouble();
-            if (setpoints[i].angle().isEmpty()) {
+            double position = positions[i].getAsDouble();
+            double velocity = velocities[i].getAsDouble();
+            if (desiredStates[i].angle().isEmpty()) {
                 // This can happen if the desired wheel speed is zero, which can happen even if
                 // the other desired wheel speeds are not zero.
                 // Util.printf("angle %d empty\n", i);
                 continue;
             }
-            double setpoint = setpoints[i].angle().get().getRadians();
-            double error = MathUtil.angleModulus(setpoint - measurement);
+            double setpoint = desiredStates[i].angle().get().getRadians();
+            // Modulus accommodates "optimizing" wheel direction.
+            double error = MathUtil.inputModulus(setpoint - position, -Math.PI / 2, Math.PI / 2);
+            // Util.printf("local setpoint %f measurement %f error %f\n", setpoint,
+            // position, error);
             if (Math.abs(error) > kPositionToleranceRad) {
-                // Util.printf("angle %d error %f  outside tolerance\n", i, error);
+                // Util.printf("angle %d error %f outside tolerance\n", i, error);
+                return false;
+            }
+            double velocityError = velocity;
+            // steering commands always specify zero speed.
+            if (Math.abs(velocityError) > kVelocityToleranceRad_S) {
+                // Util.printf("angle %d velocity error %f outside tolerance\n", i,
+                // velocityError);
                 return false;
             }
         }
         // Util.println("all good");
         return true;
-    }
-
-    /**
-     * @return true if aligned
-     */
-    public boolean steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
-        // this indicates that during the steering the goal is fixed
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(
-                speeds, gyroRateRad_S);
-
-        states = states.motionless();
-
-        setModuleStates(states);
-        // previous setpoint should be at rest with the current states
-        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
-        return Util.all(atGoal());
     }
 
     /**

@@ -11,8 +11,9 @@ import org.team100.lib.motion.drivetrain.Fixtured;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.testing.Timeless;
 
-class FancyTrajectoryTest extends Fixtured {
+class FancyTrajectoryTest extends Fixtured implements Timeless {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test

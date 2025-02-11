@@ -16,8 +16,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -64,9 +62,7 @@ public class DriveWithWaypoints extends Command implements Glassy {
 
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(newWaypointM, headings, constraints);
 
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(
-                new TrajectoryTimeSampler(trajectory));
-        m_controller.setTrajectory(iter);
+        m_controller.setTrajectory(trajectory);
     }
 
     @Override

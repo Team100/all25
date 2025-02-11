@@ -55,6 +55,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
             double outputRad_S,
             double outputAccelRad_S2,
             double outputTorqueNm) {
+        // Util.printf("velocity %f\n", outputRad_S);
         m_motor.setVelocity(
                 outputRad_S * m_gearRatio,
                 outputAccelRad_S2 * m_gearRatio,

@@ -14,8 +14,12 @@ public class MockDrive implements DriveSubsystemInterface {
     }
 
     @Override
-    public boolean steerAtRest(FieldRelativeVelocity setpoint) {
+    public void steerAtRest(FieldRelativeVelocity setpoint) {
         m_atRestSetpoint = setpoint;
+    }
+
+    @Override
+    public boolean aligned(FieldRelativeVelocity v) {
         return m_aligned;
     }
 

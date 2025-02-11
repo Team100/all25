@@ -82,6 +82,7 @@ public class ProfiledController {
      * @param goal        final desired state
      */
     public Result calculate(Model100 measurement, Model100 goal) {
+        // Util.printf("ProfiledController measurement %s goal %s\n", measurement, goal);
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
 
@@ -116,22 +117,29 @@ public class ProfiledController {
      * the profile well.
      */
     public boolean atSetpoint() {
-        return m_feedback.atSetpoint();
+        boolean atSetpoint = m_feedback.atSetpoint();
+        // Util.printf("profiled controller at setpoint %b\n", atSetpoint);
+        return atSetpoint;
     }
 
     /**
      * The profile has reached the goal and the feedback error is within tolerance,
      * i.e. our path is complete.
+     * 
+     * This doesn't use current measurements, it uses whatever inputs we saw in
+     * calculate() most recently.
      */
     public boolean atGoal(Model100 goal) {
+        Model100 setpoint = getSetpoint();
+        // Util.printf("setpoint %s\n", setpoint);
         return atSetpoint()
                 && MathUtil.isNear(
                         goal.x(),
-                        getSetpoint().x(),
+                        setpoint.x(),
                         kPositionTolerance)
                 && MathUtil.isNear(
                         goal.v(),
-                        getSetpoint().v(),
+                        setpoint.v(),
                         kVelocityTolerance);
     }
 }

@@ -44,7 +44,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         rotate.initialize();
 
-        assertEquals(0, rotate.currentRefTheta.x(), kDelta); // at start
+        assertEquals(0, rotate.m_currentRefTheta.x(), kDelta); // at start
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), kDelta);
 
@@ -54,7 +54,7 @@ class RotateTest extends Fixtured implements Timeless {
             fixture.drive.periodic();
             rotate.execute();
         }
-        assertEquals(0, rotate.currentRefTheta.x(), 0.01);
+        assertEquals(0, rotate.m_currentRefTheta.x(), 0.01);
         // now we're ready to start rotating
         assertEquals(-0.02, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
                 kDelta);
@@ -67,7 +67,7 @@ class RotateTest extends Fixtured implements Timeless {
             fixture.drive.periodic();
             rotate.execute();
         }
-        assertEquals(0.461, rotate.currentRefTheta.x(), 0.2);
+        assertEquals(0.461, rotate.m_currentRefTheta.x(), 0.2);
         assertEquals(-0.512, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
                 kDelta);
         assertEquals(-Math.PI / 4,
@@ -80,7 +80,7 @@ class RotateTest extends Fixtured implements Timeless {
             rotate.execute();
         }
 
-        assertEquals(Math.PI / 2, rotate.currentRefTheta.x(), kDelta);
+        assertEquals(Math.PI / 2, rotate.m_currentRefTheta.x(), kDelta);
         // assertEquals(-0.403,
         // fixture.drive.desiredStates().frontLeft().speedMetersPerSecond,
         // kDelta);

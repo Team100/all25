@@ -10,11 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
+import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-class SwerveLocalTest extends Fixtured {
+class SwerveLocalTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
 
     @Test

@@ -45,6 +45,7 @@ public class PIDFeedback implements Feedback100, Glassy {
      */
     @Override
     public double calculate(Model100 measurement, Model100 setpoint) {
+        // Util.printf("PIDFeedback measurement %s setpoint %s\n", measurement, setpoint);
         double u = m_controller.calculate(measurement.x(), setpoint.x());
         m_log_error.log(m_controller::getError);
         m_log_errorD.log(m_controller::getErrorDerivative);
@@ -53,7 +54,9 @@ public class PIDFeedback implements Feedback100, Glassy {
 
     @Override
     public boolean atSetpoint() {
-        return m_controller.atSetpoint();
+        boolean atSetpoint = m_controller.atSetpoint();
+        // Util.printf("PIDFeedback at setpoint %b\n", atSetpoint);
+        return atSetpoint;
     }
 
     @Override

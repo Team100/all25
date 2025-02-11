@@ -23,31 +23,27 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         SwerveDriveSubsystem swerve = fixture.drive;
         DriveInALittleSquare command = new DriveInALittleSquare(swerve);
         command.initialize();
-        // the first time we call execute, drive doesn't yet know it's at the goal
-        stepTime(0.02);
-        fixture.drive.periodic();
-        command.execute();
-        // initially steering
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
-        assertEquals(0, command.m_setpoint.v(), kDelta);
-        assertEquals(0, command.m_goal.getRadians(), kDelta);
-        assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), kDelta);
-
-        // the second time, it knows, so we switch to driving.
+        // we're already pointing the right way
         stepTime(0.02);
         fixture.drive.periodic();
         command.execute();
+        // execute switches to driving
         assertEquals(DriveInALittleSquare.DriveState.DRIVING, command.m_state);
+        // and changes the setpoint
         assertEquals(0.02, command.m_setpoint.v(), kDelta);
         assertEquals(0, command.m_goal.getRadians(), kDelta);
+        // and sets the desired state (note this is not reflected in the measurement)
         assertEquals(0.02, swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), kDelta);
 
         // step through the driving phase
-        for (int i = 0; i < 125; ++i) {
+        for (int i = 0; i < 98; ++i) {
+            stepTime(0.02);
             fixture.drive.periodic();
             command.execute();
+            // Util.printf("************* %d STATE %s *************\n", i, command.m_state);
+            // Util.printf("%f\n",swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond());
         }
         // now we should be steering again
         stepTime(0.02);
@@ -57,7 +53,8 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(0, command.m_setpoint.v(), kDelta);
         assertEquals(Math.PI / 2, command.m_goal.getRadians(), kDelta);
         assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(Math.PI / 2, swerve.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(Math.PI / 2, swerve.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(),
+                kDelta);
     }
 
     @Test
@@ -65,17 +62,17 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         // there's some weird thing with getFPGATimestamp in tests mode
         // that messes up how the simulated encoder measures position,
         // and somehow magically the line below fixes it.
-        assertEquals(0.0, fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, 0.005);
+        // assertEquals(0.0, fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, 0.005);
 
         DriveInALittleSquare command = new DriveInALittleSquare(fixture.drive);
         command.initialize();
 
-        // first align the wheels in case they're not already aligned.
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
 
+        stepTime(0.02);
         fixture.drive.periodic();
         command.execute();
-        assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
+        assertEquals(DriveInALittleSquare.DriveState.DRIVING, command.m_state);
         assertEquals(0, command.m_goal.getRadians(), kDelta);
 
         // a little while later we should be driving
@@ -83,6 +80,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(0.0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
         stepTime(0.1);
         for (int i = 0; i < 5; ++i) {
+            stepTime(0.02);
             fixture.drive.periodic();
             // this changes the speed
             command.execute();
@@ -95,7 +93,8 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(0.1, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
         // position isn't updated until the next time-step.
         // assertEquals(0.0,
-        // fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, 0.005);
+        // fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters,
+        // 0.005);
 
         // drive to the next corner. at 1 m/s/s this should be a triangular
         // profile that takes exactly 2 sec total but we started at 0.1 so 1.9

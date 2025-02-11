@@ -89,6 +89,10 @@ public class ArmFactory {
                 upperEncoder);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     private static ArmSubsystem simulated(LoggerFactory parent) {
         // for testing
         // note very high reduction ratio

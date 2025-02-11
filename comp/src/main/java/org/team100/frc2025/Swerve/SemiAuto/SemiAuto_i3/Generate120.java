@@ -4,7 +4,6 @@
 
 package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +21,6 @@ import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -41,7 +38,6 @@ public class Generate120 extends Navigator {
   private final TrajectoryFollower m_controller;
   private Pose2d m_goal = new Pose2d();
   private final TrajectoryVisualization m_viz;
-  private final Navigator.Log m_log;
   TimingConstraintFactory m_constraints;
 
   public Generate120(LoggerFactory parent,
@@ -51,7 +47,6 @@ public class Generate120 extends Navigator {
             SwerveKinodynamics kinodynamics) {
     // Use addRequirements() here to declare subsystem dependencies.
     super(parent, robotDrive, controller, viz, kinodynamics);
-    m_log = super.m_log;
     m_robotDrive = robotDrive;
     m_controller = controller;
     m_viz = viz;
@@ -128,8 +123,7 @@ public class Generate120 extends Navigator {
      Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(),
                 m_constraints.medium());
     m_viz.setViz(trajectory);
-    TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
-    m_controller.setTrajectory(iter);
+    m_controller.setTrajectory(trajectory);
 
   }
 
