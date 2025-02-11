@@ -129,14 +129,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * @return true if aligned
      */
     @Override
-    public boolean steerAtRest(FieldRelativeVelocity v) {
+    public void steerAtRest(FieldRelativeVelocity v) {
         // Util.printf("steer at rest v %s\n", v);
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 v.x(),
                 v.y(),
                 v.theta(),
                 getPose().getRotation());
-        return m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
     }
 
     /**

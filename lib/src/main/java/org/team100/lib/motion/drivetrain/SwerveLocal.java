@@ -162,7 +162,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     /**
      * @return true if aligned
      */
-    public boolean steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
+    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
         // this indicates that during the steering the goal is fixed
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(
                 speeds, gyroRateRad_S);
@@ -181,7 +181,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         atGoal();
         // previous setpoint should be at rest with the current states
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
-        return Util.all(atGoal());
     }
 
     /**
