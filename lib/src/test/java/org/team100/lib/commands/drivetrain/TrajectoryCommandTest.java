@@ -211,7 +211,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // this is 16 cycles of 20 ms which is 0.32 sec, a long time. the profile
         // here is acceleration-limited, 20pi/s^2, which is just what the limits say.
         // https://docs.google.com/spreadsheets/d/19N-rQBjlWM-fb_Hd5wJeKuihzoglmGVK7MT7RYU-9bY
-        for (int i = 0; i < 21; ++i) {
+        for (int i = 0; i < 16; ++i) {
+            Util.printf("************ %d **********", i);
             // command thinks we're not aligned
             assertFalse(command.m_aligned);
             // drive thinks we're not aligned to the target (0,1)
