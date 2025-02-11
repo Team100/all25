@@ -13,7 +13,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,7 +52,8 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     private final Log m_log;
 
     private Trajectory100 m_trajectory;
-    private TrajectoryTimeIterator m_iter;
+    /** progress along trajectory */
+    private double m_timeS;
 
     /**
      * Trajectory waits until wheels are aligned. If we depend on the setpoint
@@ -87,7 +87,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public void initialize() {
         m_controller.reset();
         m_trajectory = m_trajectories.apply(m_swerve.getState(), m_goal);
-        m_iter = new TrajectoryTimeIterator(m_trajectory);
+        m_timeS = 0;
         m_viz.setViz(m_trajectory);
         m_steeringAligned = false;
     }
@@ -98,7 +98,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             return;
         final SwerveModel measurement = m_swerve.getState();
         
-        TimedPose state = m_iter.getSample();
+        TimedPose state = m_trajectory.sample(m_timeS);
         if (state.velocityM_S() > 0) {
             // if we're moving, don't worry about the steering.
             // this catches the "start from rest" case and allows
@@ -108,7 +108,8 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         SwerveModel currentReference = SwerveModel.fromTimedPose(state);
 
         if (m_steeringAligned) {
-            TimedPose nextState = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            m_timeS = m_timeS + TimedRobot100.LOOP_PERIOD_S;
+            TimedPose nextState = m_trajectory.sample(m_timeS);
             m_log.desired.log(() -> nextState.state().getPose());
             SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
@@ -117,7 +118,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // not aligned yet, try aligning by *previewing* next point
-            TimedPose nextState = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+            TimedPose nextState = m_trajectory.sample(m_timeS + TimedRobot100.LOOP_PERIOD_S);
             m_log.desired.log(() -> nextState.state().getPose());
             SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
@@ -133,7 +134,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public boolean isFinished() {
         if (m_trajectory == null)
             return true;
-        return m_iter.isDone() && m_controller.atReference();
+        return m_trajectory.isDone(m_timeS) && m_controller.atReference();
     }
 
     @Override

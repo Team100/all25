@@ -14,7 +14,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -85,8 +84,7 @@ public class DriveToState101 extends Command implements Glassy {
         }
 
         m_viz.setViz(trajectory);
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(trajectory);
-        m_controller.setTrajectory(iter);
+        m_controller.setTrajectory(trajectory);
     }
 
     @Override

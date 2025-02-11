@@ -43,7 +43,7 @@ class TrajectoryPlannerTest {
         List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
         List<TimingConstraint> constraints = new ArrayList<>();
         Trajectory100 t = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
-        assertEquals(80, t.m_points.size());
+        assertEquals(80, t.length());
         TimedPose p = t.getPoint(40);
         assertEquals(0.5, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
@@ -103,7 +103,7 @@ class TrajectoryPlannerTest {
             Util.printf("total duration ms: %5.3f\n", totalDurationMs);
             Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }
-        assertEquals(131, t.m_points.size());
+        assertEquals(131, t.length());
         TimedPose p = t.getPoint(40);
         assertEquals(0.5, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);

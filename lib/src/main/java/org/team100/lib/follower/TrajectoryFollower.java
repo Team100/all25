@@ -4,17 +4,15 @@ import java.util.Optional;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeDeltaLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.logging.LoggerFactory.TimedPoseLogger;
-import org.team100.lib.logging.LoggerFactory.TrajectorySamplePointLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
+import org.team100.lib.trajectory.Trajectory100;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -28,7 +26,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 public class TrajectoryFollower {
     private final SwerveModelLogger m_log_measurement;
     private final TimedPoseLogger m_log_setpoint;
-    private final BooleanLogger m_log_is_mt;
     private final TimedPoseLogger m_log_sample;
 
     private final FieldRelativeVelocityLogger m_log_u_FF;
@@ -41,7 +38,9 @@ public class TrajectoryFollower {
     private final double m_kPTheta;
     private final double m_kPCartV;
     private final double m_kPThetaV;
-    private TrajectoryTimeIterator m_iter;
+    private Trajectory100 m_trajectory;
+    /** time along the trajectory */
+    private double m_timeS;
     private double m_prevTimeS;
 
     TrajectoryFollower(
@@ -53,7 +52,6 @@ public class TrajectoryFollower {
         LoggerFactory log = parent.child("FieldRelativeDrivePIDFFollower");
         m_log_measurement = log.swerveModelLogger(Level.DEBUG, "measurement");
         m_log_setpoint = log.timedPoseLogger(Level.DEBUG, "setpoint");
-        m_log_is_mt = log.booleanLogger(Level.TRACE, "IS MT");
         m_log_sample = log.timedPoseLogger(Level.DEBUG, "sample point");
 
         m_log_u_FF = log.fieldRelativeVelocityLogger(Level.TRACE, "u_FF");
@@ -68,8 +66,9 @@ public class TrajectoryFollower {
         m_kPThetaV = kPThetaV;
     }
 
-    public void setTrajectory(TrajectoryTimeIterator iter) {
-        m_iter = iter;
+    public void setTrajectory(Trajectory100 trajectory) {
+        m_trajectory = trajectory;
+        m_timeS = 0.0;
         m_prevTimeS = Double.POSITIVE_INFINITY;
     }
 
@@ -88,7 +87,7 @@ public class TrajectoryFollower {
      * 
      */
     public FieldRelativeVelocity update(double timeS, SwerveModel measurement) {
-        if (m_iter == null)
+        if (m_trajectory == null)
             return FieldRelativeVelocity.zero();
 
         m_log_measurement.log(() -> measurement);
@@ -136,16 +135,15 @@ public class TrajectoryFollower {
      * Note that even though the follower is done, the controller might not be.
      */
     public boolean isDone() {
-        return m_iter != null && m_iter.isDone();
+        return m_trajectory != null && m_trajectory.isDone(m_timeS);
     }
 
-    /**
-     * this mutates the iterator
-     * TODO: fix it.
-     */
     Optional<TimedPose> getSetpoint(double timestamp) {
         double mDt = dt(timestamp);
-        TimedPose sample_point = m_iter.advance(mDt);
+
+        m_timeS += mDt;
+        TimedPose sample_point = m_trajectory.sample(m_timeS);
+
         m_log_sample.log(() -> sample_point);
         return Optional.of(sample_point);
     }

@@ -11,7 +11,6 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,8 +28,10 @@ public class TrajectoryCommand extends Command implements Glassy {
     // LOGGERS
     private final SwerveModelLogger m_log_reference;
 
-    private Trajectory100 m_trajectory;
-    private TrajectoryTimeIterator m_iter;
+    private final Trajectory100 m_trajectory;
+    /** progress along trajectory */
+    private double m_timeS;
+
     boolean m_aligned;
     private boolean done;
 
@@ -52,7 +53,7 @@ public class TrajectoryCommand extends Command implements Glassy {
     @Override
     public void initialize() {
         m_controller.reset();
-        m_iter = new TrajectoryTimeIterator(m_trajectory);
+        m_timeS = 0;
         m_viz.setViz(m_trajectory);
         done = false;
         m_aligned = false;
@@ -61,7 +62,7 @@ public class TrajectoryCommand extends Command implements Glassy {
     @Override
     public void execute() {
         // Util.println("********** EXECUTE");
-        if (m_iter.isDone()) {
+        if (m_trajectory.isDone(m_timeS)) {
             done = true;
             return;
         }
@@ -70,8 +71,7 @@ public class TrajectoryCommand extends Command implements Glassy {
 
         SwerveModel measurement = m_swerve.getState();
         // Util.printf("TrajectoryCommand measurement %s\n", measurement);
-        TimedPose curOpt = m_iter.getSample();
-        TimedPose state = curOpt;
+        TimedPose state = m_trajectory.sample(m_timeS);
         if (state.velocityM_S() > 0) {
             // if we're moving, don't worry about the steering.
             // this catches the "start from rest" case and allows
@@ -82,7 +82,8 @@ public class TrajectoryCommand extends Command implements Glassy {
         SwerveModel currentReference = SwerveModel.fromTimedPose(state);
 
         if (m_aligned) {
-            TimedPose desiredState = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            m_timeS = m_timeS + TimedRobot100.LOOP_PERIOD_S;
+            TimedPose desiredState = m_trajectory.sample(m_timeS);
             // Util.printf("advance %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
@@ -92,7 +93,7 @@ public class TrajectoryCommand extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // look one loop ahead by *previewing* the next point
-            TimedPose desiredState = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+            TimedPose desiredState = m_trajectory.sample(m_timeS + TimedRobot100.LOOP_PERIOD_S);
             // Util.printf("preview %s\n", desiredState);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
@@ -103,7 +104,6 @@ public class TrajectoryCommand extends Command implements Glassy {
             m_aligned = m_swerve.steerAtRest(fieldRelativeTarget);
         }
     }
-
 
     @Override
     public boolean isFinished() {

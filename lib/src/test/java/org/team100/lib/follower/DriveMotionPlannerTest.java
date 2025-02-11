@@ -25,7 +25,6 @@ import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.timing.TimingUtil;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryGenerator100;
-import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.trajectory.TrajectoryUtil100;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -51,18 +50,18 @@ class DriveMotionPlannerTest {
         double start_vel = 0.0;
         double end_vel = 0.0;
 
-        Path100 traj = new Path100();
-        assertTrue(traj.isEmpty());
-        assertEquals(0, traj.length());
+        Path100 path = new Path100();
+        assertTrue(path.isEmpty());
+        assertEquals(0, path.length());
 
         // Set states at construction time.
-        traj = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(waypoints, headings, 2, 0.25, 0.1);
-        assertFalse(traj.isEmpty());
+        path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(waypoints, headings, 2, 0.25, 0.1);
+        assertFalse(path.isEmpty());
 
-        var view = new PathDistanceSampler(traj);
-        var stepSize = 2;
+        PathDistanceSampler view = new PathDistanceSampler(path);
+        double stepSize = 2;
         TimingUtil u = new TimingUtil(Arrays.asList());
-        Trajectory100 timed_trajectory = u.timeParameterizeTrajectory(
+        Trajectory100 trajectory = u.timeParameterizeTrajectory(
                 view,
                 stepSize,
                 start_vel,
@@ -71,10 +70,9 @@ class DriveMotionPlannerTest {
         TrajectoryFollower controller = new TrajectoryFollower(
                 logger, 2.4, 2.4, 1.0, 1.0);
 
-        TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(timed_trajectory);
-        controller.setTrajectory(traj_iterator);
+        controller.setTrajectory(trajectory);
 
-        Pose2d pose = timed_trajectory.getPoint(0).state().getPose();
+        Pose2d pose = trajectory.sample(0).state().getPose();
         FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();
 
         double time = 0.0;
@@ -105,12 +103,11 @@ class DriveMotionPlannerTest {
         for (Map.Entry<String, Trajectory100> entry : trajectories.entrySet()) {
             Trajectory100 traj = entry.getValue();
             assertFalse(traj.isEmpty());
-            TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(traj);
-            controller.setTrajectory(traj_iterator);
+            controller.setTrajectory(traj);
             final Pose2d kInjectedError = new Pose2d(0.3, -0.1, Rotation2d.fromDegrees(9.0));
             final FieldRelativeVelocity kInjectedVelocityError = new FieldRelativeVelocity(0.1, 0.3, 0.0);
             final double kInjectionTime = 20.0;
-            Pose2d pose = traj.getPoint(0).state().getPose();
+            Pose2d pose = traj.sample(0).state().getPose();
             FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();
             SwerveSetpoint setpoint = null;
             double time = 0.0;

@@ -25,7 +25,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
-import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -44,7 +43,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, t.getPoint(0).velocityM_S(), kDelta);
+        assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -104,7 +103,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, t.getPoint(0).velocityM_S(), kDelta);
+        assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -136,7 +135,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, trajectory.getPoint(0).velocityM_S(), kDelta);
+        assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -193,7 +192,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(0, 1, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, trajectory.getPoint(0).velocityM_S(), kDelta);
+        assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
