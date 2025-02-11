@@ -114,13 +114,20 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
+     * Align wheels with the directions implied by speeds, don't move drives.
+     */
+    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+        states = states.motionless();
+        setModuleStates(states);
+        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
+    }
+
+    /**
      * True if current wheel steering positions are aligned with the positions
      * implied by the desired speed.
      */
     public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
-
-        
-
         // These measurements include empty angles for motionless wheels.
         // Otherwise angle is always within [-pi, pi].
         OptionalDouble[] positions = m_modules.turningPosition();
@@ -142,45 +149,23 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
             }
             double setpoint = desiredStates[i].angle().get().getRadians();
             // Modulus accommodates "optimizing" wheel direction.
-            double error = MathUtil.inputModulus(setpoint - position, -Math.PI/2, Math.PI/2);
-            // Util.printf("local setpoint %f measurement %f error %f\n", setpoint, position, error);
+            double error = MathUtil.inputModulus(setpoint - position, -Math.PI / 2, Math.PI / 2);
+            // Util.printf("local setpoint %f measurement %f error %f\n", setpoint,
+            // position, error);
             if (Math.abs(error) > kPositionToleranceRad) {
-                // Util.printf("angle %d error %f  outside tolerance\n", i, error);
+                // Util.printf("angle %d error %f outside tolerance\n", i, error);
                 return false;
             }
             double velocityError = velocity;
             // steering commands always specify zero speed.
             if (Math.abs(velocityError) > kVelocityToleranceRad_S) {
-                // Util.printf("angle %d velocity error %f outside tolerance\n", i, velocityError);
+                // Util.printf("angle %d velocity error %f outside tolerance\n", i,
+                // velocityError);
                 return false;
             }
         }
         // Util.println("all good");
         return true;
-    }
-
-    /**
-     * @return true if aligned
-     */
-    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
-        // this indicates that during the steering the goal is fixed
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(
-                speeds, gyroRateRad_S);
-
-        states = states.motionless();
-        // Util.printf("steer at rest states %s\n", states);
-
-        // this uses measurements from the previous iteration
-        // Util.println("at goal before?");
-        atGoal();
-
-        setModuleStates(states);
-        // nothing should change here because all the measurements should wait for the
-        // next Takt, but that doesn't seem to be happening.
-        // Util.println("at goal after?");
-        atGoal();
-        // previous setpoint should be at rest with the current states
-        m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
     }
 
     /**
