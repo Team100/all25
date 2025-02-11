@@ -14,7 +14,6 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,7 +29,7 @@ public class TrajectoryFollower {
     private final SwerveModelLogger m_log_measurement;
     private final TimedPoseLogger m_log_setpoint;
     private final BooleanLogger m_log_is_mt;
-    private final TrajectorySamplePointLogger m_log_sample;
+    private final TimedPoseLogger m_log_sample;
 
     private final FieldRelativeVelocityLogger m_log_u_FF;
     private final FieldRelativeDeltaLogger m_log_position_error;
@@ -55,7 +54,7 @@ public class TrajectoryFollower {
         m_log_measurement = log.swerveModelLogger(Level.DEBUG, "measurement");
         m_log_setpoint = log.timedPoseLogger(Level.DEBUG, "setpoint");
         m_log_is_mt = log.booleanLogger(Level.TRACE, "IS MT");
-        m_log_sample = log.trajectorySamplePointLogger(Level.DEBUG, "sample point");
+        m_log_sample = log.timedPoseLogger(Level.DEBUG, "sample point");
 
         m_log_u_FF = log.fieldRelativeVelocityLogger(Level.TRACE, "u_FF");
         m_log_position_error = log.fieldRelativeDeltaLogger(Level.TRACE, "positionError");
@@ -146,9 +145,9 @@ public class TrajectoryFollower {
      */
     Optional<TimedPose> getSetpoint(double timestamp) {
         double mDt = dt(timestamp);
-        TrajectorySamplePoint sample_point = m_iter.advance(mDt);
+        TimedPose sample_point = m_iter.advance(mDt);
         m_log_sample.log(() -> sample_point);
-        return Optional.of(sample_point.state());
+        return Optional.of(sample_point);
     }
 
     double dt(double timestamp) {

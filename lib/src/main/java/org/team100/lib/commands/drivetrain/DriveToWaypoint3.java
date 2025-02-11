@@ -13,7 +13,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -99,8 +98,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             return;
         final SwerveModel measurement = m_swerve.getState();
         
-        TrajectorySamplePoint curOpt = m_iter.getSample();
-        TimedPose state = curOpt.state();
+        TimedPose state = m_iter.getSample();
         if (state.velocityM_S() > 0) {
             // if we're moving, don't worry about the steering.
             // this catches the "start from rest" case and allows
@@ -110,8 +108,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         SwerveModel currentReference = SwerveModel.fromTimedPose(state);
 
         if (m_steeringAligned) {
-            TrajectorySamplePoint nextPoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            TimedPose nextState = nextPoint.state();
+            TimedPose nextState = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
             m_log.desired.log(() -> nextState.state().getPose());
             SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
@@ -120,8 +117,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // not aligned yet, try aligning by *previewing* next point
-            TrajectorySamplePoint nextPoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            TimedPose nextState = nextPoint.state();
+            TimedPose nextState = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
             m_log.desired.log(() -> nextState.state().getPose());
             SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(

@@ -101,7 +101,7 @@ public class DriveToWaypoint100 extends Command implements Glassy {
     @Override
     public boolean isFinished() {
         // return m_controller.isDone();
-        return m_timer.get() > m_trajectory.getLastPoint().state().getTimeS() + m_timeBuffer;
+        return m_timer.get() > m_trajectory.getLastPoint().getTimeS() + m_timeBuffer;
     }
 
     @Override

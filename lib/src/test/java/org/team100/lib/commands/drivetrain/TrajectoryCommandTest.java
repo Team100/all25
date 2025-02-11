@@ -44,7 +44,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, t.getPoint(0).state().velocityM_S(), kDelta);
+        assertEquals(0, t.getPoint(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -104,7 +104,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, t.getPoint(0).state().velocityM_S(), kDelta);
+        assertEquals(0, t.getPoint(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -136,7 +136,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, trajectory.getPoint(0).state().velocityM_S(), kDelta);
+        assertEquals(0, trajectory.getPoint(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));
@@ -193,7 +193,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(0, 1, GeometryUtil.kRotationZero));
         // first state is motionless
-        assertEquals(0, trajectory.getPoint(0).state().velocityM_S(), kDelta);
+        assertEquals(0, trajectory.getPoint(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
                 logger,
                 new HolonomicFieldRelativeController.Log(logger));

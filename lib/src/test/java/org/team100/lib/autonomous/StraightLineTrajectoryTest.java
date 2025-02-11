@@ -11,12 +11,12 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
-import org.team100.lib.trajectory.TrajectoryPoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,17 +37,17 @@ class StraightLineTrajectoryTest {
 
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(traj);
         // initial velocity is zero.
-        assertEquals(0, iter.getSample().state().velocityM_S(), kDelta);
+        assertEquals(0, iter.getSample().velocityM_S(), kDelta);
 
         double maxDriveVelocityM_S = swerveKinodynamics.getMaxDriveVelocityM_S();
         double maxDriveAccelerationM_S2 = swerveKinodynamics.getMaxDriveAccelerationM_S2();
         assertEquals(5, maxDriveVelocityM_S);
         assertEquals(10, maxDriveAccelerationM_S2);
-        for (TrajectoryPoint p : traj.getPoints()) {
-            assertTrue(p.state().velocityM_S() - 0.001 <= maxDriveVelocityM_S,
-                    String.format("%f %f", p.state().velocityM_S(), maxDriveVelocityM_S));
-            assertTrue(p.state().acceleration() - 0.001 <= maxDriveAccelerationM_S2,
-                    String.format("%f %f", p.state().acceleration(), maxDriveAccelerationM_S2));
+        for (TimedPose p : traj.getPoints()) {
+            assertTrue(p.velocityM_S() - 0.001 <= maxDriveVelocityM_S,
+                    String.format("%f %f", p.velocityM_S(), maxDriveVelocityM_S));
+            assertTrue(p.acceleration() - 0.001 <= maxDriveAccelerationM_S2,
+                    String.format("%f %f", p.acceleration(), maxDriveAccelerationM_S2));
         }
     }
 

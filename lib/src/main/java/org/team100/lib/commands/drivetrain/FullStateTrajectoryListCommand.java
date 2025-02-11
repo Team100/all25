@@ -15,7 +15,6 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -81,13 +80,11 @@ public class FullStateTrajectoryListCommand extends Command implements Glassy {
         // now there is a trajectory to follow
 
         SwerveModel measurement = m_swerve.getState();
-        TrajectorySamplePoint curOpt = m_iter.getSample();
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.state());
+        TimedPose curOpt = m_iter.getSample();
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt);
 
         if (m_aligned) {
-            TrajectorySamplePoint nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-           
-            TimedPose desiredState = nextOpt.state();
+            TimedPose desiredState = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
@@ -96,8 +93,7 @@ public class FullStateTrajectoryListCommand extends Command implements Glassy {
             m_log_reference.log(() -> nextReference);
         } else {
             // look one loop ahead by *previewing* the next point
-            TrajectorySamplePoint nextOpt = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            TimedPose desiredState = nextOpt.state();
+            TimedPose desiredState = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(

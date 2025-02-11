@@ -58,7 +58,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
         m_robotDrive = robotDrive;
         m_trajectory = trajectory;
         m_controller = controller;
-        m_goal = m_trajectory.getLastPoint().state().state().getPose();
+        m_goal = m_trajectory.getLastPoint().state().getPose();
         m_viz = viz;
         log.m_log_goal.log(() -> m_goal);
         m_iter = null;
@@ -76,7 +76,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
         m_robotDrive = robotDrive;
         m_trajectory = trajectory;
         m_controller = controller;
-        m_goal = m_trajectory.getLastPoint().state().state().getPose();
+        m_goal = m_trajectory.getLastPoint().state().getPose();
         m_viz = viz;
         log.m_log_goal.log(() -> m_goal);
         m_iter = iter;

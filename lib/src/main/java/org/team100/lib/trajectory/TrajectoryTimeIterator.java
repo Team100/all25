@@ -1,5 +1,7 @@
 package org.team100.lib.trajectory;
 
+import org.team100.lib.timing.TimedPose;
+
 import edu.wpi.first.math.MathUtil;
 
 /**
@@ -16,7 +18,7 @@ public class TrajectoryTimeIterator {
 
     /** progress along the trajectory in seconds */
     private double m_timeS = 0.0;
-    private TrajectorySamplePoint m_current;
+    private TimedPose m_current;
 
     /**
      * Sets the current sample to the first sample.
@@ -24,8 +26,8 @@ public class TrajectoryTimeIterator {
      */
     public TrajectoryTimeIterator(Trajectory100 trajectory) {
         m_trajectory = trajectory;
-        m_startS = m_trajectory.getPoint(0).state().getTimeS();
-        m_endS = m_trajectory.getPoint(m_trajectory.length() - 1).state().getTimeS();
+        m_startS = m_trajectory.getPoint(0).getTimeS();
+        m_endS = m_trajectory.getPoint(m_trajectory.length() - 1).getTimeS();
         m_current = sample(getStartS());
         m_timeS = getStartS();
     }
@@ -44,26 +46,25 @@ public class TrajectoryTimeIterator {
      * 
      * @param timeS seconds
      */
-    public TrajectorySamplePoint sample(double timeS) {
+    public TimedPose sample(double timeS) {
         if (timeS >= m_endS) {
-            TrajectoryPoint point = m_trajectory.getPoint(m_trajectory.length() - 1);
-            return new TrajectorySamplePoint(point.state(), point.index(), point.index());
+            TimedPose point = m_trajectory.getPoint(m_trajectory.length() - 1);
+            return point;
         }
         if (timeS <= m_startS) {
-            TrajectoryPoint point = m_trajectory.getPoint(0);
-            return new TrajectorySamplePoint(point.state(), point.index(), point.index());
+            TimedPose point = m_trajectory.getPoint(0);
+            return point;
         }
         for (int i = 1; i < m_trajectory.length(); ++i) {
-            final TrajectoryPoint point = m_trajectory.getPoint(i);
-            if (point.state().getTimeS() >= timeS) {
-                final TrajectoryPoint prev_s = m_trajectory.getPoint(i - 1);
-                if (Math.abs(point.state().getTimeS() - prev_s.state().getTimeS()) <= 1e-12) {
-                    return new TrajectorySamplePoint(point.state(), point.index(), point.index());
+            final TimedPose point = m_trajectory.getPoint(i);
+            if (point.getTimeS() >= timeS) {
+                final TimedPose prev_s = m_trajectory.getPoint(i - 1);
+                if (Math.abs(point.getTimeS() - prev_s.getTimeS()) <= 1e-12) {
+                    return point;
                 }
-                double t = (timeS - prev_s.state().getTimeS())
-                        / (point.state().getTimeS() - prev_s.state().getTimeS());
-                return new TrajectorySamplePoint(
-                        prev_s.state().interpolate2(point.state(), t), i - 1, i);
+                double t = (timeS - prev_s.getTimeS())
+                        / (point.getTimeS() - prev_s.getTimeS());
+                return  prev_s.interpolate2(point, t);
             }
         }
         throw new IllegalStateException("impossible trajectory: " + m_trajectory);
@@ -84,7 +85,7 @@ public class TrajectoryTimeIterator {
         return Math.max(0.0, getEndS() - m_timeS);
     }
 
-    public TrajectorySamplePoint getSample() {
+    public TimedPose getSample() {
         return m_current;
     }
 
@@ -93,7 +94,7 @@ public class TrajectoryTimeIterator {
      * 
      * @param additional_progress in seconds
      */
-    public TrajectorySamplePoint advance(double additional_progress) {
+    public TimedPose advance(double additional_progress) {
         m_timeS = MathUtil.clamp(m_timeS + additional_progress, getStartS(), getEndS());
         m_current = sample(m_timeS);
         return m_current;
@@ -104,7 +105,7 @@ public class TrajectoryTimeIterator {
      * 
      * @param additional_progress in seconds
      */
-    public TrajectorySamplePoint preview(double additional_progress) {
+    public TimedPose preview(double additional_progress) {
         return sample(m_timeS + additional_progress);
     }
 

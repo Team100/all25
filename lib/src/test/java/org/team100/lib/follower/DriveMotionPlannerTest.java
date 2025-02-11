@@ -74,7 +74,7 @@ class DriveMotionPlannerTest {
         TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(timed_trajectory);
         controller.setTrajectory(traj_iterator);
 
-        Pose2d pose = timed_trajectory.getPoint(0).state().state().getPose();
+        Pose2d pose = timed_trajectory.getPoint(0).state().getPose();
         FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();
 
         double time = 0.0;
@@ -110,7 +110,7 @@ class DriveMotionPlannerTest {
             final Pose2d kInjectedError = new Pose2d(0.3, -0.1, Rotation2d.fromDegrees(9.0));
             final FieldRelativeVelocity kInjectedVelocityError = new FieldRelativeVelocity(0.1, 0.3, 0.0);
             final double kInjectionTime = 20.0;
-            Pose2d pose = traj.getPoint(0).state().state().getPose();
+            Pose2d pose = traj.getPoint(0).state().getPose();
             FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();
             SwerveSetpoint setpoint = null;
             double time = 0.0;

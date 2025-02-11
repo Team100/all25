@@ -12,7 +12,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -79,14 +78,12 @@ public class OscillatePosition extends Command implements Glassy {
         if (m_trajectory == null)
             return;
         SwerveModel measurement = m_swerve.getState();
-        TrajectorySamplePoint curOpt = m_iter.getSample();
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.state());
+        TimedPose curOpt = m_iter.getSample();
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt);
 
 
         if (m_steeringAligned) {
-            TrajectorySamplePoint optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            
-            TimedPose desiredState = optSamplePoint.state();
+            TimedPose desiredState = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentReference, reference);
@@ -97,9 +94,7 @@ public class OscillatePosition extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // not aligned yet, try aligning by *previewing* next point
-            TrajectorySamplePoint optSamplePoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-           
-            TimedPose desiredState = optSamplePoint.state();
+            TimedPose desiredState = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentReference, reference);

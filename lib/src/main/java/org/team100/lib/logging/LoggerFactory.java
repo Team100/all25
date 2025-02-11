@@ -22,7 +22,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.timing.TimedPose;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -442,11 +441,11 @@ public class LoggerFactory {
             m_timedPoseLogger = timedPoseLogger(level, join(leaf, "state"));
         }
 
-        public void log(Supplier<TrajectorySamplePoint> vals) {
+        public void log(Supplier<TimedPose> vals) {
             if (!allow(m_level))
                 return;
-            TrajectorySamplePoint val = vals.get();
-            m_timedPoseLogger.log(val::state);
+            TimedPose val = vals.get();
+            m_timedPoseLogger.log(() -> val);
         }
     }
 

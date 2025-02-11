@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 
@@ -43,20 +44,20 @@ class TrajectoryTimeIteratorTest {
 
         TrajectoryTimeIterator iter = new TrajectoryTimeIterator(trajectory);
 
-        TrajectorySamplePoint sample = iter.preview(0);
-        assertEquals(0, sample.state().state().getPose().getX(), kDelta);
+        TimedPose sample = iter.preview(0);
+        assertEquals(0, sample.state().getPose().getX(), kDelta);
         sample = iter.advance(0);
-        assertEquals(0, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(0, sample.state().getPose().getX(), kDelta);
 
         sample = iter.preview(1);
-        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(1, sample.state().getPose().getX(), kDelta);
         sample = iter.advance(1);
-        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(1, sample.state().getPose().getX(), kDelta);
 
         sample = iter.preview(1);
-        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(1, sample.state().getPose().getX(), kDelta);
         sample = iter.advance(1);
-        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(1, sample.state().getPose().getX(), kDelta);
     }
 
     @Test
@@ -84,12 +85,12 @@ class TrajectoryTimeIteratorTest {
         TrajectoryTimeIterator sampler = new TrajectoryTimeIterator(trajectory);
         assertEquals(0, sampler.getStartS(), kDelta);
         assertEquals(1.415, sampler.getEndS(), kDelta);
-        TrajectorySamplePoint sample = sampler.sample(0);
-        assertEquals(0, sample.state().state().getPose().getX(), kDelta);
+        TimedPose sample = sampler.sample(0);
+        assertEquals(0, sample.state().getPose().getX(), kDelta);
         sample = sampler.sample(1);
-        assertEquals(0.828, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(0.828, sample.state().getPose().getX(), kDelta);
         sample = sampler.sample(2);
-        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+        assertEquals(1, sample.state().getPose().getX(), kDelta);
 
     }
 

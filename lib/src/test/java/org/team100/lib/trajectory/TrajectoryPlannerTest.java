@@ -13,6 +13,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.CapsizeAccelerationConstraint;
 import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.SwerveDriveDynamicsConstraint;
+import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.YawRateConstraint;
 import org.team100.lib.util.Util;
@@ -43,9 +44,9 @@ class TrajectoryPlannerTest {
         List<TimingConstraint> constraints = new ArrayList<>();
         Trajectory100 t = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
         assertEquals(80, t.m_points.size());
-        TrajectoryPoint p = t.getPoint(40);
-        assertEquals(0.5, p.state().state().getPose().getX(), kDelta);
-        assertEquals(0, p.state().state().getHeadingRate(), kDelta);
+        TimedPose p = t.getPoint(40);
+        assertEquals(0.5, p.state().getPose().getX(), kDelta);
+        assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
     @Test
@@ -70,9 +71,9 @@ class TrajectoryPlannerTest {
         Trajectory100 t = TrajectoryPlanner.generateTrajectory(
                 waypoints,
                 headings, constraints, start_vel, end_vel);
-        TrajectoryPoint p = t.getPoint(40);
-        assertEquals(0.18, p.state().state().getPose().getX(), kDelta);
-        assertEquals(0, p.state().state().getHeadingRate(), kDelta);
+        TimedPose p = t.getPoint(40);
+        assertEquals(0.18, p.state().getPose().getX(), kDelta);
+        assertEquals(0, p.state().getHeadingRate(), kDelta);
 
     }
 
@@ -103,9 +104,9 @@ class TrajectoryPlannerTest {
             Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }
         assertEquals(131, t.m_points.size());
-        TrajectoryPoint p = t.getPoint(40);
-        assertEquals(0.5, p.state().state().getPose().getX(), kDelta);
-        assertEquals(0, p.state().state().getHeadingRate(), kDelta);
+        TimedPose p = t.getPoint(40);
+        assertEquals(0.5, p.state().getPose().getX(), kDelta);
+        assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
     /**
