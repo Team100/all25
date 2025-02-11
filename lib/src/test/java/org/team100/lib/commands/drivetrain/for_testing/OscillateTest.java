@@ -24,6 +24,7 @@ class OscillateTest extends RealisticFixtured implements Timeless {
         }
 
         // stopped
+        stepTime(0.02);
         assertEquals(0, fixture.drive.getState().x().v(), kDelta);
         // travel exactly 1 m.
         assertEquals(1, fixture.drive.getState().x().x(), kDelta);

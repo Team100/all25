@@ -37,7 +37,7 @@ public class SimulatedBareMotor implements BareMotor {
 
     @Override
     public void setVelocity(double velocityRad_S, double accelRad_S2, double torqueNm) {
-        // Util.printf("motor v %f\n", velocityRad_S);
+        Util.printf("motor v %f\n", velocityRad_S);
         m_velocity = MathUtil.clamp(
                 Util.notNaN(velocityRad_S), -m_freeSpeedRad_S, m_freeSpeedRad_S);
         m_log_velocity.log(() -> m_velocity);

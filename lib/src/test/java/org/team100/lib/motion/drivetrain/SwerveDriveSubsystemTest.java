@@ -29,9 +29,12 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
         verify(drive, 0, 0, 0);
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
+
+        // actuation is reflected in measurement after time passes
+        assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond());
+        stepTime(0.02);
         assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond());
 
-        stepTime(0.02);
         drive.periodic();
         assertEquals(0.0004, fixture.collection.positions().frontLeft().distanceMeters, 1e-6);
 
