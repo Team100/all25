@@ -22,7 +22,6 @@ import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -127,7 +126,7 @@ public class Generate120 extends Navigator {
      Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(),
                 m_constraints.medium());
     m_viz.setViz(trajectory);
-    TrajectoryTimeIterator iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(trajectory));
+    TrajectoryTimeIterator iter = new TrajectoryTimeIterator(trajectory);
     m_controller.setTrajectory(iter);
 
   }

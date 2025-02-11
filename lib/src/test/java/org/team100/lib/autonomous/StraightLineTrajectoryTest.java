@@ -18,7 +18,6 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
 import org.team100.lib.trajectory.TrajectoryPoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -36,10 +35,9 @@ class StraightLineTrajectoryTest {
         Trajectory100 traj = t.apply(start, end);
         assertEquals(0.904, traj.getTotalTimeSeconds(), kDelta);
 
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(
-                new TrajectoryTimeSampler(traj));
+        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(traj);
         // initial velocity is zero.
-        assertEquals(0, iter.getSample().get().state().velocityM_S(), kDelta);
+        assertEquals(0, iter.getSample().state().velocityM_S(), kDelta);
 
         double maxDriveVelocityM_S = swerveKinodynamics.getMaxDriveVelocityM_S();
         double maxDriveAccelerationM_S2 = swerveKinodynamics.getMaxDriveAccelerationM_S2();

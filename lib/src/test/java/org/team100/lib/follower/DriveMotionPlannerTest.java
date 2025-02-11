@@ -26,7 +26,6 @@ import org.team100.lib.timing.TimingUtil;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryGenerator100;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.trajectory.TrajectoryUtil100;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -72,8 +71,7 @@ class DriveMotionPlannerTest {
         TrajectoryFollower controller = new TrajectoryFollower(
                 logger, 2.4, 2.4, 1.0, 1.0);
 
-        TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(
-                new TrajectoryTimeSampler(timed_trajectory));
+        TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(timed_trajectory);
         controller.setTrajectory(traj_iterator);
 
         Pose2d pose = timed_trajectory.getPoint(0).state().state().getPose();
@@ -107,8 +105,7 @@ class DriveMotionPlannerTest {
         for (Map.Entry<String, Trajectory100> entry : trajectories.entrySet()) {
             Trajectory100 traj = entry.getValue();
             assertFalse(traj.isEmpty());
-            TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(
-                    new TrajectoryTimeSampler(traj));
+            TrajectoryTimeIterator traj_iterator = new TrajectoryTimeIterator(traj);
             controller.setTrajectory(traj_iterator);
             final Pose2d kInjectedError = new Pose2d(0.3, -0.1, Rotation2d.fromDegrees(9.0));
             final FieldRelativeVelocity kInjectedVelocityError = new FieldRelativeVelocity(0.1, 0.3, 0.0);

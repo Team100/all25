@@ -143,19 +143,19 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
             double setpoint = desiredStates[i].angle().get().getRadians();
             // Modulus accommodates "optimizing" wheel direction.
             double error = MathUtil.inputModulus(setpoint - position, -Math.PI/2, Math.PI/2);
-            Util.printf("local setpoint %f measurement %f error %f\n", setpoint, position, error);
+            // Util.printf("local setpoint %f measurement %f error %f\n", setpoint, position, error);
             if (Math.abs(error) > kPositionToleranceRad) {
-                Util.printf("angle %d error %f  outside tolerance\n", i, error);
+                // Util.printf("angle %d error %f  outside tolerance\n", i, error);
                 return false;
             }
             double velocityError = velocity;
             // steering commands always specify zero speed.
             if (Math.abs(velocityError) > kVelocityToleranceRad_S) {
-                Util.printf("angle %d velocity error %f outside tolerance\n", i, velocityError);
+                // Util.printf("angle %d velocity error %f outside tolerance\n", i, velocityError);
                 return false;
             }
         }
-        Util.println("all good");
+        // Util.println("all good");
         return true;
     }
 
@@ -168,16 +168,16 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
                 speeds, gyroRateRad_S);
 
         states = states.motionless();
-        Util.printf("steer at rest states %s\n", states);
+        // Util.printf("steer at rest states %s\n", states);
 
         // this uses measurements from the previous iteration
-        Util.println("at goal before?");
+        // Util.println("at goal before?");
         atGoal();
 
         setModuleStates(states);
         // nothing should change here because all the measurements should wait for the
         // next Takt, but that doesn't seem to be happening.
-        Util.println("at goal after?");
+        // Util.println("at goal after?");
         atGoal();
         // previous setpoint should be at rest with the current states
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);

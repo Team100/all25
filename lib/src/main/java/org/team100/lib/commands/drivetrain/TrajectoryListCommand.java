@@ -2,7 +2,6 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
@@ -18,8 +17,6 @@ import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
-import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -74,8 +71,7 @@ public class TrajectoryListCommand extends Command implements Glassy {
             // get the next trajectory
             if (m_trajectoryIter.hasNext()) {
                 Trajectory100 m_currentTrajectory = m_trajectoryIter.next();
-                m_iter = new TrajectoryTimeIterator(
-                        new TrajectoryTimeSampler(m_currentTrajectory));
+                m_iter = new TrajectoryTimeIterator(m_currentTrajectory);
                 m_viz.setViz(m_currentTrajectory);
                 m_aligned = false;
             } else {
@@ -87,22 +83,12 @@ public class TrajectoryListCommand extends Command implements Glassy {
         // now there is a trajectory to follow
 
         SwerveModel measurement = m_swerve.getState();
-        Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
-        if (curOpt.isEmpty()) {
-            Util.warn("broken trajectory, cancelling!");
-            cancel(); // this should not happen
-            return;
-        }
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+        TrajectorySamplePoint curOpt = m_iter.getSample();
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.state());
 
         if (m_aligned) {
-            Optional<TrajectorySamplePoint> nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            if (nextOpt.isEmpty()) {
-                Util.warn("broken trajectory, cancelling!");
-                cancel(); // this should not happen
-                return;
-            }
-            TimedPose desiredState = nextOpt.get().state();
+            TrajectorySamplePoint nextOpt = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            TimedPose desiredState = nextOpt.state();
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);
@@ -111,13 +97,8 @@ public class TrajectoryListCommand extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // look one loop ahead by *previewing* the next point
-            Optional<TrajectorySamplePoint> nextOpt = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            if (nextOpt.isEmpty()) {
-                Util.warn("broken trajectory, cancelling!");
-                cancel(); // this should not happen
-                return;
-            }
-            TimedPose desiredState = nextOpt.get().state();
+            TrajectorySamplePoint nextOpt = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+            TimedPose desiredState = nextOpt.state();
 
             SwerveModel nextReference = SwerveModel.fromTimedPose(desiredState);
             m_log_reference.log(() -> nextReference);

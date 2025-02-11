@@ -21,7 +21,6 @@ import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -105,9 +104,7 @@ class DrivePIDControllerTest {
         // why is this so large?
         assertEquals(1300, trajectory.length());
 
-        TrajectoryTimeSampler view = new TrajectoryTimeSampler(trajectory);
-
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(view);
+        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(trajectory);
         // note no velocity feedback here.
         TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
         controller.setTrajectory(iter);

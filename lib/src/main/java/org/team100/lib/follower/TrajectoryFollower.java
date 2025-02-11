@@ -146,13 +146,9 @@ public class TrajectoryFollower {
      */
     Optional<TimedPose> getSetpoint(double timestamp) {
         double mDt = dt(timestamp);
-        Optional<TrajectorySamplePoint> sample_point = m_iter.advance(mDt);
-        if (!sample_point.isPresent()) {
-            m_log_is_mt.log(() -> true);
-            return Optional.empty();
-        }
-        m_log_sample.log(sample_point::get);
-        return Optional.of(sample_point.get().state());
+        TrajectorySamplePoint sample_point = m_iter.advance(mDt);
+        m_log_sample.log(() -> sample_point);
+        return Optional.of(sample_point.state());
     }
 
     double dt(double timestamp) {

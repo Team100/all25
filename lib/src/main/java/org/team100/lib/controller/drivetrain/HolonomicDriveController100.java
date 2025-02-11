@@ -53,7 +53,7 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
             SwerveModel measurement,
             SwerveModel currentReference,
             SwerveModel nextReference) {
-        Util.printf("controller measurement %s curr %s next %s\n", measurement, currentReference, nextReference);
+        // Util.printf("controller measurement %s curr %s next %s\n", measurement, currentReference, nextReference);
         m_log.measurement.log(() -> measurement);
         m_log.reference.log(() -> currentReference);
         m_log.error.log(() -> currentReference.minus(measurement));

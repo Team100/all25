@@ -41,24 +41,56 @@ class TrajectoryTimeIteratorTest {
 
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
 
-        TrajectoryTimeSampler sampler = new TrajectoryTimeSampler(trajectory);
+        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(trajectory);
 
-        TrajectoryTimeIterator iter = new TrajectoryTimeIterator(sampler);
-
-        TrajectorySamplePoint sample = iter.preview(0).get();
+        TrajectorySamplePoint sample = iter.preview(0);
         assertEquals(0, sample.state().state().getPose().getX(), kDelta);
-        sample = iter.advance(0).get();
+        sample = iter.advance(0);
         assertEquals(0, sample.state().state().getPose().getX(), kDelta);
 
-        sample = iter.preview(1).get();
+        sample = iter.preview(1);
         assertEquals(1, sample.state().state().getPose().getX(), kDelta);
-        sample = iter.advance(1).get();
+        sample = iter.advance(1);
         assertEquals(1, sample.state().state().getPose().getX(), kDelta);
 
-        sample = iter.preview(1).get();
+        sample = iter.preview(1);
         assertEquals(1, sample.state().state().getPose().getX(), kDelta);
-        sample = iter.advance(1).get();
+        sample = iter.advance(1);
         assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+    }
+
+    @Test
+    void testSample() {
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
+        Pose2d start = GeometryUtil.kPoseZero;
+        Pose2d end = start.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
+
+        Translation2d currentTranslation = start.getTranslation();
+        Translation2d goalTranslation = end.getTranslation();
+        Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
+        Rotation2d angleToGoal = translationToGoal.getAngle();
+        List<Pose2d> waypointsM = List.of(
+                new Pose2d(currentTranslation, angleToGoal),
+                new Pose2d(goalTranslation, angleToGoal));
+
+        List<Rotation2d> headings = List.of(
+                start.getRotation(),
+                end.getRotation());
+
+        List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+
+        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+
+        TrajectoryTimeIterator sampler = new TrajectoryTimeIterator(trajectory);
+        assertEquals(0, sampler.getStartS(), kDelta);
+        assertEquals(1.415, sampler.getEndS(), kDelta);
+        TrajectorySamplePoint sample = sampler.sample(0);
+        assertEquals(0, sample.state().state().getPose().getX(), kDelta);
+        sample = sampler.sample(1);
+        assertEquals(0.828, sample.state().state().getPose().getX(), kDelta);
+        sample = sampler.sample(2);
+        assertEquals(1, sample.state().state().getPose().getX(), kDelta);
+
     }
 
 }

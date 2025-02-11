@@ -138,7 +138,7 @@ public abstract class SwerveModule100 implements Glassy {
 
     public OptionalDouble turningPosition() {
         OptionalDouble position = m_turningServo.getPosition();
-        Util.printf("position %s\n", position);
+        // Util.printf("position %s\n", position);
         return position;
     }
 
@@ -152,7 +152,7 @@ public abstract class SwerveModule100 implements Glassy {
 
     boolean atGoal() {
         boolean atGoal = m_turningServo.atGoal();
-        Util.printf("module atgoal %b\n", atGoal);
+        // Util.printf("module atgoal %b\n", atGoal);
         return atGoal;
     }
 

@@ -114,10 +114,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         }
         m_goal = new Model100(goalRad, goalVelocityRad_S);
 
-        Util.printf("servo measurement position %f\n", position.getAsDouble());
+        // Util.printf("servo measurement position %f\n", position.getAsDouble());
 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        Util.printf("servo measurement %s\n", measurement);
+        // Util.printf("servo measurement %s\n", measurement);
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         Control100 setpointRad = result.feedforward();
 
@@ -144,7 +144,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
-        Util.printf("servo goal %f\n", goalRad);
+        // Util.printf("servo goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 
@@ -196,7 +196,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             return false;
         }
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        Util.printf("servo measurement %s goal %s\n", measurement, m_goal);
+        // Util.printf("servo measurement %s goal %s\n", measurement, m_goal);
         return measurement.near(m_goal, kXTolerance, kVTolerance);
     }
 

@@ -42,8 +42,8 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
             stepTime(0.02);
             fixture.drive.periodic();
             command.execute();
-            Util.printf("************* %d STATE %s *************\n", i, command.m_state);
-            Util.printf("%f\n",swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond());
+            // Util.printf("************* %d STATE %s *************\n", i, command.m_state);
+            // Util.printf("%f\n",swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond());
         }
         // now we should be steering again
         stepTime(0.02);

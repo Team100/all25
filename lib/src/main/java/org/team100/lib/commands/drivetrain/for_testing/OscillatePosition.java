@@ -1,7 +1,5 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import java.util.Optional;
-
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
@@ -16,8 +14,6 @@ import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectorySamplePoint;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
-import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -73,7 +69,7 @@ public class OscillatePosition extends Command implements Glassy {
         Pose2d startPose = start.pose();
         Pose2d endPose = startPose.plus(new Transform2d(m_offsetM, 0, new Rotation2d()));
         m_trajectory = m_trajectories.apply(start, endPose);
-        m_iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(m_trajectory));
+        m_iter = new TrajectoryTimeIterator(m_trajectory);
         m_steeringAligned = false;
         m_viz.setViz(m_trajectory);
     }
@@ -83,23 +79,14 @@ public class OscillatePosition extends Command implements Glassy {
         if (m_trajectory == null)
             return;
         SwerveModel measurement = m_swerve.getState();
-        Optional<TrajectorySamplePoint> curOpt = m_iter.getSample();
-        if (curOpt.isEmpty()) {
-            Util.warn("broken trajectory, cancelling!");
-            cancel(); // this should not happen
-            return;
-        }
-        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.get().state());
+        TrajectorySamplePoint curOpt = m_iter.getSample();
+        SwerveModel currentReference = SwerveModel.fromTimedPose(curOpt.state());
 
 
         if (m_steeringAligned) {
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
-                Util.warn("broken trajectory, cancelling!");
-                cancel(); // this should not happen
-                return;
-            }
-            TimedPose desiredState = optSamplePoint.get().state();
+            TrajectorySamplePoint optSamplePoint = m_iter.advance(TimedRobot100.LOOP_PERIOD_S);
+            
+            TimedPose desiredState = optSamplePoint.state();
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentReference, reference);
@@ -110,13 +97,9 @@ public class OscillatePosition extends Command implements Glassy {
             m_swerve.driveInFieldCoords(fieldRelativeTarget);
         } else {
             // not aligned yet, try aligning by *previewing* next point
-            Optional<TrajectorySamplePoint> optSamplePoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
-            if (optSamplePoint.isEmpty()) {
-                Util.warn("broken trajectory, cancelling!");
-                cancel(); // this should not happen
-                return;
-            }
-            TimedPose desiredState = optSamplePoint.get().state();
+            TrajectorySamplePoint optSamplePoint = m_iter.preview(TimedRobot100.LOOP_PERIOD_S);
+           
+            TimedPose desiredState = optSamplePoint.state();
             SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
             FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentReference, reference);

@@ -12,7 +12,6 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryTimeIterator;
-import org.team100.lib.trajectory.TrajectoryTimeSampler;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -89,7 +88,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
         m_viz.setViz(m_trajectory);
         TrajectoryTimeIterator iter;
         if(m_iter == null){
-            iter = new TrajectoryTimeIterator(new TrajectoryTimeSampler(m_trajectory));
+            iter = new TrajectoryTimeIterator(m_trajectory);
         } else{
             iter = m_iter;
         }

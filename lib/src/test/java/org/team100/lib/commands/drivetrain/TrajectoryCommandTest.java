@@ -219,7 +219,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // here is acceleration-limited, 20pi/s^2, which is just what the limits say.
         // https://docs.google.com/spreadsheets/d/19N-rQBjlWM-fb_Hd5wJeKuihzoglmGVK7MT7RYU-9bY
         for (int i = 0; i < 17; ++i) {
-            Util.printf("************ %d **********", i);
+            // Util.printf("************ %d **********", i);
             // command thinks we're not aligned
             assertFalse(command.m_aligned);
             // drive thinks we're not aligned to the target (0,1)
@@ -233,13 +233,13 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
             // fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
             // assertEquals(0,
             // fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
-            Util.printf("angle %s\n", fixture.collection.states().frontLeft().angle().get());
-            Util.printf("p %s\n", fixture.collection.turningPosition()[0].getAsDouble());
-            Util.printf("v %s\n", fixture.collection.turningVelocity()[0].getAsDouble());
+            // Util.printf("angle %s\n", fixture.collection.states().frontLeft().angle().get());
+            // Util.printf("p %s\n", fixture.collection.turningPosition()[0].getAsDouble());
+            // Util.printf("v %s\n", fixture.collection.turningVelocity()[0].getAsDouble());
         }
         // the last call to steer at rest discovers that the modules are already at the goal
         //
-        Util.println("aligned?");
+        // Util.println("aligned?");
         assertTrue(command.m_aligned);
         assertTrue(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
         // 
