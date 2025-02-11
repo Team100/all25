@@ -27,12 +27,10 @@ public class FieldConstants {
     
         private final int value; // Field to store the number
     
-        // Constructor
         FieldSector(int value) {
             this.value = value;
         }
     
-        // Getter to retrieve the value
         public int getValue() {
             return value;
         }
