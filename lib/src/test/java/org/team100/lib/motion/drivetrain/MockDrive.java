@@ -20,6 +20,11 @@ public class MockDrive implements DriveSubsystemInterface {
     }
 
     @Override
+    public boolean aligned(FieldRelativeVelocity v) {
+        return m_aligned;
+    }
+
+    @Override
     public SwerveModel getState() {
         return m_state;
     }

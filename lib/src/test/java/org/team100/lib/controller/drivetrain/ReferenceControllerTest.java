@@ -1,4 +1,4 @@
-package org.team100.lib.commands.drivetrain;
+package org.team100.lib.controller.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -25,15 +23,12 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
-import org.team100.lib.util.Util;
-import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
-public class TrajectoryCommandTest extends Fixtured implements Timeless {
+public class ReferenceControllerTest  extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-    private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
     TrajectoryMaker maker = new TrajectoryMaker(constraints);
@@ -54,12 +49,11 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         d.m_state = new SwerveModel();
         d.m_aligned = false;
 
-        TrajectoryCommand c = new TrajectoryCommand(
-                logger, d, controller, t, viz);
+        ReferenceController c = new ReferenceController(
+                logger, d, controller, t);
 
         // Initially unaligned so steer at rest
         stepTime(0.02);
-        c.initialize();
         c.execute();
         assertEquals(0.098, d.m_atRestSetpoint.x(), kDelta);
         assertEquals(0, d.m_atRestSetpoint.y(), kDelta);
@@ -114,9 +108,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // for this test we don't care about steering alignment.
         d.m_aligned = true;
 
-        TrajectoryCommand c = new TrajectoryCommand(
-                logger, d, controller, t, viz);
-        c.initialize();
+        ReferenceController c = new ReferenceController(
+                logger, d, controller, t);
 
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
@@ -150,11 +143,9 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        TrajectoryCommand command = new TrajectoryCommand(
-                logger, drive, controller, trajectory, viz);
+        ReferenceController command = new ReferenceController(
+                logger, drive, controller, trajectory);
         stepTime(0.02);
-        Util.println("init");
-        command.initialize();
 
         // command has not checked yet
         assertFalse(command.is_aligned());
@@ -208,9 +199,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        TrajectoryCommand command = new TrajectoryCommand(
-                logger, drive, controller, trajectory, viz);
-        command.initialize();
+        ReferenceController command = new ReferenceController(
+                logger, drive, controller, trajectory);
         // always start unaligned
         assertFalse(command.is_aligned());
 

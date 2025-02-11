@@ -1,15 +1,11 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
-import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -27,21 +23,16 @@ import edu.wpi.first.wpilibj2.command.Command;
  * this is for testing odometry.
  */
 public class OscillatePosition extends Command implements Glassy {
-
+    private final LoggerFactory m_log;
     private final SwerveDriveSubsystem m_swerve;
     private final StraightLineTrajectory m_trajectories;
     private final HolonomicFieldRelativeController m_controller;
     private final double m_offsetM;
-    private final DoubleLogger m_log_trajecX;
-    private final DoubleLogger m_log_trajecY;
-
-    private Trajectory100 m_trajectory;
-    /** progress along trajectory */
-    private double m_timeS;
-
     private final TrajectoryVisualization m_viz;
 
-    private boolean m_steeringAligned;
+    private Trajectory100 m_trajectory;
+
+    private ReferenceController m_referenceController;
 
     public OscillatePosition(
             LoggerFactory parent,
@@ -50,69 +41,41 @@ public class OscillatePosition extends Command implements Glassy {
             HolonomicFieldRelativeController controller,
             double offsetM,
             TrajectoryVisualization viz) {
-        LoggerFactory child = parent.child(this);
+        m_log = parent.child(this);
         m_swerve = drivetrain;
         m_trajectories = trajectories;
         m_controller = controller;
-        m_viz = viz;
         m_offsetM = offsetM;
-        m_log_trajecX = child.doubleLogger(Level.TRACE, "Trajec X");
-        m_log_trajecY = child.doubleLogger(Level.TRACE, "Trajec Y");
+        m_viz = viz;
         addRequirements(m_swerve);
     }
 
     @Override
     public void initialize() {
-        m_controller.reset();
         // choose a goal 1m away
         SwerveModel start = m_swerve.getState();
         Pose2d startPose = start.pose();
         Pose2d endPose = startPose.plus(new Transform2d(m_offsetM, 0, new Rotation2d()));
         m_trajectory = m_trajectories.apply(start, endPose);
-        m_timeS = 0;
-        m_steeringAligned = false;
+        m_referenceController = new ReferenceController(m_log, m_swerve, m_controller, m_trajectory);
         m_viz.setViz(m_trajectory);
     }
 
     @Override
     public void execute() {
-        if (m_trajectory == null)
-            return;
-        SwerveModel measurement = m_swerve.getState();
-        SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(m_timeS));
+        m_referenceController.execute();
 
-        if (m_steeringAligned) {
-            m_timeS = m_timeS + TimedRobot100.LOOP_PERIOD_S;
-            TimedPose desiredState = m_trajectory.sample(m_timeS);
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                    measurement, currentReference, reference);
-            m_log_trajecX.log(() -> desiredState.state().getPose().getX());
-            m_log_trajecY.log(() -> desiredState.state().getPose().getY());
-
-            // follow normally
-            m_swerve.driveInFieldCoords(fieldRelativeTarget);
-        } else {
-            // not aligned yet, try aligning by *previewing* next point
-            TimedPose desiredState = m_trajectory.sample(m_timeS + TimedRobot100.LOOP_PERIOD_S);
-            SwerveModel reference = SwerveModel.fromTimedPose(desiredState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                    measurement, currentReference, reference);
-
-            m_steeringAligned = m_swerve.steerAtRest(fieldRelativeTarget);
-        }
     }
 
     @Override
     public boolean isFinished() {
-        if (m_trajectory == null)
-            return true;
-        return m_trajectory.isDone(m_timeS) && m_controller.atReference();
+        return m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
         m_swerve.stop();
+        m_viz.clear();
     }
 
 }

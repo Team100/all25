@@ -7,7 +7,6 @@ import java.util.function.BooleanSupplier;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToWaypoint100;
-import org.team100.lib.commands.drivetrain.FullStateTrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.PermissiveTrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.TrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.for_testing.DrawSquare;
@@ -18,8 +17,8 @@ import org.team100.lib.commands.drivetrain.for_testing.Spin;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.follower.TrajectoryFollower;
+import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -195,7 +194,7 @@ public class RobotContainerParkingLot implements Glassy {
                 driveLogger,
                 hlog);
         whileTrue(driverControl::never,
-                new FullStateTrajectoryListCommand(driveLogger, fscontroller, m_drive,
+                new TrajectoryListCommand(driveLogger, m_drive, fscontroller,
                         maker::square, viz));
 
         // this should be a field.

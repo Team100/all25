@@ -17,7 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
- * Drive in a square. This used to be called "DrawCircle."
+ * Drive in a square.
  */
 public class DrawSquare extends SequentialCommandGroup implements Glassy {
     private static final double maxVelocityM_S = 2.0;
@@ -41,23 +41,23 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
         TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
         StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
         addCommands(
-                new DriveToWaypoint3(log,
+                new DriveToWaypoint3(parent, log,
                         new Pose2d(-0.5, -0.5, GeometryUtil.kRotationZero),
                         drivetrain, maker,
                         controller, viz),
-                new DriveToWaypoint3(log,
+                new DriveToWaypoint3(parent, log,
                         new Pose2d(-0.5, 0.5, GeometryUtil.kRotationZero),
                         drivetrain, maker,
                         controller, viz),
-                new DriveToWaypoint3(log,
+                new DriveToWaypoint3(parent, log,
                         new Pose2d(0.5, 0.5, GeometryUtil.kRotationZero),
                         drivetrain, maker,
                         controller, viz),
-                new DriveToWaypoint3(log,
+                new DriveToWaypoint3(parent, log,
                         new Pose2d(0.5, -0.5, GeometryUtil.kRotationZero),
                         drivetrain, maker,
                         controller, viz),
-                new DriveToWaypoint3(log,
+                new DriveToWaypoint3(parent, log,
                         new Pose2d(-0.5, -0.5, GeometryUtil.kRotationZero),
                         drivetrain, maker,
                         controller, viz)

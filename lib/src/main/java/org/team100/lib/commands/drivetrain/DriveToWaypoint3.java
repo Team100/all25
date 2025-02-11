@@ -1,16 +1,13 @@
 package org.team100.lib.commands.drivetrain;
 
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
-import org.team100.lib.timing.TimedPose;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -44,6 +41,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         }
     }
 
+    private final LoggerFactory m_parent;
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_swerve;
     private final StraightLineTrajectory m_trajectories;
@@ -52,27 +50,22 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     private final Log m_log;
 
     private Trajectory100 m_trajectory;
-    /** progress along trajectory */
-    private double m_timeS;
 
-    /**
-     * Trajectory waits until wheels are aligned. If we depend on the setpoint
-     * generator to do it, then we're behind the profile timer. After the initial
-     * alignment, the steering should be able to keep up with the profile.
-     */
-    private boolean m_steeringAligned;
+    private ReferenceController m_referenceController;
 
     /**
      * @param trajectories function that takes a start and end pose and returns a
      *                     trajectory between them.
      */
     public DriveToWaypoint3(
+            LoggerFactory parent,
             Log log,
             Pose2d goal,
             SwerveDriveSubsystem drivetrain,
             StraightLineTrajectory trajectories,
             HolonomicFieldRelativeController controller,
             TrajectoryVisualization viz) {
+        m_parent = parent;
         m_log = log;
         m_goal = goal;
         m_swerve = drivetrain;
@@ -80,61 +73,25 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         m_controller = controller;
         m_viz = viz;
         addRequirements(m_swerve);
-
     }
 
     @Override
     public void initialize() {
-        m_controller.reset();
         m_trajectory = m_trajectories.apply(m_swerve.getState(), m_goal);
-        m_timeS = 0;
+        m_referenceController = new ReferenceController(m_parent, m_swerve, m_controller, m_trajectory);
         m_viz.setViz(m_trajectory);
-        m_steeringAligned = false;
     }
 
     @Override
     public void execute() {
-        if (m_trajectory == null)
-            return;
-        final SwerveModel measurement = m_swerve.getState();
-        
-        TimedPose state = m_trajectory.sample(m_timeS);
-        if (state.velocityM_S() > 0) {
-            // if we're moving, don't worry about the steering.
-            // this catches the "start from rest" case and allows
-            // "start from moving" to work without interference.
-            m_steeringAligned = true;
-        }
-        SwerveModel currentReference = SwerveModel.fromTimedPose(state);
-
-        if (m_steeringAligned) {
-            m_timeS = m_timeS + TimedRobot100.LOOP_PERIOD_S;
-            TimedPose nextState = m_trajectory.sample(m_timeS);
-            m_log.desired.log(() -> nextState.state().getPose());
-            SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                measurement, currentReference, nextReference);
-            // follow normally
-            m_swerve.driveInFieldCoords(fieldRelativeTarget);
-        } else {
-            // not aligned yet, try aligning by *previewing* next point
-            TimedPose nextState = m_trajectory.sample(m_timeS + TimedRobot100.LOOP_PERIOD_S);
-            m_log.desired.log(() -> nextState.state().getPose());
-            SwerveModel nextReference = SwerveModel.fromTimedPose(nextState);
-            FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                measurement, currentReference, nextReference);
-            m_steeringAligned = m_swerve.steerAtRest(fieldRelativeTarget);
-        }
-
-        m_log.aligned.log(() -> m_steeringAligned);
-        m_log.pose.log(measurement::pose);
+        m_referenceController.execute();
+        m_log.aligned.log(() -> m_referenceController.is_aligned());
+        m_log.pose.log(() -> m_swerve.getState().pose());
     }
 
     @Override
     public boolean isFinished() {
-        if (m_trajectory == null)
-            return true;
-        return m_trajectory.isDone(m_timeS) && m_controller.atReference();
+        return m_referenceController.isFinished();
     }
 
     @Override

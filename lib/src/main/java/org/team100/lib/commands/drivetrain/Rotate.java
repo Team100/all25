@@ -33,7 +33,7 @@ public class Rotate extends Command implements Glassy {
     // don't try to rotate at max speed
     private static final double kSpeed = 0.5;
 
-    private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveDriveSubsystem m_drive;
     private final Gyro m_gyro;
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Model100 m_goalState;
@@ -50,7 +50,7 @@ public class Rotate extends Command implements Glassy {
     private boolean m_finished = false;
 
     Profile100 m_profile;
-    Control100 currentRefTheta;
+    Control100 m_currentRefTheta;
 
     private boolean m_steeringAligned;
 
@@ -62,12 +62,12 @@ public class Rotate extends Command implements Glassy {
             SwerveKinodynamics swerveKinodynamics,
             double targetAngleRadians) {
         LoggerFactory child = parent.child(this);
-        m_robotDrive = drivetrain;
+        m_drive = drivetrain;
         m_controller = controller;
         m_gyro = gyro;
         m_swerveKinodynamics = swerveKinodynamics;
         m_goalState = new Model100(targetAngleRadians, 0);
-        currentRefTheta = new Control100(0, 0);
+        m_currentRefTheta = new Control100(0, 0);
 
         addRequirements(drivetrain);
         m_log_error_x = child.doubleLogger(Level.TRACE, "errorX");
@@ -90,29 +90,33 @@ public class Rotate extends Command implements Glassy {
     }
 
     private void resetRefTheta() {
-        ChassisSpeeds initialSpeeds = m_robotDrive.getChassisSpeeds();
-        currentRefTheta = new Control100(
-                m_robotDrive.getPose().getRotation().getRadians(),
+        ChassisSpeeds initialSpeeds = m_drive.getChassisSpeeds();
+        m_currentRefTheta = new Control100(
+                m_drive.getPose().getRotation().getRadians(),
                 initialSpeeds.omegaRadiansPerSecond);
     }
 
     @Override
     public void execute() {
+        if (!m_steeringAligned) {
+            // while waiting for the wheels, hold the profile at the start.
+            resetRefTheta();
+        }
 
-        m_finished = MathUtil.isNear(currentRefTheta.x(), m_goalState.x(), kXToleranceRad)
-                && MathUtil.isNear(currentRefTheta.v(), m_goalState.v(), kVToleranceRad_S);
+        m_finished = MathUtil.isNear(m_currentRefTheta.x(), m_goalState.x(), kXToleranceRad)
+                && MathUtil.isNear(m_currentRefTheta.v(), m_goalState.v(), kVToleranceRad_S);
 
-        SwerveModel measurement = m_robotDrive.getState();
+        SwerveModel measurement = m_drive.getState();
         Pose2d currentPose = measurement.pose();
 
         SwerveModel currentRef = new SwerveModel(
                 new Model100(currentPose.getX(), 0), // stationary at current pose
                 new Model100(currentPose.getY(), 0),
-                new Model100(currentRefTheta.x(), currentRefTheta.v()));
+                new Model100(m_currentRefTheta.x(), m_currentRefTheta.v()));
 
         Control100 nextRefTheta = m_profile.calculate(
                 TimedRobot100.LOOP_PERIOD_S,
-                currentRefTheta.model(),
+                m_currentRefTheta.model(),
                 m_goalState);
 
         SwerveModel nextReference = new SwerveModel(
@@ -123,19 +127,19 @@ public class Rotate extends Command implements Glassy {
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentRef, nextReference);
 
-        currentRefTheta = nextRefTheta;
+        m_currentRefTheta = nextRefTheta;
+
+        if (!m_steeringAligned && m_drive.aligned(fieldRelativeTarget)) {
+            // not aligned before, but are now.
+            m_steeringAligned = true;
+        }
 
         if (m_steeringAligned) {
             // steer normally.
             // there's no feasibility issue because cartesian speed is zero.
-            m_robotDrive.driveInFieldCoords(fieldRelativeTarget);
+            m_drive.driveInFieldCoords(fieldRelativeTarget);
         } else {
-            boolean aligned = m_robotDrive.steerAtRest(fieldRelativeTarget);
-            // while waiting for the wheels, hold the profile at the start.
-            resetRefTheta();
-            if (aligned) {
-                m_steeringAligned = true;
-            }
+            m_drive.steerAtRest(fieldRelativeTarget);
         }
 
         // log what we did
@@ -143,11 +147,11 @@ public class Rotate extends Command implements Glassy {
         double headingMeasurement = currentPose.getRotation().getRadians();
         double headingRate = m_gyro.getYawRateNWU();
 
-        m_log_error_x.log(() -> currentRefTheta.x() - headingMeasurement);
-        m_log_error_v.log(() -> currentRefTheta.v() - headingRate);
+        m_log_error_x.log(() -> m_currentRefTheta.x() - headingMeasurement);
+        m_log_error_v.log(() -> m_currentRefTheta.v() - headingRate);
         m_log_measurement_x.log(() -> headingMeasurement);
         m_log_measurement_v.log(() -> headingRate);
-        m_log_reference.log(() -> currentRefTheta);
+        m_log_reference.log(() -> m_currentRefTheta);
     }
 
     @Override
@@ -157,6 +161,6 @@ public class Rotate extends Command implements Glassy {
 
     @Override
     public void end(boolean isInterupted) {
-        m_robotDrive.stop();
+        m_drive.stop();
     }
 }

@@ -57,6 +57,7 @@ public class Trajectory100 {
         throw new IllegalStateException("impossible trajectory: " + toString());
     }
 
+    /** Time is at or beyond the trajectory duration. */
     public boolean isDone(double timeS) {
         return timeS >= duration();
     }
