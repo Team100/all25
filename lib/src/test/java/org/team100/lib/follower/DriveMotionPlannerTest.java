@@ -141,7 +141,7 @@ class DriveMotionPlannerTest {
 
                 // Inches and degrees
                 Pose2d error = GeometryUtil.transformBy(GeometryUtil.inverse(pose),
-                        controller.getSetpoint(time).get().state().getPose());
+                        controller.getSetpoint(time).state().getPose());
 
                 assertEquals(0.0, error.getTranslation().getX(), 0.5);
                 assertEquals(0.0, error.getTranslation().getY(), 0.5);

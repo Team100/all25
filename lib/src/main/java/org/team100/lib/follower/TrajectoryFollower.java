@@ -2,6 +2,8 @@ package org.team100.lib.follower;
 
 import java.util.Optional;
 
+import org.team100.lib.controller.drivetrain.FullStateDriveController;
+import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeDeltaLogger;
@@ -43,7 +45,9 @@ public class TrajectoryFollower {
     private double m_timeS;
     private double m_prevTimeS;
 
-    TrajectoryFollower(
+    // private final HolonomicFieldRelativeController m_controller;
+
+    public TrajectoryFollower(
             LoggerFactory parent,
             double kPCart,
             double kPTheta,
@@ -64,6 +68,10 @@ public class TrajectoryFollower {
         m_kPTheta = kPTheta;
         m_kPCartV = kPCartV;
         m_kPThetaV = kPThetaV;
+
+        // // TODO: pass this in
+        // m_controller = FullStateDriveController.getDefault(
+        // new HolonomicFieldRelativeController.Log(log));
     }
 
     public void setTrajectory(Trajectory100 trajectory) {
@@ -89,24 +97,17 @@ public class TrajectoryFollower {
     public FieldRelativeVelocity update(double timeS, SwerveModel measurement) {
         if (m_trajectory == null)
             return FieldRelativeVelocity.zero();
-
         m_log_measurement.log(() -> measurement);
-
-        Optional<TimedPose> optionalSetpoint = getSetpoint(timeS);
-        if (!optionalSetpoint.isPresent()) {
-            return FieldRelativeVelocity.zero();
-        }
-
-        TimedPose setpoint = optionalSetpoint.get();
+        TimedPose setpoint = getSetpoint(timeS);
         m_log_setpoint.log(() -> setpoint);
-
-        FieldRelativeVelocity u_FF = feedforward(setpoint);
-        FieldRelativeVelocity u_FB = fullFeedback(measurement, setpoint);
+        SwerveModel setpointModel = SwerveModel.fromTimedPose(setpoint);
+        FieldRelativeVelocity u_FF = feedforward(setpointModel);
+        FieldRelativeVelocity u_FB = fullFeedback(measurement, setpointModel);
         return u_FF.plus(u_FB);
     }
 
-    public FieldRelativeVelocity positionFeedback(SwerveModel measurement, TimedPose setpoint) {
-        FieldRelativeDelta positionError = positionError(measurement.pose(), setpoint);
+    public FieldRelativeVelocity positionFeedback(SwerveModel measurement, SwerveModel setpointModel) {
+        FieldRelativeDelta positionError = positionError(measurement.pose(), setpointModel);
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
                 m_kPCart * positionError.getX(),
                 m_kPCart * positionError.getY(),
@@ -115,8 +116,8 @@ public class TrajectoryFollower {
         return u_FB;
     }
 
-    public FieldRelativeVelocity velocityFeedback(SwerveModel currentPose, TimedPose setpoint) {
-        final FieldRelativeVelocity velocityError = velocityError(currentPose, setpoint);
+    public FieldRelativeVelocity velocityFeedback(SwerveModel currentPose, SwerveModel setpointModel) {
+        final FieldRelativeVelocity velocityError = velocityError(currentPose, setpointModel);
         final FieldRelativeVelocity u_VFB = new FieldRelativeVelocity(
                 m_kPCartV * velocityError.x(),
                 m_kPCartV * velocityError.y(),
@@ -125,9 +126,9 @@ public class TrajectoryFollower {
         return u_VFB;
     }
 
-    public FieldRelativeVelocity fullFeedback(SwerveModel measurement, TimedPose setpoint) {
-        FieldRelativeVelocity u_XFB = positionFeedback(measurement, setpoint);
-        FieldRelativeVelocity u_VFB = velocityFeedback(measurement, setpoint);
+    public FieldRelativeVelocity fullFeedback(SwerveModel measurement, SwerveModel setpointModel) {
+        FieldRelativeVelocity u_XFB = positionFeedback(measurement, setpointModel);
+        FieldRelativeVelocity u_VFB = velocityFeedback(measurement, setpointModel);
         return u_XFB.plus(u_VFB);
     }
 
@@ -138,14 +139,12 @@ public class TrajectoryFollower {
         return m_trajectory != null && m_trajectory.isDone(m_timeS);
     }
 
-    Optional<TimedPose> getSetpoint(double timestamp) {
+    TimedPose getSetpoint(double timestamp) {
         double mDt = dt(timestamp);
-
         m_timeS += mDt;
         TimedPose sample_point = m_trajectory.sample(m_timeS);
-
         m_log_sample.log(() -> sample_point);
-        return Optional.of(sample_point);
+        return sample_point;
     }
 
     double dt(double timestamp) {
@@ -156,22 +155,21 @@ public class TrajectoryFollower {
         return mDt;
     }
 
-    public FieldRelativeVelocity feedforward(TimedPose setpoint) {
-        SwerveModel model = SwerveModel.fromTimedPose(setpoint);
+    public FieldRelativeVelocity feedforward(SwerveModel model) {
         m_log_u_FF.log(() -> model.velocity());
         return model.velocity();
     }
 
-    FieldRelativeDelta positionError(Pose2d measurement, TimedPose setpoint) {
-        FieldRelativeDelta positionError = FieldRelativeDelta.delta(measurement, setpoint.state().getPose());
+    FieldRelativeDelta positionError(Pose2d measurement, SwerveModel setpointModel) {
+        FieldRelativeDelta positionError = FieldRelativeDelta.delta(measurement, setpointModel.pose());
         m_log_position_error.log(() -> positionError);
         return positionError;
     }
 
     FieldRelativeVelocity velocityError(
             SwerveModel measurement,
-            TimedPose setpoint) {
-        FieldRelativeVelocity velocityError = SwerveModel.fromTimedPose(setpoint).minus(measurement).velocity();
+            SwerveModel setpointModel) {
+        FieldRelativeVelocity velocityError = setpointModel.minus(measurement).velocity();
         m_log_velocity_error.log(() -> velocityError);
         return velocityError;
     }

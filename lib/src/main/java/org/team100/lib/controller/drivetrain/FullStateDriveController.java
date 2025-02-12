@@ -2,6 +2,8 @@ package org.team100.lib.controller.drivetrain;
 
 import java.util.function.DoubleUnaryOperator;
 
+import org.team100.lib.follower.TrajectoryFollower;
+import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.state.Model100;
@@ -13,21 +15,57 @@ import edu.wpi.first.math.MathUtil;
  * setpoint velocity feedforward.
  */
 public class FullStateDriveController implements HolonomicFieldRelativeController {
-    private static final double kXK1 = 4; // position
-    private static final double kXK2 = 0.25; // velocity
-    private static final double kThetaK1 = 4; // position
-    private static final double kThetaK2 = 0.25; // velocity
-    private static final double kXTolerance = 0.01; // 1 cm
-    private static final double kThetaTolerance = 0.02; // 1 degree
-    private static final double kXDotTolerance = 0.01; // 1 cm/s
-    private static final double kOmegaTolerance = 0.02; // 1 degree/s
+    private final double m_xK1; // position
+    private final double m_xK2; // velocity
+    private final double m_thetaK1; // position
+    private final double m_thetaK2; // velocity
+    private final double m_xTolerance; // 1 cm
+    private final double m_thetaTolerance; // 1 degree
+    private final double m_xDotTolerance; // 1 cm/s
+    private final double m_omegaTolerance; // 1 degree/s
 
     private final Log m_log;
 
     private boolean m_atSetpoint = false;
 
-    public FullStateDriveController(Log log) {
+    TrajectoryFollower follower;
+
+    public FullStateDriveController(
+            LoggerFactory parent,
+            Log log,
+            double xK1,
+            double xK2,
+            double thetaK1,
+            double thetaK2,
+            double xTolerance,
+            double thetaTolerance,
+            double xDotTolerance,
+            double omegaTolerance) {
         m_log = log;
+        m_xK1 = xK1; // position
+        m_xK2 = xK2; // velocity
+        m_thetaK1 = thetaK1; // position
+        m_thetaK2 = thetaK2; // velocity
+        m_xTolerance = xTolerance; // 1 cm
+        m_thetaTolerance = thetaTolerance; // 1 degree
+        m_xDotTolerance = xDotTolerance; // 1 cm/s
+        m_omegaTolerance = omegaTolerance;
+
+        follower = new TrajectoryFollower(parent, xK1, thetaK1, xK2, thetaK2);
+    }
+
+    public static FullStateDriveController getDefault(LoggerFactory parent, Log log) {
+        return new FullStateDriveController(
+                parent,
+                log,
+                4, // position
+                0.25, // velocity
+                4, // theta
+                0.25, // omega
+                0.01, // position tolerance
+                0.02, // theta tolerance
+                0.01, // velocity tolerance
+                0.02); // omega tolerance
     }
 
     @Override
@@ -41,17 +79,21 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
 
         m_atSetpoint = true;
 
-        double xFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
+        double xFB = calculateFB(m_xK1, m_xK2, m_xTolerance, m_xDotTolerance,
                 measurement.x(), currentReference.x(), x -> x);
-        double yFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
+        double yFB = calculateFB(m_xK1, m_xK2, m_xTolerance, m_xDotTolerance,
                 measurement.y(), currentReference.y(), x -> x);
-        double thetaFB = calculateFB(kThetaK1, kThetaK2, kThetaTolerance, kOmegaTolerance,
+        double thetaFB = calculateFB(m_thetaK1, m_thetaK2, m_thetaTolerance, m_omegaTolerance,
                 measurement.theta(), currentReference.theta(), MathUtil::angleModulus);
 
-        FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB);
+        // FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB);
+
+        FieldRelativeVelocity u_FB = follower.fullFeedback(measurement, currentReference);
+
         m_log.u_FB.log(() -> u_FB);
 
-        FieldRelativeVelocity u_FF = nextReference.velocity();
+        // FieldRelativeVelocity u_FF = nextReference.velocity();
+        FieldRelativeVelocity u_FF = follower.feedforward(nextReference);
 
         return u_FF.plus(u_FB);
     }

@@ -37,7 +37,9 @@ class DrivePIDControllerTest {
         TimedPose setpoint = new TimedPose(
                 new Pose2dWithMotion(new Pose2d()), 0, 0, 0);
         TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
-        FieldRelativeDelta err = controller.positionError(measurement.pose(), setpoint);
+        FieldRelativeDelta err = controller.positionError(
+                measurement.pose(),
+                SwerveModel.fromTimedPose(setpoint));
         assertEquals(0, err.getX(), 0.001);
         assertEquals(0, err.getY(), 0.001);
         assertEquals(0, err.getRotation().getRadians(), 0.001);
@@ -49,7 +51,9 @@ class DrivePIDControllerTest {
         TimedPose setpoint = new TimedPose(
                 new Pose2dWithMotion(new Pose2d()), 0, 0, 0);
         TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
-        FieldRelativeDelta err = controller.positionError(measurement.pose(), setpoint);
+        FieldRelativeDelta err = controller.positionError(
+                measurement.pose(),
+                SwerveModel.fromTimedPose(setpoint));
         assertEquals(-1, err.getX(), 0.001);
         assertEquals(0, err.getY(), 0.001);
         assertEquals(0, err.getRotation().getRadians(), 0.001);
@@ -61,7 +65,9 @@ class DrivePIDControllerTest {
         TimedPose setpoint = new TimedPose(
                 new Pose2dWithMotion(new Pose2d(1, 0, new Rotation2d())), 0, 0, 0);
         TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
-        FieldRelativeDelta err = controller.positionError(measurement.pose(), setpoint);
+        FieldRelativeDelta err = controller.positionError(
+                measurement.pose(),
+                SwerveModel.fromTimedPose(setpoint));
         assertEquals(1, err.getX(), 0.001);
         assertEquals(0, err.getY(), 0.001);
         assertEquals(0, err.getRotation().getRadians(), 0.001);
@@ -74,7 +80,9 @@ class DrivePIDControllerTest {
         TimedPose setpoint = new TimedPose(
                 new Pose2dWithMotion(new Pose2d(0, 0, new Rotation2d(1))), 0, 0, 0);
         TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
-        FieldRelativeDelta err = controller.positionError(measurement.pose(), setpoint);
+        FieldRelativeDelta err = controller.positionError(
+                measurement.pose(),
+                SwerveModel.fromTimedPose(setpoint));
         assertEquals(-1, err.getX(), 0.001);
         assertEquals(0, err.getY(), 0.001);
         assertEquals(0, err.getRotation().getRadians(), 0.001);
@@ -126,7 +134,7 @@ class DrivePIDControllerTest {
             // +x -y
             verify(0.167, -0.850, 0.064, output);
 
-            TimedPose path_setpoint = controller.getSetpoint(4).get();
+            TimedPose path_setpoint = controller.getSetpoint(4);
             assertEquals(0.24, path_setpoint.state().getPose().getX(), 0.01);
             assertEquals(-3.5, path_setpoint.state().getPose().getY(), 0.05);
             assertEquals(1.69, path_setpoint.state().getHeading().getRadians(), 0.01);
@@ -134,7 +142,9 @@ class DrivePIDControllerTest {
             assertEquals(0.979, path_setpoint.velocityM_S(), 0.01);
             assertEquals(-0.008, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(
+                    measurement,
+                    SwerveModel.fromTimedPose(path_setpoint));
             assertEquals(0, positionError.getX(), 0.05);
             assertEquals(0, positionError.getY(), 0.05);
             assertEquals(0, positionError.getRadians(), 0.05);
@@ -146,7 +156,7 @@ class DrivePIDControllerTest {
                     new SwerveModel(measurement, FieldRelativeVelocity.zero()));
             verify(0.592, -0.747, 0.098, output);
 
-            TimedPose path_setpoint = controller.getSetpoint(8).get();
+            TimedPose path_setpoint = controller.getSetpoint(8);
             assertEquals(1.74, path_setpoint.state().getPose().getX(), 0.01);
             assertEquals(-6.97, path_setpoint.state().getPose().getY(), 0.01);
             assertEquals(2.19, path_setpoint.state().getHeading().getRadians(), 0.01);
@@ -154,7 +164,9 @@ class DrivePIDControllerTest {
             assertEquals(0.955, path_setpoint.velocityM_S(), 0.001);
             assertEquals(0, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(
+                    measurement,
+                    SwerveModel.fromTimedPose(path_setpoint));
             assertEquals(0.00, positionError.getX(), 0.01);
             assertEquals(0, positionError.getY(), 0.01);
             assertEquals(-0.03, positionError.getRadians(), 0.01);

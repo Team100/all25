@@ -204,7 +204,7 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         whileTrue(driverControl::driveToObject,
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
-                        new FullStateDriveController(hlog), swerveKinodynamics));
+                        FullStateDriveController.getDefault(comLog, hlog), swerveKinodynamics));
         whileTrue(driverControl::fullCycle,
                 new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 

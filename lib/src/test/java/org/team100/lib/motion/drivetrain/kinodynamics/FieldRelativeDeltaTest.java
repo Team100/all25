@@ -29,4 +29,15 @@ class FieldRelativeDeltaTest {
         assertEquals(0, d.getTranslation().getY(), 0.01);
         assertEquals(1, d.getRotation().getRadians(), 0.01);
     }
+
+    @Test
+    void testWrapping() {
+        // the delta sign is correct
+        Pose2d start = new Pose2d(0, 0, new Rotation2d(3));
+        Pose2d end = new Pose2d(0, 0, new Rotation2d(-3));
+        FieldRelativeDelta d = FieldRelativeDelta.delta(start, end);
+        assertEquals(0, d.getTranslation().getX(), 0.01);
+        assertEquals(0, d.getTranslation().getY(), 0.01);
+        assertEquals(0.283, d.getRotation().getRadians(), 0.01);
+    }
 }

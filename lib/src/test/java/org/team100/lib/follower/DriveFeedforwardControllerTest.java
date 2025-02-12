@@ -77,7 +77,7 @@ class DriveFeedforwardControllerTest {
             // verify(-0.976, -0.075, 0.075, output);
             verify(0.191, -0.961, 0.075, output);
 
-            TimedPose path_setpoint = controller.getSetpoint(4).get();
+            TimedPose path_setpoint = controller.getSetpoint(4);
             assertEquals(0.24, path_setpoint.state().getPose().getX(), 0.01);
             assertEquals(-3.454, path_setpoint.state().getPose().getY(), 0.05);
             assertEquals(1.685, path_setpoint.state().getHeading().getRadians(), 0.01);
@@ -85,7 +85,9 @@ class DriveFeedforwardControllerTest {
             assertEquals(0.979, path_setpoint.velocityM_S(), 0.01);
             assertEquals(-0.008, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(
+                    measurement,
+                    SwerveModel.fromTimedPose(path_setpoint));
             assertEquals(0, positionError.getX(), 0.05);
             assertEquals(0, positionError.getY(), 0.05);
             assertEquals(0, positionError.getRadians(), 0.05);
@@ -97,7 +99,7 @@ class DriveFeedforwardControllerTest {
             // at 8 s we're almost at the corner.
             verify(0.584, -0.756, 0.170, output);
 
-            TimedPose path_setpoint = controller.getSetpoint(8).get();
+            TimedPose path_setpoint = controller.getSetpoint(8);
             assertEquals(1.74, path_setpoint.state().getPose().getX(), 0.01);
             assertEquals(-6.96, path_setpoint.state().getPose().getY(), 0.01);
             assertEquals(2.18, path_setpoint.state().getHeading().getRadians(), 0.01);
@@ -105,7 +107,9 @@ class DriveFeedforwardControllerTest {
             assertEquals(0.955, path_setpoint.velocityM_S(), 0.001);
             assertEquals(0, path_setpoint.acceleration(), 0.001);
 
-            FieldRelativeDelta positionError = controller.positionError(measurement, path_setpoint);
+            FieldRelativeDelta positionError = controller.positionError(
+                    measurement,
+                    SwerveModel.fromTimedPose(path_setpoint));
             assertEquals(0, positionError.getX(), 0.01);
             assertEquals(0, positionError.getY(), 0.01);
             assertEquals(-0.03, positionError.getRadians(), 0.01);
