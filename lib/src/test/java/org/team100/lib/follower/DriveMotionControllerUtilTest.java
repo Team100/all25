@@ -43,7 +43,7 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.feedforward(SwerveModel.fromTimedPose(setpoint));
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -72,7 +72,7 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be -y, robot relative, no rotation.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.feedforward(SwerveModel.fromTimedPose(setpoint));
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -101,7 +101,7 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be ahead and rotating.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.feedforward(SwerveModel.fromTimedPose(setpoint));
         assertEquals(1, speeds.x(), kDelta);
         assertEquals(0, speeds.y(), kDelta);
@@ -132,7 +132,7 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // we're exactly on the setpoint so zero error
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
+        FollowerController controller = new FollowerController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeDelta positionError = controller.positionError(
                 currentState,
                 SwerveModel.fromTimedPose(setpoint));
@@ -165,7 +165,7 @@ class DriveMotionControllerUtilTest {
         double acceleration = 0;
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // error is +x but robot is facing +y so error is -y
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 2.4, 2.4, 0.0, 0.0);
+        FollowerController controller = new FollowerController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeDelta positionError = controller.positionError(
                 currentState,
                 SwerveModel.fromTimedPose(setpoint));
@@ -201,7 +201,7 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.positionFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -238,7 +238,7 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.positionFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -275,7 +275,7 @@ class DriveMotionControllerUtilTest {
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.positionFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -313,7 +313,7 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.positionFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -349,7 +349,7 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.positionFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -385,7 +385,7 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel setpointModel = SwerveModel.fromTimedPose(setpoint);
         FieldRelativeVelocity error = controller.velocityError(measurement, setpointModel);
         // we're exactly on the setpoint so zero error
@@ -421,7 +421,7 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(0, 1, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 0, 0);
+        FollowerController controller = new FollowerController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel setpointModel = SwerveModel.fromTimedPose(setpoint);
         FieldRelativeVelocity error = controller.velocityError(measurement, setpointModel);
         // error should include both components
@@ -457,7 +457,7 @@ class DriveMotionControllerUtilTest {
                 currentState,
                 new FieldRelativeVelocity(1, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+        FollowerController controller = new FollowerController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.fullFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -494,7 +494,7 @@ class DriveMotionControllerUtilTest {
                 currentPose,
                 new FieldRelativeVelocity(0.5, 0, 0));
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+        FollowerController controller = new FollowerController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
         FieldRelativeVelocity speeds = controller.fullFeedback(
                 measurement,
                 SwerveModel.fromTimedPose(setpoint));
@@ -534,7 +534,7 @@ class DriveMotionControllerUtilTest {
         TimedPose setpoint = new TimedPose(state, t, velocity, acceleration);
         // feedforward should be straight ahead, no rotation.
 
-        TrajectoryFollower controller = new TrajectoryFollower(logger, 1, 1, 1, 1);
+        FollowerController controller = new FollowerController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
 
         FieldRelativeVelocity positionFeedback = controller.positionFeedback(
                 measurement, SwerveModel.fromTimedPose(setpoint));

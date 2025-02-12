@@ -139,4 +139,28 @@ class FullStateDriveControllerTest {
         assertFalse(c.atReference());
     }
 
+    @Test
+    void testRotation() {
+        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        assertFalse(c.atReference());
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(3, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(-3, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(-3, 0)));
+        assertEquals(0, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        // we want to rotate +
+        assertEquals(1.133, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
 }

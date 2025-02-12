@@ -11,7 +11,6 @@ import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -70,8 +69,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
 
     @Override
     public void execute() {
-        final double now = Takt.get();
-        FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
 
         m_robotDrive.driveInFieldCoords(output);
 

@@ -17,7 +17,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.PoseSet;
-import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -70,7 +69,7 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     @Override
     public final void execute() {
-        final double now = Takt.get();
+
         Pose2d currentPose = m_robotDrive.getPose();
 
         Rotation2d angleToReef = FieldConstants.angleToReefCenter(currentPose);
@@ -78,7 +77,7 @@ public abstract class Navigator extends Command implements Planner2025 {
         Rotation2d thetaError = angleToReef.minus(currentHeading);
 
         // m_controller.setThetaError(thetaError);
-        FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
 
         m_robotDrive.driveInFieldCoordsVerbatim(output);
 
