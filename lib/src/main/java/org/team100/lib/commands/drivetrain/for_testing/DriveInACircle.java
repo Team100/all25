@@ -39,7 +39,7 @@ public class DriveInACircle extends Command implements Glassy {
     private static final double kMaxSpeed = 0.5;
     private static final double kAccel = 0.5;
 
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final double m_turnRatio;
     private final HolonomicFieldRelativeController m_controller;
     private final TrajectoryVisualization m_viz;
@@ -78,17 +78,17 @@ public class DriveInACircle extends Command implements Glassy {
         m_log_angle = child.doubleLogger(Level.TRACE, "angle");
         m_log_reference = child.swerveControlLogger(Level.TRACE, "reference");
         m_log_target = child.fieldRelativeVelocityLogger(Level.TRACE, "target");
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_turnRatio = turnRatio;
         m_controller = controller;
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
         m_controller.reset();
-        Pose2d currentPose = m_swerve.getPose();
+        Pose2d currentPose = m_drive.getPose();
         m_initialRotation = currentPose.getRotation().getRadians();
         m_center = getCenter(currentPose, kRadiusM);
         m_speedRad_S = 0;
@@ -121,9 +121,9 @@ public class DriveInACircle extends Command implements Glassy {
         }
 
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                m_swerve.getState(), m_currentReference.model(), reference.model());
+                m_drive.getState(), m_currentReference.model(), reference.model());
         m_currentReference = reference;
-        m_swerve.driveInFieldCoords(fieldRelativeTarget);
+        m_drive.driveInFieldCoords(fieldRelativeTarget);
 
         m_log_center.log(() -> m_center);
         m_log_angle.log(() -> m_angleRad);
@@ -183,7 +183,7 @@ public class DriveInACircle extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 }

@@ -55,7 +55,7 @@ class DriveMotionPlannerTest implements Timeless {
                 end_vel);
 
         TrajectoryFollower controller = new TrajectoryFollower(
-                logger, new SwerveController(logger, 2.4, 2.4, 1.0, 1.0, 0.01, 0.02, 0.01, 0.02));
+                new SwerveController(logger, 2.4, 2.4, 1.0, 1.0, 0.01, 0.02, 0.01, 0.02));
 
         controller.setTrajectory(trajectory);
 

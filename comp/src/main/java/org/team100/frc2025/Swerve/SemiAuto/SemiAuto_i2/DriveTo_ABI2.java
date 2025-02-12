@@ -29,7 +29,7 @@
 // /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 // public class DriveTo_ABI2 extends Navigator implements Planner2025 {
 //     /** Creates a new TrajectoryCommandWithPose100. */
-//     private final SwerveDriveSubsystem m_robotDrive;
+//     private final SwerveDriveSubsystem m_drive;
 //     private final TrajectoryFollower m_controller;
 //     private Pose2d m_goal = new Pose2d();
 //     private final TrajectoryVisualization m_viz;

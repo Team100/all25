@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class PermissiveTrajectoryListCommand extends Command implements Glassy {
     private final LoggerFactory m_log;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final HolonomicFieldRelativeController m_controller;
     private final List<Function<Pose2d, Trajectory100>> m_trajectories;
     private final TrajectoryVisualization m_viz;
@@ -37,11 +37,11 @@ public class PermissiveTrajectoryListCommand extends Command implements Glassy {
             List<Function<Pose2d, Trajectory100>> trajectories,
             TrajectoryVisualization viz) {
         m_log = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_controller = controller;
         m_trajectories = trajectories;
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -55,8 +55,8 @@ public class PermissiveTrajectoryListCommand extends Command implements Glassy {
         if (m_referenceController == null || m_referenceController.isFinished()) {
             // get the next trajectory
             if (m_trajectoryIter.hasNext()) {
-                Trajectory100 trajectory = m_trajectoryIter.next().apply(m_swerve.getPose());
-                m_referenceController = new ReferenceController(m_log, m_swerve, m_controller, trajectory);
+                Trajectory100 trajectory = m_trajectoryIter.next().apply(m_drive.getPose());
+                m_referenceController = new ReferenceController(m_drive, m_controller, trajectory);
                 m_viz.setViz(trajectory);
             } else {
                 return;
@@ -75,7 +75,7 @@ public class PermissiveTrajectoryListCommand extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 

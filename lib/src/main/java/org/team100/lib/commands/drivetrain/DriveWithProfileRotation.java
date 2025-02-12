@@ -24,7 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class DriveWithProfileRotation extends DriveWithProfile2 {
 
     private final Supplier<Optional<Translation2d>> m_fieldRelativeGoal;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
 
     private static Optional<Pose2d> m_goal;
     private int m_count;
@@ -41,7 +41,7 @@ public class DriveWithProfileRotation extends DriveWithProfile2 {
         kRotationToleranceRad_S = 6 * Math.PI;
         kTranslationalToleranceM = 0.05;
         m_fieldRelativeGoal = fieldRelativeGoal;
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         
     }
 
@@ -77,7 +77,7 @@ public class DriveWithProfileRotation extends DriveWithProfile2 {
     private Optional<Pose2d> getGoalPose() {
         Optional<Translation2d> optGoal = getGoal();
         if (m_fieldRelativeGoal.get().isPresent()) {
-            return Optional.of(new Pose2d(optGoal.get(), new Rotation2d(getThetaGoalRad(optGoal.get(), m_swerve.getPose()))));
+            return Optional.of(new Pose2d(optGoal.get(), new Rotation2d(getThetaGoalRad(optGoal.get(), m_drive.getPose()))));
         } 
         return Optional.empty();
     }

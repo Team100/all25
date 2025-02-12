@@ -2,9 +2,6 @@ package org.team100.lib.follower;
 
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.trajectory.Trajectory100;
@@ -18,16 +15,12 @@ import org.team100.lib.util.Takt;
  * to robot-relative should happen downstream.
  */
 public class TrajectoryFollower {
-    private final SwerveModelLogger m_log_measurement;
+    private final SwerveController m_controller;
 
     private Trajectory100 m_trajectory;
     private double m_startTimeS;
 
-    private final SwerveController m_controller;
-
-    public TrajectoryFollower(LoggerFactory parent, SwerveController controller) {
-        LoggerFactory log = parent.child("FieldRelativeDrivePIDFFollower");
-        m_log_measurement = log.swerveModelLogger(Level.DEBUG, "measurement");
+    public TrajectoryFollower(SwerveController controller) {
         m_controller = controller;
     }
 
@@ -39,7 +32,6 @@ public class TrajectoryFollower {
     public FieldRelativeVelocity update(SwerveModel measurement) {
         if (m_trajectory == null)
             return FieldRelativeVelocity.zero();
-        m_log_measurement.log(() -> measurement);
         double progress = Takt.get() - m_startTimeS;
         SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(progress));
         SwerveModel nextReference = SwerveModel

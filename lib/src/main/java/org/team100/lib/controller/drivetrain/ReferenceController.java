@@ -27,30 +27,27 @@ import org.team100.lib.util.Takt;
  * trajectory, so create it in Command.initialize().
  */
 public class ReferenceController implements Glassy {
-    private final DriveSubsystemInterface m_swerve;
+    private final DriveSubsystemInterface m_drive;
     private final HolonomicFieldRelativeController m_controller;
     private final Trajectory100 m_trajectory;
-    private final SwerveModelLogger m_log_reference;
+
     private double m_startTimeS;
     private boolean m_aligned;
 
     public ReferenceController(
-            LoggerFactory parent,
             DriveSubsystemInterface swerve,
             HolonomicFieldRelativeController controller,
             Trajectory100 trajectory) {
         if (trajectory == null)
             throw new IllegalArgumentException("null trajectory");
-        LoggerFactory child = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_controller = controller;
         m_trajectory = trajectory;
-        m_log_reference = child.swerveModelLogger(Level.TRACE, "reference");
 
         // initialize
         m_controller.reset();
         m_startTimeS = Takt.get();
-        if (m_swerve.getState().velocity().norm() > 0) {
+        if (m_drive.getState().velocity().norm() > 0) {
             // keep moving if we're already moving
             m_aligned = true;
         } else {
@@ -64,24 +61,23 @@ public class ReferenceController implements Glassy {
             m_startTimeS = Takt.get();
         }
         double progress = Takt.get() - m_startTimeS;
-        SwerveModel measurement = m_swerve.getState();
+        SwerveModel measurement = m_drive.getState();
         SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(progress));
         SwerveModel nextReference = SwerveModel
                 .fromTimedPose(m_trajectory.sample(progress + TimedRobot100.LOOP_PERIOD_S));
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, currentReference, nextReference);
-        if (!m_aligned && m_swerve.aligned(fieldRelativeTarget)) {
+        if (!m_aligned && m_drive.aligned(fieldRelativeTarget)) {
             // Not aligned before, but are now.
             m_aligned = true;
         }
         if (!m_aligned) {
             // Still not aligned, so keep steering.
-            m_swerve.steerAtRest(fieldRelativeTarget);
+            m_drive.steerAtRest(fieldRelativeTarget);
         } else {
             // Aligned, so drive normally.
-            m_swerve.driveInFieldCoords(fieldRelativeTarget);
+            m_drive.driveInFieldCoords(fieldRelativeTarget);
         }
-        m_log_reference.log(() -> nextReference);
     }
 
     /** Trajectory is complete and controller error is within tolerance. */

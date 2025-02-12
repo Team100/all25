@@ -34,7 +34,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
     public static double kTranslationalToleranceM_S = 0.01;
 
     private final Supplier<Optional<Pose2d>> m_fieldRelativeGoalSupplier;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final HolonomicFieldRelativeController m_controller;
     private final SwerveKinodynamics m_limits;
     private Profile100 xProfile;
@@ -66,7 +66,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
             SwerveKinodynamics limits) {
         m_field_log = fieldLogger;
         m_fieldRelativeGoalSupplier = fieldRelativeGoal;
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_controller = controller;
         m_limits = limits;
         xProfile = new TrapezoidProfile100(
@@ -81,14 +81,14 @@ public class DriveWithProfile2 extends Command implements Glassy {
                 m_limits.getMaxAngleSpeedRad_S(),
                 m_limits.getMaxAngleAccelRad_S2() / 50,
                 kRotationToleranceRad);
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        xSetpoint = m_swerve.getState().x().control();
-        ySetpoint = m_swerve.getState().y().control();
-        thetaSetpoint = m_swerve.getState().theta().control();
+        xSetpoint = m_drive.getState().x().control();
+        ySetpoint = m_drive.getState().y().control();
+        thetaSetpoint = m_drive.getState().theta().control();
 
         Optional<Pose2d> opt = m_fieldRelativeGoalSupplier.get();
         if (opt.isEmpty()) {
@@ -124,7 +124,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
     @Override
     public void execute() {
 
-        Rotation2d currentRotation = m_swerve.getPose().getRotation();
+        Rotation2d currentRotation = m_drive.getPose().getRotation();
         // take the short path
         double measurement = currentRotation.getRadians();
         Optional<Pose2d> opt = m_fieldRelativeGoalSupplier.get();
@@ -159,9 +159,9 @@ public class DriveWithProfile2 extends Command implements Glassy {
             currentGoalState = nextGoalState;
         }
         FieldRelativeVelocity goal = m_controller.calculate(
-                m_swerve.getState(), currentGoalState, nextGoalState);
+                m_drive.getState(), currentGoalState, nextGoalState);
         currentGoalState = nextGoalState;
-        m_swerve.driveInFieldCoords(goal);
+        m_drive.driveInFieldCoords(goal);
     }
 
     @Override
@@ -169,9 +169,9 @@ public class DriveWithProfile2 extends Command implements Glassy {
         if (!m_fieldRelativeGoalSupplier.get().isPresent() && m_fieldRelativeGoal == null) {
             return true;
         }
-        double xError = m_xGoalRaw.x() - m_swerve.getState().x().x();
-        double yError = m_yGoalRaw.x() - m_swerve.getState().y().x();
-        double thetaError = m_thetaGoalRaw.x() - m_swerve.getState().theta().x();
+        double xError = m_xGoalRaw.x() - m_drive.getState().x().x();
+        double yError = m_yGoalRaw.x() - m_drive.getState().y().x();
+        double thetaError = m_thetaGoalRaw.x() - m_drive.getState().theta().x();
         return Math.abs(xError) < kTranslationalToleranceM
                 && Math.abs(yError) < kTranslationalToleranceM
                 && Math.abs(thetaError) < kRotationToleranceRad
@@ -179,14 +179,14 @@ public class DriveWithProfile2 extends Command implements Glassy {
     }
 
     public boolean atRest() {
-        return Math.abs(m_swerve.getState().x().v()) < kTranslationalToleranceM_S
-                && Math.abs(m_swerve.getState().y().v()) < kTranslationalToleranceM_S
-                && Math.abs(m_swerve.getState().theta().v()) < kRotationToleranceRad_S;
+        return Math.abs(m_drive.getState().x().v()) < kTranslationalToleranceM_S
+                && Math.abs(m_drive.getState().y().v()) < kTranslationalToleranceM_S
+                && Math.abs(m_drive.getState().theta().v()) < kRotationToleranceRad_S;
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         xProfile = xProfile.scale(1 / sx);
         yProfile = yProfile.scale(1 / sy);
     }

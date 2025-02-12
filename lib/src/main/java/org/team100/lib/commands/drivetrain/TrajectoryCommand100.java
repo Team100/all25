@@ -39,7 +39,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
     }
 
     private final Log m_log;
-    private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveDriveSubsystem m_drive;
     private final TrajectoryFollower m_controller;
     private final Trajectory100 m_trajectory;
     private final Pose2d m_goal;
@@ -52,13 +52,13 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
             TrajectoryFollower controller,
             TrajectoryVisualization viz) {
         m_log = log;
-        m_robotDrive = robotDrive;
+        m_drive = robotDrive;
         m_trajectory = trajectory;
         m_controller = controller;
         m_goal = m_trajectory.getLastPoint().state().getPose();
         m_viz = viz;
         log.m_log_goal.log(() -> m_goal);
-        addRequirements(m_robotDrive);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -69,13 +69,13 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
 
-        m_robotDrive.driveInFieldCoords(output);
+        m_drive.driveInFieldCoords(output);
 
         m_log.m_log_speed.log(() -> output);
         double thetaErrorRad = m_goal.getRotation().getRadians()
-                - m_robotDrive.getPose().getRotation().getRadians();
+                - m_drive.getPose().getRotation().getRadians();
         m_log.m_log_THETA_ERROR.log(() -> thetaErrorRad);
         m_log.m_log_FINSIHED.log(() -> false);
     }
@@ -88,7 +88,7 @@ public class TrajectoryCommand100 extends Command implements Glassy  {
     @Override
     public void end(boolean interrupted) {
         m_log.m_log_FINSIHED.log(() -> true);
-        m_robotDrive.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 }

@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DriveToState101 extends Command implements Glassy {
     private final Pose2d m_goal;
     private final FieldRelativeVelocity m_endVelocity;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final TrajectoryFollower m_controller;
     private final List<TimingConstraint> m_constraints;
     private final TrajectoryVisualization m_viz;
@@ -49,26 +49,26 @@ public class DriveToState101 extends Command implements Glassy {
         m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
         m_goal = goal;
         m_endVelocity = endVelocity;
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_controller = controller;
         m_constraints = new TimingConstraintFactory(swerveKinodynamics).fast();
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        Translation2d toGoal = m_goal.getTranslation().minus(m_swerve.getPose().getTranslation());
+        Translation2d toGoal = m_goal.getTranslation().minus(m_drive.getPose().getTranslation());
         Transform2d transform = new Transform2d(toGoal, toGoal.getAngle()).inverse();
-        Pose2d startPose = new Pose2d(m_swerve.getPose().getTranslation(), transform.getRotation());
-        FieldRelativeVelocity startVelocity = m_swerve.getVelocity();
+        Pose2d startPose = new Pose2d(m_drive.getPose().getTranslation(), transform.getRotation());
+        FieldRelativeVelocity startVelocity = m_drive.getVelocity();
         Pose2d startWaypoint = getStartWaypoint(startPose, startVelocity);
         Pose2d endWaypoint = new Pose2d(m_goal.getTranslation(), new Rotation2d(1, -1));
         List<Pose2d> waypointsM = List.of(
                 startWaypoint,
                 endWaypoint);
         List<Rotation2d> headings = List.of(
-                m_swerve.getPose().getRotation(),
+                m_drive.getPose().getRotation(),
                 m_goal.getRotation());
         Trajectory100 trajectory = TrajectoryPlanner.generateTrajectory(
                 waypointsM,
@@ -88,9 +88,9 @@ public class DriveToState101 extends Command implements Glassy {
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_swerve.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
         m_log_speed.log(() -> output);
-        m_swerve.driveInFieldCoords(output);
+        m_drive.driveInFieldCoords(output);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DriveToState101 extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 

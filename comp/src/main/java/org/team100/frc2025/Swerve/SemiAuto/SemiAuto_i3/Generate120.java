@@ -34,7 +34,7 @@ public class Generate120 extends Navigator {
   private final double kTangentScale = 0.2;
   private final double kEntranceCurveFactor = 1.2;
 
-  private final SwerveDriveSubsystem m_robotDrive;
+  private final SwerveDriveSubsystem m_drive;
   private final TrajectoryFollower m_controller;
   private Pose2d m_goal = new Pose2d();
   private final TrajectoryVisualization m_viz;
@@ -47,21 +47,21 @@ public class Generate120 extends Navigator {
             SwerveKinodynamics kinodynamics) {
     // Use addRequirements() here to declare subsystem dependencies.
     super(parent, robotDrive, controller, viz, kinodynamics);
-    m_robotDrive = robotDrive;
+    m_drive = robotDrive;
     m_controller = controller;
     m_viz = viz;
     m_constraints = new TimingConstraintFactory(kinodynamics);
-    addRequirements(m_robotDrive);
+    addRequirements(m_drive);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
 
-    Pose2d currPose = m_robotDrive.getPose();
+    Pose2d currPose = m_drive.getPose();
     Translation2d currTranslation = currPose.getTranslation();
 
-    FieldSector start = FieldConstants.getSector(m_robotDrive.getPose());
+    FieldSector start = FieldConstants.getSector(m_drive.getPose());
     FieldSector end = FieldSector.AB;
     ReefDestination reefDestination = ReefDestination.LEFT;
     

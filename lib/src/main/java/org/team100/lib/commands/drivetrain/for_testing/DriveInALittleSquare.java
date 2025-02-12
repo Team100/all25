@@ -45,7 +45,7 @@ public class DriveInALittleSquare extends Command implements Glassy  {
     private static final Model100 kGoal = new Model100(kDriveLengthM, 0);
     private static final double kVToleranceRad_S = 0.02;
 
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final Profile100 m_driveProfile;
 
     /** Current speed setpoint. */
@@ -55,9 +55,9 @@ public class DriveInALittleSquare extends Command implements Glassy  {
     DriveState m_state;
 
     public DriveInALittleSquare(SwerveDriveSubsystem swerve) {
-        m_swerve = swerve;
+        m_drive = swerve;
         m_driveProfile = new TrapezoidProfile100(kMaxVel, kMaxAccel, 0.05);
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class DriveInALittleSquare extends Command implements Glassy  {
                 }
                 break;
             case STEERING:
-                if (Util.all(m_swerve.getSwerveLocal().atGoal())) {
+                if (Util.all(m_drive.getSwerveLocal().atGoal())) {
                     // we were steering, but all the setpoints have been reached, so switch to
                     // driving
                     m_state = DriveState.DRIVING;
@@ -104,11 +104,11 @@ public class DriveInALittleSquare extends Command implements Glassy  {
                 new SwerveModuleState100(m_setpoint.v(), Optional.of(m_goal)),
                 new SwerveModuleState100(m_setpoint.v(), Optional.of(m_goal))
         );
-        m_swerve.setRawModuleStates(states);
+        m_drive.setRawModuleStates(states);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 }

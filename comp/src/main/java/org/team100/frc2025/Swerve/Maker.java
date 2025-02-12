@@ -17,7 +17,7 @@ public class Maker {
 
     LoggerFactory m_logger;
 
-    SwerveDriveSubsystem m_swerve;
+    SwerveDriveSubsystem m_drive;
     TrajectoryFollowerFactory m_factory;
     TrajectoryVisualization m_viz;
     SwerveKinodynamics m_kinodynamics;
@@ -30,7 +30,7 @@ public class Maker {
             SwerveKinodynamics kinodynamics,
             TrajectoryVisualization viz) {
         m_logger = parent.child("Maker");
-        m_swerve = swerve;
+        m_drive = swerve;
         constraints = new TimingConstraintFactory(kinodynamics);
         m_viz = viz;
         m_kinodynamics = kinodynamics;
@@ -41,7 +41,7 @@ public class Maker {
 
         return new Generate120(
                 m_logger,
-                m_swerve,
+                m_drive,
                 TrajectoryFollowerFactory.fieldRelativeGoodPIDF(m_logger),
                 m_viz,
                 m_kinodynamics);

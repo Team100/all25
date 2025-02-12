@@ -20,17 +20,17 @@ public class Veering extends Command implements Glassy  {
     private static final double kPeriod = 10;
     /** omega command in rad/s */
     private static final double kOmega = Math.PI;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final SquareWave m_square;
     private final Timer m_timer;
     private final FieldRelativeVelocityLogger m_log_input;
 
     public Veering(LoggerFactory parent, SwerveDriveSubsystem swerve) {
         LoggerFactory child = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_square = new SquareWave(kAmplitude, kPeriod);
         m_timer = new Timer();
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
         m_log_input = child.fieldRelativeVelocityLogger(Level.TRACE, "input");
     }
 
@@ -44,12 +44,12 @@ public class Veering extends Command implements Glassy  {
         double time = m_timer.get();
         double dx = m_square.applyAsDouble(time);
         FieldRelativeVelocity input = new FieldRelativeVelocity(dx, 0, kOmega);
-        m_swerve.driveInFieldCoords(input);
+        m_drive.driveInFieldCoords(input);
         m_log_input.log( () -> input);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 }

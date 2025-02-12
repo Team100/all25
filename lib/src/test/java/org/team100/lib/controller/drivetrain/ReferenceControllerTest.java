@@ -26,7 +26,7 @@ import org.team100.lib.trajectory.TrajectoryMaker;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
-public class ReferenceControllerTest  extends Fixtured implements Timeless {
+public class ReferenceControllerTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
@@ -47,8 +47,7 @@ public class ReferenceControllerTest  extends Fixtured implements Timeless {
         d.m_state = new SwerveModel();
         d.m_aligned = false;
 
-        ReferenceController c = new ReferenceController(
-                logger, d, controller, t);
+        ReferenceController c = new ReferenceController( d, controller, t);
 
         // Initially unaligned so steer at rest
         stepTime(0.02);
@@ -104,8 +103,7 @@ public class ReferenceControllerTest  extends Fixtured implements Timeless {
         // for this test we don't care about steering alignment.
         d.m_aligned = true;
 
-        ReferenceController c = new ReferenceController(
-                logger, d, controller, t);
+        ReferenceController c = new ReferenceController(d, controller, t);
 
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
@@ -137,8 +135,7 @@ public class ReferenceControllerTest  extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        ReferenceController command = new ReferenceController(
-                logger, drive, controller, trajectory);
+        ReferenceController command = new ReferenceController(drive, controller, trajectory);
         stepTime(0.02);
 
         // command has not checked yet
@@ -191,8 +188,7 @@ public class ReferenceControllerTest  extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        ReferenceController command = new ReferenceController(
-                logger, drive, controller, trajectory);
+        ReferenceController command = new ReferenceController( drive, controller, trajectory);
         // always start unaligned
         assertFalse(command.is_aligned());
 
