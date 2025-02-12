@@ -26,6 +26,3 @@ There are several "snap" implementations:
   worry about.  The current implementation uses fixed gains, but might be improved
   by gain scheduling according to robot velocity, as above.
   
-* **ManualWithMinTimeHeading:** uses the min-time controller, which is a "sliding mode"
-  controller that uses a trapezoidal profile.  This driver doesn't yet implement
-  variable velocity and so it shouldn't be used.
