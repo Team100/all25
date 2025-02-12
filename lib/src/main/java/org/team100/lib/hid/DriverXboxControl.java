@@ -114,7 +114,7 @@ public class DriverXboxControl implements DriverControl {
     }
 
     public boolean shoot() {
-        return m_controller.getRightBumper();
+        return m_controller.getRightBumperButton();
     }
 
     /**
