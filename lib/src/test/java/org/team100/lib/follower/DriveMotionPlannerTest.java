@@ -65,7 +65,7 @@ class DriveMotionPlannerTest implements Timeless {
         // double time = Takt.get()
         double mDt = 0.02;
         while (!controller.isDone()) {
-            stepTime(0.02);
+            stepTime();
             velocity = controller.update(new SwerveModel(pose, velocity));
             pose = new Pose2d(
                     pose.getX() + velocity.x() * mDt,

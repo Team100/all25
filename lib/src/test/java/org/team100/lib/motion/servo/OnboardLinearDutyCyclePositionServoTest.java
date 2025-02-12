@@ -37,7 +37,7 @@ public class OnboardLinearDutyCyclePositionServoTest implements Timeless {
         s.reset();
         for (double t = 0; t < 3; t += 0.02) {
             s.setPosition(1, 0);
-            stepTime(0.02);
+            stepTime();
             if (kPrint)
                 Util.printf("%f, %f, %f, %f, %f\n",
                         t,

@@ -37,14 +37,17 @@ public class SwerveModel {
                 new Model100(x.getRotation().getRadians(), v.theta()));
     }
 
+    /** Motionless at the origin with the specified pose */
     public SwerveModel(Pose2d x) {
         this(x, new FieldRelativeVelocity(0, 0, 0));
     }
 
+    /** Motionless at the origin with the specified heading */
     public SwerveModel(Rotation2d x) {
         this(new Pose2d(0, 0, x));
     }
 
+    /** Motionless at the origin */
     public SwerveModel() {
         this(new Model100(), new Model100(), new Model100());
     }

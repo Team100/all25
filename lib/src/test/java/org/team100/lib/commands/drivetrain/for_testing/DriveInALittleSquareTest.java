@@ -25,7 +25,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         command.initialize();
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
         // we're already pointing the right way
-        stepTime(0.02);
+        stepTime();
         fixture.drive.periodic();
         command.execute();
         // execute switches to driving
@@ -39,14 +39,14 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
 
         // step through the driving phase
         for (int i = 0; i < 98; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             command.execute();
             // Util.printf("************* %d STATE %s *************\n", i, command.m_state);
             // Util.printf("%f\n",swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond());
         }
         // now we should be steering again
-        stepTime(0.02);
+        stepTime();
         fixture.drive.periodic();
         command.execute();
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
@@ -69,7 +69,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
 
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
 
-        stepTime(0.02);
+        stepTime();
         fixture.drive.periodic();
         command.execute();
         assertEquals(DriveInALittleSquare.DriveState.DRIVING, command.m_state);
@@ -78,9 +78,11 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         // a little while later we should be driving
         // at this point the speed is still zero
         assertEquals(0.0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
-        stepTime(0.1);
         for (int i = 0; i < 5; ++i) {
-            stepTime(0.02);
+            stepTime();
+        }
+        for (int i = 0; i < 5; ++i) {
+            stepTime();
             fixture.drive.periodic();
             // this changes the speed
             command.execute();
@@ -99,7 +101,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         // drive to the next corner. at 1 m/s/s this should be a triangular
         // profile that takes exactly 2 sec total but we started at 0.1 so 1.9
         for (double t = 0; t < 1.9; t += 0.02) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             command.execute();
             double speed = fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond();
@@ -110,7 +112,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         }
 
         // steer
-        stepTime(0.02);
+        stepTime();
         fixture.drive.periodic();
         command.execute();
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
@@ -121,7 +123,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
 
         // wait a half second.
         for (double t = 0; t < 0.5; t += 0.02) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             command.execute();
             double measurement = fixture.drive.getSwerveLocal().states().frontLeft().angle().get().getRadians();

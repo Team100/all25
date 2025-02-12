@@ -48,7 +48,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // steering
         for (int i = 0; i < 13; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -61,7 +61,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // finished steering, start rotating
         for (int i = 0; i < 25; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -73,7 +73,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // should be done rotating now
         for (int i = 0; i < 50; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -87,7 +87,7 @@ class RotateTest extends Fixtured implements Timeless {
                 kDelta);
 
         for (int i = 0; i < 113; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }

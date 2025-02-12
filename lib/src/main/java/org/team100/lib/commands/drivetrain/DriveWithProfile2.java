@@ -21,17 +21,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/**
- * A copy of DriveToWaypoint to explore the new holonomic trajectory classes we
- * cribbed from 254.
- * 
- * Sanjans version
- */
+
 public class DriveWithProfile2 extends Command implements Glassy {
-    public static double kRotationToleranceRad = Math.PI / 32;
-    public static double kTranslationalToleranceM = 0.01;
-    public static double kRotationToleranceRad_S = Math.PI / 64;
-    public static double kTranslationalToleranceM_S = 0.01;
+    public static double kThetaTolRad = Math.PI / 32;
+    public static double kXTolM = 0.01;
+    public static double kOmegaTolRad_S = Math.PI / 64;
+    public static double kVTolM_S = 0.01;
 
     private final Supplier<Optional<Pose2d>> m_fieldRelativeGoalSupplier;
     private final SwerveDriveSubsystem m_drive;
@@ -64,6 +59,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
             SwerveDriveSubsystem drivetrain,
             HolonomicFieldRelativeController controller,
             SwerveKinodynamics limits) {
+                
         m_field_log = fieldLogger;
         m_fieldRelativeGoalSupplier = fieldRelativeGoal;
         m_drive = drivetrain;
@@ -72,15 +68,15 @@ public class DriveWithProfile2 extends Command implements Glassy {
         xProfile = new TrapezoidProfile100(
                 m_limits.getMaxDriveVelocityM_S(),
                 m_limits.getMaxDriveAccelerationM_S2() / 2,
-                kTranslationalToleranceM);
+                kXTolM);
         yProfile = new TrapezoidProfile100(
                 m_limits.getMaxDriveVelocityM_S(),
                 m_limits.getMaxDriveAccelerationM_S2() / 2,
-                kTranslationalToleranceM);
+                kXTolM);
         thetaProfile = new TrapezoidProfile100(
                 m_limits.getMaxAngleSpeedRad_S(),
                 m_limits.getMaxAngleAccelRad_S2() / 50,
-                kRotationToleranceRad);
+                kThetaTolRad);
         addRequirements(m_drive);
     }
 
@@ -106,14 +102,16 @@ public class DriveWithProfile2 extends Command implements Glassy {
         double ty = yProfile.calculateWithETA(dt, ySetpoint.model(), m_yGoalRaw).etaS();
         double slowETA = Math.max(tx, ty);
 
+        double maxV = m_limits.getMaxDriveVelocityM_S();
+        double maxA = m_limits.getMaxDriveAccelerationM_S2() / 2;
         sx = TrapezoidProfile100.solveForSlowerETA(
-                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2() / 2, kTranslationalToleranceM,
+                maxV, maxA, kXTolM,
                 dt,
-                xSetpoint.model(), m_xGoalRaw, slowETA, kTranslationalToleranceM_S);
+                xSetpoint.model(), m_xGoalRaw, slowETA, kVTolM_S);
         sy = TrapezoidProfile100.solveForSlowerETA(
-                m_limits.getMaxDriveVelocityM_S(), m_limits.getMaxDriveAccelerationM_S2() / 2, kTranslationalToleranceM,
+                maxV, maxA, kXTolM,
                 dt,
-                ySetpoint.model(), m_yGoalRaw, slowETA, kTranslationalToleranceM_S);
+                ySetpoint.model(), m_yGoalRaw, slowETA, kVTolM_S);
 
         xProfile = xProfile.scale(sx);
         yProfile = yProfile.scale(sy);
@@ -172,16 +170,16 @@ public class DriveWithProfile2 extends Command implements Glassy {
         double xError = m_xGoalRaw.x() - m_drive.getState().x().x();
         double yError = m_yGoalRaw.x() - m_drive.getState().y().x();
         double thetaError = m_thetaGoalRaw.x() - m_drive.getState().theta().x();
-        return Math.abs(xError) < kTranslationalToleranceM
-                && Math.abs(yError) < kTranslationalToleranceM
-                && Math.abs(thetaError) < kRotationToleranceRad
+        return Math.abs(xError) < kXTolM
+                && Math.abs(yError) < kXTolM
+                && Math.abs(thetaError) < kThetaTolRad
                 && atRest();
     }
 
     public boolean atRest() {
-        return Math.abs(m_drive.getState().x().v()) < kTranslationalToleranceM_S
-                && Math.abs(m_drive.getState().y().v()) < kTranslationalToleranceM_S
-                && Math.abs(m_drive.getState().theta().v()) < kRotationToleranceRad_S;
+        return Math.abs(m_drive.getState().x().v()) < kVTolM_S
+                && Math.abs(m_drive.getState().y().v()) < kVTolM_S
+                && Math.abs(m_drive.getState().theta().v()) < kOmegaTolRad_S;
     }
 
     @Override

@@ -24,12 +24,12 @@ class LimitedLinearVelocityServoTest implements Timeless {
         // previous = 0, new = 1, time = 0, so new should be 0
         assertEquals(0, mv.m_setpoint, kDelta);
 
-        stepTime(0.02);
+        stepTime();
         pv.setVelocityM_S(1);
         // previous = 0, new = 1, time = 0.02, so new should be 0.02
         assertEquals(0.02, mv.m_setpoint, kDelta);
 
-        stepTime(0.02);
+        stepTime();
         pv.setVelocityM_S(1);
         // previous = 0.02, new = 1, time = 0.02, so new should be 0.04
         assertEquals(0.04, mv.m_setpoint, kDelta);

@@ -18,7 +18,7 @@ class OscillateFieldRelativeTest extends RealisticFixtured implements Timeless {
 
         // half wave is 2 seconds
         for (int i = 0; i < 101; ++i) {
-            stepTime(0.02);
+            stepTime();
             od.execute();
             fixture.drive.periodic();
         }

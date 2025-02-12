@@ -56,7 +56,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 logger, d, controller, t, viz);
 
         // Initially unaligned so steer at rest
-        stepTime(0.02);
+        stepTime();
         c.initialize();
         c.execute();
         assertEquals(0.098, d.m_atRestSetpoint.x(), kDelta);
@@ -66,7 +66,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // we don't advance because we're still steering.
         // this next-setpoint is from "preview"
         // and our current setpoint is equal to the measurement.
-        stepTime(0.02);
+        stepTime();
         c.execute();
         assertEquals(0.098, d.m_atRestSetpoint.x(), kDelta);
         assertEquals(0, d.m_atRestSetpoint.y(), kDelta);
@@ -74,21 +74,21 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
 
         d.m_aligned = true;
         // now aligned, so we drive normally, using the same setpoint as above
-        stepTime(0.02);
+        stepTime();
         c.execute();
         assertEquals(0.098, d.m_setpoint.x(), kDelta);
         assertEquals(0, d.m_setpoint.y(), kDelta);
         assertEquals(0, d.m_setpoint.theta(), kDelta);
 
         // more normal driving
-        stepTime(0.02);
+        stepTime();
         c.execute();
         assertEquals(0.199, d.m_setpoint.x(), kDelta);
         assertEquals(0, d.m_setpoint.y(), kDelta);
         assertEquals(0, d.m_setpoint.theta(), kDelta);
 
         // etc
-        stepTime(0.02);
+        stepTime();
         c.execute();
         assertEquals(0.306, d.m_setpoint.x(), kDelta);
         assertEquals(0, d.m_setpoint.y(), kDelta);
@@ -117,7 +117,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
         for (int i = 0; i < 48; ++i) {
-            stepTime(0.02);
+            stepTime();
             c.execute();
         }
         assertTrue(c.isDone());
@@ -146,7 +146,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
 
         TrajectoryCommand command = new TrajectoryCommand(
                 logger, drive, controller, trajectory, viz);
-        stepTime(0.02);
+        stepTime();
         Util.println("init");
         command.initialize();
 
@@ -166,14 +166,14 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
         // drive normally more
-        stepTime(0.02);
+        stepTime();
         command.execute();
         // this is the output from the previous takt
         assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
 
         // etc
-        stepTime(0.02);
+        stepTime();
         command.execute();
         assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
@@ -217,7 +217,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
             // drive thinks we're not aligned to the target (0,1)
             assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
 
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             // this calls steerAtRest, using the previewed state.
             command.execute();
@@ -245,7 +245,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         assertEquals(0, fixture.collection.turningVelocity()[0].getAsDouble(), kDelta);
 
         // advance the clock, so we can see the previous cycle's output
-        stepTime(0.02);
+        stepTime();
         assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.572, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
         assertEquals(1.572, fixture.collection.turningPosition()[0].getAsDouble(), kDelta);
@@ -254,7 +254,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         command.execute();
 
         // now the velocity measurement reflects the previous actuation
-        stepTime(0.02);
+        stepTime();
         assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.572, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
         assertEquals(1.572, fixture.collection.turningPosition()[0].getAsDouble(), kDelta);
@@ -263,7 +263,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         command.execute();
 
         // now the velocity measurement reflects the previous actuation
-        stepTime(0.02);
+        stepTime();
         assertEquals(0.06, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.572, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
         assertEquals(1.572, fixture.collection.turningPosition()[0].getAsDouble(), kDelta);
