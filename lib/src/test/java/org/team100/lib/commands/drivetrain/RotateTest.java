@@ -31,9 +31,7 @@ class RotateTest extends Fixtured implements Timeless {
         // remember the test rotation rate is *very* slow.
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), 0.001);
         double targetAngle = Math.PI / 2;
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
         Rotate rotate = new Rotate(
                 logger,
                 swerveDriveSubsystem,

@@ -45,9 +45,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
         MockDrive d = new MockDrive();
         // initially at rest
@@ -104,9 +102,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
         MockDrive d = new MockDrive();
         // initially at rest
@@ -137,9 +133,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
         SwerveDriveSubsystem drive = fixture.drive;
 
@@ -194,9 +188,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 1, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
         SwerveDriveSubsystem drive = fixture.drive;
 

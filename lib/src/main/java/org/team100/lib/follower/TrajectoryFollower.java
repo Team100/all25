@@ -1,5 +1,6 @@
 package org.team100.lib.follower;
 
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -22,14 +23,12 @@ public class TrajectoryFollower {
     private Trajectory100 m_trajectory;
     private double m_startTimeS;
 
-    final FollowerController controller;
+    private final SwerveController m_controller;
 
-    public TrajectoryFollower(
-            LoggerFactory parent,
-            FollowerController mcontroller) {
+    public TrajectoryFollower(LoggerFactory parent, SwerveController controller) {
         LoggerFactory log = parent.child("FieldRelativeDrivePIDFFollower");
         m_log_measurement = log.swerveModelLogger(Level.DEBUG, "measurement");
-        controller = mcontroller;
+        m_controller = controller;
     }
 
     public void setTrajectory(Trajectory100 trajectory) {
@@ -45,7 +44,7 @@ public class TrajectoryFollower {
         SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(progress));
         SwerveModel nextReference = SwerveModel
                 .fromTimedPose(m_trajectory.sample(progress + TimedRobot100.LOOP_PERIOD_S));
-        return controller.calculate(measurement, currentReference, nextReference);
+        return m_controller.calculate(measurement, currentReference, nextReference);
     }
 
     /**
@@ -58,7 +57,7 @@ public class TrajectoryFollower {
 
     /** True if the most recent call to calculate() was at the setpoint. */
     public boolean atReference() {
-        return controller.atReference();
+        return m_controller.atReference();
     }
 
 }

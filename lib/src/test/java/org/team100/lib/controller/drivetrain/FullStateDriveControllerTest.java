@@ -15,11 +15,10 @@ import org.team100.lib.state.Model100;
 class FullStateDriveControllerTest {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-    private static HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(logger);
 
     @Test
     void testAtRest() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
                 new SwerveModel(
@@ -42,7 +41,7 @@ class FullStateDriveControllerTest {
 
     @Test
     void testFar() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         // no velocity, no feedforward
         FieldRelativeVelocity t = c.calculate(
@@ -67,7 +66,7 @@ class FullStateDriveControllerTest {
 
     @Test
     void testFast() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
                 new SwerveModel(
@@ -92,7 +91,7 @@ class FullStateDriveControllerTest {
 
     @Test
     void testOnTrack() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
                 new SwerveModel(
@@ -116,7 +115,7 @@ class FullStateDriveControllerTest {
 
     @Test
     void testAllAxes() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         // none of these have any velocity so there's no feedforward.
         FieldRelativeVelocity t = c.calculate(
@@ -141,7 +140,7 @@ class FullStateDriveControllerTest {
 
     @Test
     void testRotation() {
-        FullStateDriveController c = FullStateDriveController.getDefault(logger, hlog);
+        FullStateDriveController c = FullStateDriveController.getDefault(logger);
         assertFalse(c.atReference());
         FieldRelativeVelocity t = c.calculate(
                 new SwerveModel(

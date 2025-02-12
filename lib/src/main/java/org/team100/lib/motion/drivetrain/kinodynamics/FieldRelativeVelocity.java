@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * Just like ChassisSpeeds, but field-relative, to avoid mixing them up.
+ * 
+ * Units are always meters per second and radians per second, never anything else.
  */
 public record FieldRelativeVelocity(double x, double y, double theta) {
 
