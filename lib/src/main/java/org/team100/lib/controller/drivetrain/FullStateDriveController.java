@@ -1,33 +1,43 @@
 package org.team100.lib.controller.drivetrain;
 
-import java.util.function.DoubleUnaryOperator;
-
+import org.team100.lib.follower.FollowerController;
+import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
-import org.team100.lib.state.Model100;
 
-import edu.wpi.first.math.MathUtil;
-
-/**
- * Three independent axes of proportional position and velocity control, with
- * setpoint velocity feedforward.
- */
 public class FullStateDriveController implements HolonomicFieldRelativeController {
-    private static final double kXK1 = 4; // position
-    private static final double kXK2 = 0.25; // velocity
-    private static final double kThetaK1 = 4; // position
-    private static final double kThetaK2 = 0.25; // velocity
-    private static final double kXTolerance = 0.01; // 1 cm
-    private static final double kThetaTolerance = 0.02; // 1 degree
-    private static final double kXDotTolerance = 0.01; // 1 cm/s
-    private static final double kOmegaTolerance = 0.02; // 1 degree/s
-
     private final Log m_log;
+    FollowerController follower;
 
-    private boolean m_atSetpoint = false;
-
-    public FullStateDriveController(Log log) {
+    public FullStateDriveController(
+            LoggerFactory parent,
+            Log log,
+            double xK1,
+            double xK2,
+            double thetaK1,
+            double thetaK2,
+            double xTolerance,
+            double thetaTolerance,
+            double xDotTolerance,
+            double omegaTolerance) {
         m_log = log;
+        follower = new FollowerController(parent,
+                xK1, thetaK1, xK2, thetaK2,
+                xTolerance, thetaTolerance, xDotTolerance, omegaTolerance);
+    }
+
+    public static FullStateDriveController getDefault(LoggerFactory parent, Log log) {
+        return new FullStateDriveController(
+                parent,
+                log,
+                4, // position
+                0.25, // velocity
+                4, // theta
+                0.25, // omega
+                0.01, // position tolerance
+                0.02, // theta tolerance
+                0.01, // velocity tolerance
+                0.02); // omega tolerance
     }
 
     @Override
@@ -37,48 +47,19 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
             SwerveModel nextReference) {
         m_log.measurement.log(() -> measurement);
         m_log.reference.log(() -> currentReference);
-        m_log.error.log(() -> currentReference.minus(measurement));
-
-        m_atSetpoint = true;
-
-        double xFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
-                measurement.x(), currentReference.x(), x -> x);
-        double yFB = calculateFB(kXK1, kXK2, kXTolerance, kXDotTolerance,
-                measurement.y(), currentReference.y(), x -> x);
-        double thetaFB = calculateFB(kThetaK1, kThetaK2, kThetaTolerance, kOmegaTolerance,
-                measurement.theta(), currentReference.theta(), MathUtil::angleModulus);
-
-        FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB);
+        FieldRelativeVelocity u_FB = follower.fullFeedback(measurement, currentReference);
         m_log.u_FB.log(() -> u_FB);
-
-        FieldRelativeVelocity u_FF = nextReference.velocity();
-
+        FieldRelativeVelocity u_FF = follower.feedforward(nextReference);
         return u_FF.plus(u_FB);
-    }
-
-    private double calculateFB(
-            double k1,
-            double k2,
-            double xTolerance,
-            double xDotTolerance,
-            Model100 measurement,
-            Model100 setpoint,
-            DoubleUnaryOperator modulus) {
-        double xError = modulus.applyAsDouble(setpoint.x() - measurement.x());
-        double xDotError = setpoint.v() - measurement.v();
-        m_atSetpoint &= Math.abs(xError) < xTolerance
-                && Math.abs(xDotError) < xDotTolerance;
-        return k1 * xError + k2 * xDotError;
     }
 
     /** True if the most recent call to calculate() was at the setpoint. */
     @Override
     public boolean atReference() {
-        return m_atSetpoint;
+        return follower.atReference();
     }
 
     @Override
     public void reset() {
-        m_atSetpoint = false;
     }
 }

@@ -15,7 +15,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -64,8 +63,7 @@ public class DriveWithTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
-        double now = Takt.get();
-        FieldRelativeVelocity output = m_controller.update(now, m_swerve.getState());
+        FieldRelativeVelocity output = m_controller.update(m_swerve.getState());
         m_log_speed.log(() -> output);
         m_swerve.driveInFieldCoords(output);
     }

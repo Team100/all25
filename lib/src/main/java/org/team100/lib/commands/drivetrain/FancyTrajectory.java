@@ -15,7 +15,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
-import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -62,8 +61,7 @@ public class FancyTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
-        final double now = Takt.get();
-        FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
         m_log_speed.log(() -> output);
         m_robotDrive.driveInFieldCoords(output);
     }

@@ -3,6 +3,8 @@ package org.team100.lib.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.team100.lib.util.Util;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -26,8 +28,8 @@ public enum Identity {
     BETA_BOT("0315db43"),
     SQUAREBOT("031e31e3"),
     SWERVE_TWO("0317f285"),
-    COMP_BOT("03238232"), 
-    SWERVE_ONE("032363AC"), 
+    COMP_BOT("03238232"),
+    SWERVE_ONE("032363AC"),
     DISABLED("disabled"), // for mechanisms which don't exist
     BLANK(""), // e.g. test default or simulation
     UNKNOWN(null);
@@ -60,8 +62,12 @@ public enum Identity {
         } else {
             serialNumber = "";
         }
-        if (identities.containsKey(serialNumber))
-            return identities.get(serialNumber);
+        if (identities.containsKey(serialNumber)) {
+            Identity identity = identities.get(serialNumber);
+            Util.printf("Identity: %s\n", identity);
+            return identity;
+        }
+        Util.println("Identity: UNKNOWN");
         return UNKNOWN;
     }
 }
