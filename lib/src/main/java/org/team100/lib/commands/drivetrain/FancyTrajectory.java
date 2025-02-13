@@ -8,6 +8,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
@@ -50,7 +51,10 @@ public class FancyTrajectory extends Command implements Glassy {
                 GeometryUtil.fromDegrees(0),
                 GeometryUtil.fromDegrees(0));
         Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, m_constraints);
-        m_referenceController = new ReferenceController(m_drive, m_controller, trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(trajectory));
         m_viz.setViz(trajectory);
     }
 

@@ -8,15 +8,18 @@ import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Util;
 
 /**
  * PID x, PID y, PID theta
  */
 public class HolonomicDriveController100 implements HolonomicFieldRelativeController {
-    final SwerveModelLogger m_log_measurement;
-    final SwerveModelLogger m_log_reference;
-    final SwerveModelLogger m_log_error;
-    final FieldRelativeVelocityLogger m_log_u_FB;
+    /** For testing */
+    private static final boolean kPrint = false;
+    private final SwerveModelLogger m_log_measurement;
+    private final SwerveModelLogger m_log_reference;
+    private final SwerveModelLogger m_log_error;
+    private final FieldRelativeVelocityLogger m_log_u_FB;
 
     private final Feedback100 m_xFeedback;
     private final Feedback100 m_yFeedback;
@@ -75,6 +78,11 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
         m_log_u_FB.log(() -> u_FB);
 
         FieldRelativeVelocity u_FF = nextReference.velocity();
+
+        if (kPrint) {
+            Util.printf("measurement %s current %s next %s\n", measurement, currentReference, nextReference);
+            Util.printf("ff %s fb %s\n", u_FF, u_FB);
+        }
 
         return u_FF.plus(u_FB);
     }

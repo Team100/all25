@@ -7,6 +7,7 @@ import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
@@ -48,7 +49,6 @@ public class DriveToWaypoint100 extends Command implements Glassy {
     public void initialize() {
         final Pose2d start = m_drive.getPose();
         Pose2d end = m_goal;
-    
 
         List<Pose2d> waypointsM = getWaypoints(start, end);
         List<Rotation2d> headings = List.of(start.getRotation(), end.getRotation());
@@ -64,7 +64,10 @@ public class DriveToWaypoint100 extends Command implements Glassy {
             m_referenceController = null;
             return;
         }
-        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(m_trajectory));
     }
 
     @Override

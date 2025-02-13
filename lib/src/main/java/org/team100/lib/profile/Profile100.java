@@ -3,6 +3,11 @@ package org.team100.lib.profile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
+/**
+ * One-dimensional motion profile.
+ * 
+ * Use the ETA to coordinate multiple dimensions.
+ */
 public interface Profile100 {
 
     public static record ResultWithETA(Control100 state, double etaS) {
@@ -12,6 +17,8 @@ public interface Profile100 {
      * Return the control for dt in the future.
      * 
      * Note order here, initial first, goal second.
+     * 
+     * TODO: remove dt, use TimedRobot100.LOOP_PERIOD_S
      */
     Control100 calculate(double dt, Model100 initial, Model100 goal);
 
@@ -19,6 +26,9 @@ public interface Profile100 {
      * Return the control for dt in the future.
      * 
      * Note order here, initial first, goal second.
+     * 
+     * TODO: remove dt, use TimedRobot100.LOOP_PERIOD_S
+     * 
      */
     ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal);
 

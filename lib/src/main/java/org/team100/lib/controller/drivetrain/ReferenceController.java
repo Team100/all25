@@ -4,8 +4,8 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
-import org.team100.lib.reference.TrajectoryReference;
-import org.team100.lib.trajectory.Trajectory100;
+import org.team100.lib.reference.SwerveReference;
+import org.team100.lib.util.Util;
 
 /**
  * Drives based on a reference time series.
@@ -18,21 +18,25 @@ import org.team100.lib.trajectory.Trajectory100;
  * trajectory, so create it in Command.initialize().
  */
 public class ReferenceController implements Glassy {
+    /** For testing */
+    private static final boolean kPrint = false;
     private final DriveSubsystemInterface m_drive;
     private final HolonomicFieldRelativeController m_controller;
-    private final TrajectoryReference m_reference;
+    private final SwerveReference m_reference;
 
     private boolean m_aligned;
 
+    /**
+     * Initializes the reference with the current measurement, so you should call
+     * this at runtime, not in advance.
+     */
     public ReferenceController(
             DriveSubsystemInterface swerve,
             HolonomicFieldRelativeController controller,
-            Trajectory100 trajectory) {
-        if (trajectory == null)
-            throw new IllegalArgumentException("null trajectory");
+            SwerveReference reference) {
         m_drive = swerve;
         m_controller = controller;
-        m_reference = new TrajectoryReference(trajectory);
+        m_reference = reference;
 
         // initialize
         m_controller.reset();
@@ -56,6 +60,9 @@ public class ReferenceController implements Glassy {
         if (!m_aligned && m_drive.aligned(fieldRelativeTarget)) {
             // Not aligned before, but aligned now.
             m_aligned = true;
+        }
+        if (kPrint) {
+            Util.printf("output %s\n", fieldRelativeTarget);
         }
         if (!m_aligned) {
             // Still not aligned, so keep steering.

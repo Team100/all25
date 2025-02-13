@@ -4,6 +4,7 @@ import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -35,7 +36,10 @@ public class TrajectoryCommand100 extends Command implements Glassy {
     @Override
     public void initialize() {
         m_viz.setViz(m_trajectory);
-        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(m_trajectory));
     }
 
     @Override

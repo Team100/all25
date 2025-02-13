@@ -6,6 +6,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -57,7 +58,10 @@ public class OscillatePosition extends Command implements Glassy {
         Pose2d startPose = start.pose();
         Pose2d endPose = startPose.plus(new Transform2d(m_offsetM, 0, new Rotation2d()));
         m_trajectory = m_trajectories.apply(start, endPose);
-        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(m_trajectory));
         m_viz.setViz(m_trajectory);
     }
 

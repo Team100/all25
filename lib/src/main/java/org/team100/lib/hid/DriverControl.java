@@ -138,7 +138,7 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
-    default boolean outtakeFromAmp() {
+    default boolean button5() {
         return false;
     }
 }

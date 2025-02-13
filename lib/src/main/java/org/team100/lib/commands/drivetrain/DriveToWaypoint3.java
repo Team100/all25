@@ -8,6 +8,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -78,7 +79,10 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     @Override
     public void initialize() {
         m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal);
-        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(m_trajectory));
         m_viz.setViz(m_trajectory);
     }
 

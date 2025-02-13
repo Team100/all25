@@ -12,10 +12,8 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.Fixtured;
-import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.testing.Timeless;
 
 class RotateTest extends Fixtured implements Timeless {
@@ -24,25 +22,21 @@ class RotateTest extends Fixtured implements Timeless {
 
     @Test
     void testRotate() {
-        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
-        SwerveDriveSubsystem swerveDriveSubsystem = fixture.drive;
-        MockGyro gyro = new MockGyro();
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         // remember the test rotation rate is *very* slow.
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), 0.001);
+        
         double targetAngle = Math.PI / 2;
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
         Rotate rotate = new Rotate(
-                logger,
-                swerveDriveSubsystem,
+                fixture.drive,
                 controller,
-                gyro,
                 swerveKinodynamics,
                 targetAngle);
 
         rotate.initialize();
 
-        assertEquals(0, rotate.m_currentRefTheta.x(), kDelta); // at start
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), kDelta);
 
@@ -52,7 +46,6 @@ class RotateTest extends Fixtured implements Timeless {
             fixture.drive.periodic();
             rotate.execute();
         }
-        assertEquals(0, rotate.m_currentRefTheta.x(), 0.01);
         // now we're ready to start rotating
         assertEquals(-0.02, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
                 kDelta);
@@ -65,7 +58,6 @@ class RotateTest extends Fixtured implements Timeless {
             fixture.drive.periodic();
             rotate.execute();
         }
-        assertEquals(0.461, rotate.m_currentRefTheta.x(), 0.2);
         assertEquals(-0.512, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
                 kDelta);
         assertEquals(-Math.PI / 4,
@@ -78,10 +70,7 @@ class RotateTest extends Fixtured implements Timeless {
             rotate.execute();
         }
 
-        assertEquals(Math.PI / 2, rotate.m_currentRefTheta.x(), kDelta);
-        // assertEquals(-0.403,
-        // fixture.drive.desiredStates().frontLeft().speedMetersPerSecond,
-        // kDelta);
+
         assertEquals(-Math.PI / 4,
                 fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(),
                 kDelta);

@@ -94,6 +94,9 @@ public class TrapezoidProfile100 implements Profile100 {
      * returns s < 0.01.
      * 
      * It is very approximate, in order to not run too long. It's very primitive.
+     * 
+     * TODO: this appears to work differently for positive and negative initial
+     * velocities.
      */
     public static double solveForSlowerETA(
             double maxV,
@@ -112,7 +115,8 @@ public class TrapezoidProfile100 implements Profile100 {
                 getEtaS(maxV, maxA, tol, dt, initial, goal, eta, minS),
                 maxS,
                 getEtaS(maxV, maxA, tol, dt, initial, goal, eta, maxS),
-                sTolerance, 100);
+                sTolerance,
+                100);
     }
 
     private static double getEtaS(
@@ -122,7 +126,8 @@ public class TrapezoidProfile100 implements Profile100 {
             double dt,
             Model100 initial,
             Model100 goal,
-            double eta, double s) {
+            double eta,
+            double s) {
         TrapezoidProfile100 p = new TrapezoidProfile100(
                 maxV,
                 s * maxA,
@@ -161,6 +166,8 @@ public class TrapezoidProfile100 implements Profile100 {
     @Override
     public ResultWithETA calculateWithETA(double dt, final Model100 initialRaw, final Model100 goalRaw) {
         if (DEBUG)
+            // who's calling?
+            // new Exception().printStackTrace();
             Util.printf("calculateWithETA %5.3f %s %s\n", dt, initialRaw, goalRaw);
         // Too-high initial speed is handled with braking
         if (initialRaw.v() > m_maxVelocity) {
@@ -171,6 +178,8 @@ public class TrapezoidProfile100 implements Profile100 {
             double extraTime = extraSpeed / m_maxAcceleration;
             double brakingDistance = 0.5 * extraSpeed * extraTime + m_maxVelocity * extraTime;
             Model100 afterBraking = new Model100(initialRaw.x() + brakingDistance, m_maxVelocity);
+            if (DEBUG)
+                Util.printf("braking time %.3f position after braking %s\n", extraTime, afterBraking);
             ResultWithETA remainder = calculateWithETA(dt, afterBraking, goalRaw);
             return new ResultWithETA(result, extraTime + remainder.etaS());
         }
@@ -183,6 +192,8 @@ public class TrapezoidProfile100 implements Profile100 {
             double extraTime = extraSpeed / m_maxAcceleration;
             double brakingDistance = 0.5 * extraSpeed * extraTime + m_maxVelocity * extraTime;
             Model100 afterBraking = new Model100(initialRaw.x() - brakingDistance, -m_maxVelocity);
+            if (DEBUG)
+                Util.printf("braking time %.3f position after braking %s\n", extraTime, afterBraking);
             ResultWithETA remainder = calculateWithETA(dt, afterBraking, goalRaw);
             return new ResultWithETA(result, extraTime + remainder.etaS());
         }
