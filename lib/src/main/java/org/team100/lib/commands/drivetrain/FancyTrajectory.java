@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Follows a fixed trajectory.
  */
 public class FancyTrajectory extends Command implements Glassy {
-    private final SwerveDriveSubsystem m_robotDrive;
+    private final SwerveDriveSubsystem m_drive;
     private final TrajectoryFollower m_controller;
     private final List<TimingConstraint> m_constraints;
 
@@ -38,10 +38,10 @@ public class FancyTrajectory extends Command implements Glassy {
             SwerveKinodynamics swerveKinodynamics) {
         LoggerFactory child = parent.child(this);
         m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
-        m_robotDrive = robotDrive;
+        m_drive = robotDrive;
         m_controller = controller;
         m_constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-        addRequirements(m_robotDrive);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -61,9 +61,9 @@ public class FancyTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
         m_log_speed.log(() -> output);
-        m_robotDrive.driveInFieldCoords(output);
+        m_drive.driveInFieldCoords(output);
     }
 
     @Override

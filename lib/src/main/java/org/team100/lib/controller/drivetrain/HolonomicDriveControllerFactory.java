@@ -7,37 +7,35 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class HolonomicDriveControllerFactory {
 
-    public static HolonomicFieldRelativeController get(
-            LoggerFactory parent,
-            HolonomicFieldRelativeController.Log hlog) {
+    public static HolonomicFieldRelativeController get(LoggerFactory logger) {
         switch (Identity.instance) {
             case COMP_BOT -> {
-                Feedback100 cartesian = new PIDFeedback(parent, 0.5, 0, 0, false, 0.01, 0.1);
+                Feedback100 cartesian = new PIDFeedback(logger, 0.5, 0, 0, false, 0.01, 0.1);
                 return new HolonomicDriveController100(
-                        hlog,
+                        logger,
                         cartesian,
                         cartesian,
-                        new PIDFeedback(parent, 3.5, 0, 0, true, 0.01, 0.01));
+                        new PIDFeedback(logger, 3.5, 0, 0, true, 0.01, 0.01));
             }
             case SWERVE_ONE -> {
-                Feedback100 cartesian = new PIDFeedback(parent, 0.3, 0, 0, false, 0.01, 0.1);
+                Feedback100 cartesian = new PIDFeedback(logger, 0.3, 0, 0, false, 0.01, 0.1);
                 return new HolonomicDriveController100(
-                        hlog,
+                        logger,
                         cartesian,
                         cartesian,
-                        new PIDFeedback(parent, 3.5, 0, 0, true, 0.01, 0.01));
+                        new PIDFeedback(logger, 3.5, 0, 0, true, 0.01, 0.01));
             }
             case SWERVE_TWO -> {
-                return FullStateDriveController.getDefault(parent, hlog);
+                return FullStateDriveController.getDefault(logger);
             }
             default -> {
                 // these RoboRIO's are have no drivetrains
-                Feedback100 cartesian = new PIDFeedback(parent, 3, 1, 0, false, 0.01, 0.1);
+                Feedback100 cartesian = new PIDFeedback(logger, 3, 1, 0, false, 0.01, 0.1);
                 return new HolonomicDriveController100(
-                        hlog,
+                        logger,
                         cartesian,
                         cartesian,
-                        new PIDFeedback(parent, 3.5, 0, 0, true, 0.01, 0.01));
+                        new PIDFeedback(logger, 3.5, 0, 0, true, 0.01, 0.01));
             }
         }
     }

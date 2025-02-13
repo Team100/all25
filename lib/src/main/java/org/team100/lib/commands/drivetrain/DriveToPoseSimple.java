@@ -24,7 +24,7 @@
 //     private final FieldRelativeVelocityLogger m_log_output;
 //     private SwerveModel m_goal;
 //     private final HolonomicFieldRelativeController m_controller;
-//     private final SwerveDriveSubsystem m_swerve;
+//     private final SwerveDriveSubsystem m_drive;
 //     private final Maker m_maker;
 
 //     public DriveToPoseSimple(

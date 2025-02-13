@@ -23,7 +23,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveWithTrajectory extends Command implements Glassy {
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final TrajectoryFollower m_controller;
     private final Trajectory100 trajectory;
     private final TrajectoryVisualization m_viz;
@@ -40,7 +40,7 @@ public class DriveWithTrajectory extends Command implements Glassy {
             TrajectoryVisualization viz) {
         LoggerFactory child = parent.child(this);
         m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speeds");
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_controller = controller;
 
         PathArrays trajectoryList = JSONParser.getTrajectoryList(fileName);
@@ -52,7 +52,7 @@ public class DriveWithTrajectory extends Command implements Glassy {
 
         trajectory = TrajectoryPlanner.restToRest(poses, headings, constraints);
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -63,14 +63,14 @@ public class DriveWithTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_swerve.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
         m_log_speed.log(() -> output);
-        m_swerve.driveInFieldCoords(output);
+        m_drive.driveInFieldCoords(output);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 

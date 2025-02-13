@@ -115,8 +115,8 @@ class AngularPositionProfileTest implements Timeless {
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
             servo.setPosition(1, 0);
+            stepTime();
         }
-        // stepTime(0.02);
         // useful to fix up the examples above
         if (dump)
             Util.printf("verify(%5.3f, %5.3f, %5.3f);\n", motor.velocity,

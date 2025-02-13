@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3;
 
 import java.util.ArrayList;
@@ -28,17 +24,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Generate120 extends Navigator {
   /** Creates a new Generate180. */
 
   private final double kTangentScale = 1;
   private final double kEntranceCurveFactor = 0.25;
 
-  private final SwerveDriveSubsystem m_robotDrive;
-  private final TrajectoryFollower m_controller;
   private Pose2d m_goal = new Pose2d();
-  private final TrajectoryVisualization m_viz;
   TimingConstraintFactory m_constraints;
 
   public Generate120(LoggerFactory parent,
@@ -46,23 +38,19 @@ public class Generate120 extends Navigator {
             TrajectoryFollower controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-    // Use addRequirements() here to declare subsystem dependencies.
     super(parent, robotDrive, controller, viz, kinodynamics);
-    m_robotDrive = robotDrive;
-    m_controller = controller;
-    m_viz = viz;
     m_constraints = new TimingConstraintFactory(kinodynamics);
-    addRequirements(m_robotDrive);
+    addRequirements(m_drive);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
 
-    Pose2d currPose = m_robotDrive.getPose();
+    Pose2d currPose = m_drive.getPose();
     Translation2d currTranslation = currPose.getTranslation();
 
-    FieldSector start = FieldConstants.getSector(m_robotDrive.getPose());
+    FieldSector start = FieldConstants.getSector(m_drive.getPose());
     FieldSector end = FieldSector.AB;
     ReefDestination reefDestination = ReefDestination.CENTER;
     

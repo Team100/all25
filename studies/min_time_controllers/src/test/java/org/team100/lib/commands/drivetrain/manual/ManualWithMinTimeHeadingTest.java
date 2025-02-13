@@ -20,7 +20,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.Profile100;
-import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -222,7 +221,6 @@ class ManualWithMinTimeHeadingTest {
     @Test
     void testStickyHeading() {
         Experiments.instance.testOverride(Experiment.StickyHeading, true);
-        MockGyro gyro = new MockGyro();
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), kDelta);
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
@@ -250,8 +248,7 @@ class ManualWithMinTimeHeadingTest {
         currentState = new SwerveModel(
                 GeometryUtil.kPoseZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
-        // gyro indicates the correct speed
-        gyro.rate = 2.828;
+
         v = m_manualWithHeading.apply(currentState, twist1_1);
         assertNull(m_manualWithHeading.m_goal);
         assertNull(m_manualWithHeading.m_thetaSetpoint);
@@ -262,8 +259,7 @@ class ManualWithMinTimeHeadingTest {
         currentState = new SwerveModel(
                 GeometryUtil.kPoseZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
-        // gyro rate is still full speed.
-        gyro.rate = 2.828;
+
         v = m_manualWithHeading.apply(currentState, twist1_1);
         // goal is the current state but at rest
         assertEquals(0.471, m_manualWithHeading.m_goal.getRadians(), kDelta);
@@ -277,7 +273,6 @@ class ManualWithMinTimeHeadingTest {
     @Test
     void testStickyHeading2() {
         Experiments.instance.testOverride(Experiment.StickyHeading, true);
-        MockGyro gyro = new MockGyro();
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), kDelta);
         Supplier<Rotation2d> rotationSupplier = () -> desiredRotation;
@@ -305,8 +300,7 @@ class ManualWithMinTimeHeadingTest {
         currentState = new SwerveModel(
                 GeometryUtil.kPoseZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
-        // gyro indicates the correct speed
-        gyro.rate = 2.828;
+
         v = m_manualWithHeading.apply(currentState, twist1_1);
         assertNull(m_manualWithHeading.m_goal);
         assertNull(m_manualWithHeading.m_thetaSetpoint);
@@ -317,8 +311,7 @@ class ManualWithMinTimeHeadingTest {
         currentState = new SwerveModel(
                 GeometryUtil.kPoseZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
-        // gyro rate is still full speed.
-        gyro.rate = 2.828;
+
         v = m_manualWithHeading.apply(currentState, twist1_1);
         // velocity carries forward
         assertEquals(0.471, m_manualWithHeading.m_goal.getRadians(), kDelta);

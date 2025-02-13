@@ -3,7 +3,7 @@ package org.team100.frc2025.motion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.frc2025.Timeless2024;
+import org.team100.frc2025.Timeless2025;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
@@ -24,7 +24,7 @@ import org.team100.lib.profile.TrapezoidProfile100;
 
 import edu.wpi.first.math.MathUtil;
 
-class GravityServoTest implements Timeless2024 {
+class GravityServoTest implements Timeless2025 {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
@@ -60,7 +60,7 @@ class GravityServoTest implements Timeless2024 {
         // one second
         for (int i = 0; i < 70; ++i) {
             g.setPosition(1);
-            stepTime(0.02);
+            stepTime();
         }
         assertEquals(1, g.getPositionRad().getAsDouble(), 1e-5);
     }

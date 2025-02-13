@@ -146,8 +146,7 @@ public class RobotContainer implements Glassy {
         // DRIVE CONTROLLERS
         //
 
-        HolonomicFieldRelativeController.Log hlog = new HolonomicFieldRelativeController.Log(comLog);
-        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog, hlog);
+        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
 
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
@@ -204,7 +203,7 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         whileTrue(driverControl::driveToObject,
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
-                        FullStateDriveController.getDefault(comLog, hlog), swerveKinodynamics));
+                        FullStateDriveController.getDefault(comLog), swerveKinodynamics));
         whileTrue(driverControl::fullCycle,
                 new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 

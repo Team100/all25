@@ -1,17 +1,15 @@
 package org.team100.lib.controller.drivetrain;
 
-import org.team100.lib.follower.FollowerController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 
 public class FullStateDriveController implements HolonomicFieldRelativeController {
-    private final Log m_log;
-    FollowerController follower;
+
+    private final SwerveController follower;
 
     public FullStateDriveController(
             LoggerFactory parent,
-            Log log,
             double xK1,
             double xK2,
             double thetaK1,
@@ -20,16 +18,14 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
             double thetaTolerance,
             double xDotTolerance,
             double omegaTolerance) {
-        m_log = log;
-        follower = new FollowerController(parent,
+        follower = new SwerveController(parent,
                 xK1, thetaK1, xK2, thetaK2,
                 xTolerance, thetaTolerance, xDotTolerance, omegaTolerance);
     }
 
-    public static FullStateDriveController getDefault(LoggerFactory parent, Log log) {
+    public static FullStateDriveController getDefault(LoggerFactory parent) {
         return new FullStateDriveController(
                 parent,
-                log,
                 4, // position
                 0.25, // velocity
                 4, // theta
@@ -45,12 +41,7 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
             SwerveModel measurement,
             SwerveModel currentReference,
             SwerveModel nextReference) {
-        m_log.measurement.log(() -> measurement);
-        m_log.reference.log(() -> currentReference);
-        FieldRelativeVelocity u_FB = follower.fullFeedback(measurement, currentReference);
-        m_log.u_FB.log(() -> u_FB);
-        FieldRelativeVelocity u_FF = follower.feedforward(nextReference);
-        return u_FF.plus(u_FB);
+        return follower.calculate(measurement, currentReference, nextReference);
     }
 
     /** True if the most recent call to calculate() was at the setpoint. */

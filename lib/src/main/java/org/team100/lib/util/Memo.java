@@ -77,6 +77,7 @@ public class Memo {
             m_value = null;
         }
 
+        /** Use the cached value if it exists, otherwise ask the delegate. */
         @Override
         public synchronized T get() {
             // synchronized adds ~20ns.
@@ -86,8 +87,17 @@ public class Memo {
             return m_value;
         }
 
+        /** Erase the cache so the next get() will ask the delegate. */
         public synchronized void reset() {
             m_value = null;
+        }
+
+        /**
+         * Force the cache to contain the value, effectively overriding the delegate's
+         * previous output.
+         */
+        public synchronized void update(T value) {
+            m_value = value;
         }
     }
 

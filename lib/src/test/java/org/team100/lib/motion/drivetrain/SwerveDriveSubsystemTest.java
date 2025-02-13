@@ -24,7 +24,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.resetPose(new Pose2d());
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
         verify(drive, 0, 0, 0);
 
@@ -32,7 +32,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         // actuation is reflected in measurement after time passes
         assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond());
-        stepTime(0.02);
+        stepTime();
         assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond());
 
         drive.periodic();
@@ -45,14 +45,14 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         verify(drive, 0.001, 0.039, 1.0);
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         verify(drive, 0.0024, 0.06, 1.0);
@@ -67,7 +67,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.resetPose(new Pose2d());
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         verify(drive, 0, 0, 0);
@@ -75,7 +75,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
         // go 1 m/s in +x
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // at 1 m/s for 0.02 s, so we go 0.02 m
@@ -84,7 +84,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
         // it took 0.02 s to go from 0 m/s to 1 m/s, so we accelerated 50 m/s/s.
         verify(drive, 0.02, 1.00, 50.0);
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // we went a little further, no longer accelerating.
@@ -92,7 +92,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // a little further, but no longer accelerating
@@ -108,7 +108,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.resetPose(new Pose2d());
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         verify(drive, 0, 0, 0);
