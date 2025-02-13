@@ -19,13 +19,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ExampleSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
-  TalonFX starboard = new TalonFX(0);
-  TalonFX port = new TalonFX(1);
+  TalonFX starboard = new TalonFX(1);
+  TalonFX port = new TalonFX(2);
 
   public ExampleSubsystem() {
 
-    double supply = 10;
-    double stator = 10;
+    double supply = 30;
+    double stator = 30;
 
     TalonFXConfigurator starboardConfig = starboard.getConfigurator();
     TalonFXConfigurator portConfig = port.getConfigurator();
@@ -42,7 +42,7 @@ public class ExampleSubsystem extends SubsystemBase {
 
   public void setDuty(double value){
     starboard.set(value);
-    port.set(value);
+    port.set(-value);
 
   }
 
