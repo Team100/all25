@@ -8,24 +8,29 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
+import org.team100.lib.motion.drivetrain.MockDrive;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
 import org.team100.lib.path.PathDistanceSampler;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingUtil;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryUtil100;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 class DriveMotionPlannerTest implements Timeless {
+    private static final boolean DEBUG = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test
@@ -53,24 +58,43 @@ class DriveMotionPlannerTest implements Timeless {
                 stepSize,
                 start_vel,
                 end_vel);
+        if (DEBUG)
+            Util.printf("TRAJECTORY:\n%s\n", trajectory);
 
-        TrajectoryFollower controller = new TrajectoryFollower(
-                new SwerveController(logger, 2.4, 2.4, 1.0, 1.0, 0.01, 0.02, 0.01, 0.02));
+        SwerveController swerveController = new SwerveController(
+                logger,
+                2.4, 2.4,
+                0.1, 0.1,
+                0.01, 0.02,
+                0.01, 0.02);
 
-        controller.setTrajectory(trajectory);
+        MockDrive drive = new MockDrive();
+        // ignore steering for now
+        drive.m_aligned = true;
+        drive.m_state = new SwerveModel();
+        ReferenceController referenceController = new ReferenceController(
+                drive,
+                swerveController,
+                new TrajectoryReference(trajectory));
 
         Pose2d pose = trajectory.sample(0).state().getPose();
         FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();
 
-        // double time = Takt.get()
         double mDt = 0.02;
-        while (!controller.isDone()) {
+        int i = 0;
+        while (!referenceController.isDone()) {
+            if (++i > 500)
+                break;
             stepTime();
-            velocity = controller.update(new SwerveModel(pose, velocity));
+            drive.m_state = new SwerveModel(pose, velocity);
+            referenceController.execute();
+            velocity = drive.m_recentSetpoint;
             pose = new Pose2d(
                     pose.getX() + velocity.x() * mDt,
                     pose.getY() + velocity.y() * mDt,
                     new Rotation2d(pose.getRotation().getRadians() + velocity.theta() * mDt));
+            if (DEBUG)
+                Util.printf("pose %s vel %s\n", pose, velocity);
         }
 
         // this should be exactly right but it's not.
