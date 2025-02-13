@@ -24,7 +24,8 @@ public class TrajectoryFollower {
     }
 
     public void setTrajectory(Trajectory100 trajectory) {
-        m_trajectory = trajectory;        
+        m_trajectory = trajectory;
+        m_reference = null;
     }
 
     public FieldRelativeVelocity update(SwerveModel measurement) {
