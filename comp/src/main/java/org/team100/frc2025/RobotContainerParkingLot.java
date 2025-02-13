@@ -17,8 +17,6 @@ import org.team100.lib.commands.drivetrain.for_testing.Spin;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.TrajectoryFollower;
-import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -141,25 +139,20 @@ public class RobotContainerParkingLot implements Glassy {
         Pose2d goal = new Pose2d(1.877866, 7.749999, GeometryUtil.kRotation90);
         List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
 
-        TrajectoryFollower drivePID = TrajectoryFollowerFactory.autoFieldRelativePIDF(driveLogger);
         whileTrue(driverControl::never,
                 new DriveToWaypoint100(
-                        driveLogger,
                         goal,
                         m_drive,
-                        drivePID,
+                        controller,
                         swerveKinodynamics,
                         1,
                         viz));
 
-        TrajectoryFollower driveFF = TrajectoryFollowerFactory.fieldRelativeFfOnly(driveLogger);
-
         whileTrue(driverControl::never,
                 new DriveToWaypoint100(
-                        driveLogger,
                         goal,
                         m_drive,
-                        driveFF,
+                        controller,
                         swerveKinodynamics,
                         1,
                         viz));

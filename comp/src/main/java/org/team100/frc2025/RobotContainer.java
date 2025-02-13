@@ -146,7 +146,7 @@ public class RobotContainer implements Glassy {
         // DRIVE CONTROLLERS
         //
 
-        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
+        final HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
 
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
@@ -214,10 +214,10 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
         whileTrue(driverControl::driveWithFancyTrajec,
                 new FancyTrajectory(
-                        comLog,
                         m_drive,
-                        TrajectoryFollowerFactory.fieldRelativeFancyPIDF(comLog),
-                        swerveKinodynamics));
+                        holonomicController,
+                        swerveKinodynamics,
+                        viz));
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));

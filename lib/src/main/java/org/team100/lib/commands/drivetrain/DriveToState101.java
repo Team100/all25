@@ -2,11 +2,9 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.List;
 
+import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.TrajectoryFollower;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -22,31 +20,23 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/**
- * A copy of DriveToWaypoint to explore the new holonomic trajectory classes we
- * cribbed from 254.
- */
 public class DriveToState101 extends Command implements Glassy {
     private final Pose2d m_goal;
     private final FieldRelativeVelocity m_endVelocity;
     private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryFollower m_controller;
+    private final HolonomicFieldRelativeController m_controller;
     private final List<TimingConstraint> m_constraints;
     private final TrajectoryVisualization m_viz;
 
-    // LOGGERS
-    private final FieldRelativeVelocityLogger m_log_speed;
+    private ReferenceController m_referenceController;
 
     public DriveToState101(
-            LoggerFactory parent,
             Pose2d goal,
             FieldRelativeVelocity endVelocity,
             SwerveDriveSubsystem drivetrain,
-            TrajectoryFollower controller,
+            HolonomicFieldRelativeController controller,
             SwerveKinodynamics swerveKinodynamics,
             TrajectoryVisualization viz) {
-        LoggerFactory child = parent.child(this);
-        m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
         m_goal = goal;
         m_endVelocity = endVelocity;
         m_drive = drivetrain;
@@ -78,24 +68,25 @@ public class DriveToState101 extends Command implements Glassy {
                 Math.hypot(m_endVelocity.x(), m_endVelocity.y()));
 
         if (trajectory.length() == 0) {
-            cancel();
+            m_referenceController = null;
             return;
         }
 
         m_viz.setViz(trajectory);
-        m_controller.setTrajectory(trajectory);
+        
+        m_referenceController = new ReferenceController(m_drive, m_controller, trajectory);
     }
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
-        m_log_speed.log(() -> output);
-        m_drive.driveInFieldCoords(output);
+        if (m_referenceController != null)
+            m_referenceController.execute();
+
     }
 
     @Override
     public boolean isFinished() {
-        return m_controller.isDone();
+        return m_referenceController.isFinished();
     }
 
     @Override
