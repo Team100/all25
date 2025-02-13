@@ -54,7 +54,7 @@ public class FancyTrajectory extends Command implements Glassy {
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
-                new TrajectoryReference(trajectory));
+                new TrajectoryReference(trajectory), false);
         m_viz.setViz(trajectory);
     }
 

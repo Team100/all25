@@ -78,7 +78,8 @@ public class DriveToState101 extends Command implements Glassy {
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
-                new TrajectoryReference(trajectory));
+                new TrajectoryReference(trajectory),
+                false);
     }
 
     @Override

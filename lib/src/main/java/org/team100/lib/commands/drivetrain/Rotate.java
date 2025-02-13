@@ -66,7 +66,7 @@ public class Rotate extends Command implements Glassy {
         Pose2d goal = new Pose2d(measurement.getX() + dx.getX(), measurement.getY() + dx.getY(), m_target);
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(goal));
-        m_referenceController = new ReferenceController(m_drive, m_controller, m_reference);
+        m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
     }
 
     @Override

@@ -9,6 +9,8 @@ public interface DriveSubsystemInterface extends Subsystem {
 
     void driveInFieldCoords(FieldRelativeVelocity setpoint);
 
+    void driveInFieldCoordsVerbatim(FieldRelativeVelocity setpoint);
+
     void steerAtRest(FieldRelativeVelocity setpoint);
 
     boolean aligned(FieldRelativeVelocity v);

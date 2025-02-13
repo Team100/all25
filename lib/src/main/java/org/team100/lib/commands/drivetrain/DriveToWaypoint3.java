@@ -82,7 +82,8 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
-                new TrajectoryReference(m_trajectory));
+                new TrajectoryReference(m_trajectory),
+                false);
         m_viz.setViz(m_trajectory);
     }
 
