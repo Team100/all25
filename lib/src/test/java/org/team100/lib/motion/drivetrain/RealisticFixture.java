@@ -65,8 +65,7 @@ public class RealisticFixture {
                 swerveLocal,
                 v);
 
-        controller = HolonomicDriveControllerFactory.get(logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        controller = HolonomicDriveControllerFactory.get(logger);
     }
 
     public void close() {

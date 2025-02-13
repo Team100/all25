@@ -61,7 +61,7 @@ public class OperatorV2Control implements OperatorControl {
     @Override
     public boolean feed() {
         // this used to be "Y" but right bumper seems easier since you're holding "A".
-        return m_controller.getRightBumper();
+        return m_controller.getRightBumperButton();
     }
 
     @Override

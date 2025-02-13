@@ -35,7 +35,7 @@ class ArmTrajectoryCommandTest implements Timeless {
                 goal);
         command.initialize();
         assertEquals(0, armSubSystem.getPosition().get().th1, kDelta);
-        stepTime(0.02);
+        stepTime();
         command.execute();
         // the goal is impossible so this is always finished.
         assertTrue(command.isFinished());
@@ -55,13 +55,13 @@ class ArmTrajectoryCommandTest implements Timeless {
                 goal);
         command.initialize();
         for (int i = 0; i < 800; ++i) {
-            stepTime(0.02);
+            stepTime();
             command.execute();
             assertFalse(command.isFinished());
         }
         // let the controllers catch up
         for (int i = 0; i < 30; ++i) {
-            stepTime(0.02);
+            stepTime();
             command.execute();
         }
         assertTrue(command.isFinished());

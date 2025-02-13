@@ -8,16 +8,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class LogPose extends Command {
 
-    SwerveDriveSubsystem m_swerve;
+    SwerveDriveSubsystem m_drive;
 
     public LogPose(SwerveDriveSubsystem swerve) {
-        m_swerve = swerve;
-        addRequirements(m_swerve);
+        m_drive = swerve;
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        Pose2d currPose = m_swerve.getPose();
+        Pose2d currPose = m_drive.getPose();
         Util.println("Pose: " + currPose);
     }
 

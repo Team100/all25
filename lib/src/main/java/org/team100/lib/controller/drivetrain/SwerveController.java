@@ -1,4 +1,4 @@
-package org.team100.lib.follower;
+package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
@@ -10,11 +10,11 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 
-import edu.wpi.first.math.geometry.Pose2d;
-
-/** The controller part of a follower */
-public class FollowerController {
+/** Velocity feedforward, position and velocity feedback. */
+public class SwerveController implements HolonomicFieldRelativeController {
     private final SwerveModelLogger m_log_measurement;
+    private final SwerveModelLogger m_log_currentReference;
+    private final SwerveModelLogger m_log_nextReference;
     private final FieldRelativeVelocityLogger m_log_u_FF;
     private final FieldRelativeDeltaLogger m_log_position_error;
     private final FieldRelativeVelocityLogger m_log_u_FB;
@@ -32,7 +32,7 @@ public class FollowerController {
 
     private boolean m_atReference;
 
-    public FollowerController(
+    public SwerveController(
             LoggerFactory parent,
             double kPCart,
             double kPTheta,
@@ -42,9 +42,10 @@ public class FollowerController {
             double thetaTolerance,
             double xDotTolerance,
             double omegaTolerance) {
-        LoggerFactory log = parent.child("FieldRelativeDrivePIDFFollower");
+        LoggerFactory log = parent.child(this);
         m_log_measurement = log.swerveModelLogger(Level.DEBUG, "measurement");
-
+        m_log_currentReference = log.swerveModelLogger(Level.DEBUG, "currentReference");
+        m_log_nextReference = log.swerveModelLogger(Level.DEBUG, "nextReference");
         m_log_u_FF = log.fieldRelativeVelocityLogger(Level.TRACE, "u_FF");
         m_log_position_error = log.fieldRelativeDeltaLogger(Level.TRACE, "positionError");
         m_log_u_FB = log.fieldRelativeVelocityLogger(Level.TRACE, "u_FB");
@@ -62,17 +63,49 @@ public class FollowerController {
         m_omegaTolerance = omegaTolerance;
     }
 
-    public FieldRelativeVelocity calculate(SwerveModel measurement, SwerveModel currentReference,
+    @Override
+    public FieldRelativeVelocity calculate(
+            SwerveModel measurement,
+            SwerveModel currentReference,
             SwerveModel nextReference) {
         m_log_measurement.log(() -> measurement);
+        m_log_currentReference.log(() -> currentReference);
+        m_log_nextReference.log(() -> nextReference);
         FieldRelativeVelocity u_FF = feedforward(nextReference);
         FieldRelativeVelocity u_FB = fullFeedback(measurement, currentReference);
         return u_FF.plus(u_FB);
     }
 
-    public FieldRelativeVelocity positionFeedback(SwerveModel measurement, SwerveModel setpointModel) {
+    @Override
+    public boolean atReference() {
+        return m_atReference;
+    }
+
+    @Override
+    public void reset() {
+        //
+    }
+
+    ///////////////////////////////////////////////
+    //
+    // package-private for testing
+
+    FieldRelativeVelocity feedforward(SwerveModel nextReference) {
+        m_log_u_FF.log(() -> nextReference.velocity());
+        return nextReference.velocity();
+    }
+
+    FieldRelativeVelocity fullFeedback(SwerveModel measurement, SwerveModel currentReference) {
+        // atReference is updated below
+        m_atReference = true;
+        FieldRelativeVelocity u_XFB = positionFeedback(measurement, currentReference);
+        FieldRelativeVelocity u_VFB = velocityFeedback(measurement, currentReference);
+        return u_XFB.plus(u_VFB);
+    }
+
+    FieldRelativeVelocity positionFeedback(SwerveModel measurement, SwerveModel currentReference) {
         // wraps heading
-        FieldRelativeDelta positionError = positionError(measurement.pose(), setpointModel);
+        FieldRelativeDelta positionError = positionError(measurement, currentReference);
         m_atReference &= positionError.getTranslation().getNorm() < m_xTolerance
                 && Math.abs(positionError.getRotation().getRadians()) < m_thetaTolerance;
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
@@ -83,8 +116,8 @@ public class FollowerController {
         return u_FB;
     }
 
-    public FieldRelativeVelocity velocityFeedback(SwerveModel currentPose, SwerveModel setpointModel) {
-        final FieldRelativeVelocity velocityError = velocityError(currentPose, setpointModel);
+    FieldRelativeVelocity velocityFeedback(SwerveModel currentPose, SwerveModel currentReference) {
+        final FieldRelativeVelocity velocityError = velocityError(currentPose, currentReference);
         m_atReference &= velocityError.norm() < m_xDotTolerance
                 && Math.abs(velocityError.angle().orElse(GeometryUtil.kRotationZero).getRadians()) < m_omegaTolerance;
 
@@ -96,37 +129,15 @@ public class FollowerController {
         return u_VFB;
     }
 
-    public FieldRelativeVelocity fullFeedback(SwerveModel measurement, SwerveModel setpointModel) {
-        // atReference is updated below
-        m_atReference = true;
-        FieldRelativeVelocity u_XFB = positionFeedback(measurement, setpointModel);
-        FieldRelativeVelocity u_VFB = velocityFeedback(measurement, setpointModel);
-        return u_XFB.plus(u_VFB);
-    }
-
-    public FieldRelativeVelocity feedforward(SwerveModel model) {
-        m_log_u_FF.log(() -> model.velocity());
-        return model.velocity();
-    }
-
-    public FieldRelativeDelta positionError(Pose2d measurement, SwerveModel setpointModel) {
-        FieldRelativeDelta positionError = FieldRelativeDelta.delta(measurement, setpointModel.pose());
+    FieldRelativeDelta positionError(SwerveModel measurement, SwerveModel currentReference) {
+        FieldRelativeDelta positionError = FieldRelativeDelta.delta(measurement.pose(), currentReference.pose());
         m_log_position_error.log(() -> positionError);
         return positionError;
     }
 
-    public FieldRelativeVelocity velocityError(
-            SwerveModel measurement,
-            SwerveModel setpointModel) {
-        FieldRelativeVelocity velocityError = setpointModel.minus(measurement).velocity();
+    FieldRelativeVelocity velocityError(SwerveModel measurement, SwerveModel currentReference) {
+        FieldRelativeVelocity velocityError = currentReference.minus(measurement).velocity();
         m_log_velocity_error.log(() -> velocityError);
         return velocityError;
-    }
-
-    /**
-     * True if the most recent call to calculate() was at the setpoint.
-     */
-    public boolean atReference() {
-        return m_atReference;
     }
 }

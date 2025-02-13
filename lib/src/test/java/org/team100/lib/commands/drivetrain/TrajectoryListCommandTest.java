@@ -13,6 +13,7 @@ import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -31,7 +32,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 class TrajectoryListCommandTest extends Fixtured implements Timeless {
     boolean dump = false;
     private static final double kDelta = 0.001;
-    private static final double kDtS = 0.02;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
 
@@ -46,9 +46,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     @Test
     void testSimple() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
-        HolonomicFieldRelativeController control = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController control = HolonomicDriveControllerFactory.get(logger);
         TrajectoryListCommand c = new TrajectoryListCommand(
                 logger,
                 fixture.drive,
@@ -60,8 +58,8 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
         c.execute();
         assertFalse(c.isFinished());
         // the trajectory takes a little over 3s
-        for (double t = 0; t < 3.1; t += kDtS) {
-            stepTime(kDtS);
+        for (double t = 0; t < 3.1; t += TimedRobot100.LOOP_PERIOD_S) {
+            stepTime();
             c.execute();
             fixture.drive.periodic(); // for updateOdometry
         }
@@ -76,9 +74,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
      */
     @Test
     void testLowLevel() {
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
         TrajectoryListCommand command = new TrajectoryListCommand(
                 logger,
                 fixture.drive,
@@ -93,7 +89,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
             counter++;
             if (counter > 1000)
                 fail("counter exceeded");
-            stepTime(kDtS);
+            stepTime();
             fixture.drive.periodic();
             command.execute();
             double measurement = fixture.drive.getSwerveLocal().states().frontLeft().angle().get().getRadians();

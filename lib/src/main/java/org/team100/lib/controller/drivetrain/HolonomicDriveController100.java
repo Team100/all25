@@ -1,6 +1,10 @@
 package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
+import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.state.Model100;
@@ -9,20 +13,28 @@ import org.team100.lib.state.Model100;
  * PID x, PID y, PID theta
  */
 public class HolonomicDriveController100 implements HolonomicFieldRelativeController {
+    final SwerveModelLogger m_log_measurement;
+    final SwerveModelLogger m_log_reference;
+    final SwerveModelLogger m_log_error;
+    final FieldRelativeVelocityLogger m_log_u_FB;
+
     private final Feedback100 m_xFeedback;
     private final Feedback100 m_yFeedback;
     private final Feedback100 m_thetaFeedback;
-    private final Log m_log;
 
     HolonomicDriveController100(
-            Log log,
+            LoggerFactory parent,
             Feedback100 xFeedback,
             Feedback100 yFeedback,
             Feedback100 thetaFeedback) {
+        LoggerFactory child = parent.child("HolonomicFieldRelativeController");
+        m_log_reference = child.swerveModelLogger(Level.DEBUG, "reference");
+        m_log_measurement = child.swerveModelLogger(Level.DEBUG, "measurement");
+        m_log_error = child.swerveModelLogger(Level.DEBUG, "error");
+        m_log_u_FB = child.fieldRelativeVelocityLogger(Level.DEBUG, "u_FB");
         m_xFeedback = xFeedback;
         m_yFeedback = yFeedback;
         m_thetaFeedback = thetaFeedback;
-        m_log = log;
     }
 
     @Override
@@ -44,9 +56,9 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
             SwerveModel measurement,
             SwerveModel currentReference,
             SwerveModel nextReference) {
-        m_log.measurement.log(() -> measurement);
-        m_log.reference.log(() -> currentReference);
-        m_log.error.log(() -> currentReference.minus(measurement));
+        m_log_measurement.log(() -> measurement);
+        m_log_reference.log(() -> currentReference);
+        m_log_error.log(() -> currentReference.minus(measurement));
 
         // feedbacks are velocities
         double xFB = m_xFeedback.calculate(
@@ -60,7 +72,7 @@ public class HolonomicDriveController100 implements HolonomicFieldRelativeContro
                 Model100.x(currentReference.theta().x()));
 
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(xFB, yFB, thetaFB);
-        m_log.u_FB.log(() -> u_FB);
+        m_log_u_FB.log(() -> u_FB);
 
         FieldRelativeVelocity u_FF = nextReference.velocity();
 

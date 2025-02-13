@@ -33,7 +33,7 @@
 // public class Generate180 extends Navigator {
 //   /** Creates a new Generate180. */
 
-//   private final SwerveDriveSubsystem m_robotDrive;
+//   private final SwerveDriveSubsystem m_drive;
 //   private final TrajectoryFollower m_controller;
 //   private Pose2d m_goal = new Pose2d();
 //   private final TrajectoryVisualization m_viz;

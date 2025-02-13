@@ -23,7 +23,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveWithWaypoints extends Command implements Glassy {
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final TrajectoryFollower m_controller;
     private final List<TimingConstraint> constraints;
     private final Supplier<List<Pose2d>> m_goal;
@@ -39,16 +39,16 @@ public class DriveWithWaypoints extends Command implements Glassy {
             Supplier<List<Pose2d>> goal) {
         LoggerFactory child = parent.child(this);
         m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_controller = controller;
         constraints = new TimingConstraintFactory(limits).fast();
         m_goal = goal;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        final Pose2d start = m_swerve.getPose();
+        final Pose2d start = m_drive.getPose();
         List<Pose2d> newWaypointM = new ArrayList<>(m_goal.get());
         newWaypointM.add(0, start);
 
@@ -66,14 +66,14 @@ public class DriveWithWaypoints extends Command implements Glassy {
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_swerve.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
         m_log_speed.log(() -> output);
-        m_swerve.driveInFieldCoords(output);
+        m_drive.driveInFieldCoords(output);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 
     @Override

@@ -43,7 +43,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
 
     private final LoggerFactory m_parent;
     private final Pose2d m_goal;
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final StraightLineTrajectory m_trajectories;
     private final HolonomicFieldRelativeController m_controller;
     private final TrajectoryVisualization m_viz;
@@ -68,17 +68,17 @@ public class DriveToWaypoint3 extends Command implements Glassy {
         m_parent = parent;
         m_log = log;
         m_goal = goal;
-        m_swerve = drivetrain;
+        m_drive = drivetrain;
         m_trajectories = trajectories;
         m_controller = controller;
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        m_trajectory = m_trajectories.apply(m_swerve.getState(), m_goal);
-        m_referenceController = new ReferenceController(m_parent, m_swerve, m_controller, m_trajectory);
+        m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal);
+        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
         m_viz.setViz(m_trajectory);
     }
 
@@ -86,7 +86,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     public void execute() {
         m_referenceController.execute();
         m_log.aligned.log(() -> m_referenceController.is_aligned());
-        m_log.pose.log(() -> m_swerve.getState().pose());
+        m_log.pose.log(() -> m_drive.getState().pose());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 }

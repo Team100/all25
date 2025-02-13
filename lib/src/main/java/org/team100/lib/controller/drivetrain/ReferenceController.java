@@ -1,15 +1,11 @@
 package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.util.Takt;
 
 /**
  * Drives based on a reference time series.
@@ -18,75 +14,61 @@ import org.team100.lib.util.Takt;
  * align to the next reference direction, eliminating the little wiggle that
  * happens with uncoordinated steer/drive commands.
  * 
- * for now, the reference source is a trajectory, and the drive is actuated
- * directly.
- * 
- * TODO: abstract source and sink.
- * 
  * The lifespan of this object is intended to be a single "playback" of a
  * trajectory, so create it in Command.initialize().
  */
 public class ReferenceController implements Glassy {
-    private final DriveSubsystemInterface m_swerve;
+    private final DriveSubsystemInterface m_drive;
     private final HolonomicFieldRelativeController m_controller;
-    private final Trajectory100 m_trajectory;
-    private final SwerveModelLogger m_log_reference;
-    private double m_startTimeS;
+    private final TrajectoryReference m_reference;
+
     private boolean m_aligned;
 
     public ReferenceController(
-            LoggerFactory parent,
             DriveSubsystemInterface swerve,
             HolonomicFieldRelativeController controller,
             Trajectory100 trajectory) {
         if (trajectory == null)
             throw new IllegalArgumentException("null trajectory");
-        LoggerFactory child = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_controller = controller;
-        m_trajectory = trajectory;
-        m_log_reference = child.swerveModelLogger(Level.TRACE, "reference");
+        m_reference = new TrajectoryReference(trajectory);
 
         // initialize
         m_controller.reset();
-        m_startTimeS = Takt.get();
-        if (m_swerve.getState().velocity().norm() > 0) {
+        if (m_drive.getState().velocity().norm() > 0) {
             // keep moving if we're already moving
             m_aligned = true;
         } else {
             m_aligned = false;
         }
+        m_reference.initialize(m_drive.getState());
     }
 
     public void execute() {
+        SwerveModel measurement = m_drive.getState();
         if (!m_aligned) {
             // Haven't started the trajectory yet, so use the references from zero.
-            m_startTimeS = Takt.get();
+            m_reference.initialize(measurement);
         }
-        double progress = Takt.get() - m_startTimeS;
-        SwerveModel measurement = m_swerve.getState();
-        SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(progress));
-        SwerveModel nextReference = SwerveModel
-                .fromTimedPose(m_trajectory.sample(progress + TimedRobot100.LOOP_PERIOD_S));
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                measurement, currentReference, nextReference);
-        if (!m_aligned && m_swerve.aligned(fieldRelativeTarget)) {
-            // Not aligned before, but are now.
+                measurement, m_reference.current(), m_reference.next());
+        if (!m_aligned && m_drive.aligned(fieldRelativeTarget)) {
+            // Not aligned before, but aligned now.
             m_aligned = true;
         }
         if (!m_aligned) {
             // Still not aligned, so keep steering.
-            m_swerve.steerAtRest(fieldRelativeTarget);
+            m_drive.steerAtRest(fieldRelativeTarget);
         } else {
             // Aligned, so drive normally.
-            m_swerve.driveInFieldCoords(fieldRelativeTarget);
+            m_drive.driveInFieldCoords(fieldRelativeTarget);
         }
-        m_log_reference.log(() -> nextReference);
     }
 
     /** Trajectory is complete and controller error is within tolerance. */
     public boolean isFinished() {
-        return m_trajectory.isDone(Takt.get() - m_startTimeS) && m_controller.atReference();
+        return m_reference.done() && m_controller.atReference();
     }
 
     /**
@@ -94,7 +76,7 @@ public class ReferenceController implements Glassy {
      * error.
      */
     public boolean isDone() {
-        return m_trajectory.isDone(Takt.get() - m_startTimeS);
+        return m_reference.done();
     }
 
     // for testing

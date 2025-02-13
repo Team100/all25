@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class TrajectoryCommand extends Command implements Glassy {
     private final LoggerFactory m_log;
-    private final DriveSubsystemInterface m_swerve;
+    private final DriveSubsystemInterface m_drive;
     private final HolonomicFieldRelativeController m_controller;
     private final Trajectory100 m_trajectory;
     private final TrajectoryVisualization m_viz;
@@ -31,16 +31,16 @@ public class TrajectoryCommand extends Command implements Glassy {
             Trajectory100 trajectory,
             TrajectoryVisualization viz) {
         m_log = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_controller = controller;
         m_trajectory = trajectory;
         m_viz = viz;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        m_referenceController = new ReferenceController(m_log, m_swerve, m_controller, m_trajectory);
+        m_referenceController = new ReferenceController(m_drive, m_controller, m_trajectory);
         m_viz.setViz(m_trajectory);
     }
 
@@ -60,7 +60,7 @@ public class TrajectoryCommand extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 

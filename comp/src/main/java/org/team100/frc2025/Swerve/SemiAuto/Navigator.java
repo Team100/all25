@@ -41,10 +41,10 @@ public abstract class Navigator extends Command implements Planner2025 {
     }
 
     public final Log m_log;
-    private final SwerveDriveSubsystem m_robotDrive;
-    private final TrajectoryFollower m_controller;
+    protected final SwerveDriveSubsystem m_drive;
+    protected final TrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
-    private final TrajectoryVisualization m_viz;
+    protected final TrajectoryVisualization m_viz;
 
     TimingConstraintFactory m_constraints;
 
@@ -55,11 +55,11 @@ public abstract class Navigator extends Command implements Planner2025 {
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         m_log = new Log(parent);
-        m_robotDrive = robotDrive;
+        m_drive = robotDrive;
         m_controller = controller;
         m_viz = viz;
         m_constraints = new TimingConstraintFactory(kinodynamics);
-        addRequirements(m_robotDrive);
+        addRequirements(m_drive);
     }
 
     @Override
@@ -70,20 +70,20 @@ public abstract class Navigator extends Command implements Planner2025 {
     @Override
     public final void execute() {
 
-        Pose2d currentPose = m_robotDrive.getPose();
+        Pose2d currentPose = m_drive.getPose();
 
         Rotation2d angleToReef = FieldConstants.angleToReefCenter(currentPose);
         Rotation2d currentHeading = currentPose.getRotation();
         Rotation2d thetaError = angleToReef.minus(currentHeading);
 
         // m_controller.setThetaError(thetaError);
-        FieldRelativeVelocity output = m_controller.update(m_robotDrive.getState());
+        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
 
-        m_robotDrive.driveInFieldCoordsVerbatim(output);
+        m_drive.driveInFieldCoordsVerbatim(output);
 
         m_log.m_log_chassis_speeds.log(() -> output);
         double thetaErrorRad = m_goal.getRotation().getRadians()
-                - m_robotDrive.getPose().getRotation().getRadians();
+                - m_drive.getPose().getRotation().getRadians();
         m_log.m_log_THETA_ERROR.log(() -> thetaErrorRad);
         m_log.m_log_FINSIHED.log(() -> false);
     }
@@ -91,7 +91,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     @Override
     public final void end(boolean interrupted) {
         m_log.m_log_FINSIHED.log(() -> true);
-        m_robotDrive.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 

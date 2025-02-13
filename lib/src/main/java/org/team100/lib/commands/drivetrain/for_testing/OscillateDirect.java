@@ -34,7 +34,7 @@ public class OscillateDirect extends Command implements Glassy {
     private static final double kMaxSpeed = 1;
     private static final double kPeriod = 4 * kMaxSpeed / kAccel;
 
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final SquareWave m_square;
     private final TriangleWave m_triangle;
     private final ParabolicWave m_parabola;
@@ -53,12 +53,12 @@ public class OscillateDirect extends Command implements Glassy {
 
     public OscillateDirect(LoggerFactory parent, SwerveDriveSubsystem swerve) {
         LoggerFactory child = parent.child(this);
-        m_swerve = swerve;
+        m_drive = swerve;
         m_square = new SquareWave(kAccel, kPeriod);
         m_triangle = new TriangleWave(kMaxSpeed, kPeriod);
         m_parabola = new ParabolicWave(kMaxSpeed * kPeriod / 4, kPeriod);
         m_timer = new Timer();
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
         m_log_period = child.doubleLogger(Level.DEBUG, "period");
         m_log_time = child.doubleLogger(Level.DEBUG, "time");
         m_log_setpoint_accel = child.doubleLogger(Level.DEBUG, "setpoint/accel");
@@ -71,7 +71,7 @@ public class OscillateDirect extends Command implements Glassy {
     @Override
     public void initialize() {
         m_timer.restart();
-        m_initial = m_swerve.getState();
+        m_initial = m_drive.getState();
     }
 
     @Override
@@ -102,13 +102,13 @@ public class OscillateDirect extends Command implements Glassy {
         m_log_setpoint_accel.log(() -> accelM_S_S);
         m_log_setpoint_speed.log(() -> speedM_S);
         m_log_setpoint_position.log(() -> positionM);
-        SwerveModel swerveState = m_swerve.getState();
+        SwerveModel swerveState = m_drive.getState();
         m_log_measurement_speed.log(() -> swerveState.x().v());
         m_log_measurement_position.log(() -> swerveState.x().x() - m_initial.x().x());
     }
 
     void straight(double speedM_S) {
-        m_swerve.setRawModuleStates(new SwerveModuleStates (
+        m_drive.setRawModuleStates(new SwerveModuleStates (
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FL
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FR
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // RL
@@ -117,7 +117,7 @@ public class OscillateDirect extends Command implements Glassy {
     }
 
     void sideways(double speedM_S) {
-        m_swerve.setRawModuleStates(new SwerveModuleStates (
+        m_drive.setRawModuleStates(new SwerveModuleStates (
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // FL
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // FR
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // RL
@@ -126,7 +126,7 @@ public class OscillateDirect extends Command implements Glassy {
     }
 
     void back(double speedM_S) {
-        m_swerve.setRawModuleStates(new SwerveModuleStates (
+        m_drive.setRawModuleStates(new SwerveModuleStates (
                 new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FL
                 new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FR
                 new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // RL
@@ -135,7 +135,7 @@ public class OscillateDirect extends Command implements Glassy {
     }
 
     void skew(double speedM_S) {
-        m_swerve.setRawModuleStates(new SwerveModuleStates (
+        m_drive.setRawModuleStates(new SwerveModuleStates (
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FL
                 new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FR
                 new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // RL
@@ -144,7 +144,7 @@ public class OscillateDirect extends Command implements Glassy {
     }
 
     void spin(double speedM_S) {
-        m_swerve.setRawModuleStates(new SwerveModuleStates (
+        m_drive.setRawModuleStates(new SwerveModuleStates (
                 new SwerveModuleState100(speedM_S, Optional.of(new Rotation2d(-Math.PI / 4))), // FL
                 new SwerveModuleState100(speedM_S, Optional.of(new Rotation2d(-3 * Math.PI / 4))), // FR
                 new SwerveModuleState100(speedM_S, Optional.of(new Rotation2d(Math.PI / 4))), // RL
@@ -154,6 +154,6 @@ public class OscillateDirect extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 }

@@ -57,9 +57,7 @@ class DriveToWaypoint3Test extends Fixtured implements Timeless {
             }
         };
 
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(
                 logger,
@@ -93,9 +91,7 @@ class DriveToWaypoint3Test extends Fixtured implements Timeless {
         assertEquals(0.876, goal.getY(), kDelta);
         assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
 
-        HolonomicFieldRelativeController m_controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController m_controller = HolonomicDriveControllerFactory.get(logger);
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(logger,
                 log, goal, drivetrain, maker, m_controller, viz);

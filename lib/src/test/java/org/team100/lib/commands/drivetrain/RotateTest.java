@@ -31,9 +31,7 @@ class RotateTest extends Fixtured implements Timeless {
         // remember the test rotation rate is *very* slow.
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), 0.001);
         double targetAngle = Math.PI / 2;
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(
-                logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
         Rotate rotate = new Rotate(
                 logger,
                 swerveDriveSubsystem,
@@ -50,7 +48,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // steering
         for (int i = 0; i < 13; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -63,7 +61,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // finished steering, start rotating
         for (int i = 0; i < 25; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -75,7 +73,7 @@ class RotateTest extends Fixtured implements Timeless {
 
         // should be done rotating now
         for (int i = 0; i < 50; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
@@ -89,7 +87,7 @@ class RotateTest extends Fixtured implements Timeless {
                 kDelta);
 
         for (int i = 0; i < 113; ++i) {
-            stepTime(0.02);
+            stepTime();
             fixture.drive.periodic();
             rotate.execute();
         }
