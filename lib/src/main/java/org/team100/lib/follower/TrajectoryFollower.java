@@ -1,11 +1,10 @@
 package org.team100.lib.follower;
 
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.util.Takt;
 
 /**
  * Follows a trajectory using velocity feedforward, positional feedback, and
@@ -18,33 +17,31 @@ public class TrajectoryFollower {
     private final SwerveController m_controller;
 
     private Trajectory100 m_trajectory;
-    private double m_startTimeS;
+    private TrajectoryReference m_reference;
 
     public TrajectoryFollower(SwerveController controller) {
         m_controller = controller;
     }
 
     public void setTrajectory(Trajectory100 trajectory) {
-        m_trajectory = trajectory;
-        m_startTimeS = Takt.get();
+        m_trajectory = trajectory;        
     }
 
     public FieldRelativeVelocity update(SwerveModel measurement) {
         if (m_trajectory == null)
             return FieldRelativeVelocity.zero();
-        double progress = Takt.get() - m_startTimeS;
-        SwerveModel currentReference = SwerveModel.fromTimedPose(m_trajectory.sample(progress));
-        SwerveModel nextReference = SwerveModel
-                .fromTimedPose(m_trajectory.sample(progress + TimedRobot100.LOOP_PERIOD_S));
-        return m_controller.calculate(measurement, currentReference, nextReference);
+        if (m_reference == null) {
+            m_reference = new TrajectoryReference(m_trajectory);
+            m_reference.initialize(measurement);
+        }
+        return m_controller.calculate(measurement, m_reference.current(), m_reference.next());
     }
 
     /**
      * Note that even though the follower is done, the controller might not be.
      */
     public boolean isDone() {
-        // return m_trajectory != null && m_trajectory.isDone(m_timeS);
-        return m_trajectory != null && m_trajectory.isDone(Takt.get() - m_startTimeS);
+        return m_reference != null && m_reference.done();
     }
 
     /** True if the most recent call to calculate() was at the setpoint. */

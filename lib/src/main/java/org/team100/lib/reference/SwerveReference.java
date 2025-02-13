@@ -16,4 +16,6 @@ public interface SwerveReference {
 
     /** Reference for 0.02 sec in the future. */
     SwerveModel next();
+
+    boolean done();
 }

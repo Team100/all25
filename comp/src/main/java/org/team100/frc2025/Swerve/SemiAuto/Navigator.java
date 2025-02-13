@@ -41,10 +41,10 @@ public abstract class Navigator extends Command implements Planner2025 {
     }
 
     public final Log m_log;
-    private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryFollower m_controller;
+    protected final SwerveDriveSubsystem m_drive;
+    protected final TrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
-    private final TrajectoryVisualization m_viz;
+    protected final TrajectoryVisualization m_viz;
 
     TimingConstraintFactory m_constraints;
 

@@ -30,6 +30,11 @@ public class TrajectoryReference implements SwerveReference {
         return sample(progress() + TimedRobot100.LOOP_PERIOD_S);
     }
 
+    @Override
+    public boolean done() {
+        return m_trajectory.isDone(progress());
+    }
+
     private double progress() {
         return Takt.get() - m_startTimeS;
     }

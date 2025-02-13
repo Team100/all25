@@ -21,10 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class DriveTo_AB extends Navigator {
-    private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryFollower m_controller;
     private Pose2d m_goal = new Pose2d();
-    private final TrajectoryVisualization m_viz;
 
     TimingConstraintFactory m_constraints;
 
@@ -35,9 +32,6 @@ public class DriveTo_AB extends Navigator {
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         super(parent, robotDrive, controller, viz, kinodynamics);
-        m_drive = robotDrive;
-        m_controller = controller;
-        m_viz = viz;
         m_constraints = new TimingConstraintFactory(kinodynamics);
         addRequirements(m_drive);
     }
