@@ -32,10 +32,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Generate180 extends Navigator {
+public class Generate60 extends Navigator {
   /** Creates a new Generate180. */
 
-  private final double kTangentScale = 3;
+  private final double kTangentScale = 1;
   private final double kEntranceCurveFactor = 0.25;
 
   private final SwerveDriveSubsystem m_robotDrive;
@@ -45,7 +45,7 @@ public class Generate180 extends Navigator {
   private final Navigator.Log m_log;
   TimingConstraintFactory m_constraints;
 
-  public Generate180(LoggerFactory parent,
+  public Generate60(LoggerFactory parent,
             SwerveDriveSubsystem robotDrive,
             TrajectoryFollower controller,
             TrajectoryVisualization viz,
@@ -68,7 +68,7 @@ public class Generate180 extends Navigator {
     Translation2d currTranslation = currPose.getTranslation();
 
     FieldSector start = FieldConstants.getSector(m_robotDrive.getPose());
-    FieldSector end = FieldSector.AB;
+    FieldSector end = FieldSector.CD;
     ReefDestination reefDestination = ReefDestination.CENTER;
     
     Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
@@ -78,11 +78,6 @@ public class Generate180 extends Navigator {
     ReefAproach approach = path.approach();
 
 
-    FieldSector anchorPreviousSector = FieldSector.fromValue(list.get(1));
-    Rotation2d anchorPreviousRotation = FieldConstants.getSectorAngle(anchorPreviousSector);
-
-    Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(anchorPreviousRotation, approach);
-    Translation2d anchorWaypoint =  FieldConstants.getOrbitWaypoint(anchorPointRotation);
     
     Translation2d landingZone = FieldConstants.getOrbitLandingZone(end, approach);
 
@@ -93,14 +88,39 @@ public class Generate180 extends Navigator {
     LandingDestinationGroup rotationGroup = FieldConstants.getRotationGroup(approach, end, kEntranceCurveFactor);
 
 
-    Rotation2d initialSpline = calculateInitialSpline(
-        anchorWaypoint,
-        currTranslation,
-        currTranslation.minus(FieldConstants.getReefCenter()), //vector from robot to reef center
-        approach,
-        kTangentScale);
+    Rotation2d initialSpline  = destination.minus(currTranslation).getAngle();
 
-    double distance = 0.5; // Distance to move
+    Rotation2d initialSplineUnotuched = initialSpline;
+
+    Rotation2d endSpline = new Rotation2d(0);
+
+    double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
+
+    boolean condition = false;
+    Rotation2d parallelInitialRotation = FieldConstants.getLandingAngle(end, approach);
+
+    if(approach == ReefAproach.CCW){
+        Rotation2d newRotation = parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
+        condition = initialSpline.getDegrees() <= newRotation.getDegrees();
+    } else{
+        Rotation2d newRotation = parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
+        condition = initialSpline.getDegrees() >= newRotation.getDegrees();
+    }
+
+    condition = initialSpline.getDegrees() <= 0;
+
+
+    if(condition){
+
+        endSpline = FieldConstants.calculateDeltaSpline(FieldConstants.getLandingAngle(end, approach), FieldConstants.getSectorAngle(end), approach, 0.25);
+
+        initialSpline = FieldConstants.calculateDeltaSpline(initialSpline, FieldConstants.getSectorAngle(start), approach, (1/(distanceToReef)));
+
+    } else {
+        endSpline = initialSpline;
+    }
+
+    double distance = 0.15; // Distance to move
     double newX = currTranslation.getX() + (distance * initialSpline.getCos());
     double newY = currTranslation.getY() + (distance * initialSpline.getSin());
 
@@ -110,16 +130,11 @@ public class Generate180 extends Navigator {
 
 
     waypointsM.add(newPose);
-    waypointsM.add( new Pose2d(landingZone, rotationGroup.landingSpline()));
-    waypointsM.add( new Pose2d(destination, rotationGroup.destinationSpline()));
+    waypointsM.add( new Pose2d(destination, endSpline));
 
     headings.add(rotationToReef);
-    headings.add(FieldConstants.angleToReefCenter(new Pose2d(landingZone, rotationGroup.landingSpline())));
-    headings.add(FieldConstants.angleToReefCenter( new Pose2d(destination, rotationGroup.destinationSpline())));
+    headings.add(FieldConstants.getSectorAngle(end).rotateBy(Rotation2d.k180deg));
 
-
-    
-    
   
 
     
