@@ -59,7 +59,7 @@ public abstract class JoystickControl implements DriverControl {
     }
 
     @Override
-    public boolean outtakeFromAmp() {
+    public boolean button5() {
         // return false;
         return button(5);
     }

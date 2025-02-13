@@ -58,7 +58,7 @@ public class VKBJoystick implements DriverControl {
     }
 
     @Override
-    public boolean outtakeFromAmp() {
+    public boolean button5() {
         // return button(5);
         return false;
     }

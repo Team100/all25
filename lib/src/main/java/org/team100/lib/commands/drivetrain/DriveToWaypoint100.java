@@ -2,14 +2,12 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.List;
 
+import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.TrajectoryFollower;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
@@ -19,43 +17,30 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/**
- * A copy of DriveToWaypoint to explore the new holonomic trajectory classes we
- * cribbed from 254.
- */
 public class DriveToWaypoint100 extends Command implements Glassy {
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryFollower m_controller;
+    private final HolonomicFieldRelativeController m_controller;
     private final List<TimingConstraint> m_constraints;
-
-    private final double m_timeBuffer;
     private final TrajectoryVisualization m_viz;
-    private final Timer m_timer = new Timer();
-
-    // LOGGERS
-    private final FieldRelativeVelocityLogger m_log_speed;
 
     private Trajectory100 m_trajectory = new Trajectory100();
 
+    private ReferenceController m_referenceController;
+
     public DriveToWaypoint100(
-            LoggerFactory parent,
             Pose2d goal,
             SwerveDriveSubsystem drivetrain,
-            TrajectoryFollower controller,
+            HolonomicFieldRelativeController controller,
             SwerveKinodynamics swerveKinodynamics,
             double timeBuffer,
             TrajectoryVisualization viz) {
-        LoggerFactory child = parent.child(this);
-        m_log_speed = child.fieldRelativeVelocityLogger(Level.TRACE, "speed");
         m_goal = goal;
         m_drive = drivetrain;
         m_controller = controller;
         m_constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-        m_timeBuffer = timeBuffer;
         m_viz = viz;
         addRequirements(m_drive);
     }
@@ -64,8 +49,6 @@ public class DriveToWaypoint100 extends Command implements Glassy {
     public void initialize() {
         final Pose2d start = m_drive.getPose();
         Pose2d end = m_goal;
-        m_timer.reset();
-        m_timer.start();
 
         List<Pose2d> waypointsM = getWaypoints(start, end);
         List<Rotation2d> headings = List.of(start.getRotation(), end.getRotation());
@@ -78,31 +61,28 @@ public class DriveToWaypoint100 extends Command implements Glassy {
         m_viz.setViz(m_trajectory);
 
         if (m_trajectory.isEmpty()) {
-            // TODO: calling end here is bad.
-            end(false);
+            m_referenceController = null;
             return;
         }
-        m_controller.setTrajectory(m_trajectory);
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(m_trajectory));
     }
 
     @Override
     public void execute() {
-        FieldRelativeVelocity output = m_controller.update(m_drive.getState());
-        if (output == null)
-            return;
-        m_log_speed.log(() -> output);
-        m_drive.driveInFieldCoords(output);
+        if (m_referenceController != null)
+            m_referenceController.execute();
     }
 
     @Override
     public boolean isFinished() {
-        // return m_controller.isDone();
-        return m_timer.get() > m_trajectory.getLastPoint().getTimeS() + m_timeBuffer;
+        return m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_timer.stop();
         m_drive.stop();
         m_viz.clear();
     }

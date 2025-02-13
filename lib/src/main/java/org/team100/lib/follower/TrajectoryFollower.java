@@ -1,6 +1,6 @@
 package org.team100.lib.follower;
 
-import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.reference.TrajectoryReference;
@@ -14,12 +14,12 @@ import org.team100.lib.trajectory.Trajectory100;
  * to robot-relative should happen downstream.
  */
 public class TrajectoryFollower {
-    private final SwerveController m_controller;
+    private final HolonomicFieldRelativeController m_controller;
 
     private Trajectory100 m_trajectory;
     private TrajectoryReference m_reference;
 
-    public TrajectoryFollower(SwerveController controller) {
+    public TrajectoryFollower(HolonomicFieldRelativeController controller) {
         m_controller = controller;
     }
 

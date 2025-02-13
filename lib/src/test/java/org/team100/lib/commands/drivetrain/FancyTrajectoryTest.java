@@ -3,7 +3,6 @@ package org.team100.lib.commands.drivetrain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -12,19 +11,21 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.testing.Timeless;
+import org.team100.lib.visualization.TrajectoryVisualization;
 
 class FancyTrajectoryTest extends Fixtured implements Timeless {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
+    private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
 
     @Test
     void testSimple() {
         SwerveKinodynamics kSmoothKinematicLimits = SwerveKinodynamicsFactory.forTest();
         SwerveDriveSubsystem drive = fixture.drive;
         FancyTrajectory command = new FancyTrajectory(
-                logger,
                 drive,
-                TrajectoryFollowerFactory.fieldRelativeFancyPIDF(logger),
-                kSmoothKinematicLimits);
+                fixture.controller,
+                kSmoothKinematicLimits,
+                viz);
         command.initialize();
         command.execute();
 

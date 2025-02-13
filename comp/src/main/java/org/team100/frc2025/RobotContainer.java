@@ -11,6 +11,7 @@ import org.team100.lib.commands.drivetrain.DriveWithProfile2;
 import org.team100.lib.commands.drivetrain.FancyTrajectory;
 import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
+import org.team100.lib.commands.drivetrain.Rotate;
 import org.team100.lib.commands.drivetrain.SetRotation;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
@@ -25,7 +26,6 @@ import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.follower.TrajectoryFollowerFactory;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
@@ -146,7 +146,7 @@ public class RobotContainer implements Glassy {
         // DRIVE CONTROLLERS
         //
 
-        HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
+        final HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
 
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
@@ -210,14 +210,18 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::test,
                 new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
+        // test rotating in place
+        whileTrue(driverControl::button5,
+                new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
+
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
         whileTrue(driverControl::driveWithFancyTrajec,
                 new FancyTrajectory(
-                        comLog,
                         m_drive,
-                        TrajectoryFollowerFactory.fieldRelativeFancyPIDF(comLog),
-                        swerveKinodynamics));
+                        holonomicController,
+                        swerveKinodynamics,
+                        viz));
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));

@@ -9,6 +9,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
 import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -127,6 +129,9 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
     /** Use a real drivetrain to observe the effect on the motors etc. */
     @Test
     void testRealDrive() {
+        // this test depends on the behavior of the setpoint generator, so make sure
+        // it's on (otherwise it's in whatever state the previous test left it)
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
         // 1m along +x, no rotation.
         Trajectory100 trajectory = maker.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
@@ -147,7 +152,6 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         TrajectoryCommand command = new TrajectoryCommand(
                 logger, drive, controller, trajectory, viz);
         stepTime();
-        Util.println("init");
         command.initialize();
 
         // command has not checked yet
@@ -182,6 +186,10 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
     /** Use a real drivetrain to observe the effect on the motors etc. */
     @Test
     void testRealDriveUnaligned() {
+        // this test depends on the behavior of the setpoint generator, so make sure
+        // it's on (otherwise it's in whatever state the previous test left it)
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
+
         // 1m along +y, no rotation.
         Trajectory100 trajectory = maker.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
@@ -216,6 +224,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
             assertFalse(command.is_aligned());
             // drive thinks we're not aligned to the target (0,1)
             assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+            // so we're also not moving
+            assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
 
             stepTime();
             fixture.drive.periodic();
@@ -229,6 +239,8 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
             // fixture.collection.states().frontLeft().angle().get());
             // Util.printf("p %s\n", fixture.collection.turningPosition()[0].getAsDouble());
             // Util.printf("v %s\n", fixture.collection.turningVelocity()[0].getAsDouble());
+            // Util.printf("drive %f\n",
+            // fixture.collection.states().frontLeft().speedMetersPerSecond());
         }
         // the last call to execute discovers that the modules are already at the goal,
         // so it actuates +y

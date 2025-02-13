@@ -26,6 +26,7 @@ public class ProfileReference implements SwerveReference {
 
     public ProfileReference(HolonomicProfile profile) {
         next = profile;
+        // this will keep polling until we stop it.
         m_references = Memo.of(() -> refresh(m_next));
     }
 
@@ -61,9 +62,22 @@ public class ProfileReference implements SwerveReference {
         return m_done;
     }
 
+    /**
+     * Stop updating the references. There's no way to restart the updates, so you
+     * should discard this object once you call end().
+     */
+    public void end() {
+        m_references.end();
+    }
+
     private SwerveModel makeNext(SwerveModel current) {
-        if (m_goal == null)
+        if (current == null) {
+            // happens at startup
+            return null;
+        }
+        if (m_goal == null) {
             return current;
+        }
         SwerveModel model = next.calculate(current, m_goal).model();
         if (current.near(m_goal, 0.01))
             m_done = true;

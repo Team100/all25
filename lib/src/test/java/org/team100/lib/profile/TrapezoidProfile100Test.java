@@ -236,6 +236,75 @@ class TrapezoidProfile100Test {
         assertEquals(0.053, s, kDelta);
     }
 
+    /**
+     * I happened to notice that the eta solver is sometimes wrong
+     */
+    @Test
+    void testBrokenSolve1() {
+        // here we just slow down and proceed
+        // we're heading fast towards the goal.
+        // first brake for 0.449 sec, which puts us at 1.188
+        // then cruise at -0.01 until 0, so 118.8 sec
+        // total is about 119.2
+        // Util.println("**** first calculate the ETA");
+        // very low max vel
+        double maxV = 0.01;
+        // high max accel
+        double maxA = 10;
+        double tol = 0.01;
+        TrapezoidProfile100 px = new TrapezoidProfile100(maxV, maxA, tol);
+        Model100 initial = new Model100(2.2, -4.5);
+        Model100 goal = new Model100(0, 0);
+        double dt = 0.02;
+        ResultWithETA rx = px.calculateWithETA(dt, initial, goal);
+        // Util.printf("**** result %s\n", rx);
+        assertEquals(119.200, rx.etaS(), kDelta);
+
+        // Util.println("**** then find S for this very same ETA");
+        double s = TrapezoidProfile100.solveForSlowerETA(
+                maxV, maxA, tol, dt, initial, goal, 119.2, kDelta);
+
+        // previously the "s" value here was 0.292, not 1.0, even though we're using
+        // the very same parameters. Why?
+        //
+        // there are two ways to achieve the ETA.
+        // one way is to brake quickly and cruise for a long time.
+        // the other way is to brake more slowly, make a u-turn, and cruising back.
+        //
+        // I fixed this by making the solver notice if one of the endpoints is the
+        // solution.
+
+        assertEquals(1, s, kDelta);
+    }
+
+    @Test
+    void testBrokenSolve2() {
+        // this is a u-turn
+        // brake for 0.459, puts us at 6.058
+        // cruise at 0.01, so 605.8 sec
+        // around 606.2 total
+        // Util.println("**** first calculate the ETA");
+        // very low max vel
+        double maxV = 0.01;
+        // high max accel
+        double maxA = 10;
+        double tol = 0.01;
+        TrapezoidProfile100 px = new TrapezoidProfile100(maxV, maxA, tol);
+        // heading away from the goal, this is a very slow u-turn
+        Model100 initial = new Model100(5.0, 4.6);
+        Model100 goal = new Model100(0, 0);
+        double dt = 0.02;
+        ResultWithETA rx = px.calculateWithETA(dt, initial, goal);
+        // Util.printf("**** result %s\n", rx);
+        assertEquals(606.261, rx.etaS(), kDelta);
+
+        // Util.println("**** then find S for this very same ETA");
+        double s = TrapezoidProfile100.solveForSlowerETA(
+                maxV, maxA, tol, dt, initial, goal, 606.261, kDelta);
+        // this is correct.
+        assertEquals(1, s, kDelta);
+    }
+
     @Test
     void testETASolveStationary() {
         Model100 initial = new Model100(0, 0);

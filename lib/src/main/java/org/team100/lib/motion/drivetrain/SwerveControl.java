@@ -56,6 +56,10 @@ public class SwerveControl {
         this(new Pose2d(0, 0, x));
     }
 
+    public static SwerveControl zero() {
+        return new SwerveControl(new Control100(), new Control100(), new Control100());
+    }
+
     public SwerveModel model() {
         return new SwerveModel(m_x.model(), m_y.model(), m_theta.model());
     }

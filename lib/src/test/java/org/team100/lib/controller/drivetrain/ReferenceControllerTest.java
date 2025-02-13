@@ -18,6 +18,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
@@ -42,50 +43,53 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
-        MockDrive d = new MockDrive();
+        MockDrive drive = new MockDrive();
         // initially at rest
-        d.m_state = new SwerveModel();
-        d.m_aligned = false;
+        drive.m_state = new SwerveModel();
+        drive.m_aligned = false;
 
-        ReferenceController c = new ReferenceController( d, controller, t);
+        ReferenceController c = new ReferenceController(
+                drive,
+                controller,
+                new TrajectoryReference(t));
 
         // Initially unaligned so steer at rest
         stepTime();
         c.execute();
-        assertEquals(0.098, d.m_atRestSetpoint.x(), kDelta);
-        assertEquals(0, d.m_atRestSetpoint.y(), kDelta);
-        assertEquals(0, d.m_atRestSetpoint.theta(), kDelta);
+        assertEquals(0.098, drive.m_atRestSetpoint.x(), kDelta);
+        assertEquals(0, drive.m_atRestSetpoint.y(), kDelta);
+        assertEquals(0, drive.m_atRestSetpoint.theta(), kDelta);
 
         // we don't advance because we're still steering.
         // this next-setpoint is from "preview"
         // and our current setpoint is equal to the measurement.
         stepTime();
         c.execute();
-        assertEquals(0.098, d.m_atRestSetpoint.x(), kDelta);
-        assertEquals(0, d.m_atRestSetpoint.y(), kDelta);
-        assertEquals(0, d.m_atRestSetpoint.theta(), kDelta);
+        assertEquals(0.098, drive.m_atRestSetpoint.x(), kDelta);
+        assertEquals(0, drive.m_atRestSetpoint.y(), kDelta);
+        assertEquals(0, drive.m_atRestSetpoint.theta(), kDelta);
 
-        d.m_aligned = true;
+        drive.m_aligned = true;
         // now aligned, so we drive normally, using the same setpoint as above
         stepTime();
         c.execute();
-        assertEquals(0.098, d.m_setpoint.x(), kDelta);
-        assertEquals(0, d.m_setpoint.y(), kDelta);
-        assertEquals(0, d.m_setpoint.theta(), kDelta);
+        assertEquals(0.098, drive.m_setpoint.x(), kDelta);
+        assertEquals(0, drive.m_setpoint.y(), kDelta);
+        assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // more normal driving
         stepTime();
         c.execute();
-        assertEquals(0.199, d.m_setpoint.x(), kDelta);
-        assertEquals(0, d.m_setpoint.y(), kDelta);
-        assertEquals(0, d.m_setpoint.theta(), kDelta);
+        assertEquals(0.199, drive.m_setpoint.x(), kDelta);
+        assertEquals(0, drive.m_setpoint.y(), kDelta);
+        assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // etc
         stepTime();
         c.execute();
-        assertEquals(0.306, d.m_setpoint.x(), kDelta);
-        assertEquals(0, d.m_setpoint.y(), kDelta);
-        assertEquals(0, d.m_setpoint.theta(), kDelta);
+        assertEquals(0.306, drive.m_setpoint.x(), kDelta);
+        assertEquals(0, drive.m_setpoint.y(), kDelta);
+        assertEquals(0, drive.m_setpoint.theta(), kDelta);
     }
 
     @Test
@@ -97,13 +101,16 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
 
-        MockDrive d = new MockDrive();
+        MockDrive drive = new MockDrive();
         // initially at rest
-        d.m_state = new SwerveModel();
+        drive.m_state = new SwerveModel();
         // for this test we don't care about steering alignment.
-        d.m_aligned = true;
+        drive.m_aligned = true;
 
-        ReferenceController c = new ReferenceController(d, controller, t);
+        ReferenceController c = new ReferenceController(
+                drive,
+                controller,
+                new TrajectoryReference(t));
 
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
@@ -135,7 +142,10 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        ReferenceController command = new ReferenceController(drive, controller, trajectory);
+        ReferenceController command = new ReferenceController(
+                drive,
+                controller,
+                new TrajectoryReference(trajectory));
         stepTime();
 
         // command has not checked yet
@@ -188,7 +198,10 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        ReferenceController command = new ReferenceController( drive, controller, trajectory);
+        ReferenceController command = new ReferenceController(
+                drive,
+                controller,
+                new TrajectoryReference(trajectory));
         // always start unaligned
         assertFalse(command.is_aligned());
 
