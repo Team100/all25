@@ -23,6 +23,7 @@ public class ReferenceController implements Glassy {
     private final DriveSubsystemInterface m_drive;
     private final HolonomicFieldRelativeController m_controller;
     private final SwerveReference m_reference;
+    private final boolean m_verbatim;
 
     private boolean m_aligned;
 
@@ -33,10 +34,12 @@ public class ReferenceController implements Glassy {
     public ReferenceController(
             DriveSubsystemInterface swerve,
             HolonomicFieldRelativeController controller,
-            SwerveReference reference) {
+            SwerveReference reference,
+            boolean verbatim) {
         m_drive = swerve;
         m_controller = controller;
         m_reference = reference;
+        m_verbatim = verbatim;
 
         // initialize
         m_controller.reset();
@@ -69,7 +72,10 @@ public class ReferenceController implements Glassy {
             m_drive.steerAtRest(fieldRelativeTarget);
         } else {
             // Aligned, so drive normally.
-            m_drive.driveInFieldCoords(fieldRelativeTarget);
+            if (m_verbatim)
+                m_drive.driveInFieldCoordsVerbatim(fieldRelativeTarget);
+            else
+                m_drive.driveInFieldCoords(fieldRelativeTarget);
         }
     }
 

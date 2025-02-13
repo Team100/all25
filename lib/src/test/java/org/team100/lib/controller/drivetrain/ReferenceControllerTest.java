@@ -51,7 +51,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         ReferenceController c = new ReferenceController(
                 drive,
                 controller,
-                new TrajectoryReference(t));
+                new TrajectoryReference(t), false);
 
         // Initially unaligned so steer at rest
         stepTime();
@@ -110,7 +110,8 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         ReferenceController c = new ReferenceController(
                 drive,
                 controller,
-                new TrajectoryReference(t));
+                new TrajectoryReference(t),
+                false);
 
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
@@ -145,7 +146,8 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         ReferenceController command = new ReferenceController(
                 drive,
                 controller,
-                new TrajectoryReference(trajectory));
+                new TrajectoryReference(trajectory),
+                false);
         stepTime();
 
         // command has not checked yet
@@ -201,7 +203,8 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         ReferenceController command = new ReferenceController(
                 drive,
                 controller,
-                new TrajectoryReference(trajectory));
+                new TrajectoryReference(trajectory),
+                false);
         // always start unaligned
         assertFalse(command.is_aligned());
 

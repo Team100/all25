@@ -75,7 +75,8 @@ class DriveMotionPlannerTest implements Timeless {
         ReferenceController referenceController = new ReferenceController(
                 drive,
                 swerveController,
-                new TrajectoryReference(trajectory));
+                new TrajectoryReference(trajectory),
+                false);
 
         Pose2d pose = trajectory.sample(0).state().getPose();
         FieldRelativeVelocity velocity = FieldRelativeVelocity.zero();

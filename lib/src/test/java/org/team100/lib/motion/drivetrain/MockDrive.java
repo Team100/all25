@@ -37,4 +37,9 @@ public class MockDrive implements DriveSubsystemInterface {
         // do nothing
     }
 
+    @Override
+    public void driveInFieldCoordsVerbatim(FieldRelativeVelocity setpoint) {
+        driveInFieldCoords(setpoint);
+    }
+
 }

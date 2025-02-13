@@ -10,11 +10,11 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
-import org.team100.lib.follower.TrajectoryFollower;
+import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.timing.TimingConstraintFactory;
+import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
@@ -29,26 +29,21 @@ public class Generate120 extends Navigator {
     private final double kTangentScale = 1;
     private final double kEntranceCurveFactor = 0.25;
 
-    private Pose2d m_goal = new Pose2d();
-    TimingConstraintFactory m_constraints;
-
-    public Generate120(LoggerFactory parent,
-            SwerveDriveSubsystem robotDrive,
-            TrajectoryFollower controller,
+    public Generate120(
+            LoggerFactory parent,
+            SwerveDriveSubsystem drive,
+            HolonomicFieldRelativeController hcontroller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-        super(parent, robotDrive, controller, viz, kinodynamics);
-        m_constraints = new TimingConstraintFactory(kinodynamics);
-        addRequirements(m_drive);
+        super(parent, drive, hcontroller, viz, kinodynamics);
     }
 
     @Override
-    public void initialize() {
+    public Trajectory100 trajectory(List<TimingConstraint> constraints, Pose2d currentPose) {
 
-        Pose2d currPose = m_drive.getPose();
-        Translation2d currTranslation = currPose.getTranslation();
+        Translation2d currTranslation = currentPose.getTranslation();
 
-        FieldSector start = FieldConstants.getSector(m_drive.getPose());
+        FieldSector start = FieldConstants.getSector(currentPose);
         FieldSector end = FieldSector.AB;
         ReefDestination reefDestination = ReefDestination.CENTER;
 
@@ -94,13 +89,9 @@ public class Generate120 extends Navigator {
         headings.add(FieldConstants.angleToReefCenter(new Pose2d(landingZone, rotationGroup.landingSpline())));
         headings.add(FieldConstants.angleToReefCenter(new Pose2d(destination, rotationGroup.destinationSpline())));
 
-        PoseSet poseSet = addRobotPose(currPose, waypointsM, headings, initialSpline);
+        PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(),
-                m_constraints.medium());
-        m_viz.setViz(trajectory);
-        m_controller.setTrajectory(trajectory);
-
+        return TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
     }
 
 }
