@@ -1,6 +1,8 @@
 package org.team100.frc2025.Swerve;
 
 import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate120;
+import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate180;
+import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate60;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -38,7 +40,7 @@ public class Maker {
 
     public Command test() {
 
-        return new Generate120(
+        return new Generate60(
                 m_logger,
                 m_drive,
                 SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
