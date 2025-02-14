@@ -20,8 +20,7 @@ import org.team100.lib.commands.drivetrain.manual.ManualWithFullStateHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
 import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
@@ -146,7 +145,7 @@ public class RobotContainer implements Glassy {
         // DRIVE CONTROLLERS
         //
 
-        final HolonomicFieldRelativeController holonomicController = HolonomicDriveControllerFactory.get(comLog);
+        final SwerveController holonomicController = SwerveControllerFactory.byIdentity(comLog);
 
         final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
@@ -203,7 +202,7 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         whileTrue(driverControl::driveToObject,
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
-                        SwerveControllerFactory.getDefault(comLog), swerveKinodynamics));
+                holonomicController, swerveKinodynamics));
         whileTrue(driverControl::fullCycle,
                 new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 

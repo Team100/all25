@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
@@ -46,7 +46,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_drive;
     private final StraightLineTrajectory m_trajectories;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
     private final Log m_log;
 
@@ -64,7 +64,7 @@ public class DriveToWaypoint3 extends Command implements Glassy {
             Pose2d goal,
             SwerveDriveSubsystem drivetrain,
             StraightLineTrajectory trajectories,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             TrajectoryVisualization viz) {
         m_parent = parent;
         m_log = log;

@@ -4,10 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
@@ -22,9 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
  * essentially like ignoring cross-track error.
  */
 public class PermissiveTrajectoryListCommand extends Command implements Glassy {
-    private final LoggerFactory m_log;
     private final SwerveDriveSubsystem m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final List<Function<Pose2d, Trajectory100>> m_trajectories;
     private final TrajectoryVisualization m_viz;
 
@@ -32,12 +30,10 @@ public class PermissiveTrajectoryListCommand extends Command implements Glassy {
     private ReferenceController m_referenceController;
 
     public PermissiveTrajectoryListCommand(
-            LoggerFactory parent,
             SwerveDriveSubsystem swerve,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             List<Function<Pose2d, Trajectory100>> trajectories,
             TrajectoryVisualization viz) {
-        m_log = parent.child(this);
         m_drive = swerve;
         m_controller = controller;
         m_trajectories = trajectories;

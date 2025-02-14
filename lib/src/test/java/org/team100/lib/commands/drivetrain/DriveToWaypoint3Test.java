@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
@@ -57,7 +57,7 @@ class DriveToWaypoint3Test extends Fixtured implements Timeless {
             }
         };
 
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(
                 logger,
@@ -91,7 +91,7 @@ class DriveToWaypoint3Test extends Fixtured implements Timeless {
         assertEquals(0.876, goal.getY(), kDelta);
         assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
 
-        HolonomicFieldRelativeController m_controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController m_controller = SwerveControllerFactory.test(logger);
         DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(logger);
         DriveToWaypoint3 command = new DriveToWaypoint3(logger,
                 log, goal, drivetrain, maker, m_controller, viz);

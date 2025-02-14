@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -19,7 +19,7 @@ public class OscillateProfile extends Command implements Glassy {
 
     private final SwerveDriveSubsystem m_drive;
     private final HolonomicProfile m_profile;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final double m_offsetM;
 
     private SwerveControl m_setpoint;
@@ -28,7 +28,7 @@ public class OscillateProfile extends Command implements Glassy {
     public OscillateProfile(
             SwerveDriveSubsystem swerve,
             HolonomicProfile profile,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             double offsetM) {
         m_drive = swerve;
         m_profile = profile;

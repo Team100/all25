@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
@@ -23,14 +23,14 @@ public class OscillateForceField extends Command implements Glassy {
     private static final double TOLERANCE = 0.01;
 
     private final SwerveDriveSubsystem m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final double m_offsetM;
 
     private SwerveModel m_goal;
 
     public OscillateForceField(
             SwerveDriveSubsystem swerve,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             double offsetM) {
         m_drive = swerve;
         m_controller = controller;

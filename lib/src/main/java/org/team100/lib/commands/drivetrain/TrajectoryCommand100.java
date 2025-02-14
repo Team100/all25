@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class TrajectoryCommand100 extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private final Trajectory100 m_trajectory;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
 
     private ReferenceController m_referenceController;
@@ -24,7 +24,7 @@ public class TrajectoryCommand100 extends Command implements Glassy {
     public TrajectoryCommand100(
             SwerveDriveSubsystem robotDrive,
             Trajectory100 trajectory,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             TrajectoryVisualization viz) {
         m_drive = robotDrive;
         m_trajectory = trajectory;
