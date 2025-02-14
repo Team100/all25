@@ -7,10 +7,41 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.util.Util;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 class SwerveKinodynamicsTest {
     private static final double kDelta = 0.001;
+
+    /** From field relative speed to robot relative speed to modules and back. */
+    @Test
+    void testRoundTripMotionless() {
+        SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
+        FieldRelativeVelocity v = new FieldRelativeVelocity(0, 0, 0);
+        Rotation2d theta = new Rotation2d();
+        ChassisSpeeds instantaneous = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+        SwerveModuleStates states = unlimited.toSwerveModuleStates(instantaneous, 0.02);
+        ChassisSpeeds implied = unlimited.toChassisSpeedsWithDiscretization(states, 0.02);
+        FieldRelativeVelocity result = SwerveKinodynamics.fromInstantaneousChassisSpeeds(implied, theta);
+        assertEquals(0, result.x(), kDelta);
+        assertEquals(0, result.y(), kDelta);
+        assertEquals(0, result.theta(), kDelta);
+    }
+
+    /** From field relative speed to robot relative speed to modules and back. */
+    @Test
+    void testRoundTripDriveAndSpin() {
+        SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
+        FieldRelativeVelocity v = new FieldRelativeVelocity(5, 0, 25);
+        Rotation2d theta = new Rotation2d();
+        ChassisSpeeds instantaneous = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+        SwerveModuleStates states = unlimited.toSwerveModuleStates(instantaneous, 0.02);
+        ChassisSpeeds implied = unlimited.toChassisSpeedsWithDiscretization(states, 0.02);
+        FieldRelativeVelocity result = SwerveKinodynamics.fromInstantaneousChassisSpeeds(implied, theta);
+        assertEquals(5, result.x(), kDelta);
+        assertEquals(0, result.y(), kDelta);
+        assertEquals(25, result.theta(), kDelta);
+    }
 
     @Test
     void testComputedValues() {
@@ -73,7 +104,7 @@ class SwerveKinodynamicsTest {
         double wheelbase = 0.5;
         double driveA = 1;
         SwerveKinodynamics k = new SwerveKinodynamics(
-                1, 1, driveA, 1, 1, 20 * Math.PI, track,track, wheelbase, wheelbase / 2,
+                1, 1, driveA, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2,
                 1);
         assertEquals(1, k.getMaxDriveAccelerationM_S2(), kDelta);
 
@@ -123,7 +154,6 @@ class SwerveKinodynamicsTest {
         assertEquals(16.333, accel, kDelta);
         assertEquals(16.333, k.getMaxCapsizeAccelM_S2(), kDelta);
     }
-
 
     @Test
     void testAnalyticDesaturation() {
@@ -416,7 +446,7 @@ class SwerveKinodynamicsTest {
         {
             // pure rotation involves no discretization effect
             ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 1);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 1);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.02);
             ChassisSpeeds impliedSpeeds = l.toChassisSpeeds(states);
             assertEquals(0, impliedSpeeds.vxMetersPerSecond, kDelta);
             assertEquals(0, impliedSpeeds.vyMetersPerSecond, kDelta);
@@ -425,7 +455,7 @@ class SwerveKinodynamicsTest {
         {
             // pure translation involves no discretization effect
             ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 0);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.02);
             ChassisSpeeds impliedSpeeds = l.toChassisSpeeds(states);
             assertEquals(1, impliedSpeeds.vxMetersPerSecond, kDelta);
             assertEquals(0, impliedSpeeds.vyMetersPerSecond, kDelta);
@@ -441,14 +471,14 @@ class SwerveKinodynamicsTest {
         {
             // holonomic does have discretization effect
             ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 1);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 1);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.02);
             ChassisSpeeds impliedSpeeds = l.toChassisSpeeds(states);
             assertEquals(0.999, impliedSpeeds.vxMetersPerSecond, kDelta);
             assertEquals(-0.035, impliedSpeeds.vyMetersPerSecond, kDelta);
             assertEquals(1, impliedSpeeds.omegaRadiansPerSecond, kDelta);
 
             // invert the discretization to extract the original speeds
-            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(1, 0.02, states);
+            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(states, 0.02);
             assertEquals(0.999, correctedImplied.vxMetersPerSecond, kDelta);
             assertEquals(0, correctedImplied.vyMetersPerSecond, kDelta);
             assertEquals(1, correctedImplied.omegaRadiansPerSecond, kDelta);
@@ -456,14 +486,14 @@ class SwerveKinodynamicsTest {
         {
             // more spinning => bigger effect
             ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 3);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 3);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.02);
             ChassisSpeeds impliedSpeeds = l.toChassisSpeeds(states);
             assertEquals(0.994, impliedSpeeds.vxMetersPerSecond, kDelta);
             assertEquals(-0.105, impliedSpeeds.vyMetersPerSecond, kDelta);
             assertEquals(3, impliedSpeeds.omegaRadiansPerSecond, kDelta);
 
             // invert the discretization to extract the original speeds.
-            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(3, 0.02, states);
+            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(states, 0.02);
             assertEquals(1, correctedImplied.vxMetersPerSecond, kDelta);
             assertEquals(0, correctedImplied.vyMetersPerSecond, kDelta);
             assertEquals(3, correctedImplied.omegaRadiansPerSecond, kDelta);
@@ -471,14 +501,14 @@ class SwerveKinodynamicsTest {
         {
             // longer time interval => bigger effect
             ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 3);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 3, 0.2);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.2);
             ChassisSpeeds impliedSpeeds = l.toChassisSpeeds(states);
             assertEquals(0.944, impliedSpeeds.vxMetersPerSecond, kDelta);
             assertEquals(-0.372, impliedSpeeds.vyMetersPerSecond, kDelta);
             assertEquals(3, impliedSpeeds.omegaRadiansPerSecond, kDelta);
 
             // invert the discretization to extract the original speeds.
-            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(3, 0.2, states);
+            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(states, 0.2);
             assertEquals(1, correctedImplied.vxMetersPerSecond, kDelta);
             assertEquals(0, correctedImplied.vyMetersPerSecond, kDelta);
             assertEquals(3, correctedImplied.omegaRadiansPerSecond, kDelta);
@@ -486,8 +516,8 @@ class SwerveKinodynamicsTest {
         {
             // longer time interval => bigger effect
             ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 3);
-            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 3, 0.2);
-            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(3, 0.2, states);
+            SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0.2);
+            ChassisSpeeds correctedImplied = l.toChassisSpeedsWithDiscretization(states, 0.2);
             assertEquals(1, correctedImplied.vxMetersPerSecond, kDelta);
             assertEquals(0, correctedImplied.vyMetersPerSecond, kDelta);
             assertEquals(3, correctedImplied.omegaRadiansPerSecond, kDelta);

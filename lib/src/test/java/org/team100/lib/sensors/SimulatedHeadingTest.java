@@ -40,7 +40,7 @@ class SimulatedHeadingTest implements Timeless {
         SimulatedGyro h = new SimulatedGyro(l, c);
         ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 0);
         // includes discretization
-        SwerveModuleStates states = l.toSwerveModuleStates(speeds, 0);
+        SwerveModuleStates states = l.toSwerveModuleStates(speeds);
         c.reset();
         // go for 0.4s
         for (int i = 0; i < 20; ++i) {
@@ -63,7 +63,7 @@ class SimulatedHeadingTest implements Timeless {
         SimulatedGyro h = new SimulatedGyro(l, c);
         ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 1);
         // includes discretization
-        SwerveModuleStates states = l.toSwerveModuleStates(speeds, 1);
+        SwerveModuleStates states = l.toSwerveModuleStates(speeds);
 
         c.reset();
         // steering velocity is 13 rad/s, we need to go about 2 rad? so wait 0.2 sec?
@@ -87,7 +87,7 @@ class SimulatedHeadingTest implements Timeless {
 
         ChassisSpeeds speeds = new ChassisSpeeds(1, 0, 1);
         // includes discretization
-        SwerveModuleStates states = l.toSwerveModuleStates(speeds, 1);
+        SwerveModuleStates states = l.toSwerveModuleStates(speeds);
         // these are discretized so not symmetrical
         assertEquals(0.779, states.frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(1.268, states.frontRight().speedMetersPerSecond(), kDelta);

@@ -15,7 +15,7 @@ import org.team100.lib.util.Util;
  * Velocity feedforward, proportional feedback on position and velocity.
  */
 public class FullStateSwerveController implements SwerveController {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private final SwerveModelLogger m_log_measurement;
     private final SwerveModelLogger m_log_currentReference;
     private final SwerveModelLogger m_log_nextReference;

@@ -30,7 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
@@ -88,37 +88,34 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * 
      * Feasibility is enforced by the setpoint generator (if enabled) and the
      * desaturator.
-     * 
-     * @param speeds        speeds in robot coordinates.
-     * @param gyroRateRad_S
-     * @param kDtSec        time in the future for the setpoint generator to
-     *                      calculate
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds, double gyroRateRad_S) {
+    public void setChassisSpeeds(ChassisSpeeds speeds) {
         m_log_desired.log(() -> speeds);
         if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
             setChassisSpeedsWithSetpointGenerator(speeds);
         } else {
-            setChassisSpeedsNormally(speeds, gyroRateRad_S);
+            setChassisSpeedsNormally(speeds);
         }
     }
 
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
-        setChassisSpeedsNormally(speeds, 0);
-    }
-
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds, double gyroRateRad_S) {
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+    /**
+     * Discretizes the speeds, calculates the inverse kinematic module states, and
+     * sets the module states
+     */
+    public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(speeds, states);
         m_log_chassis_speed.log(() -> speeds);
     }
 
     /**
-     * Align wheels with the directions implied by speeds, don't move drives.
+     * Discretizes the speeds, calculates the inverse kinematic module states, and
+     * aligns the wheels with the directions implied by speeds, without moving
+     * the drive motors.
      */
-    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+    public void steerAtRest(ChassisSpeeds speeds) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
         states = states.motionless();
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
@@ -128,13 +125,13 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * True if current wheel steering positions are aligned with the positions
      * implied by the desired speed.
      */
-    public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
+    public boolean aligned(ChassisSpeeds desiredSpeeds) {
         // These measurements include empty angles for motionless wheels.
         // Otherwise angle is always within [-pi, pi].
         OptionalDouble[] positions = m_modules.turningPosition();
         OptionalDouble[] velocities = m_modules.turningVelocity();
         SwerveModuleState100[] desiredStates = m_swerveKinodynamics.toSwerveModuleStates(
-                desiredSpeeds, gyroRateRad_S).all();
+                desiredSpeeds).all();
         for (int i = 0; i < positions.length; ++i) {
             if (positions[i].isEmpty() && velocities[i].isEmpty()) {
                 // Util.warn("broken sensor, this should never happen");
@@ -265,6 +262,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /////////////////////////////////////////////////////////
 
+    /**
+     * TODO: this must DISCRETIZE, but it doesn't.
+     * 
+     */
     private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds speeds) {
         // Informs SwerveDriveKinematics of the module states.
         SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(

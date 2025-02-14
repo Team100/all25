@@ -187,23 +187,22 @@ public class SwerveKinodynamics implements Glassy {
      * translational acceleration.
      * 
      * States may include empty angles for motionless wheels.
-     * 
-     * @param in            chassis speeds to transform
-     * @param gyroRateRad_S current gyro rate, or the trajectory gyro rate
      */
-    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S) {
-        return toSwerveModuleStates(in, gyroRateRad_S, TimedRobot100.LOOP_PERIOD_S);
+    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in) {
+        return toSwerveModuleStates(in, TimedRobot100.LOOP_PERIOD_S);
     }
 
     /**
      * For testing only.
      * 
+     * Discretizes.
+     * 
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
      */
-    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
+    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double period) {
         // This is the extra correction angle ...
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(in.omegaRadiansPerSecond));
         // ... which is subtracted here; this isn't really a field-relative
         // transformation it's just a rotation.
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -211,6 +210,7 @@ public class SwerveKinodynamics implements Glassy {
                 in.vyMetersPerSecond,
                 in.omegaRadiansPerSecond,
                 angle);
+        // discretization does not affect omega
         ChassisSpeeds descretized = ChassisSpeeds.discretize(chassisSpeeds, period);
         return m_kinematics.toSwerveModuleStates(descretized);
     }
@@ -238,9 +238,8 @@ public class SwerveKinodynamics implements Glassy {
      * It performs inverse discretization and an extra correction.
      */
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
-            double gyroRateRad_S,
-            double dt,
-            SwerveModuleStates moduleStates) {
+            SwerveModuleStates moduleStates,
+            double dt) {
         ChassisSpeeds discreteSpeeds = toChassisSpeeds(moduleStates);
         Twist2d twist = new Twist2d(
                 discreteSpeeds.vxMetersPerSecond * dt,
@@ -253,8 +252,9 @@ public class SwerveKinodynamics implements Glassy {
                 deltaPose.getY(),
                 deltaPose.getRotation().getRadians()).div(dt);
 
+        double omega = discreteSpeeds.omegaRadiansPerSecond;
         // This is the opposite direction
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(omega));
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 continuousSpeeds.vxMetersPerSecond,
                 continuousSpeeds.vyMetersPerSecond,
@@ -380,6 +380,29 @@ public class SwerveKinodynamics implements Glassy {
                 ratio * maxV * Math.cos(xyAngle),
                 ratio * maxV * Math.sin(xyAngle),
                 speeds.theta());
+    }
+
+    /**
+     * Robot-relative speed, without discretization.
+     * This simply rotates the velocity from the field frame to the robot frame.
+     */
+    public static ChassisSpeeds toInstantaneousChassisSpeeds(
+            FieldRelativeVelocity v,
+            Rotation2d theta) {
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                v.x(),
+                v.y(),
+                v.theta(),
+                theta);
+    }
+
+    /**
+     * Field-relative speed, without discretization.
+     * This simply rotates the velocity from the robot frame to the field frame.
+     */
+    public static FieldRelativeVelocity fromInstantaneousChassisSpeeds(ChassisSpeeds instantaneous, Rotation2d theta) {
+        ChassisSpeeds c = ChassisSpeeds.fromRobotRelativeSpeeds(instantaneous, theta);
+        return new FieldRelativeVelocity(c.vxMetersPerSecond, c.vyMetersPerSecond, c.omegaRadiansPerSecond);
     }
 
     public SwerveDriveKinematics100 getKinematics() {
