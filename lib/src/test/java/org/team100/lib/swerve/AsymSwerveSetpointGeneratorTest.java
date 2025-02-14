@@ -401,7 +401,9 @@ class AsymSwerveSetpointGeneratorTest {
         // here the setpoint is at angle zero
 
         // desired speed is very fast
-        ChassisSpeeds desiredSpeeds = new ChassisSpeeds(10, 10, 10);
+        FieldRelativeVelocity desiredV = new FieldRelativeVelocity(10, 10, 10);
+        ChassisSpeeds desiredSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(desiredV, new Rotation2d());
+
 
         // initially it's not moving fast at all
         setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
@@ -414,6 +416,19 @@ class AsymSwerveSetpointGeneratorTest {
 
         // steer in place for a short time.
         for (int i = 0; i < 9; ++i) {
+            // update the robot-relative setpoint with the field-relative one
+
+
+
+
+
+            setpoint.getChassisSpeeds();
+
+
+
+            
+
+
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
             assertEquals(0, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
             assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
@@ -427,7 +442,7 @@ class AsymSwerveSetpointGeneratorTest {
         for (int i = 0; i < 50; ++i) {
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
         }
-        assertEquals(2.842, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(2.577, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
         assertEquals(2.842, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
         assertEquals(2.842, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
     }

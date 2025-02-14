@@ -110,9 +110,9 @@ public class SwerveDriveKinematics100 {
      * 
      * Angles are otherwise always within [-pi, pi].
      */
-    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds chassisSpeeds) {
+    public SwerveModuleStates toSwerveModuleStates(Twist2d chassisSpeeds, double dt) {
         // [vx; vy; omega] (3 x 1)
-        SimpleMatrix chassisSpeedsVector = chassisSpeeds2Vector(chassisSpeeds);
+        SimpleMatrix chassisSpeedsVector = chassisSpeeds2Vector(chassisSpeeds, dt);
         // [v cos; v sin; ...] (2n x 1)
         return statesFromVector(chassisSpeedsVector);
     }
@@ -218,14 +218,14 @@ public class SwerveDriveKinematics100 {
     }
 
     /** ChassisSpeeds -> [vx; vy; omega] (3 x 1) */
-    private SimpleMatrix chassisSpeeds2Vector(ChassisSpeeds chassisSpeeds) {
+    private SimpleMatrix chassisSpeeds2Vector(Twist2d chassisSpeeds, double dt) {
         SimpleMatrix chassisSpeedsVector = new SimpleMatrix(3, 1);
         chassisSpeedsVector.setColumn(
                 0,
                 0,
-                chassisSpeeds.vxMetersPerSecond,
-                chassisSpeeds.vyMetersPerSecond,
-                chassisSpeeds.omegaRadiansPerSecond);
+                chassisSpeeds.dx / dt,
+                chassisSpeeds.dy / dt,
+                chassisSpeeds.dtheta / dt);
         return chassisSpeedsVector;
     }
 
@@ -258,24 +258,12 @@ public class SwerveDriveKinematics100 {
      * @param chassisSpeedsVector [vx0; vy0; vx1; ...]
      */
     SwerveModuleStates statesFromVector(SimpleMatrix chassisSpeedsVector) {
-        SimpleMatrix moduleStatesMatrix = m_inverseKinematics.mult(chassisSpeedsVector);
+        SimpleMatrix m = m_inverseKinematics.mult(chassisSpeedsVector);
         return new SwerveModuleStates(
-                stateFromVector(moduleStatesMatrix.get(0, 0), moduleStatesMatrix.get(1, 0)),
-                stateFromVector(moduleStatesMatrix.get(2, 0), moduleStatesMatrix.get(3, 0)),
-                stateFromVector(moduleStatesMatrix.get(4, 0), moduleStatesMatrix.get(5, 0)),
-                stateFromVector(moduleStatesMatrix.get(6, 0), moduleStatesMatrix.get(7, 0)));
-    }
-
-    /**
-     * Returns empty angle if velocity is about zero.
-     * Otherwise angle is always within [-pi, pi].
-     */
-    private SwerveModuleState100 stateFromVector(double x, double y) {
-        if (Math.abs(x) < 0.004 && Math.abs(y) < 0.004) {
-            return new SwerveModuleState100(0.0, Optional.empty());
-        } else {
-            return new SwerveModuleState100(Math.hypot(x, y), Optional.of(new Rotation2d(x, y)));
-        }
+                SwerveModuleState100.fromSpeed(m.get(0, 0), m.get(1, 0)),
+                SwerveModuleState100.fromSpeed(m.get(2, 0), m.get(3, 0)),
+                SwerveModuleState100.fromSpeed(m.get(4, 0), m.get(5, 0)),
+                SwerveModuleState100.fromSpeed(m.get(6, 0), m.get(7, 0)));
     }
 
     public Translation2d[] getModuleLocations() {

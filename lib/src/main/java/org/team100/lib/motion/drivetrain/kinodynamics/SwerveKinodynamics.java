@@ -200,7 +200,7 @@ public class SwerveKinodynamics implements Glassy {
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
      */
-    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double period) {
+    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double dt) {
         // This is the extra correction angle ...
         Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(in.omegaRadiansPerSecond));
         // ... which is subtracted here; this isn't really a field-relative
@@ -211,16 +211,26 @@ public class SwerveKinodynamics implements Glassy {
                 in.omegaRadiansPerSecond,
                 angle);
         // discretization does not affect omega
-        ChassisSpeeds descretized = ChassisSpeeds.discretize(chassisSpeeds, period);
-        return m_kinematics.toSwerveModuleStates(descretized);
+        Twist2d descretized = discretize(chassisSpeeds, dt);
+        return m_kinematics.toSwerveModuleStates(descretized, dt);
     }
 
     /**
-     * The resulting state speeds are always positive.
+     * Given a desired instantaneous speed, extrapolate ahead one step, and return
+     * the twist required to achieve that state.
      */
-    public SwerveModuleStates toSwerveModuleStatesWithoutDiscretization(ChassisSpeeds speeds) {
-        return m_kinematics.toSwerveModuleStates(speeds);
+    private Twist2d discretize(ChassisSpeeds chassisSpeeds, double dt) {
+
+        Pose2d desiredDeltaPose = new Pose2d(
+                chassisSpeeds.vxMetersPerSecond * dt,
+                chassisSpeeds.vyMetersPerSecond * dt,
+                new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * dt));
+
+        return Pose2d.kZero.log(desiredDeltaPose);
+
+        // return new ChassisSpeeds(twist.dx / period, twist.dy / period, twist.dtheta / period);
     }
+
 
     /**
      * Forward kinematics, module states => chassis speeds.

@@ -345,7 +345,7 @@ class SwerveDriveKinematics100Test {
                 new Translation2d(-0.5, -0.5));
         ChassisSpeeds s = new ChassisSpeeds(0, 1, 0);
         // this sets the steering
-        SwerveModuleStates m = k.toSwerveModuleStates(s);
+        SwerveModuleStates m = k.toSwerveModuleStates(s, 0.02);
         assertEquals(1.571, m.frontLeft().angle().get().getRadians(), kDelta);
         assertEquals(1, m.frontLeft().speedMetersPerSecond(), kDelta);
         s = new ChassisSpeeds(0, 0, 0);

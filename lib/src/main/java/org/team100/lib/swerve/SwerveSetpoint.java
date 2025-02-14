@@ -11,6 +11,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * Used to track setpoints over time and enforce limits.
  */
 public class SwerveSetpoint {
+    // is this the "instantaneous" chassis speed or the "discretized" one?
+    // it seems bad to use the same type for both.
+    // the "discretized" one is really a "twist" isn't it?
     private final ChassisSpeeds m_ChassisSpeeds;
     private final SwerveModuleStates m_ModuleStates;
 
