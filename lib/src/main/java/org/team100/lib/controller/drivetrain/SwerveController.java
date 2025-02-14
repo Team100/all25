@@ -10,7 +10,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 
-/** Velocity feedforward, position and velocity feedback. */
+/** Velocity feedforward, proportional feedback on position and velocity. */
 public class SwerveController implements HolonomicFieldRelativeController {
     private final SwerveModelLogger m_log_measurement;
     private final SwerveModelLogger m_log_currentReference;
@@ -140,4 +140,6 @@ public class SwerveController implements HolonomicFieldRelativeController {
         m_log_velocity_error.log(() -> velocityError);
         return velocityError;
     }
+
+
 }

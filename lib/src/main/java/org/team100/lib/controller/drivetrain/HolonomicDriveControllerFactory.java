@@ -26,7 +26,7 @@ public class HolonomicDriveControllerFactory {
                         new PIDFeedback(logger, 3.5, 0, 0, true, 0.01, 0.01));
             }
             case SWERVE_TWO -> {
-                return FullStateDriveController.getDefault(logger);
+                return SwerveControllerFactory.getDefault(logger);
             }
             default -> {
                 // these RoboRIO's are have no drivetrains

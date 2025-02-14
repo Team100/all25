@@ -8,6 +8,10 @@ import org.team100.lib.logging.LoggerFactory;
  * TODO: combine with holonomic drive controller factory.
  */
 public class SwerveControllerFactory {
+    /** high gains used in tests. */
+    public static SwerveController getDefault(LoggerFactory log) {
+        return new SwerveController(log, 4, 4, 0.25, 0.25, 0.01, 0.02, 0.01, 0.02);
+    }
 
     public static SwerveController fieldRelativeFancyPIDF(LoggerFactory log) {
         return new SwerveController(log, 2.4, 1.3, 0.1, 0.1, 0.01, 0.02, 0.01, 0.02);
@@ -36,4 +40,5 @@ public class SwerveControllerFactory {
     private SwerveControllerFactory() {
         // don't call this
     }
+
 }
