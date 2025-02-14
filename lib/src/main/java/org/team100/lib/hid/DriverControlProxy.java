@@ -179,6 +179,11 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
+    public boolean button4() {
+        return m_driverControl.button4();
+    }
+
+    @Override
     public boolean button5() {
         return m_driverControl.button5();
     }

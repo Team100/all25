@@ -9,11 +9,13 @@ import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.util.Util;
 
 /**
  * Velocity feedforward, proportional feedback on position and velocity.
  */
 public class FullStateSwerveController implements SwerveController {
+    private static final boolean DEBUG = true;
     private final SwerveModelLogger m_log_measurement;
     private final SwerveModelLogger m_log_currentReference;
     private final SwerveModelLogger m_log_nextReference;
@@ -70,11 +72,16 @@ public class FullStateSwerveController implements SwerveController {
             SwerveModel measurement,
             SwerveModel currentReference,
             SwerveModel nextReference) {
+        if (DEBUG)
+            Util.printf("measurement %s current %s next %s\n",
+                    measurement, currentReference, nextReference);
         m_log_measurement.log(() -> measurement);
         m_log_currentReference.log(() -> currentReference);
         m_log_nextReference.log(() -> nextReference);
         FieldRelativeVelocity u_FF = feedforward(nextReference);
         FieldRelativeVelocity u_FB = fullFeedback(measurement, currentReference);
+        if (DEBUG)
+            Util.printf("ff %s fb %s\n", u_FF, u_FB);
         return u_FF.plus(u_FB);
     }
 

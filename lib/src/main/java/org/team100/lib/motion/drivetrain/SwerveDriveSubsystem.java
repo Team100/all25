@@ -21,6 +21,7 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
+    private static final boolean DEBUG = true;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
@@ -91,12 +93,17 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_log_skill.log(() -> driverSkillLevel);
         FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
 
+        Rotation2d theta = getPose().getRotation();
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 v.x(),
                 v.y(),
                 v.theta(),
-                getPose().getRotation());
-        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds, m_gyro.getYawRateNWU());
+                theta);
+        if (DEBUG)
+            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+
+        double omega = m_gyro.getYawRateNWU();
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds, omega);
     }
 
     /** Skip all scaling, setpoint generator, etc. */

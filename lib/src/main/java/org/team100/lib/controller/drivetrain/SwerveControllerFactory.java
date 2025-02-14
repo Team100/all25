@@ -28,6 +28,10 @@ public class SwerveControllerFactory {
         }
     }
 
+    public static FullStateSwerveController ridiculous(LoggerFactory log) {
+        return new FullStateSwerveController(log, 3, 3, 0.1, 0.1, 0.01, 0.01, 0.01, 0.01);
+    }
+
     public static FullStateSwerveController fieldRelativeFancyPIDF(LoggerFactory log) {
         return new FullStateSwerveController(log, 2.4, 1.3, 0.1, 0.1, 0.01, 0.02, 0.01, 0.02);
     }

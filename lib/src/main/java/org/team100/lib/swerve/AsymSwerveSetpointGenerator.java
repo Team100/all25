@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * heading drift as a result).
  */
 public class AsymSwerveSetpointGenerator implements Glassy {
+    private static final boolean DEBUG = true;
     // turns greater than this will flip
     // this used to be pi/2, which resulted in "square corner" paths
     private static final double flipLimitRad = 3 * Math.PI / 4;
@@ -66,6 +68,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     public SwerveSetpoint generateSetpoint(
             SwerveSetpoint prevSetpoint,
             ChassisSpeeds desiredState) {
+        if (DEBUG)
+            Util.printf("desired %s\n", desiredState);
         double min_s = 1.0;
 
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
@@ -108,11 +112,12 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         double dy = desiredState.vyMetersPerSecond - chassisSpeeds.vyMetersPerSecond;
         double dtheta = desiredState.omegaRadiansPerSecond - chassisSpeeds.omegaRadiansPerSecond;
 
-
         // 's' interpolates between start and goal. At 0, we are at prevState and at 1,
         // we are at desiredState.
 
         double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(dx, dy);
+        if (DEBUG)
+            Util.printf("centripetal %f\n", centripetal_min_s);
 
         min_s = Math.min(min_s, centripetal_min_s);
 
@@ -136,6 +141,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desiredModuleStates,
                     prevModuleStates,
                     overrideSteering);
+            if (DEBUG)
+                Util.printf("override %f\n", override_min_s);
             min_s = Math.min(min_s, override_min_s);
 
             double steering_min_s = m_steeringRateLimiter.enforceSteeringLimit(
@@ -146,6 +153,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     desired_vy,
                     desired_heading,
                     overrideSteering);
+            if (DEBUG)
+                Util.printf("steering %f\n", steering_min_s);
             min_s = Math.min(min_s, steering_min_s);
         }
 
@@ -154,10 +163,13 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                 prev_vy,
                 desired_vx,
                 desired_vy);
-
+        if (DEBUG)
+            Util.printf("accel %f\n", accel_min_s);
         min_s = Math.min(min_s, accel_min_s);
 
         double battery_min_s = m_BatterySagLimiter.get();
+        if (DEBUG)
+            Util.printf("battery %f\n", battery_min_s);
 
         min_s = Math.min(min_s, battery_min_s);
 
@@ -275,7 +287,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
      * Scales the commanded accelerations by min_s, i.e. applies the constraints
      * calculated earlier.
      * 
-     * This used to also apply the rotation to the translation in a way that I think was wrong.
+     * This used to also apply the rotation to the translation in a way that I think
+     * was wrong.
      */
     private ChassisSpeeds makeSpeeds(
             ChassisSpeeds prev,

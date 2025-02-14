@@ -59,8 +59,12 @@ public abstract class JoystickControl implements DriverControl {
     }
 
     @Override
+    public boolean button4() {
+        return button(4);
+    }
+
+    @Override
     public boolean button5() {
-        // return false;
         return button(5);
     }
 
@@ -112,9 +116,9 @@ public abstract class JoystickControl implements DriverControl {
     }
 
     @Override
-    public boolean shooterLock(){
+    public boolean shooterLock() {
         return m_controller.getRawButton(6);
-    }    
+    }
 
     @Override
     public boolean driveToAmp() {

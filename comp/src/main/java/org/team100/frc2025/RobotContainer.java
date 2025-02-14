@@ -7,6 +7,7 @@ import java.util.function.BooleanSupplier;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
+import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
 import org.team100.lib.commands.drivetrain.DriveWithProfile2;
 import org.team100.lib.commands.drivetrain.FancyTrajectory;
 import org.team100.lib.commands.drivetrain.FullCycle2;
@@ -41,6 +42,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
+import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
@@ -202,13 +204,16 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         whileTrue(driverControl::driveToObject,
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
-                holonomicController, swerveKinodynamics));
+                        holonomicController, swerveKinodynamics));
         whileTrue(driverControl::fullCycle,
                 new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
         whileTrue(driverControl::test,
                 new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
+        // test driving without profiling
+        whileTrue(driverControl::button4,
+                new DriveToPoseSimple(SwerveControllerFactory.ridiculous(manLog), m_drive, new SwerveModel()));
         // test rotating in place
         whileTrue(driverControl::button5,
                 new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
