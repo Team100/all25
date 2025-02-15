@@ -62,16 +62,16 @@ public class AsymSwerveSetpointGenerator implements Glassy {
      * 
      * or maybe it does?
      * 
+     * 
      */
-    public SwerveSetpoint generateSetpoint(
-            SwerveSetpoint prevSetpoint,
-            ChassisSpeeds desiredState) {
+    public SwerveSetpoint generateSetpoint(SwerveSetpoint prevSetpoint, ChassisSpeeds desiredState) {
         if (DEBUG)
             Util.printf("desired %s\n", desiredState);
         double min_s = 1.0;
 
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
         // the desired module state speeds are always positive.
+        // these are the discretized states, i.e. what we would actually do
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStates(desiredState);
         // desiredState = desaturate(desiredState, desiredModuleStates);
 
@@ -317,20 +317,20 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         if (DEBUG) {
             Util.printf("dx %8.5f dy %8.5f dtheta %8.5f s %8.5f\n", dx, dy, dtheta, min_s);
         }
-        // double vx = prev.vxMetersPerSecond + min_s * dx;
-        // double vy = prev.vyMetersPerSecond + min_s * dy;
-        // double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
-        // return new ChassisSpeeds(vx, vy, omega);
-
+        double vx = prev.vxMetersPerSecond + min_s * dx;
+        double vy = prev.vyMetersPerSecond + min_s * dy;
         double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
-        double drift = -1.0 * omega * TimedRobot100.LOOP_PERIOD_S;
-        double vx = prev.vxMetersPerSecond * Math.cos(drift)
-                - prev.vyMetersPerSecond * Math.sin(drift)
-                + min_s * dx;
-        double vy = prev.vxMetersPerSecond * Math.sin(drift)
-                + prev.vyMetersPerSecond * Math.cos(drift)
-                + min_s * dy;
         return new ChassisSpeeds(vx, vy, omega);
+
+        // double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
+        // double drift = -1.0 * omega * TimedRobot100.LOOP_PERIOD_S;
+        // double vx = prev.vxMetersPerSecond * Math.cos(drift)
+        // - prev.vyMetersPerSecond * Math.sin(drift)
+        // + min_s * dx;
+        // double vy = prev.vxMetersPerSecond * Math.sin(drift)
+        // + prev.vyMetersPerSecond * Math.cos(drift)
+        // + min_s * dy;
+        // return new ChassisSpeeds(vx, vy, omega);
 
     }
 }

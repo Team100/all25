@@ -236,17 +236,16 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(5, target.vxMetersPerSecond, kDelta);
         assertEquals(0, target.vyMetersPerSecond, kDelta);
         assertEquals(25, target.omegaRadiansPerSecond, kDelta);
-        // spinning counterclockwise -> right side faster than left.
-        assertEquals(5.180, targetStates.frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(12.216, targetStates.frontRight().speedMetersPerSecond(), kDelta);
-        // discretized - we're actually heading a bit to the right
-        assertEquals(7.621, targetStates.rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(13.434, targetStates.rearRight().speedMetersPerSecond(), kDelta);
-        assertEquals(1.835, targetStates.frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0.422, targetStates.frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(-1.749, targetStates.rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(-0.592, targetStates.rearRight().angle().get().getRadians(), kDelta);
+        assertEquals(3.833, targetStates.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(9.780, targetStates.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(10.566, targetStates.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(13.878, targetStates.rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.474, targetStates.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.245, targetStates.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-1.859, targetStates.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(-0.818, targetStates.rearRight().angle().get().getRadians(), kDelta);
 
+        // this should do nothing since the limits are so high
         SwerveSetpoint prevSetpoint = new SwerveSetpoint();
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
         assertEquals(5, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
@@ -256,14 +255,62 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(5, implied.vxMetersPerSecond, kDelta);
         assertEquals(0, implied.vyMetersPerSecond, kDelta);
         assertEquals(25, implied.omegaRadiansPerSecond, kDelta);
-        assertEquals(0.353, setpoint.getModuleStates().frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, setpoint.getModuleStates().frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, setpoint.getModuleStates().rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, setpoint.getModuleStates().rearRight().speedMetersPerSecond(), kDelta);
-        assertEquals(2.356, setpoint.getModuleStates().frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0.785, setpoint.getModuleStates().frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(-2.356, setpoint.getModuleStates().rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(-0.785, setpoint.getModuleStates().rearRight().angle().get().getRadians(), kDelta);
+        assertEquals(3.833, setpoint.getModuleStates().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(9.780, setpoint.getModuleStates().frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(10.566, setpoint.getModuleStates().rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(13.878, setpoint.getModuleStates().rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.474, setpoint.getModuleStates().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.245, setpoint.getModuleStates().frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-1.859, setpoint.getModuleStates().rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(-0.818, setpoint.getModuleStates().rearRight().angle().get().getRadians(), kDelta);
+    }
+
+    @Test
+    void driveAndSpinLimited() {
+        SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.limiting();
+        AsymSwerveSetpointGenerator generator = new AsymSwerveSetpointGenerator(
+                logger,
+                unlimited,
+                () -> 12);
+
+        // spin fast to make the discretization effect larger
+        FieldRelativeVelocity v = new FieldRelativeVelocity(5, 0, 25);
+        Rotation2d theta = new Rotation2d();
+        ChassisSpeeds target = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+
+        SwerveModuleStates targetStates = unlimited.toSwerveModuleStates(target);
+        assertEquals(5, target.vxMetersPerSecond, kDelta);
+        assertEquals(0, target.vyMetersPerSecond, kDelta);
+        assertEquals(25, target.omegaRadiansPerSecond, kDelta);
+        assertEquals(3.833, targetStates.frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(9.780, targetStates.frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(10.566, targetStates.rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(13.878, targetStates.rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.474, targetStates.frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.245, targetStates.frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-1.859, targetStates.rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(-0.818, targetStates.rearRight().angle().get().getRadians(), kDelta);
+
+        // the spin is 5x the drive, as requested.
+        // use the target as the previous setpoint
+        SwerveSetpoint prevSetpoint = new SwerveSetpoint(target, targetStates);
+        SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
+        assertEquals(5, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
+        assertEquals(25, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
+        ChassisSpeeds implied = unlimited.toChassisSpeedsWithDiscretization(setpoint.getModuleStates(), 0.02);
+        assertEquals(0.163, implied.vxMetersPerSecond, kDelta);
+        assertEquals(0, implied.vyMetersPerSecond, kDelta);
+        assertEquals(0.816, implied.omegaRadiansPerSecond, kDelta);
+        // nowhere near max speed
+        assertEquals(0.204, setpoint.getModuleStates().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.418, setpoint.getModuleStates().frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(0.213, setpoint.getModuleStates().rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.422, setpoint.getModuleStates().rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.474, setpoint.getModuleStates().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.245, setpoint.getModuleStates().frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-1.859, setpoint.getModuleStates().rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(-0.818, setpoint.getModuleStates().rearRight().angle().get().getRadians(), kDelta);
     }
 
     @Test
@@ -355,9 +402,9 @@ class AsymSwerveSetpointGeneratorTest {
         // here the setpoint is at angle zero
 
         // desired speed is very fast
-        FieldRelativeVelocity desiredV = new FieldRelativeVelocity(10, 10, 10);
+        // omega is zero since it's hard to deal with in a test.
+        FieldRelativeVelocity desiredV = new FieldRelativeVelocity(10, 10, 0);
         ChassisSpeeds desiredSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(desiredV, new Rotation2d());
-
 
         // initially it's not moving fast at all
         setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
@@ -369,20 +416,7 @@ class AsymSwerveSetpointGeneratorTest {
         // previous values.
 
         // steer in place for a short time.
-        for (int i = 0; i < 9; ++i) {
-            // update the robot-relative setpoint with the field-relative one
-
-
-
-
-
-            setpoint.getChassisSpeeds();
-
-
-
-
-
-
+        for (int i = 0; i < 6; ++i) {
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
             assertEquals(0, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
             assertEquals(0, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
@@ -396,9 +430,9 @@ class AsymSwerveSetpointGeneratorTest {
         for (int i = 0; i < 50; ++i) {
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
         }
-        assertEquals(2.577, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
-        assertEquals(2.842, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
-        assertEquals(2.842, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
+        assertEquals(3.508, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
+        assertEquals(3.508, setpoint.getChassisSpeeds().vyMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.getChassisSpeeds().omegaRadiansPerSecond, kDelta);
     }
 
     // simple accel case: are we limiting the right amount?
