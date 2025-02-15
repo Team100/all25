@@ -100,32 +100,28 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * Discretizes the speeds, calculates the inverse kinematic module states,
-     * desaturates, and sets the module states
+     * Discretizes the speeds, calculates the inverse kinematic module states, and
+     * sets the module states.
+     * 
+     * If you want desaturation, use the setpoint generator.
      */
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
-        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
-                states,
-                m_swerveKinodynamics.getMaxDriveVelocityM_S());
         setModuleStates(states);
-
-        TODO: make speeds consistent with desaturated states.
-        
         m_prevSetpoint = new SwerveSetpoint(speeds, states);
         m_log_chassis_speed.log(() -> speeds);
     }
 
     /**
      * Discretizes the speeds, calculates the inverse kinematic module states,
-     * desaturates, and aligns the wheels with the directions implied by speeds,
+     * and aligns the wheels with the directions implied by speeds,
      * without moving the drive motors.
+     * 
+     * TODO: since this doesn't use the setpoint generator, it isn't exactly right
+     * but it's probably good enough.
      */
     public void steerAtRest(ChassisSpeeds speeds) {
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
-        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
-                states,
-                m_swerveKinodynamics.getMaxDriveVelocityM_S());
         states = states.motionless();
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
@@ -282,15 +278,15 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
                 m_prevSetpoint,
                 speeds);
         // ideally delta would be zero because our input would be feasible.
-        ChassisSpeeds delta = setpoint.getChassisSpeeds().minus(speeds);
+        ChassisSpeeds delta = setpoint.speeds().minus(speeds);
         m_log_setpoint_delta.log(() -> delta);
-        m_log_prev_setpoint.log(m_prevSetpoint::getChassisSpeeds);
-        m_log_setpoint.log(setpoint::getChassisSpeeds);
+        m_log_prev_setpoint.log(m_prevSetpoint::speeds);
+        m_log_setpoint.log(setpoint::speeds);
         ChassisSpeeds implied = m_swerveKinodynamics.toChassisSpeedsWithDiscretization(
-                setpoint.getModuleStates(), 0.02);
+                setpoint.states(), 0.02);
         if (DEBUG)
             Util.printf("implied %s\n", implied);
-        setModuleStates(setpoint.getModuleStates());
+        setModuleStates(setpoint.states());
         m_prevSetpoint = setpoint;
     }
 

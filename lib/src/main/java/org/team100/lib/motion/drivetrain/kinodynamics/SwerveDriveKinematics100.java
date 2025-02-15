@@ -1,12 +1,10 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.ejml.simple.SimpleMatrix;
 import org.team100.lib.util.DriveUtil;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -146,8 +144,6 @@ public class SwerveDriveKinematics100 {
 
     /**
      * FORWARD: module states -> chassis speeds
-     * 
-     * NOTE: do not use the returned omega, use the gyro instead.
      */
     public ChassisSpeeds toChassisSpeeds(SwerveModuleStates states) {
         // checkLength(states);
@@ -166,7 +162,6 @@ public class SwerveDriveKinematics100 {
      * NOTE: do not use the returned dtheta, use the gyro instead.
      */
     public Twist2d toTwist2d(SwerveModuleDeltas deltas) {
-        // checkLength(deltas);
         // [d cos; d sin; ...] (2n x 1)
         SimpleMatrix deltaVector = deltas2Vector(deltas);
         // [dx ;dy; dtheta]
@@ -174,19 +169,7 @@ public class SwerveDriveKinematics100 {
         return vector2Twist(twistVector);
     }
 
-    /**
-     * If wheels are too fast, return a copy scaled below the limit.
-     */
-    public static SwerveModuleStates desaturateWheelSpeeds(SwerveModuleStates states, final double limit) {
 
-        TODO: also return speeds consistent with the desaturated states?
-                
-        double desired = states.maxSpeed();
-        if (desired <= limit)
-            return states;
-        double scale = limit / desired;
-        return states.scale(scale);
-    }
 
     ///////////////////////////////////////
 

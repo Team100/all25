@@ -11,11 +11,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * Used to track setpoints over time and enforce limits.
  */
 public class SwerveSetpoint {
-    // is this the "instantaneous" chassis speed or the "discretized" one?
-    // it seems bad to use the same type for both.
-    // the "discretized" one is really a "twist" isn't it?
-    private final ChassisSpeeds m_ChassisSpeeds;
-    private final SwerveModuleStates m_ModuleStates;
+    /** Instantaneous speeds corresponding to the states. */
+    private final ChassisSpeeds m_speeds;
+    /** These should be actual, discretized states. */
+    private final SwerveModuleStates m_states;
 
     /** New setpoint with zero speed and indeterminate steering */
     public SwerveSetpoint() {
@@ -29,21 +28,21 @@ public class SwerveSetpoint {
     }
 
     public SwerveSetpoint(ChassisSpeeds chassisSpeeds, SwerveModuleStates initialStates) {
-        m_ChassisSpeeds = chassisSpeeds;
-        m_ModuleStates = initialStates;
+        m_speeds = chassisSpeeds;
+        m_states = initialStates;
     }
 
-    public ChassisSpeeds getChassisSpeeds() {
-        return m_ChassisSpeeds;
+    public ChassisSpeeds speeds() {
+        return m_speeds;
     }
 
-    public SwerveModuleStates getModuleStates() {
-        return m_ModuleStates;
+    public SwerveModuleStates states() {
+        return m_states;
     }
 
     @Override
     public String toString() {
-        return m_ChassisSpeeds.toString() + "  "
-                + m_ModuleStates.toString() + "\n";
+        return m_speeds.toString() + "  "
+                + m_states.toString() + "\n";
     }
 }
