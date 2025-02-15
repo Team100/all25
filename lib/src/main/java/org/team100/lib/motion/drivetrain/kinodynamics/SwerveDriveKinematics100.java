@@ -110,9 +110,9 @@ public class SwerveDriveKinematics100 {
      * 
      * Angles are otherwise always within [-pi, pi].
      */
-    public SwerveModuleStates toSwerveModuleStates(Twist2d chassisSpeeds, double dt) {
+    public SwerveModuleStates toSwerveModuleStates(DiscreteSpeed speed) {
         // [vx; vy; omega] (3 x 1)
-        SimpleMatrix chassisSpeedsVector = chassisSpeeds2Vector(chassisSpeeds, dt);
+        SimpleMatrix chassisSpeedsVector = chassisSpeeds2Vector(speed);
         // [v cos; v sin; ...] (2n x 1)
         return statesFromVector(chassisSpeedsVector);
     }
@@ -218,14 +218,14 @@ public class SwerveDriveKinematics100 {
     }
 
     /** ChassisSpeeds -> [vx; vy; omega] (3 x 1) */
-    private SimpleMatrix chassisSpeeds2Vector(Twist2d chassisSpeeds, double dt) {
+    private SimpleMatrix chassisSpeeds2Vector(DiscreteSpeed speed) {
         SimpleMatrix chassisSpeedsVector = new SimpleMatrix(3, 1);
         chassisSpeedsVector.setColumn(
                 0,
                 0,
-                chassisSpeeds.dx / dt,
-                chassisSpeeds.dy / dt,
-                chassisSpeeds.dtheta / dt);
+                speed.twist().dx / speed.dt(),
+                speed.twist().dy / speed.dt(),
+                speed.twist().dtheta / speed.dt());
         return chassisSpeedsVector;
     }
 

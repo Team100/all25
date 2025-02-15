@@ -276,7 +276,8 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         m_log_setpoint_delta.log(() -> delta);
         m_log_prev_setpoint.log(m_prevSetpoint::getChassisSpeeds);
         m_log_setpoint.log(setpoint::getChassisSpeeds);
-        ChassisSpeeds implied = m_swerveKinodynamics.toChassisSpeeds(setpoint.getModuleStates());
+        ChassisSpeeds implied = m_swerveKinodynamics.toChassisSpeedsWithDiscretization(
+                setpoint.getModuleStates(), 0.02);
         if (DEBUG)
             Util.printf("implied %s\n", implied);
         setModuleStates(setpoint.getModuleStates());

@@ -211,34 +211,26 @@ public class SwerveKinodynamics implements Glassy {
                 in.omegaRadiansPerSecond,
                 angle);
         // discretization does not affect omega
-        Twist2d descretized = discretize(chassisSpeeds, dt);
-        return m_kinematics.toSwerveModuleStates(descretized, dt);
+        DiscreteSpeed descretized = discretize(chassisSpeeds, dt);
+        return m_kinematics.toSwerveModuleStates(descretized);
     }
 
     /**
      * Given a desired instantaneous speed, extrapolate ahead one step, and return
      * the twist required to achieve that state.
+     * 
+     * Tangent velocity
      */
-    private Twist2d discretize(ChassisSpeeds chassisSpeeds, double dt) {
-
+    public static DiscreteSpeed discretize(ChassisSpeeds chassisSpeeds, double dt) {
         Pose2d desiredDeltaPose = new Pose2d(
                 chassisSpeeds.vxMetersPerSecond * dt,
                 chassisSpeeds.vyMetersPerSecond * dt,
                 new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * dt));
 
-        return Pose2d.kZero.log(desiredDeltaPose);
+        return new DiscreteSpeed(Pose2d.kZero.log(desiredDeltaPose), dt);
 
-        // return new ChassisSpeeds(twist.dx / period, twist.dy / period, twist.dtheta / period);
-    }
-
-
-    /**
-     * Forward kinematics, module states => chassis speeds.
-     * 
-     * Does not do inverse discretization.
-     */
-    public ChassisSpeeds toChassisSpeeds(SwerveModuleStates moduleStates) {
-        return m_kinematics.toChassisSpeeds(moduleStates);
+        // return new ChassisSpeeds(twist.dx / period, twist.dy / period, twist.dtheta /
+        // period);
     }
 
     /**
@@ -250,7 +242,7 @@ public class SwerveKinodynamics implements Glassy {
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
             SwerveModuleStates moduleStates,
             double dt) {
-        ChassisSpeeds discreteSpeeds = toChassisSpeeds(moduleStates);
+        ChassisSpeeds discreteSpeeds = m_kinematics.toChassisSpeeds(moduleStates);
         Twist2d twist = new Twist2d(
                 discreteSpeeds.vxMetersPerSecond * dt,
                 discreteSpeeds.vyMetersPerSecond * dt,

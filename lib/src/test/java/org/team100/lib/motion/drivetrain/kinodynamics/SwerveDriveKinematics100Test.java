@@ -345,13 +345,13 @@ class SwerveDriveKinematics100Test {
                 new Translation2d(-0.5, -0.5));
         ChassisSpeeds s = new ChassisSpeeds(0, 1, 0);
         // this sets the steering
-        SwerveModuleStates m = k.toSwerveModuleStates(s, 0.02);
+        SwerveModuleStates m = k.toSwerveModuleStates(SwerveKinodynamics.discretize(s, 0.02));
         assertEquals(1.571, m.frontLeft().angle().get().getRadians(), kDelta);
         assertEquals(1, m.frontLeft().speedMetersPerSecond(), kDelta);
         s = new ChassisSpeeds(0, 0, 0);
         // this used to be the same even though the velocity is zero.
         // now it's just empty.
-        m = k.toSwerveModuleStates(s);
+        m = k.toSwerveModuleStates(SwerveKinodynamics.discretize(s, 0.02));
         assertTrue(m.frontLeft().angle().isEmpty());
         assertEquals(0, m.frontLeft().speedMetersPerSecond(), kDelta);
     }
@@ -414,7 +414,7 @@ class SwerveDriveKinematics100Test {
     void testStraightLineInverseKinematics() { // test inverse kinematics going in a straight line
 
         ChassisSpeeds speeds = new ChassisSpeeds(5, 0, 0);
-        var moduleStates = m_kinematics.toSwerveModuleStates(speeds);
+        var moduleStates = m_kinematics.toSwerveModuleStates(SwerveKinodynamics.discretize(speeds, 0.02));
 
         assertAll(
                 () -> assertEquals(5.0, moduleStates.frontLeft().speedMetersPerSecond(), kEpsilon),
@@ -454,7 +454,8 @@ class SwerveDriveKinematics100Test {
     @Test
     void testStraightStrafeInverseKinematics() {
         ChassisSpeeds speeds = new ChassisSpeeds(0, 5, 0);
-        var moduleStates = m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleStates moduleStates = m_kinematics
+                .toSwerveModuleStates(SwerveKinodynamics.discretize(speeds, 0.02));
 
         assertAll(
                 () -> assertEquals(5.0, moduleStates.frontLeft().speedMetersPerSecond(), kEpsilon),
@@ -495,8 +496,9 @@ class SwerveDriveKinematics100Test {
     @Test
     void testConserveWheelAngle() {
         ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 2 * Math.PI);
-        m_kinematics.toSwerveModuleStates(speeds);
-        var moduleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
+        m_kinematics.toSwerveModuleStates(SwerveKinodynamics.discretize(speeds, 0.02));
+        var moduleStates = m_kinematics.toSwerveModuleStates(SwerveKinodynamics.discretize(
+                new ChassisSpeeds(), 0.02));
 
         // This used to preserve module angles.
         // Now it returns empty angles, and the right thing happens downstream.
@@ -514,7 +516,8 @@ class SwerveDriveKinematics100Test {
 
     @Test
     void testResetWheelAngle() {
-        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
+        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(
+                SwerveKinodynamics.discretize(new ChassisSpeeds(), 0.02));
         // Robot is stationary, so module angles are empty.
         assertAll(
                 () -> assertEquals(0.0, moduleStates.frontLeft().speedMetersPerSecond(), kEpsilon),
@@ -530,7 +533,8 @@ class SwerveDriveKinematics100Test {
     @Test
     void testTurnInPlaceInverseKinematics() {
         ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 2 * Math.PI);
-        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleStates moduleStates = m_kinematics.toSwerveModuleStates(
+                SwerveKinodynamics.discretize(speeds, 0.02));
 
         /*
          * The circumference of the wheels about the COR is π * diameter, or 2π * radius

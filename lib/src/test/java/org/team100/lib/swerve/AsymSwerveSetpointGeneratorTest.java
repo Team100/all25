@@ -124,17 +124,6 @@ class AsymSwerveSetpointGeneratorTest {
         assertTrue(targetStates.rearLeft().angle().isEmpty());
         assertTrue(targetStates.rearRight().angle().isEmpty());
 
-        // non-discretized (instantaneous) states are the same.
-        SwerveModuleStates instantaneousTargetStates = unlimited.toSwerveModuleStatesWithoutDiscretization(target);
-        assertEquals(0, instantaneousTargetStates.frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0, instantaneousTargetStates.frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(0, instantaneousTargetStates.rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0, instantaneousTargetStates.rearRight().speedMetersPerSecond(), kDelta);
-        assertTrue(instantaneousTargetStates.frontLeft().angle().isEmpty());
-        assertTrue(instantaneousTargetStates.frontRight().angle().isEmpty());
-        assertTrue(instantaneousTargetStates.rearLeft().angle().isEmpty());
-        assertTrue(instantaneousTargetStates.rearRight().angle().isEmpty());
-
         SwerveSetpoint prevSetpoint = new SwerveSetpoint();
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
         assertEquals(0, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
@@ -175,17 +164,6 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(0, targetStates.rearLeft().angle().get().getRadians(), kDelta);
         assertEquals(0, targetStates.rearRight().angle().get().getRadians(), kDelta);
 
-        // non-discretized (instantaneous) states are the same.
-        SwerveModuleStates instantaneousTargetStates = unlimited.toSwerveModuleStatesWithoutDiscretization(target);
-        assertEquals(1, instantaneousTargetStates.frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(1, instantaneousTargetStates.frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(1, instantaneousTargetStates.rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(1, instantaneousTargetStates.rearRight().speedMetersPerSecond(), kDelta);
-        assertEquals(0, instantaneousTargetStates.frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0, instantaneousTargetStates.frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(0, instantaneousTargetStates.rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0, instantaneousTargetStates.rearRight().angle().get().getRadians(), kDelta);
-
         SwerveSetpoint prevSetpoint = new SwerveSetpoint();
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
         assertEquals(1, setpoint.getChassisSpeeds().vxMetersPerSecond, kDelta);
@@ -225,17 +203,6 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(0.785, targetStates.frontRight().angle().get().getRadians(), kDelta);
         assertEquals(-2.356, targetStates.rearLeft().angle().get().getRadians(), kDelta);
         assertEquals(-0.785, targetStates.rearRight().angle().get().getRadians(), kDelta);
-
-        // non-discretized (instantaneous) states are the same.
-        SwerveModuleStates instantaneousTargetStates = unlimited.toSwerveModuleStatesWithoutDiscretization(target);
-        assertEquals(0.353, instantaneousTargetStates.frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, instantaneousTargetStates.frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, instantaneousTargetStates.rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.353, instantaneousTargetStates.rearRight().speedMetersPerSecond(), kDelta);
-        assertEquals(2.356, instantaneousTargetStates.frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0.785, instantaneousTargetStates.frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(-2.356, instantaneousTargetStates.rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(-0.785, instantaneousTargetStates.rearRight().angle().get().getRadians(), kDelta);
 
         SwerveSetpoint prevSetpoint = new SwerveSetpoint();
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
@@ -279,19 +246,6 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(0.422, targetStates.frontRight().angle().get().getRadians(), kDelta);
         assertEquals(-1.749, targetStates.rearLeft().angle().get().getRadians(), kDelta);
         assertEquals(-0.592, targetStates.rearRight().angle().get().getRadians(), kDelta);
-
-        // non-discretized (instantaneous) states are different
-        // note that the instantaneous states are the same, front to back
-        SwerveModuleStates instantaneousTargetStates = unlimited.toSwerveModuleStatesWithoutDiscretization(target);
-        assertEquals(6.374, instantaneousTargetStates.frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(12.869, instantaneousTargetStates.frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(6.374, instantaneousTargetStates.rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(12.869, instantaneousTargetStates.rearRight().speedMetersPerSecond(), kDelta);
-        // note angles are symmetrical too
-        assertEquals(1.768, instantaneousTargetStates.frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0.507, instantaneousTargetStates.frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(-1.768, instantaneousTargetStates.rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(-0.507, instantaneousTargetStates.rearRight().angle().get().getRadians(), kDelta);
 
         SwerveSetpoint prevSetpoint = new SwerveSetpoint();
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
@@ -426,7 +380,7 @@ class AsymSwerveSetpointGeneratorTest {
 
 
 
-            
+
 
 
             setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);

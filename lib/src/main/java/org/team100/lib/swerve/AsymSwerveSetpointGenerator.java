@@ -72,8 +72,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
         // the desired module state speeds are always positive.
-        SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStatesWithoutDiscretization(
-                desiredState);
+        SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStates(desiredState);
         // desiredState = desaturate(desiredState, desiredModuleStates);
 
         if (GeometryUtil.isZero(desiredState)) {
