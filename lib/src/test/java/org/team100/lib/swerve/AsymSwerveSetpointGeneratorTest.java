@@ -295,22 +295,22 @@ class AsymSwerveSetpointGeneratorTest {
         // use the target as the previous setpoint
         SwerveSetpoint prevSetpoint = new SwerveSetpoint(target, targetStates);
         SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, target);
-        assertEquals(5, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(4.836, setpoint.speeds().vxMetersPerSecond, kDelta);
         assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
-        assertEquals(25, setpoint.speeds().omegaRadiansPerSecond, kDelta);
+        assertEquals(24.183, setpoint.speeds().omegaRadiansPerSecond, kDelta);
         ChassisSpeeds implied = unlimited.toChassisSpeedsWithDiscretization(setpoint.states(), 0.02);
-        assertEquals(0.163, implied.vxMetersPerSecond, kDelta);
+        assertEquals(4.836, implied.vxMetersPerSecond, kDelta);
         assertEquals(0, implied.vyMetersPerSecond, kDelta);
-        assertEquals(0.816, implied.omegaRadiansPerSecond, kDelta);
+        assertEquals(24.183, implied.omegaRadiansPerSecond, kDelta);
         // nowhere near max speed
-        assertEquals(0.204, setpoint.states().frontLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.418, setpoint.states().frontRight().speedMetersPerSecond(), kDelta);
-        assertEquals(0.213, setpoint.states().rearLeft().speedMetersPerSecond(), kDelta);
-        assertEquals(0.422, setpoint.states().rearRight().speedMetersPerSecond(), kDelta);
-        assertEquals(2.474, setpoint.states().frontLeft().angle().get().getRadians(), kDelta);
-        assertEquals(0.245, setpoint.states().frontRight().angle().get().getRadians(), kDelta);
-        assertEquals(-1.859, setpoint.states().rearLeft().angle().get().getRadians(), kDelta);
-        assertEquals(-0.818, setpoint.states().rearRight().angle().get().getRadians(), kDelta);
+        assertEquals(3.687, setpoint.states().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(9.584, setpoint.states().frontRight().speedMetersPerSecond(), kDelta);
+        assertEquals(10.102, setpoint.states().rearLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(13.428, setpoint.states().rearRight().speedMetersPerSecond(), kDelta);
+        assertEquals(2.437, setpoint.states().frontLeft().angle().get().getRadians(), kDelta);
+        assertEquals(0.252, setpoint.states().frontRight().angle().get().getRadians(), kDelta);
+        assertEquals(-1.852, setpoint.states().rearLeft().angle().get().getRadians(), kDelta);
+        assertEquals(-0.807, setpoint.states().rearRight().angle().get().getRadians(), kDelta);
     }
 
     @Test
@@ -377,7 +377,7 @@ class AsymSwerveSetpointGeneratorTest {
 
         // since the desired speed is too fast, we don't do anything.
         setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
-        assertEquals(0, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(0.163, setpoint.speeds().vxMetersPerSecond, kDelta);
         assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
         assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
     }
@@ -684,7 +684,8 @@ class AsymSwerveSetpointGeneratorTest {
         ChassisSpeeds desiredSpeeds = new ChassisSpeeds(10, 0, 0);
 
         setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
-        assertEquals(10, setpoint.speeds().vxMetersPerSecond, kDelta);
+        // desaturation limits the speed to max V
+        assertEquals(5, setpoint.speeds().vxMetersPerSecond, kDelta);
         assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
         assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
     }
