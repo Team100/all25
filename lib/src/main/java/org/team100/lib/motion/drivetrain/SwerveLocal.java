@@ -10,6 +10,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -99,23 +100,32 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * Discretizes the speeds, calculates the inverse kinematic module states, and
-     * sets the module states
+     * Discretizes the speeds, calculates the inverse kinematic module states,
+     * desaturates, and sets the module states
      */
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
+        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
+                states,
+                m_swerveKinodynamics.getMaxDriveVelocityM_S());
         setModuleStates(states);
+
+        TODO: make speeds consistent with desaturated states.
+        
         m_prevSetpoint = new SwerveSetpoint(speeds, states);
         m_log_chassis_speed.log(() -> speeds);
     }
 
     /**
-     * Discretizes the speeds, calculates the inverse kinematic module states, and
-     * aligns the wheels with the directions implied by speeds, without moving
-     * the drive motors.
+     * Discretizes the speeds, calculates the inverse kinematic module states,
+     * desaturates, and aligns the wheels with the directions implied by speeds,
+     * without moving the drive motors.
      */
     public void steerAtRest(ChassisSpeeds speeds) {
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
+        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
+                states,
+                m_swerveKinodynamics.getMaxDriveVelocityM_S());
         states = states.motionless();
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
@@ -284,10 +294,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         m_prevSetpoint = setpoint;
     }
 
-    /**
-     * No longer desaturates. If you want desaturation, use the setpoint generator.
-     * Works fine with empty angles.
-     */
     private void setModuleStates(SwerveModuleStates states) {
         m_modules.setDesiredStates(states);
     }

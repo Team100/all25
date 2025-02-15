@@ -187,15 +187,16 @@ public class SwerveKinodynamics implements Glassy {
      * translational acceleration.
      * 
      * States may include empty angles for motionless wheels.
+     * 
+     * this also *DESATURATES* the states, so the resulting states may not match the
+     * input speeds.
      */
     public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in) {
         return toSwerveModuleStates(in, TimedRobot100.LOOP_PERIOD_S);
     }
 
     /**
-     * For testing only.
-     * 
-     * Discretizes.
+     * Discretizes and desaturates.
      * 
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
@@ -212,7 +213,14 @@ public class SwerveKinodynamics implements Glassy {
                 angle);
         // discretization does not affect omega
         DiscreteSpeed descretized = discretize(chassisSpeeds, dt);
-        return m_kinematics.toSwerveModuleStates(descretized);
+        SwerveModuleStates states = m_kinematics.toSwerveModuleStates(descretized);
+        states = SwerveDriveKinematics100.desaturateWheelSpeeds(
+                states,
+                getMaxDriveVelocityM_S());
+
+                TODO: also return speeds consistent with the desaturated states?
+                
+        return states;
     }
 
     /**

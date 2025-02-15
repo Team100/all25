@@ -174,6 +174,20 @@ public class SwerveDriveKinematics100 {
         return vector2Twist(twistVector);
     }
 
+    /**
+     * If wheels are too fast, return a copy scaled below the limit.
+     */
+    public static SwerveModuleStates desaturateWheelSpeeds(SwerveModuleStates states, final double limit) {
+
+        TODO: also return speeds consistent with the desaturated states?
+                
+        double desired = states.maxSpeed();
+        if (desired <= limit)
+            return states;
+        double scale = limit / desired;
+        return states.scale(scale);
+    }
+
     ///////////////////////////////////////
 
     /** states -> [v cos; v sin; ... v cos; v sin] (2n x 1) */

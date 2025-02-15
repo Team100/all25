@@ -6,6 +6,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
@@ -62,18 +63,26 @@ public class AsymSwerveSetpointGenerator implements Glassy {
      * 
      * or maybe it does?
      * 
+     * note that the prev setpoint is robot-relative, and the robot has rotated
+     * since
+     * the setpoint was created.
+     * 
+     * 
      * 
      */
-    public SwerveSetpoint generateSetpoint(SwerveSetpoint prevSetpoint, ChassisSpeeds desiredState) {
+    public SwerveSetpoint generateSetpoint(
+            SwerveSetpoint prevSetpoint,
+            ChassisSpeeds desiredState) {
         if (DEBUG)
             Util.printf("desired %s\n", desiredState);
         double min_s = 1.0;
+
+        // desiredState = desaturate(desiredState, desiredModuleStates);
 
         SwerveModuleStates prevModuleStates = prevSetpoint.getModuleStates();
         // the desired module state speeds are always positive.
         // these are the discretized states, i.e. what we would actually do
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStates(desiredState);
-        // desiredState = desaturate(desiredState, desiredModuleStates);
 
         if (GeometryUtil.isZero(desiredState)) {
             desiredModuleStates = prevModuleStates.motionless();
@@ -247,6 +256,26 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             }
         }
         return true;
+    }
+
+    /**
+     * Make sure desiredState respects velocity limits.
+     */
+    private ChassisSpeeds desaturate(
+            ChassisSpeeds desiredState,
+            SwerveModuleStates desiredModuleStates) {
+
+                TODO: also return speeds consistent with the desaturated states?
+                
+        if (m_limits.getMaxDriveVelocityM_S() > 0.0) {
+            desiredModuleStates = SwerveDriveKinematics100.desaturateWheelSpeeds(
+                    desiredModuleStates,
+                    m_limits.getMaxDriveVelocityM_S());
+            desiredState = m_limits.toChassisSpeedsWithDiscretization(
+                    desiredModuleStates,
+                    TimedRobot100.LOOP_PERIOD_S);
+        }
+        return desiredState;
     }
 
     /** States are discretized. */
