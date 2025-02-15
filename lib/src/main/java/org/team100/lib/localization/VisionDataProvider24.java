@@ -267,8 +267,8 @@ public class VisionDataProvider24 implements VisionData, Glassy {
          * matters for us.
          */
         return new double[] {
-                0.1 * distanceM,
-                0.1 * distanceM,
+                .1  * distanceM+ .01,
+                .1 * distanceM + .01,
                 Double.MAX_VALUE };
     }
 

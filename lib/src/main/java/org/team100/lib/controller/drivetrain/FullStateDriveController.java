@@ -26,8 +26,8 @@ public class FullStateDriveController implements HolonomicFieldRelativeControlle
     public static FullStateDriveController getDefault(LoggerFactory parent) {
         return new FullStateDriveController(
                 parent,
-                4, // position
-                0.25, // velocity
+                3, // position
+                .2, // velocity
                 4, // theta
                 0.25, // omega
                 0.01, // position tolerance

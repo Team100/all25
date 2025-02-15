@@ -139,7 +139,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 33,
                                 9,
-                                0.170,
+                                0.103,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE));
             case BETA_BOT:
