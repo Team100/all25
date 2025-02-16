@@ -129,7 +129,8 @@ class SwerveDrivePoseEstimator100Test {
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // not sure what's happening here
         verify(0.25, poseEstimator.get(0.02));
-        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // velocity is STILL unchanged, i.e. not consistent with the pose history, which
+        // is probably better
         // than making velocity reflect the camera noise.
         verifyVelocity(5.000, poseEstimator.get(0.02));
     }
@@ -163,7 +164,8 @@ class SwerveDrivePoseEstimator100Test {
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // camera does nothing
         verify(0.1, poseEstimator.get(0.02));
-        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // velocity is STILL unchanged, i.e. not consistent with the post history, which
+        // is probably better
         // than making velocity reflect the camera noise.
         verifyVelocity(5.000, poseEstimator.get(0.02));
         // this is 0.1 towards the camera 1.0
@@ -774,7 +776,8 @@ class SwerveDrivePoseEstimator100Test {
 
             ChassisSpeeds chassisSpeeds = chassisSpeedsGenerator.apply(groundTruthState);
 
-            SwerveModuleStates moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+            SwerveModuleStates moduleStates = kinematics
+                    .toSwerveModuleStates(SwerveKinodynamics.discretize(chassisSpeeds, 0.02));
             SwerveModuleState100[] moduleStatesAll = moduleStates.all();
             SwerveModulePosition100[] positionsAll = positions.all();
             for (int i = 0; i < moduleStatesAll.length; i++) {

@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
@@ -46,9 +46,8 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     @Test
     void testSimple() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
-        HolonomicFieldRelativeController control = HolonomicDriveControllerFactory.get(logger);
+        SwerveController control = SwerveControllerFactory.test(logger);
         TrajectoryListCommand c = new TrajectoryListCommand(
-                logger,
                 fixture.drive,
                 control,
                 x -> List.of(maker.line(x)),
@@ -74,9 +73,8 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
      */
     @Test
     void testLowLevel() {
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
         TrajectoryListCommand command = new TrajectoryListCommand(
-                logger,
                 fixture.drive,
                 controller,
                 x -> maker.square(x),

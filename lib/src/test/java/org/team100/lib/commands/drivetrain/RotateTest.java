@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.LoggerFactory;
@@ -28,7 +28,7 @@ class RotateTest extends Fixtured implements Timeless {
         assertEquals(2.828, swerveKinodynamics.getMaxAngleSpeedRad_S(), 0.001);
         
         double targetAngle = Math.PI / 2;
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
         Rotate rotate = new Rotate(
                 fixture.drive,
                 controller,

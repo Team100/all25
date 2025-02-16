@@ -13,6 +13,7 @@ import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.swerve.SwerveSetpoint;
@@ -21,6 +22,7 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
+    private static final boolean DEBUG = false;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
@@ -91,34 +94,28 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_log_skill.log(() -> driverSkillLevel);
         FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
 
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                v.x(),
-                v.y(),
-                v.theta(),
-                getPose().getRotation());
-        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        Rotation2d theta = getPose().getRotation();
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+        if (DEBUG)
+            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
     public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                vIn.x(),
-                vIn.y(),
-                vIn.theta(),
-                getPose().getRotation());
-        m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                vIn, getPose().getRotation());
+        m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
     }
 
     /**
      * True if wheel steering is aligned to the desired motion.
      */
     public boolean aligned(FieldRelativeVelocity v) {
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                v.x(),
-                v.y(),
-                v.theta(),
-                getPose().getRotation());
-        return m_swerveLocal.aligned(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                v, getPose().getRotation());
+        return m_swerveLocal.aligned(targetChassisSpeeds);
     }
 
     /**
@@ -131,12 +128,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     @Override
     public void steerAtRest(FieldRelativeVelocity v) {
         // Util.printf("steer at rest v %s\n", v);
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                v.x(),
-                v.y(),
-                v.theta(),
-                getPose().getRotation());
-        m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                v, getPose().getRotation());
+        m_swerveLocal.steerAtRest(targetChassisSpeeds);
     }
 
     /**
@@ -152,11 +146,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
         m_log_skill.log(() -> driverSkillLevel);
         speeds = speeds.times(driverSkillLevel.scale());
-        m_swerveLocal.setChassisSpeeds(speeds, m_gyro.getYawRateNWU());
+        m_swerveLocal.setChassisSpeeds(speeds);
     }
 
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
-        m_swerveLocal.setChassisSpeedsNormally(speeds, m_gyro.getYawRateNWU());
+        m_swerveLocal.setChassisSpeedsNormally(speeds);
     }
 
     /**

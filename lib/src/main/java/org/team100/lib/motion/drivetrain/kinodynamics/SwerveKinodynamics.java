@@ -187,23 +187,22 @@ public class SwerveKinodynamics implements Glassy {
      * translational acceleration.
      * 
      * States may include empty angles for motionless wheels.
-     * 
-     * @param in            chassis speeds to transform
-     * @param gyroRateRad_S current gyro rate, or the trajectory gyro rate
      */
-    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S) {
-        return toSwerveModuleStates(in, gyroRateRad_S, TimedRobot100.LOOP_PERIOD_S);
+    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in) {
+        return toSwerveModuleStates(in, TimedRobot100.LOOP_PERIOD_S);
     }
 
     /**
-     * For testing only.
+     * Discretizes.
+     * 
+     * If you want desaturation, use the setpoint generator.
      * 
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
      */
-    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
+    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double dt) {
         // This is the extra correction angle ...
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(in.omegaRadiansPerSecond));
         // ... which is subtracted here; this isn't really a field-relative
         // transformation it's just a rotation.
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -211,37 +210,47 @@ public class SwerveKinodynamics implements Glassy {
                 in.vyMetersPerSecond,
                 in.omegaRadiansPerSecond,
                 angle);
-        ChassisSpeeds descretized = ChassisSpeeds.discretize(chassisSpeeds, period);
-        return m_kinematics.toSwerveModuleStates(descretized);
+        // discretization does not affect omega
+        DiscreteSpeed descretized = discretize(chassisSpeeds, dt);
+        SwerveModuleStates states = m_kinematics.toSwerveModuleStates(descretized);
+        return states;
     }
 
     /**
-     * The resulting state speeds are always positive.
-     */
-    public SwerveModuleStates toSwerveModuleStatesWithoutDiscretization(ChassisSpeeds speeds) {
-        return m_kinematics.toSwerveModuleStates(speeds);
-    }
-
-    /**
-     * Forward kinematics, module states => chassis speeds.
+     * Given a desired instantaneous speed, extrapolate ahead one step, and return
+     * the twist required to achieve that state.
      * 
-     * Does not do inverse discretization.
+     * Tangent velocity
      */
-    public ChassisSpeeds toChassisSpeeds(SwerveModuleStates moduleStates) {
-        return m_kinematics.toChassisSpeeds(moduleStates);
+    public static DiscreteSpeed discretize(ChassisSpeeds chassisSpeeds, double dt) {
+        Pose2d desiredDeltaPose = new Pose2d(
+                chassisSpeeds.vxMetersPerSecond * dt,
+                chassisSpeeds.vyMetersPerSecond * dt,
+                new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * dt));
+
+        return new DiscreteSpeed(Pose2d.kZero.log(desiredDeltaPose), dt);
+
+        // return new ChassisSpeeds(twist.dx / period, twist.dy / period, twist.dtheta /
+        // period);
     }
 
     /**
+     * Returns the "instantaneous" chassis speeds corresponding to the module
+     * states, i.e. the chassis speed pointing at the result of applying the module
+     * state twist.
+     * 
      * This could be used with odometry, but because odometry uses module positions
      * instead of velocities, it is not needed.
      * 
      * It performs inverse discretization and an extra correction.
+     * 
+     * TODO: make sure the callers of this function are doing the right thing with
+     * the result.
      */
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
-            double gyroRateRad_S,
-            double dt,
-            SwerveModuleStates moduleStates) {
-        ChassisSpeeds discreteSpeeds = toChassisSpeeds(moduleStates);
+            SwerveModuleStates moduleStates,
+            double dt) {
+        ChassisSpeeds discreteSpeeds = m_kinematics.toChassisSpeeds(moduleStates);
         Twist2d twist = new Twist2d(
                 discreteSpeeds.vxMetersPerSecond * dt,
                 discreteSpeeds.vyMetersPerSecond * dt,
@@ -253,8 +262,9 @@ public class SwerveKinodynamics implements Glassy {
                 deltaPose.getY(),
                 deltaPose.getRotation().getRadians()).div(dt);
 
+        double omega = discreteSpeeds.omegaRadiansPerSecond;
         // This is the opposite direction
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(omega));
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 continuousSpeeds.vxMetersPerSecond,
                 continuousSpeeds.vyMetersPerSecond,
@@ -380,6 +390,29 @@ public class SwerveKinodynamics implements Glassy {
                 ratio * maxV * Math.cos(xyAngle),
                 ratio * maxV * Math.sin(xyAngle),
                 speeds.theta());
+    }
+
+    /**
+     * Robot-relative speed, without discretization.
+     * This simply rotates the velocity from the field frame to the robot frame.
+     */
+    public static ChassisSpeeds toInstantaneousChassisSpeeds(
+            FieldRelativeVelocity v,
+            Rotation2d theta) {
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                v.x(),
+                v.y(),
+                v.theta(),
+                theta);
+    }
+
+    /**
+     * Field-relative speed, without discretization.
+     * This simply rotates the velocity from the robot frame to the field frame.
+     */
+    public static FieldRelativeVelocity fromInstantaneousChassisSpeeds(ChassisSpeeds instantaneous, Rotation2d theta) {
+        ChassisSpeeds c = ChassisSpeeds.fromRobotRelativeSpeeds(instantaneous, theta);
+        return new FieldRelativeVelocity(c.vxMetersPerSecond, c.vyMetersPerSecond, c.omegaRadiansPerSecond);
     }
 
     public SwerveDriveKinematics100 getKinematics() {

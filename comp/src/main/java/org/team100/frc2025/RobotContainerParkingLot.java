@@ -14,8 +14,8 @@ import org.team100.lib.commands.drivetrain.for_testing.DriveInACircle;
 import org.team100.lib.commands.drivetrain.for_testing.DriveInALittleSquare;
 import org.team100.lib.commands.drivetrain.for_testing.Oscillate;
 import org.team100.lib.commands.drivetrain.for_testing.Spin;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
@@ -116,7 +116,7 @@ public class RobotContainerParkingLot implements Glassy {
                 poseEstimator,
                 swerveLocal,
                 visionDataProvider);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(driveLogger);
+        SwerveController controller = SwerveControllerFactory.byIdentity(driveLogger);
 
         ///////////////////////
 
@@ -165,26 +165,26 @@ public class RobotContainerParkingLot implements Glassy {
 
         // make a one-meter line
         whileTrue(driverControl::never,
-                new TrajectoryListCommand(driveLogger, m_drive, controller,
+                new TrajectoryListCommand(m_drive, controller,
                         x -> List.of(maker.line(x)), viz));
 
         // make a one-meter square
         whileTrue(driverControl::never,
-                new TrajectoryListCommand(driveLogger, m_drive, controller,
+                new TrajectoryListCommand(m_drive, controller,
                         maker::square, viz));
 
-        whileTrue(driverControl::test, new TrajectoryListCommand(driveLogger, m_drive, controller,
+        whileTrue(driverControl::test, new TrajectoryListCommand(m_drive, controller,
                 null, viz));
 
         // one-meter square with reset at the corners
         whileTrue(driverControl::never,
-                new PermissiveTrajectoryListCommand(driveLogger, m_drive, controller,
+                new PermissiveTrajectoryListCommand(m_drive, controller,
                         maker.permissiveSquare(), viz));
 
         // one-meter square with position and velocity feedback control
-        HolonomicFieldRelativeController fscontroller = HolonomicDriveControllerFactory.get(driveLogger);
+        SwerveController fscontroller = SwerveControllerFactory.byIdentity(driveLogger);
         whileTrue(driverControl::never,
-                new TrajectoryListCommand(driveLogger, m_drive, fscontroller,
+                new TrajectoryListCommand(m_drive, fscontroller,
                         maker::square, viz));
 
         // this should be a field.

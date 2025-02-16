@@ -3,7 +3,7 @@ package org.team100.lib.commands.drivetrain;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.FieldLogger;
@@ -30,7 +30,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
 
     private final Supplier<Optional<Pose2d>> m_fieldRelativeGoalSupplier;
     private final SwerveDriveSubsystem m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final SwerveKinodynamics m_limits;
     private Profile100 xProfile;
     private Profile100 yProfile;
@@ -57,7 +57,7 @@ public class DriveWithProfile2 extends Command implements Glassy {
             FieldLogger.Log fieldLogger,
             Supplier<Optional<Pose2d>> fieldRelativeGoal,
             SwerveDriveSubsystem drivetrain,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             SwerveKinodynamics limits) {
                 
         m_field_log = fieldLogger;

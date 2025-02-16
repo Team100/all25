@@ -23,7 +23,7 @@ class SwerveLocalTest extends Fixtured implements Timeless {
         SwerveModuleCollection modules = fixture.collection;
         SwerveLocal local = fixture.swerveLocal;
 
-        local.setChassisSpeeds(new ChassisSpeeds(), 0);
+        local.setChassisSpeeds(new ChassisSpeeds());
         assertEquals(0, modules.getDesiredStates().frontLeft().speedMetersPerSecond(), 0.001);
         local.defense();
         local.stop();
@@ -48,18 +48,18 @@ class SwerveLocalTest extends Fixtured implements Timeless {
         // for motionless setpoint, aligned is meaningless (but returns true).
         // note that many profiles/trajectories start motionless, so the
         // only way to do this is to look ahead a bit.
-        assertTrue(local.aligned(new ChassisSpeeds(), 0));
+        assertTrue(local.aligned(new ChassisSpeeds()));
 
         // proceeding in +x aligns with the wheels
-        assertTrue(local.aligned(new ChassisSpeeds(1, 0, 0), 0));
+        assertTrue(local.aligned(new ChassisSpeeds(1, 0, 0)));
 
         // proceeding in +y does not align with the wheels
-        assertFalse(local.aligned(new ChassisSpeeds(0, 1, 0), 0));
+        assertFalse(local.aligned(new ChassisSpeeds(0, 1, 0)));
 
         // rotating fast also messes it up
-        assertFalse(local.aligned(new ChassisSpeeds(1, 0, 10), 10));
+        assertFalse(local.aligned(new ChassisSpeeds(1, 0, 10)));
 
         // just at the limit
-        assertTrue(local.aligned(new ChassisSpeeds(1, 0.05, 0), 0));
+        assertTrue(local.aligned(new ChassisSpeeds(1, 0.05, 0)));
     }
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.state.Control100;
 import org.team100.lib.timing.TimedPose;
 
@@ -83,12 +84,16 @@ public class SwerveControl {
     }
 
     public Pose2d pose() {
-        return new Pose2d(m_x.x(), m_y.x(), new Rotation2d(m_theta.x()));
+        return new Pose2d(m_x.x(), m_y.x(), rotation());
     }
 
     /** Translation of the pose */
     public Translation2d translation() {
         return new Translation2d(m_x.x(), m_y.x());
+    }
+
+    public Rotation2d rotation() {
+        return new Rotation2d(m_theta.x());
     }
 
     public FieldRelativeVelocity velocity() {
@@ -97,8 +102,7 @@ public class SwerveControl {
 
     /** Robot-relative speeds */
     public ChassisSpeeds chassisSpeeds() {
-        return ChassisSpeeds.fromFieldRelativeSpeeds(
-                m_x.v(), m_y.v(), m_theta.v(), new Rotation2d(m_theta.x()));
+        return SwerveKinodynamics.toInstantaneousChassisSpeeds(velocity(), rotation());
     }
 
     public FieldRelativeAcceleration acceleration() {

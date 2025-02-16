@@ -1,7 +1,7 @@
 package org.team100.lib.motion.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -30,7 +30,7 @@ public class RealisticFixture {
     public SwerveKinodynamics swerveKinodynamics;
     public SwerveLocal swerveLocal;
     public SwerveDriveSubsystem drive;
-    public HolonomicFieldRelativeController controller;
+    public SwerveController controller;
     public LoggerFactory logger;
     public LoggerFactory fieldLogger;
 
@@ -65,7 +65,7 @@ public class RealisticFixture {
                 swerveLocal,
                 v);
 
-        controller = HolonomicDriveControllerFactory.get(logger);
+        controller = SwerveControllerFactory.test(logger);
     }
 
     public void close() {

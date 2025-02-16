@@ -305,6 +305,22 @@ public class SwerveKinodynamicsFactory {
                 0.3); // vcg m
     }
 
+    /** very high limits, should make setpoint generator do nothing. */
+    public static SwerveKinodynamics unlimited() {
+        return new SwerveKinodynamics(
+                10000, // vel m/s
+                10000, // stall m/s/s
+                10000, // accel m/s/s
+                10000, // decel m/s/s
+                10000, // steering rate rad/s
+                10000, // steering accel rad/s/s
+                0.5, // track m
+                0.5, // track m
+                0.5, // wheelbase m
+                .25, // front offset m
+                0); // vcg m
+    }
+
     private SwerveKinodynamicsFactory() {
         //
     }

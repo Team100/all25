@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.ReefAproach;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -45,7 +45,7 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     private final Log m_log;
     private final SwerveDriveSubsystem m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
     private final TimingConstraintFactory m_constraints;
 
@@ -55,7 +55,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     public Navigator(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         m_log = new Log(parent);

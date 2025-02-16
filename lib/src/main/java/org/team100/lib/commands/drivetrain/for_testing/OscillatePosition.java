@@ -1,9 +1,8 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.reference.TrajectoryReference;
@@ -24,10 +23,9 @@ import edu.wpi.first.wpilibj2.command.Command;
  * this is for testing odometry.
  */
 public class OscillatePosition extends Command implements Glassy {
-    private final LoggerFactory m_log;
     private final SwerveDriveSubsystem m_drive;
     private final StraightLineTrajectory m_trajectories;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final double m_offsetM;
     private final TrajectoryVisualization m_viz;
 
@@ -36,13 +34,11 @@ public class OscillatePosition extends Command implements Glassy {
     private ReferenceController m_referenceController;
 
     public OscillatePosition(
-            LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
             StraightLineTrajectory trajectories,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             double offsetM,
             TrajectoryVisualization viz) {
-        m_log = parent.child(this);
         m_drive = drivetrain;
         m_trajectories = trajectories;
         m_controller = controller;
