@@ -16,9 +16,9 @@ public class SetRotation extends Command {
     private final SwerveDriveSubsystem m_drive;
     private final Rotation2d m_rotation;
 
-    public SetRotation(SwerveDriveSubsystem drivetrain,
+    public SetRotation(SwerveDriveSubsystem drive,
             Rotation2d rotation) {
-        m_drive = drivetrain;
+        m_drive = drive;
         m_rotation = rotation;
     }
 

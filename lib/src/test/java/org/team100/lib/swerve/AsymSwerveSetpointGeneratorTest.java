@@ -576,7 +576,7 @@ class AsymSwerveSetpointGeneratorTest {
      */
     @Test
     void testCentripetal() {
-        boolean dump = false;
+        boolean DEBUG = false;
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.limiting();
         AsymSwerveSetpointGenerator swerveSetpointGenerator = new AsymSwerveSetpointGenerator(logger, limits,
                 () -> 12);
@@ -599,7 +599,7 @@ class AsymSwerveSetpointGeneratorTest {
 
         SwerveSetpoint prev = setpoint;
         Pose2d currentPose = GeometryUtil.kPoseZero;
-        if (dump)
+        if (DEBUG)
             Util.printf("i     x     y    vx    vy drive steer     ax    ay      a\n");
 
         // first slow from 4 m/s to 0 m/s stop at 10 m/s^2, so 0.4s
@@ -614,7 +614,7 @@ class AsymSwerveSetpointGeneratorTest {
                     / kDt;
             double a = Math.hypot(ax, ay);
 
-            if (dump)
+            if (DEBUG)
                 Util.printf("%d %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f %5.3f\n",
                         i, currentPose.getX(), currentPose.getY(),
                         setpoint.speeds().vxMetersPerSecond,

@@ -43,11 +43,6 @@ public class VKBJoystick implements DriverControl {
     }
 
     @Override
-    public boolean actualCircle() {
-        return m_hid.getRawButton(2);
-    }
-
-    @Override
     public boolean resetRotation0() {
         return button(7); // "F1"
     }
@@ -110,18 +105,6 @@ public class VKBJoystick implements DriverControl {
     @Override
     public boolean driveToObject() {
         // return button(7);
-        return false;
-    }
-
-    @Override
-    public boolean shooterLock() {
-        // return button(3);
-        return false;
-    }
-
-    @Override
-    public boolean driveToAmp() {
-        // return button(8);
         return false;
     }
 

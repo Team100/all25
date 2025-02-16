@@ -19,7 +19,7 @@ import org.team100.lib.util.Util;
 import edu.wpi.first.math.geometry.Pose2d;
 
 public class SwerveDrivePoseEstimator100PerformanceTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
@@ -81,7 +81,7 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
             poseEstimator.put(0.00, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
         }
         long finishTime = System.currentTimeMillis();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
             Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
         }
@@ -95,7 +95,7 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
             poseEstimator.put(duration - 0.1, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
         }
         finishTime = System.currentTimeMillis();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
             Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
         }

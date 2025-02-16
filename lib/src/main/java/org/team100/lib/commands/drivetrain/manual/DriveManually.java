@@ -48,10 +48,10 @@ public class DriveManually extends Command implements Glassy {
 
     public DriveManually(
             Supplier<DriverControl.Velocity> twistSupplier,
-            SwerveDriveSubsystem robotDrive) {
+            SwerveDriveSubsystem drive) {
         m_mode = m_manualModeChooser::getSelected;
         m_twistSupplier = twistSupplier;
-        m_drive = robotDrive;
+        m_drive = drive;
         m_defaultDriver = stop();
         m_drivers = new ConcurrentHashMap<>();
         SmartDashboard.putData(m_manualModeChooser);

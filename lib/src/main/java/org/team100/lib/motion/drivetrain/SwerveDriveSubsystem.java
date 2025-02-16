@@ -136,8 +136,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied ChassisSpeed by the driver speed modifier.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
+     * Feasibility is enforced by the setpoint generator, if enabled.
      * 
      * @param speeds in robot coordinates
      */

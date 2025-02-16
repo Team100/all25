@@ -65,74 +65,12 @@ public class OperatorControlProxy implements OperatorControl {
         return m_operatorControl.getHIDName();
     }
 
-    @Override
-    public boolean pivotToAmpPosition() {
-        return m_operatorControl.pivotToAmpPosition();
-    }
-
-    @Override
-    public boolean outtake() {
-        return m_operatorControl.outtake();
-    }
-
-    @Override
-    public boolean intake() {
-        return m_operatorControl.intake();
-    }
 
     @Override
     public boolean never() {
         return m_operatorControl.never();
     }
 
-    @Override
-    public boolean feed() {
-        return m_operatorControl.feed();
-    }
 
-    @Override
-    public double ramp() {
-        return m_operatorControl.ramp();
-    }
-
-    @Override
-    public boolean homeClimber() {
-        return m_operatorControl.homeClimber();
-    }
-
-    @Override
-    public double leftClimb() {
-        return m_operatorControl.leftClimb();
-    }
-
-    @Override
-    public double rightClimb() {
-        return m_operatorControl.rightClimb();
-    }
-
-    @Override
-    public boolean climbUpPosition() {
-        return m_operatorControl.climbUpPosition();
-    }
-
-    @Override
-    public boolean climbDownPosition() {
-        return m_operatorControl.climbDownPosition();
-    }
-
-    @Override
-    public boolean feedToAmp() {
-        return m_operatorControl.feedToAmp();
-    }
-
-    @Override
-    public boolean outtakeFromAmp() {
-        return m_operatorControl.outtakeFromAmp();
-    }
-
-    @Override
-    public boolean testShoot() {
-        return m_operatorControl.testShoot();
-    }
 
 }

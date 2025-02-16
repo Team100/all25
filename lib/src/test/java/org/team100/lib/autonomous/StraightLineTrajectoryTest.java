@@ -14,13 +14,13 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
-import org.team100.lib.trajectory.StraightLineTrajectory;
+import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
-class StraightLineTrajectoryTest {
+class TrajectoryToPoseTest {
     private static final double kDelta = 0.001;
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
@@ -28,7 +28,7 @@ class StraightLineTrajectoryTest {
 
     @Test
     void testRestToRest() {
-        StraightLineTrajectory t = new StraightLineTrajectory(false, maker);
+        TrajectoryToPose t = new TrajectoryToPose(false, maker);
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 trajectory = t.apply(start, end);
@@ -54,7 +54,7 @@ class StraightLineTrajectoryTest {
 
     @Test
     void testMovingToRest() {
-        StraightLineTrajectory t = new StraightLineTrajectory(true, maker);
+        TrajectoryToPose t = new TrajectoryToPose(true, maker);
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(1, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
@@ -63,7 +63,7 @@ class StraightLineTrajectoryTest {
 
     @Test
     void testBackingUp() {
-        StraightLineTrajectory t = new StraightLineTrajectory(true, maker);
+        TrajectoryToPose t = new TrajectoryToPose(true, maker);
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(-1, 0, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);
@@ -72,7 +72,7 @@ class StraightLineTrajectoryTest {
 
     @Test
     void test2d() {
-        StraightLineTrajectory t = new StraightLineTrajectory(true, maker);
+        TrajectoryToPose t = new TrajectoryToPose(true, maker);
         SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 1, 0));
         Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
         Trajectory100 traj = t.apply(start, end);

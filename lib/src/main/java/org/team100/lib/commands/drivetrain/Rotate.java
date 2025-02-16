@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class Rotate extends Command implements Glassy {
     /** For testing */
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final double kThetaToleranceRad = 0.02;
     // don't try to rotate at max speed
     private static final double kSpeed = 0.5;
@@ -55,7 +55,7 @@ public class Rotate extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        if (kPrint)
+        if (DEBUG)
             Util.println("Rotate initialize");
         Pose2d measurement = m_drive.getPose();
         // if we use the initial measurement x and y as the target, and we're moving,
@@ -71,7 +71,7 @@ public class Rotate extends Command implements Glassy {
 
     @Override
     public void execute() {
-        if (kPrint)
+        if (DEBUG)
             Util.println("Rotate execute");
         if (m_referenceController != null)
             m_referenceController.execute();
@@ -86,5 +86,7 @@ public class Rotate extends Command implements Glassy {
     public void end(boolean isInterupted) {
         m_drive.stop();
         m_reference.end();
+        m_reference = null;
+        m_referenceController = null;
     }
 }

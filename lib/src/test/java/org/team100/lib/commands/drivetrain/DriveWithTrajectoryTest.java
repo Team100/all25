@@ -31,7 +31,7 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
-public class TrajectoryCommandTest extends Fixtured implements Timeless {
+public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
@@ -53,8 +53,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         d.m_state = new SwerveModel();
         d.m_aligned = false;
 
-        TrajectoryCommand c = new TrajectoryCommand(
-                logger, d, controller, t, viz);
+        DriveWithTrajectory c = new DriveWithTrajectory(d, controller, t, viz);
 
         // Initially unaligned so steer at rest
         stepTime();
@@ -111,8 +110,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // for this test we don't care about steering alignment.
         d.m_aligned = true;
 
-        TrajectoryCommand c = new TrajectoryCommand(
-                logger, d, controller, t, viz);
+        DriveWithTrajectory c = new DriveWithTrajectory(d, controller, t, viz);
         c.initialize();
 
         // the measurement never changes but that doesn't affect "done" as far as the
@@ -148,8 +146,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        TrajectoryCommand command = new TrajectoryCommand(
-                logger, drive, controller, trajectory, viz);
+        DriveWithTrajectory command = new DriveWithTrajectory(drive, controller, trajectory, viz);
         stepTime();
         command.initialize();
 
@@ -207,8 +204,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
         // initial state is wheels pointing +x
         assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
-        TrajectoryCommand command = new TrajectoryCommand(
-                logger, drive, controller, trajectory, viz);
+        DriveWithTrajectory command = new DriveWithTrajectory(drive, controller, trajectory, viz);
         command.initialize();
         // always start unaligned
         assertFalse(command.is_aligned());

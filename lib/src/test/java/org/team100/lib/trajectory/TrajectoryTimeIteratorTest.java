@@ -20,7 +20,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 class TrajectoryTimeIteratorTest {
     private static final double kDelta = 0.001;
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
 
     @Test
     void testPreviewAndAdvance() {
@@ -191,7 +191,7 @@ class TrajectoryTimeIteratorTest {
         }
         long end = System.nanoTime();
         long duration = end - start;
-        if (kPrint)
+        if (DEBUG)
             Util.printf("duration (ns) total (ms) %.0f per sample (ns) %.2f\n",
                     0.000001 * duration, (double) duration / (reps * times));
     }

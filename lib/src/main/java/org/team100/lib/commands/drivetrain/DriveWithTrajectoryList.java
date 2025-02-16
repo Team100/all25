@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * The list can be relative to the current pose.
  */
-public class TrajectoryListCommand extends Command implements Glassy {
+public class DriveWithTrajectoryList extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final Function<Pose2d, List<Trajectory100>> m_trajectories;
@@ -29,7 +29,7 @@ public class TrajectoryListCommand extends Command implements Glassy {
     private Iterator<Trajectory100> m_trajectoryIter;
     private ReferenceController m_referenceController;
 
-    public TrajectoryListCommand(
+    public DriveWithTrajectoryList(
             SwerveDriveSubsystem swerve,
             SwerveController controller,
             Function<Pose2d, List<Trajectory100>> trajectories,

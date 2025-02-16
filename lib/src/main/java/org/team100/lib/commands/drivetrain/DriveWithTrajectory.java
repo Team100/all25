@@ -1,9 +1,9 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -11,36 +11,39 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
- * Follows a fixed trajectory.
+ * Follow a single trajectory.
+ * 
+ * The starting point is fixed, obviously, so this command can
+ * only be used from that point. It's kinda just for testing.
  */
-public class TrajectoryCommand100 extends Command implements Glassy {
-    private final SwerveDriveSubsystem m_drive;
-    private final Trajectory100 m_trajectory;
+public class DriveWithTrajectory extends Command implements Glassy {
+    private final DriveSubsystemInterface m_drive;
     private final SwerveController m_controller;
+    private final Trajectory100 m_trajectory;
     private final TrajectoryVisualization m_viz;
 
     private ReferenceController m_referenceController;
 
-    public TrajectoryCommand100(
-            SwerveDriveSubsystem robotDrive,
-            Trajectory100 trajectory,
+    public DriveWithTrajectory(
+            DriveSubsystemInterface swerve,
             SwerveController controller,
+            Trajectory100 trajectory,
             TrajectoryVisualization viz) {
-        m_drive = robotDrive;
-        m_trajectory = trajectory;
+        m_drive = swerve;
         m_controller = controller;
+        m_trajectory = trajectory;
         m_viz = viz;
         addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        m_viz.setViz(m_trajectory);
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
                 new TrajectoryReference(m_trajectory),
                 false);
+        m_viz.setViz(m_trajectory);
     }
 
     @Override
@@ -53,9 +56,18 @@ public class TrajectoryCommand100 extends Command implements Glassy {
         return m_referenceController.isFinished();
     }
 
+    boolean isDone() {
+        return m_referenceController.isDone();
+    }
+
     @Override
     public void end(boolean interrupted) {
         m_drive.stop();
         m_viz.clear();
+    }
+
+    // for testing
+    boolean is_aligned() {
+        return m_referenceController.is_aligned();
     }
 }

@@ -160,26 +160,6 @@ public class DriverXboxControl implements DriverControl {
     }
 
     @Override
-    public boolean driveToAmp() {
-        return m_controller.getLeftStickButton();
-    }
-
-    @Override
-    public boolean ampLock() {
-        return m_controller.getAButton();
-    }
-
-    @Override
-    public boolean shooterLock() {
-        return m_controller.getBButton();
-    }
-
-    @Override
-    public boolean actualCircle() {
-        return false;
-    }
-
-    @Override
     public boolean test() {
         return false;
     }

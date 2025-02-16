@@ -69,7 +69,7 @@ public class DriveInACircle extends Command implements Glassy {
      */
     public DriveInACircle(
             LoggerFactory parent,
-            SwerveDriveSubsystem drivetrain,
+            SwerveDriveSubsystem drive,
             SwerveController controller,
             double turnRatio,
             TrajectoryVisualization viz) {
@@ -78,7 +78,7 @@ public class DriveInACircle extends Command implements Glassy {
         m_log_angle = child.doubleLogger(Level.TRACE, "angle");
         m_log_reference = child.swerveControlLogger(Level.TRACE, "reference");
         m_log_target = child.fieldRelativeVelocityLogger(Level.TRACE, "target");
-        m_drive = drivetrain;
+        m_drive = drive;
         m_turnRatio = turnRatio;
         m_controller = controller;
         m_viz = viz;

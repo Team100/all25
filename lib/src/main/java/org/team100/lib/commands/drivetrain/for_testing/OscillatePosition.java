@@ -6,7 +6,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.reference.TrajectoryReference;
-import org.team100.lib.trajectory.StraightLineTrajectory;
+import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class OscillatePosition extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
-    private final StraightLineTrajectory m_trajectories;
+    private final TrajectoryToPose m_trajectories;
     private final SwerveController m_controller;
     private final double m_offsetM;
     private final TrajectoryVisualization m_viz;
@@ -34,12 +34,12 @@ public class OscillatePosition extends Command implements Glassy {
     private ReferenceController m_referenceController;
 
     public OscillatePosition(
-            SwerveDriveSubsystem drivetrain,
-            StraightLineTrajectory trajectories,
+            SwerveDriveSubsystem drive,
+            TrajectoryToPose trajectories,
             SwerveController controller,
             double offsetM,
             TrajectoryVisualization viz) {
-        m_drive = drivetrain;
+        m_drive = drive;
         m_trajectories = trajectories;
         m_controller = controller;
         m_offsetM = offsetM;

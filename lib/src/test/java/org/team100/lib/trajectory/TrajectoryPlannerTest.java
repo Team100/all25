@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 class TrajectoryPlannerTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.01;
 
     /**
@@ -99,7 +99,7 @@ class TrajectoryPlannerTest {
         }
         long endTimeNs = System.nanoTime();
         double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("total duration ms: %5.3f\n", totalDurationMs);
             Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }

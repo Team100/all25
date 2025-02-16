@@ -31,11 +31,11 @@ public class Generate60 extends Navigator {
 
     public Generate60(
             LoggerFactory parent,
-            SwerveDriveSubsystem robotDrive,
-            SwerveController hcontroller,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
-        super(parent, robotDrive, hcontroller, viz, kinodynamics);
+        super(parent, drive, controller, viz, kinodynamics);
     }
 
     @Override

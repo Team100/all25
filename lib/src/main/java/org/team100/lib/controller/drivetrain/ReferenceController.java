@@ -19,7 +19,7 @@ import org.team100.lib.util.Util;
  */
 public class ReferenceController implements Glassy {
     /** For testing */
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private final DriveSubsystemInterface m_drive;
     private final SwerveController m_controller;
     private final SwerveReference m_reference;
@@ -64,7 +64,7 @@ public class ReferenceController implements Glassy {
             // Not aligned before, but aligned now.
             m_aligned = true;
         }
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("output %s\n", fieldRelativeTarget);
         }
         if (!m_aligned) {
