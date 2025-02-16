@@ -11,15 +11,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 
-/** Make straight lines, rest-to-rest. */
-public class StraightLineTrajectory {
+/**
+ * Generates a trajectory from the current state to the goal pose.
+ */
+public class TrajectoryToPose {
     // if we try to start a trajectory while respecting initial velocity, but the
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
     private final boolean m_useInitialVelocity;
     private final TrajectoryMaker m_maker;
 
-    public StraightLineTrajectory(boolean useInitialVelocity, TrajectoryMaker maker) {
+    public TrajectoryToPose(boolean useInitialVelocity, TrajectoryMaker maker) {
         m_useInitialVelocity = useInitialVelocity;
         m_maker = maker;
     }

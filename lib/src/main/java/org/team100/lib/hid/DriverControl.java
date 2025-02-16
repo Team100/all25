@@ -92,10 +92,6 @@ public interface DriverControl extends Glassy {
         return null;
     }
 
-    default boolean driveToAmp() {
-        return false;
-    }
-
     default boolean driveToObject() {
         return false;
     }
@@ -105,18 +101,6 @@ public interface DriverControl extends Glassy {
     }
 
     default boolean defense() {
-        return false;
-    }
-
-    default boolean shoot() {
-        return false;
-    }
-
-    default boolean driveWithFancyTrajec() {
-        return false;
-    }
-
-    default boolean actualCircle() {
         return false;
     }
 
@@ -130,13 +114,6 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
-    default boolean shooterLock() {
-        return false;
-    }
-
-    default boolean ampLock() {
-        return false;
-    }
 
     default boolean button4() {
         return false;

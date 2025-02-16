@@ -29,8 +29,8 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 
-class TrajectoryListCommandTest extends Fixtured implements Timeless {
-    boolean dump = false;
+class DriveWithTrajectoryListTest extends Fixtured implements Timeless {
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
@@ -47,7 +47,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     void testSimple() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
         SwerveController control = SwerveControllerFactory.test(logger);
-        TrajectoryListCommand c = new TrajectoryListCommand(
+        DriveWithTrajectoryList c = new DriveWithTrajectoryList(
                 fixture.drive,
                 control,
                 x -> List.of(maker.line(x)),
@@ -74,7 +74,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
     @Test
     void testLowLevel() {
         SwerveController controller = SwerveControllerFactory.test(logger);
-        TrajectoryListCommand command = new TrajectoryListCommand(
+        DriveWithTrajectoryList command = new DriveWithTrajectoryList(
                 fixture.drive,
                 controller,
                 x -> maker.square(x),
@@ -94,7 +94,7 @@ class TrajectoryListCommandTest extends Fixtured implements Timeless {
             SwerveModuleState100 goal = fixture.swerveLocal.getDesiredStates().frontLeft();
             Control100 setpoint = fixture.swerveLocal.getSetpoints()[0];
             // this output is useful to see what's happening.
-            if (dump)
+            if (DEBUG)
                 Util.printf("goal %5.3f setpoint x %5.3f setpoint v %5.3f measurement %5.3f\n",
                         goal.angle().get().getRadians(),
                         setpoint.x(),

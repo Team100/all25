@@ -14,7 +14,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
 class DriveInALittleSquareTest extends Fixtured implements Timeless {
-    boolean dump = false;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
 
     /** Confirm that the steering commands are simple steps. */
@@ -107,7 +107,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
             double speed = fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond();
             double distance = fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters;
             DriveState state = command.m_state;
-            if (dump)
+            if (DEBUG)
                 Util.printf("t %5.3f state %s speed %5.3f distance %5.3f\n", t, state.toString(), speed, distance);
         }
 
@@ -130,7 +130,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
             SwerveModuleState100 goal = fixture.swerveLocal.getDesiredStates().frontLeft();
             Control100 setpoint = fixture.swerveLocal.getSetpoints()[0];
             // this output is useful to see what's happening.
-            if (dump)
+            if (DEBUG)
                 Util.printf("t %5.3f goal %5.3f setpoint x %5.3f setpoint v %5.3f measurement %5.3f\n",
                         t,
                         goal.angle().get().getRadians(),

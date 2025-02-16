@@ -1,61 +1,60 @@
 package org.team100.lib.commands.drivetrain;
 
-import java.util.List;
-
-import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.reference.TrajectoryReference;
-import org.team100.lib.timing.TimingConstraint;
-import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryPlanner;
+import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
- * Follows a fixed trajectory.
+ * Drive from the current state to a field-relative goal.
+ * 
+ * The trajectory is supplied; the supplier is free to ignore the current state.
  */
-public class FancyTrajectory extends Command implements Glassy {
+public class DriveToPoseWithTrajectory extends Command implements Glassy {
+    private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_drive;
+    private final TrajectoryToPose m_trajectories;
     private final SwerveController m_controller;
-    private final List<TimingConstraint> m_constraints;
     private final TrajectoryVisualization m_viz;
+ 
+    private Trajectory100 m_trajectory;
 
     private ReferenceController m_referenceController;
 
-    public FancyTrajectory(
-            SwerveDriveSubsystem robotDrive,
+    /**
+     * @param trajectories function that takes a start and end pose and returns a
+     *                     trajectory between them.
+     */
+    public DriveToPoseWithTrajectory(
+            Pose2d goal,
+            SwerveDriveSubsystem drive,
+            TrajectoryToPose trajectories,
             SwerveController controller,
-            SwerveKinodynamics swerveKinodynamics,
             TrajectoryVisualization viz) {
-        m_drive = robotDrive;
+        m_goal = goal;
+        m_drive = drive;
+        m_trajectories = trajectories;
         m_controller = controller;
-        m_constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
         m_viz = viz;
         addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(0, 0, Rotation2d.fromDegrees(90)),
-                new Pose2d(80, 80, Rotation2d.fromDegrees(0)));
-        List<Rotation2d> headings = List.of(
-                GeometryUtil.fromDegrees(0),
-                GeometryUtil.fromDegrees(0));
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, m_constraints);
+        m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal);
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
-                new TrajectoryReference(trajectory), false);
-        m_viz.setViz(trajectory);
+                new TrajectoryReference(m_trajectory),
+                false);
+        m_viz.setViz(m_trajectory);
     }
 
     @Override

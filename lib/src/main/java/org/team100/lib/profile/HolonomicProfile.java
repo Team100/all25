@@ -13,10 +13,12 @@ import org.team100.lib.util.Util;
  * 
  * Note that because acceleration is adjusted, but not cruise velocity, the
  * resulting paths will not be straight, for rest-to-rest profiles.
+ * 
+ * TODO: support other kinds of profiles, e.g. exponential
  */
 public class HolonomicProfile {
     /** For testing */
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final double ETA_TOLERANCE = 0.02;
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
@@ -47,13 +49,13 @@ public class HolonomicProfile {
     /** Reset the scale factors. */
     public void solve(SwerveModel i, SwerveModel g) {
         // first find the max ETA
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("ix %s gx %s\n", i.x(), g.x());
         }
         ResultWithETA rx = px.calculateWithETA(kDt, i.x(), g.x());
         ResultWithETA ry = py.calculateWithETA(kDt, i.y(), g.y());
         ResultWithETA rtheta = ptheta.calculateWithETA(kDt, i.theta(), g.theta());
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("rx %.3f ry %.3f rtheta %.3f\n", rx.etaS(), ry.etaS(), rtheta.etaS());
         }
         double slowETA = rx.etaS();
@@ -64,7 +66,7 @@ public class HolonomicProfile {
         double sy = py.solve(kDt, i.y(), g.y(), slowETA, ETA_TOLERANCE);
         double stheta = ptheta.solve(kDt, i.theta(), g.theta(), slowETA, ETA_TOLERANCE);
 
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("sx %.3f sy %.3f stheta %.3f\n", sx, sy, stheta);
         }
 
@@ -80,7 +82,7 @@ public class HolonomicProfile {
             // but the memo refresher is trying to update the references.
             return SwerveControl.zero();
         }
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("initial %s goal %s\n", i, g);
         }
         Control100 stateX = ppx.calculate(kDt, i.x(), g.x());

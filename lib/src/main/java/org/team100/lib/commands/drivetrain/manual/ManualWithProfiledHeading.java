@@ -4,8 +4,6 @@ import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.HeadingLatch;
 import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.Level;
@@ -23,7 +21,6 @@ import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
@@ -39,15 +36,11 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     private static final double PROFILE_SPEED = 0.5;
     // accelerate gently to avoid upset
     private static final double PROFILE_ACCEL = 0.1;
-    private static final double OMEGA_FB_DEADBAND = 0.1;
-    private static final double THETA_FB_DEADBAND = 0.1;
     private final SwerveKinodynamics m_swerveKinodynamics;
     /** Absolute input supplier, null if free */
     private final Supplier<Rotation2d> m_desiredRotation;
     private final HeadingLatch m_latch;
     private final Feedback100 m_thetaFeedback;
-    private final Feedback100 m_omegaFeedback;
-    private final LinearFilter m_outputFilter;
 
     // LOGGERS
     private final StringLogger m_log_mode;
@@ -55,13 +48,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     private final DoubleLogger m_log_max_accel;
     private final DoubleLogger m_log_goal_theta;
     private final Control100Logger m_log_setpoint_theta;
-    private final DoubleLogger m_log_measurement_theta;
-    private final DoubleLogger m_log_measurement_omega;
-    private final DoubleLogger m_log_error_theta;
-    private final DoubleLogger m_log_error_omega;
     private final DoubleLogger m_log_theta_FF;
     private final DoubleLogger m_log_theta_FB;
-    private final DoubleLogger m_log_omega_FB;
     private final DoubleLogger m_log_output_omega;
 
     // package private for testing
@@ -81,27 +69,19 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Rotation2d> desiredRotation,
-            Feedback100 thetaController,
-            Feedback100 omegaController) {
+            Feedback100 thetaController) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_desiredRotation = desiredRotation;
         m_thetaFeedback = thetaController;
-        m_omegaFeedback = omegaController;
         m_latch = new HeadingLatch();
-        m_outputFilter = LinearFilter.singlePoleIIR(0.01, TimedRobot100.LOOP_PERIOD_S);
         m_log_mode = child.stringLogger(Level.TRACE, "mode");
         m_log_max_speed = child.doubleLogger(Level.TRACE, "maxSpeedRad_S");
         m_log_max_accel = child.doubleLogger(Level.TRACE, "maxAccelRad_S2");
         m_log_goal_theta = child.doubleLogger(Level.TRACE, "goal/theta");
         m_log_setpoint_theta = child.control100Logger(Level.TRACE, "setpoint/theta");
-        m_log_measurement_theta = child.doubleLogger(Level.TRACE, "measurement/theta");
-        m_log_measurement_omega = child.doubleLogger(Level.TRACE, "measurement/omega");
-        m_log_error_theta = child.doubleLogger(Level.TRACE, "error/theta");
-        m_log_error_omega = child.doubleLogger(Level.TRACE, "error/omega");
         m_log_theta_FF = child.doubleLogger(Level.TRACE, "thetaFF");
         m_log_theta_FB = child.doubleLogger(Level.TRACE, "thetaFB");
-        m_log_omega_FB = child.doubleLogger(Level.TRACE, "omegaFB");
         m_log_output_omega = child.doubleLogger(Level.TRACE, "output/omega");
     }
 
@@ -111,7 +91,6 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_goal = null;
         m_latch.unlatch();
         m_thetaFeedback.reset();
-        m_omegaFeedback.reset();
     }
 
     /**
@@ -132,9 +111,6 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity twist1_1) {
         final FieldRelativeVelocity control = clipAndScale(twist1_1);
 
-        final double yawMeasurement = state.theta().x();
-        final double yawRateMeasurement = state.theta().v();
-
         final double currentVelocity = state.velocity().norm();
 
         final TrapezoidProfile100 m_profile = makeProfile(currentVelocity);
@@ -145,7 +121,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 state.theta(),
                 pov,
                 control.theta());
-                
+
         if (m_goal == null) {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
@@ -158,16 +134,16 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         // if this is the first run since the latch, then the setpoint should be
         // whatever the measurement is
         if (m_thetaSetpoint == null) {
-            m_thetaSetpoint = new Control100(yawMeasurement, yawRateMeasurement);
+            m_thetaSetpoint = state.theta().control();
         }
 
-        final double thetaFB = getThetaFB(yawMeasurement);
-        final double omegaFB = getOmegaFB(yawRateMeasurement);
+        double thetaFB = m_thetaFeedback.calculate(state.theta(), m_thetaSetpoint.model());
 
         //
         // feedforward uses the new setpoint
         //
 
+        final double yawMeasurement = state.theta().x();
         // take the short path
         m_goal = new Rotation2d(
                 Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
@@ -185,7 +161,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         double thetaFF = m_thetaSetpoint.v();
 
         double omega = MathUtil.clamp(
-                thetaFF + thetaFB + omegaFB,
+                thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
         FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(control.x(), control.y(), omega);
@@ -193,13 +169,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_log_mode.log(() -> "snap");
         m_log_goal_theta.log(m_goal::getRadians);
         m_log_setpoint_theta.log(() -> m_thetaSetpoint);
-        m_log_measurement_theta.log(() -> yawMeasurement);
-        m_log_measurement_omega.log(() -> yawRateMeasurement);
-        m_log_error_theta.log(() -> m_thetaSetpoint.x() - yawMeasurement);
-        m_log_error_omega.log(() -> m_thetaSetpoint.v() - yawRateMeasurement);
         m_log_theta_FF.log(() -> thetaFF);
         m_log_theta_FB.log(() -> thetaFB);
-        m_log_omega_FB.log(() -> omegaFB);
         m_log_output_omega.log(() -> omega);
 
         // desaturate the end result to feasibility by preferring the rotation over
@@ -241,30 +212,5 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 maxSpeedRad_S,
                 maxAccelRad_S2,
                 0.01);
-    }
-
-    // feedback is velocity
-    private double getOmegaFB(double headingRate) {
-        double omegaFB = m_omegaFeedback.calculate(
-                Model100.x(headingRate), Model100.x(m_thetaSetpoint.v()));
-
-        if (Experiments.instance.enabled(Experiment.SnapThetaFilter)) {
-            // output filtering to prevent oscillation due to delay
-            omegaFB = m_outputFilter.calculate(omegaFB);
-        }
-        // deadband the output to prevent shivering.
-        if (Math.abs(omegaFB) < OMEGA_FB_DEADBAND) {
-            omegaFB = 0;
-        }
-        return omegaFB;
-    }
-
-    // feedback is velocity
-    private double getThetaFB(double headingMeasurement) {
-        double thetaFB = m_thetaFeedback.calculate(Model100.x(headingMeasurement), m_thetaSetpoint.model());
-        if (Math.abs(thetaFB) < THETA_FB_DEADBAND) {
-            thetaFB = 0;
-        }
-        return thetaFB;
     }
 }

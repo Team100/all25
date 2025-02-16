@@ -11,9 +11,7 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -38,8 +36,11 @@ import edu.wpi.first.math.geometry.Translation2d;
  * 
  * The targeting solution is based on bearing alone, so it won't work if the
  * robot or target is moving. That effect can be compensated, though.
+ * 
+ * The difference between this and ManualWithTargetLock is that this can handle
+ * an intermittent target.
  */
-public class FieldManualWithNoteRotation implements FieldRelativeDriver {
+public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
     /**
      * Relative rotational speed. Use a moderate value to trade rotation for
      * translation
@@ -48,46 +49,27 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Supplier<Optional<Translation2d>> m_target;
-    private final Feedback100 m_thetaController;
-    private final Feedback100 m_omegaController;
+    private final Feedback100 m_controller;
     private final Profile100 m_profile;
 
-    // LOGGERS
     private final DoubleLogger m_log_apparent_motion;
-    private final Control100Logger m_log_theta_setpoint;
-    private final DoubleLogger m_log_theta_measurement;
-    private final DoubleLogger m_log_theta_error;
-    private final DoubleLogger m_log_theta_fb;
-    private final Model100Logger m_log_omega_reference;
-    private final DoubleLogger m_log_omega_measurement;
-    private final DoubleLogger m_log_omega_error;
-    private final DoubleLogger m_log_omega_fb;
     private final FieldLogger.Log m_field_log;
 
     private Control100 m_thetaSetpoint;
-    public FieldManualWithNoteRotation(
+
+    public ManualWithOptionalTargetLock(
             FieldLogger.Log fieldLogger,
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Optional<Translation2d>> target,
-            Feedback100 thetaController,
-            Feedback100 omegaController) {
+            Feedback100 controller) {
         m_field_log = fieldLogger;
         LoggerFactory child = parent.child(this);
         m_log_apparent_motion = child.doubleLogger(Level.TRACE, "apparent motion");
-        m_log_theta_setpoint = child.control100Logger(Level.TRACE, "theta/setpoint");
-        m_log_theta_measurement = child.doubleLogger(Level.TRACE, "theta/measurement");
-        m_log_theta_error = child.doubleLogger(Level.TRACE, "theta/error");
-        m_log_theta_fb = child.doubleLogger(Level.TRACE, "theta/fb");
-        m_log_omega_reference = child.model100Logger(Level.TRACE, "omega/reference");
-        m_log_omega_measurement = child.doubleLogger(Level.TRACE, "omega/measurement");
-        m_log_omega_error = child.doubleLogger(Level.TRACE, "omega/error");
-        m_log_omega_fb = child.doubleLogger(Level.TRACE, "omega/fb");
 
         m_swerveKinodynamics = swerveKinodynamics;
         m_target = target;
-        m_thetaController = thetaController;
-        m_omegaController = omegaController;
+        m_controller = controller;
         m_profile = new TrapezoidProfile100(
                 swerveKinodynamics.getMaxAngleSpeedRad_S() * kRotationSpeed,
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * kRotationSpeed,
@@ -97,8 +79,7 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
     @Override
     public void reset(SwerveModel state) {
         m_thetaSetpoint = state.theta().control();
-        m_thetaController.reset();
-        m_omegaController.reset();
+        m_controller.reset();
     }
 
     /**
@@ -115,19 +96,7 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
         //
         // feedback is based on the previous setpoint.
         //
-        final double yaw = state.theta().x();
-        double thetaFB = m_thetaController.calculate(Model100.x(yaw), m_thetaSetpoint.model());
-        m_log_theta_setpoint.log(() -> m_thetaSetpoint);
-        m_log_theta_measurement.log(() -> yaw);
-        m_log_theta_error.log(() -> m_thetaSetpoint.x() - yaw);
-        m_log_theta_fb.log(() -> thetaFB);
-
-        final double yawRate = state.theta().v();
-        double omegaFB = m_omegaController.calculate(Model100.x(yawRate), Model100.x(m_thetaSetpoint.v()));
-        m_log_omega_reference.log(() -> m_thetaSetpoint.model());
-        m_log_omega_measurement.log(() -> yawRate);
-        m_log_omega_error.log(() -> m_thetaSetpoint.v() - yawRate);
-        m_log_omega_fb.log(() -> omegaFB);
+        double thetaFB = m_controller.calculate(state.theta(), m_thetaSetpoint.model());
 
         //
         // feedforward uses the next setpoint
@@ -142,6 +111,7 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
         if (!target.isPresent()) {
+            // if there's no target, then drive normally.
             FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(),
                     scaledInput.theta());
 
@@ -152,6 +122,8 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
 
         Translation2d currentTranslation = state.pose().getTranslation();
         Rotation2d bearing = TargetUtil.bearing(currentTranslation, target.get()).plus(GeometryUtil.kRotation180);
+
+        final double yaw = state.theta().x();
 
         // take the short path
         bearing = new Rotation2d(
@@ -174,7 +146,7 @@ public class FieldManualWithNoteRotation implements FieldRelativeDriver {
 
         double thetaFF = m_thetaSetpoint.v();
         double omega = MathUtil.clamp(
-                thetaFF + thetaFB + omegaFB,
+                thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 

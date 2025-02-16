@@ -6,12 +6,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 
+/**
+ * A bang-bang controller that stops after the robot moves the specified
+ * distance.
+ */
 public class DriveBackwards extends Command {
+    private static final ChassisSpeeds kSpeed = new ChassisSpeeds(-0.1, 0, 0);
     private final SwerveDriveSubsystem m_drive;
     private final double m_length;
 
     private Pose2d m_startingPose;
-    private boolean m_isFinished;
 
     public DriveBackwards(SwerveDriveSubsystem drive, double length) {
         m_drive = drive;
@@ -21,23 +25,21 @@ public class DriveBackwards extends Command {
 
     @Override
     public void initialize() {
-        m_isFinished = false;
         m_startingPose = m_drive.getPose();
     }
 
     @Override
     public void execute() {
-        if (Math.abs(m_drive.getPose().getX() - m_startingPose.getX()) < m_length) {
-            ChassisSpeeds chassisSpeeds = new ChassisSpeeds(-0.1, 0, 0);
-            m_drive.setChassisSpeeds(chassisSpeeds);
-        } else {
-            m_drive.stop();
-            m_isFinished = true;
-        }
+        m_drive.setChassisSpeeds(kSpeed);
     }
 
     @Override
     public boolean isFinished() {
-        return m_isFinished;
+        return m_drive.getPose().getTranslation().minus(m_startingPose.getTranslation()).getNorm() >= m_length;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_drive.stop();
     }
 }

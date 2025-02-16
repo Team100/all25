@@ -8,10 +8,9 @@ import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveWithProfile2;
-import org.team100.lib.commands.drivetrain.FancyTrajectory;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
+import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
-import edu.wpi.first.wpilibj.DriverStation;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.Rotate;
 import org.team100.lib.commands.drivetrain.SetRotation;
@@ -47,6 +46,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
+import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
 import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
@@ -56,6 +56,7 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -155,8 +156,6 @@ public class RobotContainer implements Glassy {
 
         final Feedback100 thetaFeedback = new PIDFeedback(
                 manLog, 3.0, 0, 0, true, 0.05, 1);
-        final Feedback100 omegaFeedback = new PIDFeedback(
-                manLog, 0.2, 0, 0, false, 0.05, 1);
 
         driveManually.register("MODULE_STATE", false,
                 new SimpleManualModuleStates(manLog, swerveKinodynamics));
@@ -172,8 +171,7 @@ public class RobotContainer implements Glassy {
                         manLog,
                         swerveKinodynamics,
                         driverControl::desiredRotation,
-                        thetaFeedback,
-                        omegaFeedback));
+                        thetaFeedback));
 
         driveManually.register("SNAPS_FULL_STATE", true,
                 new ManualWithFullStateHeading(
@@ -191,8 +189,7 @@ public class RobotContainer implements Glassy {
                         manLog,
                         swerveKinodynamics,
                         driverControl::target,
-                        thetaFeedback,
-                        omegaFeedback));
+                        thetaFeedback));
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
@@ -203,10 +200,31 @@ public class RobotContainer implements Glassy {
         // ObjectPosition24ArrayListener(poseEstimator);
 
         // DRIVER BUTTONS
-        m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
+        // this crashes the simulation and seems to do nothing
+        // m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
+
+        final HolonomicProfile profile = new HolonomicProfile(
+                swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
+                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
+                0.01, // 1 cm
+                swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
+                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,
+                0.1); // 5 degrees
+
         whileTrue(driverControl::driveToObject,
-                new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
-                        holonomicController, swerveKinodynamics));
+                new DriveToPoseWithProfile(
+                        fieldLog,
+                        () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))),
+                        m_drive,
+                        holonomicController,
+                        profile));
+        whileTrue(driverControl::never,
+                new DriveToTranslationWithFront(
+                        fieldLog,
+                        () -> Optional.of(new Translation2d(1, 4)),
+                        m_drive,
+                        holonomicController,
+                        profile));
         whileTrue(driverControl::fullCycle,
                 new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
 
@@ -220,14 +238,8 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::button5,
                 new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
 
-        onTrue(driverControl::resetRotation0, new ResetPose(m_drive, 0, 0, 0));
+        onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
-        whileTrue(driverControl::driveWithFancyTrajec,
-                new FancyTrajectory(
-                        m_drive,
-                        holonomicController,
-                        swerveKinodynamics,
-                        viz));
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));

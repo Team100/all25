@@ -6,9 +6,8 @@ import java.util.function.BooleanSupplier;
 
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
-import org.team100.lib.commands.drivetrain.DriveToWaypoint100;
 import org.team100.lib.commands.drivetrain.PermissiveTrajectoryListCommand;
-import org.team100.lib.commands.drivetrain.TrajectoryListCommand;
+import org.team100.lib.commands.drivetrain.DriveWithTrajectoryList;
 import org.team100.lib.commands.drivetrain.for_testing.DrawSquare;
 import org.team100.lib.commands.drivetrain.for_testing.DriveInACircle;
 import org.team100.lib.commands.drivetrain.for_testing.DriveInALittleSquare;
@@ -42,7 +41,6 @@ import org.team100.lib.trajectory.TrajectoryMaker;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -135,27 +133,7 @@ public class RobotContainerParkingLot implements Glassy {
 
         ////////////////////////
 
-        // field center, roughly, facing to the left.
-        Pose2d goal = new Pose2d(1.877866, 7.749999, GeometryUtil.kRotation90);
         List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-
-        whileTrue(driverControl::never,
-                new DriveToWaypoint100(
-                        goal,
-                        m_drive,
-                        controller,
-                        swerveKinodynamics,
-                        1,
-                        viz));
-
-        whileTrue(driverControl::never,
-                new DriveToWaypoint100(
-                        goal,
-                        m_drive,
-                        controller,
-                        swerveKinodynamics,
-                        1,
-                        viz));
 
         //////////////////////
 
@@ -165,30 +143,21 @@ public class RobotContainerParkingLot implements Glassy {
 
         // make a one-meter line
         whileTrue(driverControl::never,
-                new TrajectoryListCommand(m_drive, controller,
+                new DriveWithTrajectoryList(m_drive, controller,
                         x -> List.of(maker.line(x)), viz));
 
         // make a one-meter square
         whileTrue(driverControl::never,
-                new TrajectoryListCommand(m_drive, controller,
+                new DriveWithTrajectoryList(m_drive, controller,
                         maker::square, viz));
-
-        whileTrue(driverControl::test, new TrajectoryListCommand(m_drive, controller,
-                null, viz));
 
         // one-meter square with reset at the corners
         whileTrue(driverControl::never,
                 new PermissiveTrajectoryListCommand(m_drive, controller,
                         maker.permissiveSquare(), viz));
 
-        // one-meter square with position and velocity feedback control
-        SwerveController fscontroller = SwerveControllerFactory.byIdentity(driveLogger);
-        whileTrue(driverControl::never,
-                new TrajectoryListCommand(m_drive, fscontroller,
-                        maker::square, viz));
-
         // this should be a field.
-        final DrawSquare m_drawCircle = new DrawSquare(driveLogger, m_drive, controller, viz);
+        final DrawSquare m_drawCircle = new DrawSquare(m_drive, controller, viz);
         whileTrue(driverControl::never, m_drawCircle);
     }
 

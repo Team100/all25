@@ -12,7 +12,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class ProfiledControllerTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     /** Double integrator system simulator, kinda */
@@ -73,14 +73,14 @@ public class ProfiledControllerTest {
         sim.y = 0;
         sim.yDot = 0;
         double u_FB = 0;
-        if (kPrint)
+        if (DEBUG)
             Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            if (kPrint)
+            if (DEBUG)
                 Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                         currentTime,
                         setpointControl.x(),
@@ -119,11 +119,11 @@ public class ProfiledControllerTest {
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
-        if (kPrint)
+        if (DEBUG)
             Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         // log initial state
-        if (kPrint)
+        if (DEBUG)
             Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                     0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
 
@@ -132,7 +132,7 @@ public class ProfiledControllerTest {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            if (kPrint)
+            if (DEBUG)
                 Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                         currentTime,
                         setpointControl.x(),

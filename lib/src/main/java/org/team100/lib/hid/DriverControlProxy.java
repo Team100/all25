@@ -99,11 +99,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean shoot() {
-        return m_driverControl.shoot();
-    }
-
-    @Override
     public Velocity velocity() {
         return m_driverControl.velocity();
     }
@@ -121,11 +116,6 @@ public class DriverControlProxy implements DriverControl {
     @Override
     public boolean driveToObject() {
         return m_driverControl.driveToObject();
-    }
-
-    @Override
-    public boolean driveToAmp() {
-        return m_driverControl.driveToAmp();
     }
 
     @Override
@@ -154,16 +144,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean driveWithFancyTrajec() {
-        return m_driverControl.driveWithFancyTrajec();
-    }
-
-    @Override
-    public boolean actualCircle() {
-        return m_driverControl.actualCircle();
-    }
-
-    @Override
     public boolean never() {
         return m_driverControl.never();
     }
@@ -174,11 +154,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean shooterLock() {
-        return m_driverControl.shooterLock();
-    }
-
-    @Override
     public boolean button4() {
         return m_driverControl.button4();
     }
@@ -186,11 +161,6 @@ public class DriverControlProxy implements DriverControl {
     @Override
     public boolean button5() {
         return m_driverControl.button5();
-    }
-
-    @Override
-    public boolean ampLock() {
-        return m_driverControl.ampLock();
     }
 
 }

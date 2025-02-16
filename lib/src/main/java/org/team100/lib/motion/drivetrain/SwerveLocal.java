@@ -10,7 +10,6 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -87,8 +86,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     /**
      * Drives the modules to produce the target chassis speed.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
+     * Feasibility is enforced by the setpoint generator, if enabled.
      */
     public void setChassisSpeeds(ChassisSpeeds speeds) {
         m_log_desired.log(() -> speeds);

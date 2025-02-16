@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 
 class PoseEstimationHelperTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.01;
 
     @Test
@@ -213,7 +213,7 @@ class PoseEstimationHelperTest {
                     robotRotationInFieldCoordsFromGyro);
         }
         long finishTime = System.currentTimeMillis();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
             Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
         }
