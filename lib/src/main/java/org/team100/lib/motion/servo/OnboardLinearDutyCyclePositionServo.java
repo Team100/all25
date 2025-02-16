@@ -112,4 +112,9 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         //
     }
 
+    @Override
+    public void periodic() {
+        m_mechanism.periodic();
+    }
+
 }

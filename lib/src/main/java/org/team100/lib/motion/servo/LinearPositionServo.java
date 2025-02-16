@@ -41,4 +41,6 @@ public interface LinearPositionServo extends Glassy {
     void stop();
 
     void close();
+
+    void periodic();
 }

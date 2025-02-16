@@ -20,6 +20,9 @@ public class SimpleLinearMechanism implements LinearMechanism {
         m_encoder = encoder;
         m_gearRatio = gearRatio;
         m_wheelRadiusM = wheelDiameterM / 2;
+
+        // m_encoder.reset();
+        // encoder.reset();
     }
 
     @Override
@@ -71,7 +74,7 @@ public class SimpleLinearMechanism implements LinearMechanism {
         OptionalDouble positionRad = m_encoder.getPositionRad();
         if (positionRad.isEmpty())
             return OptionalDouble.empty();
-        return OptionalDouble.of(positionRad.getAsDouble() * m_wheelRadiusM / m_gearRatio);
+        return OptionalDouble.of(positionRad.getAsDouble() * m_wheelRadiusM / m_gearRatio ); 
     }
 
     @Override

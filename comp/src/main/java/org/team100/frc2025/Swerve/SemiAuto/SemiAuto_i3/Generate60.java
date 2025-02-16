@@ -15,6 +15,7 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
+import org.team100.lib.commands.drivetrain.FullStateTrajectoryListCommand;
 import org.team100.lib.follower.TrajectoryFollower;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -99,15 +100,28 @@ public class Generate60 extends Navigator {
     boolean condition = false;
     Rotation2d parallelInitialRotation = FieldConstants.getLandingAngle(end, approach);
 
+    // if(approach == ReefAproach.CCW){
+    //     Rotation2d newRotation = parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
+    //     condition = initialSpline.getDegrees() <= newRotation.getDegrees();
+    // } else{
+    //     Rotation2d newRotation = parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
+    //     condition = initialSpline.getDegrees() >= newRotation.getDegrees();
+    // }
+
+    Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(FieldConstants.getSectorAngle(start), approach);
+    Translation2d anchorWaypoint =  FieldConstants.getOrbitWaypoint(anchorPointRotation);
+    
+    Translation2d pointToAnchor = anchorWaypoint.minus(FieldConstants.getReefCenter());
+    Translation2d perpVector = new Translation2d();
     if(approach == ReefAproach.CCW){
-        Rotation2d newRotation = parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
-        condition = initialSpline.getDegrees() <= newRotation.getDegrees();
-    } else{
-        Rotation2d newRotation = parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
-        condition = initialSpline.getDegrees() >= newRotation.getDegrees();
+        perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(90));
+    }else{
+        perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(-90));
     }
 
-    condition = initialSpline.getDegrees() <= 0;
+    Rotation2d rotationToAnchorPoint = anchorWaypoint.minus(currTranslation).getAngle();
+
+    condition = rotationToAnchorPoint.getDegrees() <= 0;
 
 
     if(condition){

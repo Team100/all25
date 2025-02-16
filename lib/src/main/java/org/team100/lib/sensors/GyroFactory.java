@@ -17,7 +17,7 @@ public class GyroFactory {
         switch (Identity.instance) {
             case SWERVE_ONE:
             case COMP_BOT:
-                return new ReduxGyro(parent, 60);
+                // return new ReduxGyro(parent, 60);
             default:
                 // for simulation
                 return new SimulatedGyro(kinodynamics, collection);
