@@ -10,6 +10,7 @@ import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveWithProfile2;
 import org.team100.lib.commands.drivetrain.FancyTrajectory;
 import org.team100.lib.commands.drivetrain.FullCycle2;
+import edu.wpi.first.wpilibj.DriverStation;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.Rotate;
 import org.team100.lib.commands.drivetrain.SetRotation;
@@ -201,6 +202,7 @@ public class RobotContainer implements Glassy {
         // ObjectPosition24ArrayListener(poseEstimator);
 
         // DRIVER BUTTONS
+        m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
         whileTrue(driverControl::driveToObject,
                 new DriveWithProfile2(fieldLog, () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))), m_drive,
                         FullStateDriveController.getDefault(comLog), swerveKinodynamics));

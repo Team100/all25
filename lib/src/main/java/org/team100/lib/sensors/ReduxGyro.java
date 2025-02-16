@@ -38,8 +38,8 @@ public class ReduxGyro implements Gyro {
 
         // Both position and velocity should be reasonably fresh.
         CanandgyroSettings settings = new CanandgyroSettings();
-        settings.setAngularPositionFramePeriod(10);
-        settings.setAngularVelocityFramePeriod(10);
+        settings.setAngularPositionFramePeriod(0.01);
+        settings.setAngularVelocityFramePeriod(0.01);
         if (!m_gyro.setSettings(settings, 0.1)) {
             Util.warn("!!!!!!!!!!!! GYRO SETTING FAILED! !!!!!!!!!!!!");
         }
