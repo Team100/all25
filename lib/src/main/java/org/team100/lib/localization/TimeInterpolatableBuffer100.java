@@ -12,6 +12,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.interpolation.Interpolatable;
 
@@ -86,6 +87,7 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
      * Sample the buffer at the given time.
      */
     public T get(double timeSeconds) {
+
         // Special case for when the requested time is the same as a sample
         T nowEntry = m_pastSnapshots.get(timeSeconds);
         if (nowEntry != null) {
@@ -121,15 +123,16 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         // (the difference between the current time and bottom bound) and (the
         // difference between top and bottom bounds).
 
-        String bottomValue = bottomBound.getValue().toString();
-        m_log_bottom.log(() -> bottomValue);
-        String topValue = topBound.getValue().toString();
-        m_log_top.log(() -> topValue);
+        // String bottomValue = bottomBound.getValue().toString();
+        // m_log_bottom.log(() -> bottomValue);
+        // String topValue = topBound.getValue().toString();
+        // m_log_top.log(() -> topValue);
         double timeSinceBottom = timeSeconds - bottomBound.getKey();
         double timeSpan = topBound.getKey() - bottomBound.getKey();
         double timeFraction = timeSinceBottom / timeSpan;
-        m_log_lerpTime.log(() -> timeFraction);
+        // m_log_lerpTime.log(() -> timeFraction);
         return bottomBound.getValue().interpolate(topBound.getValue(), timeFraction);
+    
     }
 
     public SortedMap<Double, T> tailMap(double t, boolean inclusive) {
