@@ -1,6 +1,8 @@
 package org.team100.lib.controller.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
@@ -12,19 +14,166 @@ import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimedPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-class SwerveControllerTest implements Timeless {
+class FullStateSwerveControllerTest implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test
+    void testAtRest() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)));
+        assertEquals(0, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        assertEquals(0, t.theta(), kDelta);
+        assertTrue(c.atReference());
+    }
+
+    @Test
+    void testFar() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        // no velocity, no feedforward
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(1, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(1, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)));
+        // 1m error so dx should be K*e = 1
+        assertEquals(4, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        assertEquals(0, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
+    @Test
+    void testFast() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(0, 1), // produces error = 1
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(0, 1), // produces FF = 1
+                        new Model100(0, 0),
+                        new Model100(0, 0)));
+        // position err is zero but velocity error is 1 and feedforward is also 1 so dx
+        // should be FF + K*e = 2
+        assertEquals(1.25, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        assertEquals(0, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
+    @Test
+    void testOnTrack() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(-1, 0.5), // position + velocity error
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(-1, 0.5), // velocity reference
+                        new Model100(0, 0),
+                        new Model100(0, 0)));
+        // position and velocity controls are opposite, so just cruise
+        assertEquals(-3.375, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        assertEquals(0, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
+    @Test
+    void testAllAxes() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        // none of these have any velocity so there's no feedforward.
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(0, 0)),
+                new SwerveModel(
+                        new Model100(1, 0),
+                        new Model100(2, 0),
+                        new Model100(3, 0)),
+                new SwerveModel(
+                        new Model100(2, 0),
+                        new Model100(4, 0),
+                        new Model100(6, 0)));
+        // 1m error so dx should be K*e = 1
+        assertEquals(4, t.x(), kDelta);
+        assertEquals(8, t.y(), kDelta);
+        assertEquals(12, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
+    @Test
+    void testRotation() {
+        FullStateSwerveController c = SwerveControllerFactory.test2(logger);
+        assertFalse(c.atReference());
+        FieldRelativeVelocity t = c.calculate(
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(3, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(-3, 0)),
+                new SwerveModel(
+                        new Model100(0, 0),
+                        new Model100(0, 0),
+                        new Model100(-3, 0)));
+        assertEquals(0, t.x(), kDelta);
+        assertEquals(0, t.y(), kDelta);
+        // we want to rotate +
+        assertEquals(1.133, t.theta(), kDelta);
+        assertFalse(c.atReference());
+    }
+
+    @Test
     void testErrZero() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel measurement = new SwerveModel();
         SwerveModel currentReference = SwerveModel
                 .fromTimedPose(new TimedPose(new Pose2dWithMotion(new Pose2d()), 0, 0, 0));
@@ -36,7 +185,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testErrXAhead() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel measurement = new SwerveModel(new Pose2d(1, 0, new Rotation2d()));
         SwerveModel currentReference = SwerveModel
                 .fromTimedPose(new TimedPose(new Pose2dWithMotion(new Pose2d()), 0, 0, 0));
@@ -48,7 +197,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testErrXBehind() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, new Rotation2d()));
         SwerveModel currentReference = SwerveModel
                 .fromTimedPose(new TimedPose(new Pose2dWithMotion(new Pose2d(1, 0, new Rotation2d())), 0, 0, 0));
@@ -61,7 +210,7 @@ class SwerveControllerTest implements Timeless {
     /** Rotation should not matter. */
     @Test
     void testErrXAheadWithRotation() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         SwerveModel measurement = new SwerveModel(new Pose2d(1, 0, new Rotation2d(1)));
         SwerveModel currentReference = SwerveModel
                 .fromTimedPose(new TimedPose(new Pose2dWithMotion(new Pose2d(0, 0, new Rotation2d(1))), 0, 0, 0));
@@ -73,7 +222,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testErrorAhead() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing ahead
         SwerveModel measurement = new SwerveModel(new Pose2d());
         // motion is in a straight line, down the x axis
@@ -100,7 +249,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testErrorSideways() {
-        SwerveController controller = new SwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing down y
         SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, GeometryUtil.kRotation90));
         // motion is in a straight line, down the x axis
@@ -125,7 +274,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testVelocityErrorZero() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement position doesn't matter, rotation here matches velocity below
         SwerveModel measurement = new SwerveModel(
                 new Pose2d(1, 2, new Rotation2d(Math.PI)),
@@ -153,7 +302,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testVelocityErrorAhead() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing ahead
         // measurement is the wrong velocity
         SwerveModel measurement = new SwerveModel(
@@ -183,7 +332,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedForwardAhead() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // motion is in a straight line, down the x axis
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // setpoint is also at the origin
@@ -208,7 +357,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedForwardSideways() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // motion is in a straight line, down the x axis
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // setpoint is the same
@@ -233,7 +382,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedForwardTurning() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // motion is tangential to the x axis but turning left
         MotionDirection motionDirection = new MotionDirection(1, 0, 1);
         // setpoint is also at the origin
@@ -257,7 +406,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedbackAhead() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing ahead
         Pose2d currentState = new Pose2d();
         // setpoint is also at the origin
@@ -292,7 +441,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedbackAheadPlusY() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is plus-Y, facing ahead
         Pose2d currentState = new Pose2d(0, 1, GeometryUtil.kRotationZero);
         // setpoint is at the origin
@@ -327,7 +476,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedbackAheadPlusTheta() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is plus-theta
         Pose2d currentState = new Pose2d(0, 0, new Rotation2d(1.0));
         // setpoint is also at the origin
@@ -364,7 +513,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedbackSideways() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
 
         // measurement is at the origin, facing down the y axis
         Pose2d currentState = new Pose2d(0, 0, GeometryUtil.kRotation90);
@@ -399,7 +548,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFeedbackSidewaysPlusY() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is plus-y, facing down the y axis
         Pose2d currentState = new Pose2d(0, 1, GeometryUtil.kRotation90);
         // setpoint is parallel at the origin
@@ -433,7 +582,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFullFeedbackAhead() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing ahead
         Pose2d currentState = new Pose2d();
         // setpoint is also at the origin
@@ -468,7 +617,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFullFeedbackSideways() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
 
         // measurement is at the origin, facing +y
         Pose2d currentPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
@@ -504,7 +653,7 @@ class SwerveControllerTest implements Timeless {
 
     @Test
     void testFullFeedbackSidewaysWithRotation() {
-        SwerveController controller = new SwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
+        FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
 
         // measurement is ahead in x and y and theta
         // measurement is too slow

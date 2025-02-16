@@ -10,7 +10,7 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -32,7 +32,7 @@ public class Generate120 extends Navigator {
     public Generate120(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
-            HolonomicFieldRelativeController hcontroller,
+            SwerveController hcontroller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         super(parent, drive, hcontroller, viz, kinodynamics);

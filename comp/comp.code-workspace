@@ -22,7 +22,7 @@
         "editor.parameterHints.cycle": false,
         "java.signatureHelp.enabled": false,
         "java.saveActions.organizeImports": false,
-        "debug.console.fontSize": 12,
+        "debug.console.fontSize": 14,
         "workbench.colorCustomizations": {
             "debugConsole.infoForeground":"#000000"
         },

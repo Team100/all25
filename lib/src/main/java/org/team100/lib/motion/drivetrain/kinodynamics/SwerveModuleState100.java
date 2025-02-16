@@ -30,6 +30,18 @@ public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, S
         m_angle = angle;
     }
 
+    /**
+     * Returns empty angle if velocity is about zero.
+     * Otherwise angle is always within [-pi, pi].
+     */
+    public static SwerveModuleState100 fromSpeed(double vx, double vy) {
+        if (Math.abs(vx) < 0.004 && Math.abs(vy) < 0.004) {
+            return new SwerveModuleState100(0.0, Optional.empty());
+        } else {
+            return new SwerveModuleState100(Math.hypot(vx, vy), Optional.of(new Rotation2d(vx, vy)));
+        }
+    }
+
     /** Replace empty angle in this state with the supplied angle. */
     SwerveModuleState100 overwriteEmpty(SwerveModuleState100 other) {
         if (m_angle.isPresent())

@@ -21,7 +21,7 @@ public class ReferenceController implements Glassy {
     /** For testing */
     private static final boolean kPrint = false;
     private final DriveSubsystemInterface m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final SwerveReference m_reference;
     private final boolean m_verbatim;
 
@@ -33,7 +33,7 @@ public class ReferenceController implements Glassy {
      */
     public ReferenceController(
             DriveSubsystemInterface swerve,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             SwerveReference reference,
             boolean verbatim) {
         m_drive = swerve;

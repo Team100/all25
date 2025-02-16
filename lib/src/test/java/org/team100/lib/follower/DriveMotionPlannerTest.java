@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
-import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -61,7 +61,7 @@ class DriveMotionPlannerTest implements Timeless {
         if (DEBUG)
             Util.printf("TRAJECTORY:\n%s\n", trajectory);
 
-        SwerveController swerveController = new SwerveController(
+        FullStateSwerveController swerveController = new FullStateSwerveController(
                 logger,
                 2.4, 2.4,
                 0.1, 0.1,

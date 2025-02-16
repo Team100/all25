@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
@@ -27,7 +27,6 @@ import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryMaker;
-import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -47,7 +46,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
 
         MockDrive d = new MockDrive();
         // initially at rest
@@ -104,7 +103,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
 
         MockDrive d = new MockDrive();
         // initially at rest
@@ -138,7 +137,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
 
         SwerveDriveSubsystem drive = fixture.drive;
 
@@ -196,7 +195,7 @@ public class TrajectoryCommandTest extends Fixtured implements Timeless {
                 new Pose2d(0, 1, GeometryUtil.kRotationZero));
         // first state is motionless
         assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
-        HolonomicFieldRelativeController controller = HolonomicDriveControllerFactory.get(logger);
+        SwerveController controller = SwerveControllerFactory.test(logger);
 
         SwerveDriveSubsystem drive = fixture.drive;
 

@@ -10,6 +10,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveDriveKinematics100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
+    private static final boolean DEBUG = false;
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
@@ -87,37 +89,39 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * 
      * Feasibility is enforced by the setpoint generator (if enabled) and the
      * desaturator.
-     * 
-     * @param speeds        speeds in robot coordinates.
-     * @param gyroRateRad_S
-     * @param kDtSec        time in the future for the setpoint generator to
-     *                      calculate
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds, double gyroRateRad_S) {
+    public void setChassisSpeeds(ChassisSpeeds speeds) {
         m_log_desired.log(() -> speeds);
         if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
             setChassisSpeedsWithSetpointGenerator(speeds);
         } else {
-            setChassisSpeedsNormally(speeds, gyroRateRad_S);
+            setChassisSpeedsNormally(speeds);
         }
     }
 
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
-        setChassisSpeedsNormally(speeds, 0);
-    }
-
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds, double gyroRateRad_S) {
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+    /**
+     * Discretizes the speeds, calculates the inverse kinematic module states, and
+     * sets the module states.
+     * 
+     * If you want desaturation, use the setpoint generator.
+     */
+    public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(speeds, states);
         m_log_chassis_speed.log(() -> speeds);
     }
 
     /**
-     * Align wheels with the directions implied by speeds, don't move drives.
+     * Discretizes the speeds, calculates the inverse kinematic module states,
+     * and aligns the wheels with the directions implied by speeds,
+     * without moving the drive motors.
+     * 
+     * TODO: since this doesn't use the setpoint generator, it isn't exactly right
+     * but it's probably good enough.
      */
-    public void steerAtRest(ChassisSpeeds speeds, double gyroRateRad_S) {
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds, gyroRateRad_S);
+    public void steerAtRest(ChassisSpeeds speeds) {
+        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
         states = states.motionless();
         setModuleStates(states);
         m_prevSetpoint = new SwerveSetpoint(new ChassisSpeeds(), states);
@@ -127,13 +131,13 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * True if current wheel steering positions are aligned with the positions
      * implied by the desired speed.
      */
-    public boolean aligned(ChassisSpeeds desiredSpeeds, double gyroRateRad_S) {
+    public boolean aligned(ChassisSpeeds desiredSpeeds) {
         // These measurements include empty angles for motionless wheels.
         // Otherwise angle is always within [-pi, pi].
         OptionalDouble[] positions = m_modules.turningPosition();
         OptionalDouble[] velocities = m_modules.turningVelocity();
         SwerveModuleState100[] desiredStates = m_swerveKinodynamics.toSwerveModuleStates(
-                desiredSpeeds, gyroRateRad_S).all();
+                desiredSpeeds).all();
         for (int i = 0; i < positions.length; ++i) {
             if (positions[i].isEmpty() && velocities[i].isEmpty()) {
                 // Util.warn("broken sensor, this should never happen");
@@ -264,24 +268,28 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /////////////////////////////////////////////////////////
 
+    /**
+     * TODO: this must DISCRETIZE, but it doesn't.
+     * 
+     */
     private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds speeds) {
         // Informs SwerveDriveKinematics of the module states.
         SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
                 m_prevSetpoint,
                 speeds);
         // ideally delta would be zero because our input would be feasible.
-        ChassisSpeeds delta = setpoint.getChassisSpeeds().minus(speeds);
+        ChassisSpeeds delta = setpoint.speeds().minus(speeds);
         m_log_setpoint_delta.log(() -> delta);
-        m_log_prev_setpoint.log(m_prevSetpoint::getChassisSpeeds);
-        m_log_setpoint.log(setpoint::getChassisSpeeds);
-        setModuleStates(setpoint.getModuleStates());
+        m_log_prev_setpoint.log(m_prevSetpoint::speeds);
+        m_log_setpoint.log(setpoint::speeds);
+        ChassisSpeeds implied = m_swerveKinodynamics.toChassisSpeedsWithDiscretization(
+                setpoint.states(), 0.02);
+        if (DEBUG)
+            Util.printf("implied %s\n", implied);
+        setModuleStates(setpoint.states());
         m_prevSetpoint = setpoint;
     }
 
-    /**
-     * No longer desaturates. If you want desaturation, use the setpoint generator.
-     * Works fine with empty angles.
-     */
     private void setModuleStates(SwerveModuleStates states) {
         m_modules.setDesiredStates(states);
     }

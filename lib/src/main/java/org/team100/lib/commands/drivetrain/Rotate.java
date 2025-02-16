@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -26,7 +26,7 @@ public class Rotate extends Command implements Glassy {
     private static final double kSpeed = 0.5;
 
     private final SwerveDriveSubsystem m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final Rotation2d m_target;
     private final HolonomicProfile m_profile;
@@ -36,7 +36,7 @@ public class Rotate extends Command implements Glassy {
 
     public Rotate(
             SwerveDriveSubsystem drive,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             SwerveKinodynamics swerveKinodynamics,
             double targetAngleRadians) {
         m_drive = drive;

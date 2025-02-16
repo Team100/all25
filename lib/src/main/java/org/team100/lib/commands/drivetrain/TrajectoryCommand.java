@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
@@ -18,9 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
  * only be used from that point. It's kinda just for testing.
  */
 public class TrajectoryCommand extends Command implements Glassy {
-    private final LoggerFactory m_log;
     private final DriveSubsystemInterface m_drive;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final Trajectory100 m_trajectory;
     private final TrajectoryVisualization m_viz;
     private ReferenceController m_referenceController;
@@ -28,10 +27,9 @@ public class TrajectoryCommand extends Command implements Glassy {
     public TrajectoryCommand(
             LoggerFactory parent,
             DriveSubsystemInterface swerve,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             Trajectory100 trajectory,
             TrajectoryVisualization viz) {
-        m_log = parent.child(this);
         m_drive = swerve;
         m_controller = controller;
         m_trajectory = trajectory;
