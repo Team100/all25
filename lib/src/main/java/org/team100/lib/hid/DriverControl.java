@@ -96,6 +96,10 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
+    default boolean driveOneMeter() {
+        return false;
+    }
+
     default boolean trigger() {
         return false;
     }

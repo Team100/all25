@@ -158,6 +158,11 @@ public class DriverXboxControl implements DriverControl {
     public boolean driveToObject() {
         return m_controller.getYButton();
     }
+    
+    @Override
+    public boolean driveOneMeter() {
+        return m_controller.getAButton();
+    }
 
     @Override
     public boolean test() {
