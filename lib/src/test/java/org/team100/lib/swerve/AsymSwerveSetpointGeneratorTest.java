@@ -110,17 +110,106 @@ class AsymSwerveSetpointGeneratorTest {
             assertEquals(Math.PI / 4, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(prevSetpoint.speeds()), kDelta);
             assertEquals(3.733, prevSetpoint.speeds().omegaRadiansPerSecond, kDelta);
-            // 
+            //
             //
             // ##############
             // ## this is the bug
             // ##############
             //
             //
-            assertEquals(Math.PI / 4, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-12);
+            assertEquals(0.7838560223692357, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(setpoint.speeds()), 0.2);
+            assertEquals(2.5283945810697666, setpoint.speeds().vxMetersPerSecond, 1e-12);
+            assertEquals(2.5206083004022424, setpoint.speeds().vyMetersPerSecond, 0.2);
             assertEquals(3.733, setpoint.speeds().omegaRadiansPerSecond, 0.2);
         }
+    }
+
+    /** This is pulled from the case below, to isolate the problem. */
+    @Test
+    void testMakeSpeeds() {
+        FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
+        double headingRad = 0.005716666136460628;
+        ChassisSpeeds prevSpeed = new ChassisSpeeds(0.16333333, 0, 0.28583333);
+
+        ChassisSpeeds targetSpeed = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                input,
+                new Rotation2d(headingRad));
+        assertEquals(-0.005716666136460628, GeometryUtil.getCourse(targetSpeed).get().getRadians(), 1e-12);
+
+        AsymSwerveSetpointGenerator generator = new AsymSwerveSetpointGenerator(
+                logger,
+                kKinematicLimits,
+                () -> 12);
+        {
+            // min_s == 1, works fine.
+            double min_s = 1.0;
+            ChassisSpeeds newSpeed = generator.makeSpeeds(prevSpeed, targetSpeed, min_s);
+            // new course needs to be the same as the target course.
+            assertEquals(-0.005716666136460628, GeometryUtil.getCourse(newSpeed).get().getRadians(), 1e-12);
+        }
+        {
+            // this is the failure case.
+            double min_s = 0.1;
+            ChassisSpeeds newSpeed = generator.makeSpeeds(prevSpeed, targetSpeed, min_s);
+            // new course needs to be the same as the target course.
+            assertEquals(-0.005716666136460628, GeometryUtil.getCourse(newSpeed).get().getRadians(), 1e-12);
+        }
+    }
+
+    /** This is pulled from SimulatedDrivingTest, to isolate the problem. */
+    @Test
+    void courseInvariantRealistic() {
+        FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
+
+        // this is the current estimated pose heading. we've been driving for one time
+        // step,
+        // so we rotated a tiny bit.
+        double headingRad = 0.005716666136460628;
+
+        // not going very fast. note the previous instantaneous robot-relative speed has
+        // no "y" component at all, because at the previous time, we had heading of zero
+        // (and no speed either).
+        ChassisSpeeds prevSpeed = new ChassisSpeeds(0.16333333, 0, 0.28583333);
+        SwerveModuleStates states = kKinematicLimits.toSwerveModuleStates(prevSpeed);
+        SwerveSetpoint prevSetpoint = new SwerveSetpoint(prevSpeed, states);
+
+        // the previous course is exactly zero: this is the first time step after
+        // starting.
+        assertEquals(0, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), 1e-12);
+        assertEquals(0.16333333, GeometryUtil.norm(prevSetpoint.speeds()), 1e-12);
+        assertEquals(0.28583333, prevSetpoint.speeds().omegaRadiansPerSecond, 1e-12);
+
+        // field-relative is +x, field-relative course is zero
+
+        final ChassisSpeeds targetSpeed = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                input,
+                new Rotation2d(headingRad));
+
+        // the robot-relative course is the opposite of the heading
+        assertEquals(-0.005716666136460628, GeometryUtil.getCourse(targetSpeed).get().getRadians(), 1e-12);
+        // the norm is the same as the input
+        assertEquals(2, GeometryUtil.norm(targetSpeed), 1e-12);
+        assertEquals(1.9999673198172843, targetSpeed.vxMetersPerSecond, 1e-12);
+        assertEquals(-0.011433269998955463, targetSpeed.vyMetersPerSecond, 1e-12);
+        assertEquals(3.5, targetSpeed.omegaRadiansPerSecond, 1e-12);
+
+        AsymSwerveSetpointGenerator generator = new AsymSwerveSetpointGenerator(
+                logger,
+                kKinematicLimits,
+                () -> 12);
+        SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, targetSpeed);
+
+        // SwerveSetpoint setpoint = generator.makeSetpoint(prevSetpoint,
+        // prevSetpoint.states(),)
+
+        // since the real heading of the robot can't change, the course here needs to
+        // still be exactly
+        // the opposite of the field-relative heading. if not, veering ensues.
+        assertEquals(-0.005716666136460639, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-12);
+        assertEquals(0.6533279466911724, GeometryUtil.norm(setpoint.speeds()), 1e-12);
+        assertEquals(0.5716662108278215, setpoint.speeds().omegaRadiansPerSecond, 1e-12);
+
     }
 
     /** desaturation should keep the same instantaneous course. */

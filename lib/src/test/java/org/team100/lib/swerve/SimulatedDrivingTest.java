@@ -153,10 +153,11 @@ public class SimulatedDrivingTest implements Timeless {
         collection.reset();
         // +x and spinning. course is always zero.
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 100; ++i) {
+            Util.printf("\nstep time ...\n");
             stepTime();
-            drive.driveInFieldCoords(input);
             Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
+            drive.driveInFieldCoords(input);
         }
     }
 
@@ -168,11 +169,11 @@ public class SimulatedDrivingTest implements Timeless {
         collection.reset();
         // +x and spinning
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
-        for (int i = 0; i < 50; ++i) {
-            Util.printf("step time ...\n");
+        for (int i = 0; i < 100; ++i) {
+            Util.printf("\nstep time ...\n");
             stepTime();
-            drive.driveInFieldCoordsVerbatim(input);
             Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
+            drive.driveInFieldCoordsVerbatim(input);
         }
     }
 

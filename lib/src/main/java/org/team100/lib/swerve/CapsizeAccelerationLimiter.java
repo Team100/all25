@@ -7,6 +7,8 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+
 /**
  * Enforces a fixed limit on delta v.
  */
@@ -26,7 +28,10 @@ public class CapsizeAccelerationLimiter implements Glassy {
      * @param dy
      * @return
      */
-    public double enforceCentripetalLimit(double dx, double dy) {
+    public double enforceCentripetalLimit(ChassisSpeeds prev, ChassisSpeeds target) {
+        final double dx = target.vxMetersPerSecond - prev.vxMetersPerSecond;
+        final double dy = target.vyMetersPerSecond - prev.vyMetersPerSecond;
+
         double min_s = 1.0;
         double dv = Math.hypot(dx, dy);
         double a = dv / TimedRobot100.LOOP_PERIOD_S;

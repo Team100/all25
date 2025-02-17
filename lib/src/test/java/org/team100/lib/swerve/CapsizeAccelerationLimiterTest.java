@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -18,7 +21,7 @@ class CapsizeAccelerationLimiterTest {
     void testUnconstrained() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forTest();
         CapsizeAccelerationLimiter c = new CapsizeAccelerationLimiter(logger, l);
-        double s = c.enforceCentripetalLimit(0, 0);
+        double s = c.enforceCentripetalLimit(new ChassisSpeeds(), new ChassisSpeeds());
         assertEquals(1, s, kDelta);
     }
 
@@ -29,7 +32,7 @@ class CapsizeAccelerationLimiterTest {
     void testConstrained() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forTest();
         CapsizeAccelerationLimiter c = new CapsizeAccelerationLimiter(logger, l);
-        double s = c.enforceCentripetalLimit(-1, 1);
+        double s = c.enforceCentripetalLimit(new ChassisSpeeds(1, 0, 0), new ChassisSpeeds(0, 1, 0));
         assertEquals(0.115, s, kDelta);
     }
 }
