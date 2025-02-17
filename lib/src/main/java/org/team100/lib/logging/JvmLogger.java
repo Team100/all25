@@ -36,44 +36,54 @@ public class JvmLogger implements Glassy {
         m_log_gc_count = child.longLogger(Level.TRACE, "GCCounts/total");
     }
 
-    /** This doesn't seem to ever log anything. */
     public void logGarbageCollectors() {
-        long accumTime = 0;
-        long accumCount = 0;
-        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
-            String pool = bean.getName();
-            times.computeIfAbsent(pool, x -> 0l);
-            counts.computeIfAbsent(pool, x -> 0l);
-            long collectionTime = bean.getCollectionTime();
-            long collectionCount = bean.getCollectionCount();
-            long thisTime = collectionTime - times.get(pool);
-            long thisCount = collectionCount - counts.get(pool);
-            times.put(pool, collectionTime);
-            counts.put(pool, collectionCount);
-            accumTime += thisTime;
-            accumCount += thisCount;
-        }
-        long finalAccumTime = accumTime;
-        long finalAccumCount = accumCount;
-        m_log_gc_time.log(() -> finalAccumTime);
-        m_log_gc_count.log(() -> finalAccumCount);
+        m_log_gc_time.log(() -> garbageCollectorTime());
+        m_log_gc_count.log(() -> garbageCollectorCount());
     }
 
     public void logMemoryPools() {
+        m_log_memory_total.log(() -> getPoolUsage());
+    }
+
+    public void logMemoryUsage() {
+        m_log_heap.log(() -> ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
+        m_log_nonheap.log(() -> ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed());
+    }
+
+    private long garbageCollectorTime() {
+        long accumTime = 0;
+        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            String pool = bean.getName();
+            times.computeIfAbsent(pool, x -> 0l);
+            long collectionTime = bean.getCollectionTime();
+            long thisTime = collectionTime - times.get(pool);
+            times.put(pool, collectionTime);
+            accumTime += thisTime;
+        }
+        return accumTime;
+    }
+
+    private long garbageCollectorCount() {
+        long accumCount = 0;
+        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            String pool = bean.getName();
+            counts.computeIfAbsent(pool, x -> 0l);
+            long collectionCount = bean.getCollectionCount();
+            long thisCount = collectionCount - counts.get(pool);
+            counts.put(pool, collectionCount);
+            accumCount += thisCount;
+        }
+        return accumCount;
+
+    }
+
+    private long getPoolUsage() {
         long accumUsage = 0;
         for (MemoryPoolMXBean bean : ManagementFactory.getMemoryPoolMXBeans()) {
             MemoryUsage usage = bean.getUsage();
             accumUsage += usage.getUsed();
         }
-        long finalAccumUsage = accumUsage;
-        m_log_memory_total.log(() -> finalAccumUsage);
+        return accumUsage;
     }
-
-    public void logMemoryUsage() {
-        MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
-        m_log_heap.log(() -> bean.getHeapMemoryUsage().getUsed());
-        m_log_nonheap.log(() -> bean.getNonHeapMemoryUsage().getUsed());
-    }
-
 
 }

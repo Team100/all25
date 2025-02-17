@@ -112,20 +112,22 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
      * @return feasible field-relative velocity in m/s and rad/s
      */
     @Override
-    public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity twist1_1) {
-        Model100 thetaState = state.theta();
-        double yawMeasurement = thetaState.x();
-        double yawRate = thetaState.v();
+    public FieldRelativeVelocity apply(
+            final SwerveModel state,
+            final DriverControl.Velocity twist1_1) {
+        final Model100 thetaState = state.theta();
+        final double yawMeasurement = thetaState.x();
+        final double yawRate = thetaState.v();
 
         // clip the input to the unit circle
-        DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
+        final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
         // scale to max in both translation and rotation
-        FieldRelativeVelocity twistM_S = DriveUtil.scale(
+        final FieldRelativeVelocity twistM_S = DriveUtil.scale(
                 clipped,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        Rotation2d pov = m_desiredRotation.get();
+        final Rotation2d pov = m_desiredRotation.get();
         m_goal = m_latch.latchedRotation(
                 m_swerveKinodynamics.getMaxAngleAccelRad_S2(),
                 state.theta(),
@@ -148,8 +150,8 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
         // the omega goal in snap mode is always zero.
         m_thetaSetpoint = new Control100(m_goal.getRadians(), 0);
 
-        double thetaError = MathUtil.angleModulus(m_thetaSetpoint.x() - yawMeasurement);
-        double omegaError = -1.0 * yawRate;
+        final double thetaError = MathUtil.angleModulus(m_thetaSetpoint.x() - yawMeasurement);
+        final double omegaError = -1.0 * yawRate;
 
         final double omegaFB = getOmegaFB(omegaError);
         final double thetaFB = getThetaFB(thetaError);
@@ -162,7 +164,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(twistM_S.x(), twistM_S.y(), omega);
+        final FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(twistM_S.x(), twistM_S.y(), omega);
 
         m_log_mode.log(() -> "snap");
         m_log_goal_theta.log(m_goal::getRadians);
@@ -178,29 +180,28 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
         // desaturate the end result to feasibility, optionally preferring the rotation
         // over translation
         if (Experiments.instance.enabled(Experiment.SnapPreferRotation))
-            twistWithSnapM_S = m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
+            return m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
         else
-            twistWithSnapM_S = m_swerveKinodynamics.analyticDesaturation(twistWithSnapM_S);
-        return twistWithSnapM_S;
+            return m_swerveKinodynamics.analyticDesaturation(twistWithSnapM_S);
     }
 
-    private double getOmegaFB(double omegaError) {
-        double omegaFB = m_K[1] * omegaError;
+    private double getOmegaFB(final double omegaError) {
+        final double omegaFB = m_K[1] * omegaError;
 
         if (Experiments.instance.enabled(Experiment.SnapThetaFilter)) {
             // output filtering to prevent oscillation due to delay
-            omegaFB = m_outputFilter.calculate(omegaFB);
+            return m_outputFilter.calculate(omegaFB);
         }
         if (Math.abs(omegaFB) < 0.05) {
-            omegaFB = 0;
+            return 0;
         }
         return omegaFB;
     }
 
-    private double getThetaFB(double thetaError) {
-        double thetaFB = m_K[0] * thetaError;
+    private double getThetaFB(final double thetaError) {
+        final double thetaFB = m_K[0] * thetaError;
         if (Math.abs(thetaFB) < 0.05) {
-            thetaFB = 0;
+            return 0;
         }
         return thetaFB;
     }

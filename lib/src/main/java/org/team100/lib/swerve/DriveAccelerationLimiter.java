@@ -47,14 +47,14 @@ public class DriveAccelerationLimiter implements Glassy {
             double vx_min_s = Math100.interpolate(prev_vx[i], desired_vx[i], min_s);
             double vy_min_s = Math100.interpolate(prev_vy[i], desired_vy[i], min_s);
 
-            double s = SwerveUtil.findDriveMaxS(
+            double wheel_s = SwerveUtil.findDriveMaxS(
                     prev_vx[i],
                     prev_vy[i],
                     vx_min_s,
                     vy_min_s,
                     max_vel_step,
                     kMaxIterations);
-            min_s = Math.min(min_s, s);
+            min_s = Math.min(min_s, wheel_s);
             if (min_s == 0.0) {
                 break;
             }

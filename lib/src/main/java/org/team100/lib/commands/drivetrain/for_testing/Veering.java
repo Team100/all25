@@ -7,8 +7,8 @@ import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.SquareWave;
+import org.team100.lib.util.Takt;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -22,21 +22,21 @@ public class Veering extends Command implements Glassy  {
     private static final double kOmega = Math.PI;
     private final SwerveDriveSubsystem m_drive;
     private final SquareWave m_square;
-    private final Timer m_timer;
+    private final Takt.Timer m_timer;
     private final FieldRelativeVelocityLogger m_log_input;
 
     public Veering(LoggerFactory parent, SwerveDriveSubsystem swerve) {
         LoggerFactory child = parent.child(this);
         m_drive = swerve;
         m_square = new SquareWave(kAmplitude, kPeriod);
-        m_timer = new Timer();
+        m_timer = new Takt.Timer();
         addRequirements(m_drive);
         m_log_input = child.fieldRelativeVelocityLogger(Level.TRACE, "input");
     }
 
     @Override
     public void initialize() {
-        m_timer.restart();
+        m_timer.reset();
     }
 
     @Override

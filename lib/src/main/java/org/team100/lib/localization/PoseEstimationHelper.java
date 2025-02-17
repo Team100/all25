@@ -49,7 +49,7 @@ public class PoseEstimationHelper implements Glassy {
             Rotation3d robotRotationInFieldCoordsFromGyro,
             double thresholdMeters) {
 
-        Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
+        final Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
 
         if (tagTranslationInCameraCoords.getNorm() < thresholdMeters) {
             m_log_rotation_source.log(() -> "CAMERA");

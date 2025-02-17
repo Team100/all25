@@ -86,20 +86,20 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * @param v Field coordinate velocities in meters and radians per second.
      */
     @Override
-    public void driveInFieldCoords(FieldRelativeVelocity vIn) {
-        m_log_input.log(() -> vIn);
-
+    public void driveInFieldCoords(final FieldRelativeVelocity vIn) {
         // scale for driver skill; default is half speed.
-        DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        m_log_skill.log(() -> driverSkillLevel);
-        FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
+        final DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        final FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
 
-        Rotation2d theta = getPose().getRotation();
-        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
-        if (DEBUG)
-            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+        final Rotation2d theta = getPose().getRotation();
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
 
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
+
+        m_log_input.log(() -> vIn);
+        m_log_skill.log(() -> driverSkillLevel);
+        if (DEBUG)
+            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
@@ -140,12 +140,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * 
      * @param speeds in robot coordinates
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
+    public void setChassisSpeeds(final ChassisSpeeds speeds) {
         // scale for driver skill; default is half speed.
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        m_swerveLocal.setChassisSpeeds(speeds.times(driverSkillLevel.scale()));
         m_log_skill.log(() -> driverSkillLevel);
-        speeds = speeds.times(driverSkillLevel.scale());
-        m_swerveLocal.setChassisSpeeds(speeds);
     }
 
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {

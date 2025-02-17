@@ -61,7 +61,6 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
         LoggerFactory child = parent.child(this);
         m_kinodynamics = kinodynamics;
         m_poseBuffer = new TimeInterpolatableBuffer100<>(
-                child,
                 kBufferDuration,
                 timestampSeconds,
                 new InterpolationRecord(

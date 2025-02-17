@@ -220,6 +220,11 @@ public class LoggerFactory {
         return new LongLogger(level, leaf);
     }
 
+    /**
+     * Note! Strings can be expensive to produce in Java. Make sure you are using a
+     * supplier with this logger, so you don't generate a string if you're not
+     * actually going to log it (e.g. because you're running at a coarse log level)
+     */
     public class StringLogger {
         private final Level m_level;
         private final PrimitiveLogger.PrimitiveStringLogger m_primitiveLogger;

@@ -108,14 +108,16 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
      * @return feasible field-relative velocity in m/s and rad/s
      */
     @Override
-    public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity twist1_1) {
+    public FieldRelativeVelocity apply(
+            final SwerveModel state,
+            final DriverControl.Velocity twist1_1) {
         final FieldRelativeVelocity control = clipAndScale(twist1_1);
 
         final double currentVelocity = state.velocity().norm();
 
         final TrapezoidProfile100 m_profile = makeProfile(currentVelocity);
 
-        Rotation2d pov = m_desiredRotation.get();
+        final Rotation2d pov = m_desiredRotation.get();
         m_goal = m_latch.latchedRotation(
                 m_profile.getMaxAcceleration(),
                 state.theta(),
@@ -137,7 +139,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             m_thetaSetpoint = state.theta().control();
         }
 
-        double thetaFB = m_thetaFeedback.calculate(state.theta(), m_thetaSetpoint.model());
+        final double thetaFB = m_thetaFeedback.calculate(state.theta(), m_thetaSetpoint.model());
 
         //
         // feedforward uses the new setpoint
@@ -149,7 +151,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 Math100.getMinDistance(yawMeasurement, m_goal.getRadians()));
         // in snap mode we take dx and dy from the user, and use the profile for dtheta.
         // the omega goal in snap mode is always zero.
-        Model100 goalState = new Model100(m_goal.getRadians(), 0);
+        final Model100 goalState = new Model100(m_goal.getRadians(), 0);
 
         // use the modulus closest to the measurement
         m_thetaSetpoint = new Control100(
@@ -158,9 +160,9 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goalState);
 
         // the snap overrides the user input for omega.
-        double thetaFF = m_thetaSetpoint.v();
+        final double thetaFF = m_thetaSetpoint.v();
 
-        double omega = MathUtil.clamp(
+        final double omega = MathUtil.clamp(
                 thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
@@ -175,13 +177,12 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
 
         // desaturate the end result to feasibility by preferring the rotation over
         // translation
-        twistWithSnapM_S = m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
-        return twistWithSnapM_S;
+        return m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
     }
 
     public FieldRelativeVelocity clipAndScale(DriverControl.Velocity twist1_1) {
         // clip the input to the unit circle
-        DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
+        final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
         // scale to max in both translation and rotation
         return DriveUtil.scale(
                 clipped,
@@ -195,15 +196,15 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
      */
     public TrapezoidProfile100 makeProfile(double currentVelocity) {
         // fraction of the maximum speed
-        double xyRatio = Math.min(1, currentVelocity / m_swerveKinodynamics.getMaxDriveVelocityM_S());
+        final double xyRatio = Math.min(1, currentVelocity / m_swerveKinodynamics.getMaxDriveVelocityM_S());
         // fraction left for rotation
-        double oRatio = 1 - xyRatio;
+        final double oRatio = 1 - xyRatio;
         // add a little bit of default speed
-        double kRotationSpeed = Math.max(0.1, oRatio);
+        final double kRotationSpeed = Math.max(0.1, oRatio);
 
-        double maxSpeedRad_S = m_swerveKinodynamics.getMaxAngleSpeedRad_S() * kRotationSpeed * PROFILE_SPEED;
+        final double maxSpeedRad_S = m_swerveKinodynamics.getMaxAngleSpeedRad_S() * kRotationSpeed * PROFILE_SPEED;
 
-        double maxAccelRad_S2 = m_swerveKinodynamics.getMaxAngleAccelRad_S2() * kRotationSpeed * PROFILE_ACCEL;
+        final double maxAccelRad_S2 = m_swerveKinodynamics.getMaxAngleAccelRad_S2() * kRotationSpeed * PROFILE_ACCEL;
 
         m_log_max_speed.log(() -> maxSpeedRad_S);
         m_log_max_accel.log(() -> maxAccelRad_S2);

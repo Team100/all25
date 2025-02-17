@@ -37,9 +37,7 @@ public class SteeringRateLimiter implements Glassy {
             double[] desired_vy,
             Rotation2d[] desired_heading, // nullable entries
             Rotation2d[] overrideSteering) {
-
         double min_s = 1.0;
-
         for (int i = 0; i < prev_vx.length; ++i) {
             if (prev_heading[i] == null || desired_heading[i] == null) {
                 // don't know what to do here
@@ -49,7 +47,7 @@ public class SteeringRateLimiter implements Glassy {
                 // ignore overridden wheels
                 continue;
             }
-            double s = SwerveUtil.findSteeringMaxS(
+            double wheel_s = SwerveUtil.findSteeringMaxS(
                     prev_vx[i],
                     prev_vy[i],
                     prev_heading[i].getRadians(),
@@ -59,7 +57,7 @@ public class SteeringRateLimiter implements Glassy {
                     TimedRobot100.LOOP_PERIOD_S * m_limits.getMaxSteeringVelocityRad_S(),
                     kMaxIterations);
 
-            min_s = Math.min(min_s, s);
+            min_s = Math.min(min_s, wheel_s);
         }
         double s = min_s;
         m_log_s.log(() -> s);

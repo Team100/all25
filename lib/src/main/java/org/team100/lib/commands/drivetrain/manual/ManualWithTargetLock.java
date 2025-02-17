@@ -89,31 +89,32 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
      * @return feasible field-relative velocity in m/s and rad/s
      */
     @Override
-    public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity input) {
+    public FieldRelativeVelocity apply(
+            final SwerveModel state,
+            final DriverControl.Velocity input) {
 
         //
         // feedback is based on the previous setpoint.
         //
 
-        double thetaFB = m_thetaController.calculate(state.theta(), m_thetaSetpoint.model());
+        final double thetaFB = m_thetaController.calculate(state.theta(), m_thetaSetpoint.model());
 
         //
         // update the setpoint for the next time step
         //
 
         // the goal omega should match the target's apparent motion
-        Translation2d target = m_target.get();
-        double targetMotion = TargetUtil.targetMotion(state, target);
-        m_log_apparent_motion.log(() -> targetMotion);
+        final Translation2d target = m_target.get();
+        final double targetMotion = TargetUtil.targetMotion(state, target);
 
-        Translation2d currentTranslation = state.pose().getTranslation();
+        final Translation2d currentTranslation = state.pose().getTranslation();
         Rotation2d bearing = TargetUtil.bearing(currentTranslation, target);
 
-        double yaw = state.theta().x();
+        final double yaw = state.theta().x();
         bearing = new Rotation2d(
                 Math100.getMinDistance(yaw, bearing.getRadians()));
 
-        Model100 goal = new Model100(bearing.getRadians(), targetMotion);
+        final Model100 goal = new Model100(bearing.getRadians(), targetMotion);
 
         // make sure the setpoint uses the modulus close to the measurement.
         m_thetaSetpoint = new Control100(
@@ -122,27 +123,26 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
         m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goal);
 
         // feedforward is for the next time step
-        double thetaFF = m_thetaSetpoint.v();
+        final double thetaFF = m_thetaSetpoint.v();
 
-        double omega = MathUtil.clamp(
+        final double omega = MathUtil.clamp(
                 thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        FieldRelativeVelocity scaledInput = getScaledInput(input);
+        final FieldRelativeVelocity scaledInput = getScaledInput(input);
 
-        FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(
+        final FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(
                 scaledInput.x(), scaledInput.y(), omega);
 
-        // desaturate to feasibility by preferring the rotational velocity.
-        twistWithLockM_S = m_swerveKinodynamics.preferRotation(twistWithLockM_S);
-
+        m_log_apparent_motion.log(() -> targetMotion);
         m_field_log.m_log_target.log(() -> new double[] {
                 target.getX(),
                 target.getY(),
                 0 });
 
-        return twistWithLockM_S;
+        // desaturate to feasibility by preferring the rotational velocity.
+        return m_swerveKinodynamics.preferRotation(twistWithLockM_S);
     }
 
     private FieldRelativeVelocity getScaledInput(DriverControl.Velocity input) {

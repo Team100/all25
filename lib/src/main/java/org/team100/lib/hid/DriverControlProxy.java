@@ -49,10 +49,11 @@ public class DriverControlProxy implements DriverControl {
         m_driverControl = getDriverControl(m_logger, name);
 
         Util.printf("*** CONTROL UPDATE\n");
+        String simpleName = m_driverControl.getClass().getSimpleName();
         Util.printf("*** Driver HID: %s Control: %s\n",
                 m_driverControl.getHIDName(),
-                m_driverControl.getClass().getSimpleName());
-        m_hidLogger.log(() -> m_driverControl.getClass().getSimpleName());
+                simpleName);
+        m_hidLogger.log(() -> simpleName);
     }
 
     private static DriverControl getDriverControl(LoggerFactory parent, String name) {

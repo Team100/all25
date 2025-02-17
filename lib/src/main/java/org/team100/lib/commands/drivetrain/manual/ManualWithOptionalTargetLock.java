@@ -91,7 +91,9 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
      * @return feasible field-relative velocity in m/s and rad/s
      */
     @Override
-    public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity input) {
+    public FieldRelativeVelocity apply(
+            final SwerveModel state,
+            final DriverControl.Velocity input) {
 
         //
         // feedback is based on the previous setpoint.
@@ -120,7 +122,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
             return twistWithLockM_S;
         }
 
-        Translation2d currentTranslation = state.pose().getTranslation();
+        final Translation2d currentTranslation = state.pose().getTranslation();
         Rotation2d bearing = TargetUtil.bearing(currentTranslation, target.get()).plus(GeometryUtil.kRotation180);
 
         final double yaw = state.theta().x();
@@ -135,7 +137,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
                 m_thetaSetpoint.v());
 
         // the goal omega should match the target's apparent motion
-        double targetMotion = TargetUtil.targetMotion(state, target.get());
+        final double targetMotion = TargetUtil.targetMotion(state, target.get());
         m_log_apparent_motion.log(() -> targetMotion);
 
         Model100 goal = new Model100(bearing.getRadians(), targetMotion);
@@ -144,18 +146,21 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
 
         // this is user input scaled to m/s and rad/s
 
-        double thetaFF = m_thetaSetpoint.v();
-        double omega = MathUtil.clamp(
+        final double thetaFF = m_thetaSetpoint.v();
+        final double omega = MathUtil.clamp(
                 thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        m_field_log.m_log_target.log(() -> new double[] { target.get().getX(), target.get().getY(), 0 });
+        m_field_log.m_log_target.log(() -> new double[] {
+                target.get().getX(),
+                target.get().getY(),
+                0 });
 
-        FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(), omega);
+        final FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(),
+                omega);
 
         // desaturate to feasibility by preferring the rotational velocity.
-        twistWithLockM_S = m_swerveKinodynamics.preferRotation(twistWithLockM_S);
-        return twistWithLockM_S;
+        return m_swerveKinodynamics.preferRotation(twistWithLockM_S);
     }
 }

@@ -88,7 +88,7 @@ public class DriveInACircle extends Command implements Glassy {
     @Override
     public void initialize() {
         m_controller.reset();
-        Pose2d currentPose = m_drive.getPose();
+        final Pose2d currentPose = m_drive.getPose();
         m_initialRotation = currentPose.getRotation().getRadians();
         m_center = getCenter(currentPose, kRadiusM);
         m_speedRad_S = 0;
@@ -107,7 +107,7 @@ public class DriveInACircle extends Command implements Glassy {
         }
         m_angleRad += m_speedRad_S * TimedRobot100.LOOP_PERIOD_S;
 
-        SwerveControl reference = getReference(
+        final SwerveControl reference = getReference(
                 m_center,
                 kRadiusM,
                 m_angleRad,
@@ -120,7 +120,7 @@ public class DriveInACircle extends Command implements Glassy {
             m_currentReference = reference;
         }
 
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
+        final FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 m_drive.getState(), m_currentReference.model(), reference.model());
         m_currentReference = reference;
         m_drive.driveInFieldCoords(fieldRelativeTarget);
@@ -144,20 +144,20 @@ public class DriveInACircle extends Command implements Glassy {
             final double initialRotation,
             final double turnRatio) {
 
-        Control100 rotation = new Control100(
+        final Control100 rotation = new Control100(
                 initialRotation + turnRatio * angleRad,
                 turnRatio * speedRad_S,
                 turnRatio * accelRad_S_S);
 
-        double sin = Math.sin(initialRotation + angleRad);
-        double cos = Math.cos(initialRotation + angleRad);
+        final double sin = Math.sin(initialRotation + angleRad);
+        final double cos = Math.cos(initialRotation + angleRad);
         // centripetal acceleration is omega^2*r
         // pathwise acceleration is whatever the accel parameter says
-        Control100 xState = new Control100(
+        final Control100 xState = new Control100(
                 center.getX() + sin * radiusM,
                 speedRad_S * cos * radiusM,
                 -1.0 * speedRad_S * speedRad_S * sin * radiusM + accelRad_S_S * cos);
-        Control100 yState = new Control100(
+        final Control100 yState = new Control100(
                 center.getY() - cos * radiusM,
                 speedRad_S * sin * radiusM,
                 speedRad_S * speedRad_S * cos * radiusM + accelRad_S_S * sin);
@@ -166,7 +166,7 @@ public class DriveInACircle extends Command implements Glassy {
 
     private void visualize() {
         // these poses are only used for visualization
-        List<Pose2d> poses = new ArrayList<>();
+        final List<Pose2d> poses = new ArrayList<>();
         for (double angleRad = 0; angleRad < 2 * Math.PI; angleRad += 0.1) {
             SwerveControl s = getReference(
                     m_center,

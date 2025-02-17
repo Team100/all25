@@ -13,13 +13,13 @@ import org.team100.lib.motion.arm.ArmKinematics;
 import org.team100.lib.motion.arm.ArmSubsystem;
 import org.team100.lib.motion.arm.ArmTrajectories;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -40,7 +40,7 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
     private final Translation2d m_goal;
 
     private final ArmAngles m_goalAngles;
-    private final Timer m_timer;
+    private final Takt.Timer m_timer;
 
     private final Feedback100 m_lowerPosFeedback;
     private final Feedback100 m_upperPosFeedback;
@@ -82,7 +82,7 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         m_goal = goal;
 
         m_goalAngles = m_armKinematicsM.inverse(m_goal);
-        m_timer = new Timer();
+        m_timer = new Takt.Timer();
 
         m_lowerPosFeedback = new PIDFeedback(
                 child.child("lowerPosController"), 2, 0, 0.1, true, kTolerance, 1);
@@ -103,7 +103,7 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        m_timer.restart();
+        m_timer.reset();
         Optional<ArmAngles> position = m_armSubsystem.getPosition();
         if (position.isEmpty())
             return;
@@ -118,7 +118,7 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         if (m_goalAngles == null)
             return;
 
-        State desiredState = getDesiredState();
+        final State desiredState = getDesiredState();
 
         Optional<ArmAngles> measurement = m_armSubsystem.getPosition();
         if (measurement.isEmpty())
@@ -128,37 +128,36 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
             return;
 
         // position reference
-        ArmAngles r = getThetaPosReference(desiredState);
+        final ArmAngles r = getThetaPosReference(desiredState);
 
         // position feedback
-        double u1_pos = m_lowerPosFeedback.calculate(
+        final double u1_pos = m_lowerPosFeedback.calculate(
                 Model100.x(measurement.get().th1),
                 Model100.x(r.th1));
-        double u2_pos = m_upperPosFeedback.calculate(
+        final double u2_pos = m_upperPosFeedback.calculate(
                 Model100.x(measurement.get().th2),
                 Model100.x(r.th2));
 
         // velocity reference
-        ArmAngles rdot = getThetaVelReference(desiredState, r);
-
+        final ArmAngles rdot = getThetaVelReference(desiredState, r);
 
         // feedforward velocity
         // this is a guess.
         final double kFudgeFactor = 3;
-        double ff2 = rdot.th2 * kFudgeFactor;
-        double ff1 = rdot.th1 * kFudgeFactor;
+        final double ff2 = rdot.th2 * kFudgeFactor;
+        final double ff1 = rdot.th1 * kFudgeFactor;
 
         // velocity feedback
-        double u1_vel = m_lowerVelFeedback.calculate(
+        final double u1_vel = m_lowerVelFeedback.calculate(
                 Model100.x(velocityMeasurement.get().th1),
                 Model100.x(rdot.th1));
-        double u2_vel = m_upperVelFeedback.calculate(
+        final double u2_vel = m_upperVelFeedback.calculate(
                 Model100.x(velocityMeasurement.get().th2),
                 Model100.x(rdot.th2));
 
         // u is really velocity
-        double u1 = ff1 + u1_pos + u1_vel;
-        double u2 = ff2 + u2_pos + u2_vel;
+        final double u1 = ff1 + u1_pos + u1_vel;
+        final double u2 = ff2 + u2_pos + u2_vel;
 
         // TODO: u is v so add kV here
         m_armSubsystem.set(u1, u2);

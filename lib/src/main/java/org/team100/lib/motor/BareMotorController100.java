@@ -37,7 +37,7 @@ public class BareMotorController100 implements BareMotor {
      */
     @Override
     public void setVelocity(double motorRad_S, double accelRad_S2, double torqueNm) {
-        double motorDutyCycle = motorRad_S * velocityFFDutyCycle_Rad_S;
+        final double motorDutyCycle = motorRad_S * velocityFFDutyCycle_Rad_S;
         m_motor.set(motorDutyCycle);
         m_log_duty.log(() -> motorDutyCycle);
     }

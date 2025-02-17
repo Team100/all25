@@ -88,13 +88,13 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      * 
      * Feasibility is enforced by the setpoint generator, if enabled.
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
-        m_log_desired.log(() -> speeds);
+    public void setChassisSpeeds(final ChassisSpeeds speeds) {
         if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
             setChassisSpeedsWithSetpointGenerator(speeds);
         } else {
             setChassisSpeedsNormally(speeds);
         }
+        m_log_desired.log(() -> speeds);
     }
 
     /**
@@ -272,19 +272,14 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      */
     private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds speeds) {
         // Informs SwerveDriveKinematics of the module states.
-        SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
+        final SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
                 m_prevSetpoint,
                 speeds);
+        setModuleStates(setpoint.states());
         // ideally delta would be zero because our input would be feasible.
-        ChassisSpeeds delta = setpoint.speeds().minus(speeds);
-        m_log_setpoint_delta.log(() -> delta);
+        m_log_setpoint_delta.log(() -> setpoint.speeds().minus(speeds));
         m_log_prev_setpoint.log(m_prevSetpoint::speeds);
         m_log_setpoint.log(setpoint::speeds);
-        ChassisSpeeds implied = m_swerveKinodynamics.toChassisSpeedsWithDiscretization(
-                setpoint.states(), 0.02);
-        if (DEBUG)
-            Util.printf("implied %s\n", implied);
-        setModuleStates(setpoint.states());
         m_prevSetpoint = setpoint;
     }
 
