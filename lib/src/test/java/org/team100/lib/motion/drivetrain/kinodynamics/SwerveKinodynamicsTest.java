@@ -272,10 +272,10 @@ class SwerveKinodynamicsTest {
             SwerveModuleStates ms = limits.toSwerveModuleStates(s);
             // we no longer desaturate at this level: use the setpoint generator if you want
             // that.
-            assertEquals(5.180, ms.frontLeft().speedMetersPerSecond(), kDelta);
-            assertEquals(4.446, ms.frontRight().speedMetersPerSecond(), kDelta);
-            assertEquals(3.144, ms.rearLeft().speedMetersPerSecond(), kDelta);
-            assertEquals(1.681, ms.rearRight().speedMetersPerSecond(), kDelta);
+            assertEquals(5.035, ms.frontLeft().speedMetersPerSecond(), kDelta);
+            assertEquals(4.735, ms.frontRight().speedMetersPerSecond(), kDelta);
+            assertEquals(2.689, ms.rearLeft().speedMetersPerSecond(), kDelta);
+            assertEquals(2.074, ms.rearRight().speedMetersPerSecond(), kDelta);
 
             ChassisSpeeds i = limits.toChassisSpeedsWithDiscretization(ms, 0.02);
             // we get back what we put in

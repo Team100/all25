@@ -70,7 +70,7 @@ public class ServoFactory {
             double maxAccel,
             double maxDecel) {
         // motor speed is rad/s
-        BareMotor motor = new SimulatedBareMotor(parent, 600);
+        SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
         LinearMechanism mech = new SimpleLinearMechanism(
                 motor,
                 new SimulatedBareEncoder(parent, motor),

@@ -19,13 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 class SwerveDriveKinematics100Test {
     private static final double kDelta = 0.001;
 
-    /** desaturation should keep the same instantaneous course. */
-    @Test
-    void testDesaturationCourseInvariant() {
-        // TODO: put a test here
-
-    }
-
     @Test
     void testCrab() {
         // in this case the wheels are assumed to turn immediately to the new

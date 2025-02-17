@@ -1,5 +1,7 @@
 package org.team100.lib.controller.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -42,6 +44,24 @@ public class ProfiledControllerTest {
         Model100 state() {
             return new Model100(y, yDot);
         }
+    }
+
+    @Test
+    void test2() {
+        Profile100 p = new TrapezoidProfile100(100, 100, 0.01);
+        // Profile100 p = new ProfileWPI(100, 100);
+        final double k1 = 5.0;
+        final double k2 = 1.0;
+        Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
+
+        ProfiledController controller = new ProfiledController(p, f, x -> x);
+        Model100 measurement = new Model100(0, 0);
+        controller.init(measurement);
+        Model100 goal = new Model100(0.1, 0);
+        ProfiledController.Result result = controller.calculate(measurement, goal);
+        // this is for the *next* timestep so there should be non-zero velocity.
+        assertEquals(2, result.feedforward().v(), 1e-12);
+
     }
 
     /**

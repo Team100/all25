@@ -25,6 +25,8 @@ class DriveManuallyTest extends Fixtured implements Timeless {
     void testSimple() {
         Supplier<DriverControl.Velocity> twistSupplier = () -> desiredTwist;
         SwerveDriveSubsystem drive = fixture.drive;
+        fixture.collection.reset();
+        stepTime();
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
 
         DriveManually command = new DriveManually(twistSupplier, drive);

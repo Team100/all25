@@ -263,7 +263,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
      * Produce a setpoint that matches the desired course but respects velocity
      * limits.
      */
-    private SwerveSetpoint desaturate(ChassisSpeeds desiredState) {
+    SwerveSetpoint desaturate(ChassisSpeeds desiredState) {
         SwerveModuleStates desiredModuleStates = m_limits.toSwerveModuleStates(desiredState);
         if (m_limits.getMaxDriveVelocityM_S() > 0.0) {
             double desired = desiredModuleStates.maxSpeed();
