@@ -16,7 +16,7 @@ import org.team100.lib.state.Model100;
 public class FullStateFeedback implements Feedback100 {
 
     private final Model100Logger m_log_measurement;
-    private final Model100Logger m_log_reference; // ref v is FF
+    private final Model100Logger m_log_reference;
     private final Model100Logger m_log_error;
     private final DoubleLogger m_log_u_FB;
     private final double m_K1; // position
@@ -59,18 +59,15 @@ public class FullStateFeedback implements Feedback100 {
         m_log_measurement.log(() -> measurement);
         m_log_reference.log(() -> reference);
         m_log_error.log(() -> reference.minus(measurement));
-        // double u_FF = reference.v();
-        m_atSetpoint = true;
         double u_FB = calculateFB(measurement, reference);
         m_log_u_FB.log(() -> u_FB);
-        // return u_FF + u_FB;
         return u_FB;
     }
 
     private double calculateFB(Model100 measurement, Model100 setpoint) {
         double xError = m_modulus.applyAsDouble(setpoint.x() - measurement.x());
         double xDotError = setpoint.v() - measurement.v();
-        m_atSetpoint &= Math.abs(xError) < m_tol1 && Math.abs(xDotError) < m_tol2;
+        m_atSetpoint = Math.abs(xError) < m_tol1 && Math.abs(xDotError) < m_tol2;
         return m_K1 * xError + m_K2 * xDotError;
     }
 

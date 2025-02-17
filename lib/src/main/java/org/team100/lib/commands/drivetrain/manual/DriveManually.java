@@ -11,6 +11,7 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.NamedChooser;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Chooser.
  */
 public class DriveManually extends Command implements Glassy {
+    private static final boolean DEBUG = false;
 
     private static final SendableChooser<String> m_manualModeChooser = new NamedChooser<>("Manual Drive Mode") {
     };
@@ -120,6 +122,8 @@ public class DriveManually extends Command implements Glassy {
                 name,
                 new Driver() {
                     public void apply(SwerveModel s, DriverControl.Velocity t) {
+                        if (DEBUG)
+                            Util.printf("module state driver %s\n", t);
                         m_drive.setRawModuleStates(d.apply(t));
                     }
 

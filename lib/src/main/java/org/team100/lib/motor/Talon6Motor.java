@@ -199,16 +199,16 @@ public abstract class Talon6Motor implements BareMotor {
      */
     @Override
     public void setVelocity(double motorRad_S, double motorAccelRad_S2, double motorTorqueNm) {
-        double motorRev_S = motorRad_S / (2 * Math.PI);
-        double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
-        double currentMotorRev_S = m_velocity.getAsDouble();
+        final double motorRev_S = motorRad_S / (2 * Math.PI);
+        final double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
+        final double currentMotorRev_S = m_velocity.getAsDouble();
 
-        double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
-        double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
-        double accelFFVolts = m_ff.accelFFVolts(motorRev_S2);
-        double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
+        final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
+        final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
+        final double accelFFVolts = m_ff.accelFFVolts(motorRev_S2);
+        final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
-        double kFFVolts = frictionFFVolts + velocityFFVolts + accelFFVolts + torqueFFVolts;
+        final double kFFVolts = frictionFFVolts + velocityFFVolts + accelFFVolts + torqueFFVolts;
 
         // VelocityVoltage has an acceleration field for kA feedforward but we use
         // arbitrary feedforward for that.
@@ -241,15 +241,15 @@ public abstract class Talon6Motor implements BareMotor {
      */
     @Override
     public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorTorqueNm) {
-        double motorRev = motorPositionRad / (2 * Math.PI);
-        double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
-        double currentMotorRev_S = m_velocity.getAsDouble();
+        final double motorRev = motorPositionRad / (2 * Math.PI);
+        final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
+        final double currentMotorRev_S = m_velocity.getAsDouble();
 
-        double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
-        double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
-        double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
+        final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
+        final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
+        final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
-        double kFFVolts = frictionFFVolts + velocityFFVolts + torqueFFVolts;
+        final double kFFVolts = frictionFFVolts + velocityFFVolts + torqueFFVolts;
 
         // PositionVoltage has a velocity field for kV feedforward but we use arbitrary
         // feedforward for that.

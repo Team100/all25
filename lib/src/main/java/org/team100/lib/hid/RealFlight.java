@@ -65,11 +65,11 @@ public class RealFlight implements DriverControl {
      */
     @Override
     public Velocity velocity() {
-        double dx = expo(deadband(-1.0 * clamp(scaled(1), 1), kDeadband, 1), kExpo);
-        double dy = expo(deadband(-1.0 * clamp(scaled(0), 1), kDeadband, 1), kExpo);
-        double dtheta = expo(deadband(-1.0 * clamp(scaled(4), 1), kDeadband, 1), kExpo);
+        final double dx = expo(deadband(-1.0 * clamp(scaled(1), 1), kDeadband, 1), kExpo);
+        final double dy = expo(deadband(-1.0 * clamp(scaled(0), 1), kDeadband, 1), kExpo);
+        final double dtheta = expo(deadband(-1.0 * clamp(scaled(4), 1), kDeadband, 1), kExpo);
 
-        Speed speed = speed();
+        final Speed speed = speed();
         m_log_speed.log(() -> speed);
 
         switch (speed) {

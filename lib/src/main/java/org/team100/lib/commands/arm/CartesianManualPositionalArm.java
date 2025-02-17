@@ -74,11 +74,11 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
      */
     @Override
     public void execute() {
-        Translation2d input = new Translation2d(
+        final Translation2d input = new Translation2d(
                 0.6 * m_x.getAsDouble() + 0.7,
                 0.6 * m_y.getAsDouble() + 0.7);
 
-        ArmAngles setpoint = m_kinematics.inverse(input);
+        final ArmAngles setpoint = m_kinematics.inverse(input);
         if (setpoint == null) {
             Util.warn("Ignoring infeasible input");
             return;
@@ -88,16 +88,16 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
         if (measurement.isEmpty())
             return;
 
-        Translation2d cartesian_measurement = m_kinematics.forward(measurement.get());
+        final Translation2d cartesian_measurement = m_kinematics.forward(measurement.get());
 
         // TODO: there should be some sort of "kA" here rather than just consuming
         // the accel value directly.
-        double u1 = MathUtil.clamp(
+        final double u1 = MathUtil.clamp(
                 m_lowerFeedback.calculate(
                         new Model100(measurement.get().th1, 0),
                         new Model100(setpoint.th1, 0)),
                 -1, 1);
-        double u2 = MathUtil.clamp(
+        final double u2 = MathUtil.clamp(
                 m_upperFeedback.calculate(
                         new Model100(measurement.get().th2, 0),
                         new Model100(setpoint.th2, 0)),

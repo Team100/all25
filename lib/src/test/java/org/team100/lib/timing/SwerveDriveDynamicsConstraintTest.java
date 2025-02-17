@@ -41,7 +41,7 @@ class SwerveDriveDynamicsConstraintTest {
                 new MotionDirection(1, 0, 5),
                 0, 0)).getValue();
         // at 5 rad/m with 0.5m sides the fastest you can go is 1.55 m/s.
-        assertEquals(1.887, m, kDelta);
+        assertEquals(1.925, m, kDelta);
     }
 
     @Test

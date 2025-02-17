@@ -32,7 +32,7 @@ public class ManualFieldRelativeSpeeds implements FieldRelativeDriver {
     @Override
     public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity input) {
         // clip the input to the unit circle
-        DriverControl.Velocity clipped = DriveUtil.clampTwist(input, 1.0);
+        final DriverControl.Velocity clipped = DriveUtil.clampTwist(input, 1.0);
 
         // scale to max in both translation and rotation
         // and desaturate to feasibility

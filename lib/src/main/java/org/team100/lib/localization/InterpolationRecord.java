@@ -99,7 +99,7 @@ class InterpolationRecord implements Interpolatable<InterpolationRecord> {
 
     @Override
     public String toString() {
-        return "InterpolationRecord [m_poseMeters=" + m_state
+        return "InterpolationRecord [m_state=" + m_state
                 + ", m_wheelPositions=" + m_wheelPositions + "]";
     }
 

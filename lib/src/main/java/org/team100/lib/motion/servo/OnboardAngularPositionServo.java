@@ -23,6 +23,7 @@ import edu.wpi.first.math.MathUtil;
  * OnboardPositionServo.
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
+    private static final boolean DEBUG = false;
     private static final double kXTolerance = 0.05;
     private static final double kVTolerance = 0.05;
 
@@ -100,13 +101,13 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             double goalRad,
             double goalVelocityRad_S,
             double feedForwardTorqueNm) {
-        OptionalDouble position = getPosition();
+        final OptionalDouble position = getPosition();
         // note the mechanism uses the motor's internal encoder which may be only
         // approximately attached to the the output, via backlash and slack, so these
         // two measurements might not be entirely consistent.
         // on the other hand, using the position sensor to obtain velocity has its own
         // issues: delay and noise.
-        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+        final OptionalDouble velocity = m_mechanism.getVelocityRad_S();
 
         if (position.isEmpty() || velocity.isEmpty()) {
             Util.warn("Broken sensor!");
@@ -119,7 +120,9 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         // Util.printf("servo measurement %s\n", measurement);
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
-        Control100 setpointRad = result.feedforward();
+        final Control100 setpointRad = result.feedforward();
+        if (DEBUG)
+            Util.printf("setpoint %s\n", setpointRad);
 
         final double u_FF = setpointRad.v();
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
@@ -144,7 +147,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
-        // Util.printf("servo goal %f\n", goalRad);
+        if (DEBUG)
+            Util.printf("servo goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 

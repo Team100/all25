@@ -305,7 +305,13 @@ public class SwerveKinodynamicsFactory {
                 0.3); // vcg m
     }
 
-    /** very high limits, should make setpoint generator do nothing. */
+    /**
+     * very high limits, should make setpoint generator do nothing.
+     * 
+     * note: both the wpi and 100 profiles fail to produce useful feedforward when
+     * the distance is reachable in one time step, i.e. high accel and velocity
+     * limits.
+     */
     public static SwerveKinodynamics unlimited() {
         return new SwerveKinodynamics(
                 10000, // vel m/s

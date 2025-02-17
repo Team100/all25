@@ -121,10 +121,11 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
 
     @Override
     public void periodic() {
-        m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
-        m_log_position.log(() -> MathUtil.angleModulus(getPositionRad().getAsDouble()));
         m_motor.periodic();
         m_encoder.periodic();
+        m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
+        m_log_position.log(() -> MathUtil.angleModulus(getPositionRad().getAsDouble()));
+
     }
 
 }

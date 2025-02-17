@@ -83,29 +83,35 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * Feasibility is enforced by the setpoint generator (if enabled) and the
      * desaturator.
      * 
-     * @param v Field coordinate velocities in meters and radians per second.
+     * @param visionData Field coordinate velocities in meters and radians per
+     *                   second.
      */
     @Override
-    public void driveInFieldCoords(FieldRelativeVelocity vIn) {
-        m_log_input.log(() -> vIn);
-
+    public void driveInFieldCoords(final FieldRelativeVelocity vIn) {
         // scale for driver skill; default is half speed.
-        DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        m_log_skill.log(() -> driverSkillLevel);
-        FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
+        final DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        final FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
 
-        Rotation2d theta = getPose().getRotation();
-        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
-        if (DEBUG)
-            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+        final Rotation2d theta = getPose().getRotation();
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
 
         m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
+
+        m_log_input.log(() -> vIn);
+        m_log_skill.log(() -> driverSkillLevel);
+        if (DEBUG)
+            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
     public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
         ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
                 vIn, getPose().getRotation());
+        if (DEBUG)
+            Util.printf("speeds x %.6f y %.6f theta %.6f\n",
+                    targetChassisSpeeds.vxMetersPerSecond,
+                    targetChassisSpeeds.vyMetersPerSecond,
+                    targetChassisSpeeds.omegaRadiansPerSecond);
         m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
     }
 
@@ -140,12 +146,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * 
      * @param speeds in robot coordinates
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
+    public void setChassisSpeeds(final ChassisSpeeds speeds) {
         // scale for driver skill; default is half speed.
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        m_swerveLocal.setChassisSpeeds(speeds.times(driverSkillLevel.scale()));
         m_log_skill.log(() -> driverSkillLevel);
-        speeds = speeds.times(driverSkillLevel.scale());
-        m_swerveLocal.setChassisSpeeds(speeds);
     }
 
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
@@ -260,7 +265,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                 m_gyro,
                 m_swerveLocal.positions());
         m_cameras.update();
-        return m_poseEstimator.get(now);
+        SwerveModel swerveModel = m_poseEstimator.get(now);
+        if (DEBUG)
+            Util.printf("sampled: %s\n", swerveModel);
+        return swerveModel;
     }
 
     /** Return cached pose. */

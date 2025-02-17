@@ -200,16 +200,13 @@ public class RobotContainer implements Glassy {
         m_drive.setDefaultCommand(driveManually);
         if (m_climber != null) {
             m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-            operatorControl::ramp));
+                    operatorControl::ramp));
         }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
         // ObjectPosition24ArrayListener(poseEstimator);
 
         // DRIVER BUTTONS
-        // this crashes the simulation and seems to do nothing
-        // m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
-
         final HolonomicProfile profile = new HolonomicProfile(
                 swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
                 swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.25,
@@ -218,11 +215,11 @@ public class RobotContainer implements Glassy {
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,
                 0.1); // 5 degrees
 
-            m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
         whileTrue(driverControl::driveToObject,
                 new DriveToPoseWithProfile(
                         fieldLog,
-                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d().plus(new Transform2d(0,-2, new Rotation2d(Math.PI/2))))),
+                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -2, new Rotation2d(Math.PI / 2))))),
                         m_drive,
                         holonomicController,
                         profile));

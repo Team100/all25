@@ -64,6 +64,8 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
     void testWithoutSetpointGenerator() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
         SwerveDriveSubsystem drive = fixture.drive;
+        fixture.collection.reset();
+        stepTime();
 
         drive.resetPose(new Pose2d());
 
@@ -83,6 +85,8 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         // it took 0.02 s to go from 0 m/s to 1 m/s, so we accelerated 50 m/s/s.
         verify(drive, 0.02, 1.00, 50.0);
+        
+        drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
         stepTime();
         drive.periodic();
