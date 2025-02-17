@@ -29,7 +29,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * heading drift as a result).
  */
 public class AsymSwerveSetpointGenerator implements Glassy {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     // turns greater than this will flip
     // this used to be pi/2, which resulted in "square corner" paths
     private static final double flipLimitRad = 3 * Math.PI / 4;

@@ -30,7 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
@@ -266,10 +266,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /////////////////////////////////////////////////////////
 
-    /**
-     * TODO: this must DISCRETIZE, but it doesn't.
-     * 
-     */
     private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds speeds) {
         // Informs SwerveDriveKinematics of the module states.
         final SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
@@ -280,6 +276,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         m_log_setpoint_delta.log(() -> setpoint.speeds().minus(speeds));
         m_log_prev_setpoint.log(m_prevSetpoint::speeds);
         m_log_setpoint.log(setpoint::speeds);
+        if (DEBUG)
+            Util.printf("prev course %.8f new course %.8f\n",
+                    GeometryUtil.getCourse(m_prevSetpoint.speeds()).orElse(new Rotation2d()).getRadians(),
+                    GeometryUtil.getCourse(setpoint.speeds()).orElse(new Rotation2d()).getRadians());
         m_prevSetpoint = setpoint;
     }
 

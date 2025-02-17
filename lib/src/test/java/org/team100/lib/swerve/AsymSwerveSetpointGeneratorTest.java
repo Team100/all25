@@ -107,11 +107,17 @@ class AsymSwerveSetpointGeneratorTest {
             SwerveSetpoint setpoint = generator.generateSetpoint(
                     prevSetpoint,
                     target);
-            assertEquals(Math.PI / 4, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), kDelta);
+            assertEquals(Math.PI / 4, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(prevSetpoint.speeds()), kDelta);
             assertEquals(3.733, prevSetpoint.speeds().omegaRadiansPerSecond, kDelta);
-            // nothing changes (approximately)
-            assertEquals(Math.PI / 4, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 0.006);
+            // 
+            //
+            // ##############
+            // ## this is the bug
+            // ##############
+            //
+            //
+            assertEquals(Math.PI / 4, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(setpoint.speeds()), 0.2);
             assertEquals(3.733, setpoint.speeds().omegaRadiansPerSecond, 0.2);
         }

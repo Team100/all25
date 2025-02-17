@@ -30,7 +30,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
-    private final OptionalDoubleLogger m_log_position;
 
     /**
      * Goal "winds up" i.e. it's it's [-inf, inf], not [-pi,pi]
@@ -47,7 +46,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (rad)");
-        m_log_position = child.optionalDoubleLogger(Level.TRACE, "Position");
     }
 
     @Override
@@ -84,7 +82,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         OptionalDouble posOpt = m_encoder.getPositionRad();
         if (posOpt.isEmpty())
             return;
-        m_log_position.log(() -> posOpt);
 
         // measurement is [-inf,inf]
         final double measurement = posOpt.getAsDouble();

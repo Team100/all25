@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
@@ -99,8 +99,12 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
 
         m_log_input.log(() -> vIn);
         m_log_skill.log(() -> driverSkillLevel);
+        // here heading and course are exactly opposite, as they should be.
         if (DEBUG)
-            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+            Util.printf("target heading %.8f target course %.8f speeds %s\n",
+                    theta.getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).get().getRadians(),
+                    targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
