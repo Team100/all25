@@ -3,6 +3,7 @@ package org.team100.lib.geometry;
 import java.util.Optional;
 
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.spline.PoseWithCurvature;
  * Lots of utility functions.
  */
 public class GeometryUtil {
+    private static final boolean DEBUG = false;
 
     public static final Rotation2d kRotationZero = new Rotation2d();
     public static final Rotation2d kRotation90 = new Rotation2d(Math.PI / 2);
@@ -33,6 +35,26 @@ public class GeometryUtil {
     public static final Rotation3d kRotation3Zero = new Rotation3d();
 
     private GeometryUtil() {
+    }
+
+    /** Return a projected onto the direction of b, retaining the omega of a */
+    public static ChassisSpeeds project(ChassisSpeeds a, ChassisSpeeds b) {
+        double norm = norm(b);
+        if (norm < 1e-9) {
+            // there's no target course, bail out
+            return a;
+        }
+        double scale = dot(a, b) / (norm * norm);
+        if (DEBUG)
+            Util.printf("project() scale %.8f\n", scale);
+        return new ChassisSpeeds(
+                b.vxMetersPerSecond * scale,
+                b.vyMetersPerSecond * scale,
+                a.omegaRadiansPerSecond);
+    }
+
+    public static double dot(ChassisSpeeds a, ChassisSpeeds b) {
+        return a.vxMetersPerSecond * b.vxMetersPerSecond + a.vyMetersPerSecond * b.vyMetersPerSecond;
     }
 
     public static double dot(Translation2d a, Translation2d b) {
