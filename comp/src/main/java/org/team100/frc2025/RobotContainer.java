@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
@@ -56,7 +59,9 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -77,7 +82,7 @@ public class RobotContainer implements Glassy {
 
     // SUBSYSTEMS
     final SwerveDriveSubsystem m_drive;
-    // final Climber m_climber;
+    final Climber m_climber;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -142,7 +147,7 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider);
 
-        // m_climber = new Climber();
+        m_climber = ClimberFactory.get(logger);
 
         ///////////////////////////
         //
@@ -193,8 +198,10 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-        // operatorControl::ramp));
+        if (m_climber != null) {
+            m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+            operatorControl::ramp));
+        }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
         // ObjectPosition24ArrayListener(poseEstimator);
@@ -205,16 +212,17 @@ public class RobotContainer implements Glassy {
 
         final HolonomicProfile profile = new HolonomicProfile(
                 swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
-                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
+                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.25,
                 0.01, // 1 cm
                 swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,
                 0.1); // 5 degrees
 
+            m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d();
         whileTrue(driverControl::driveToObject,
                 new DriveToPoseWithProfile(
                         fieldLog,
-                        () -> (Optional.of(new Pose2d(1, 4, new Rotation2d()))),
+                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d().plus(new Transform2d(0,-2, new Rotation2d(Math.PI/2))))),
                         m_drive,
                         holonomicController,
                         profile));

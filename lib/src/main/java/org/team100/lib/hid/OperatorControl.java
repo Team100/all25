@@ -12,7 +12,9 @@ public interface OperatorControl extends Glassy {
         return "No HID Found!!";
     }
 
-
+    default Double ramp() {
+        return null;   
+    }
 
     // this exists to bind to commands we don't want to run,
     // but we don't want them to rot either.

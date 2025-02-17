@@ -58,8 +58,9 @@ public class Memo {
 
     /** Should be run in Robot.robotPeriodic(). */
     public static void resetAll() {
-        if (!signals.isEmpty())
+        if (!signals.isEmpty()) {
             BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
+        }
         for (CotemporalCache<?> r : resetters) {
             r.reset();
         }

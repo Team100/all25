@@ -47,6 +47,9 @@ public class OperatorControlProxy implements OperatorControl {
         if (name.contains("F310")) {
             return new OperatorV2Control();
         }
+        if (name.contains("8Bit")) {
+            return new OperatorV2Control();   
+        }
         if (name.contains("Xbox")) {
             return new OperatorV2Control();
         }
@@ -65,6 +68,10 @@ public class OperatorControlProxy implements OperatorControl {
         return m_operatorControl.getHIDName();
     }
 
+    @Override
+    public Double ramp() {
+        return m_operatorControl.ramp();
+    }
 
     @Override
     public boolean never() {

@@ -37,6 +37,11 @@ public class OperatorV2Control implements OperatorControl {
     }
 
     @Override
+    public Double ramp() {
+        return m_controller.getLeftX();
+    }
+ 
+    @Override
     public String getHIDName() {
         return m_controller.getName();
     }
