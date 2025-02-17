@@ -30,7 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
@@ -105,9 +105,20 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
      */
     public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
         SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
-        setModuleStates(states);
-        m_prevSetpoint = new SwerveSetpoint(speeds, states);
+
+        SwerveSetpoint setpoint = new SwerveSetpoint(speeds, states);
+        // if we're going +x field, then course here should be opposite of heading.
+        if (DEBUG)
+            Util.printf("setChassisSpeedsNormally() prev course %.8f new course %.8f vx %.8f vy %.8f omega %.8f\n",
+                    GeometryUtil.getCourse(m_prevSetpoint.speeds()).orElse(new Rotation2d()).getRadians(),
+                    GeometryUtil.getCourse(setpoint.speeds()).orElse(new Rotation2d()).getRadians(),
+                    speeds.vxMetersPerSecond,
+                    speeds.vyMetersPerSecond,
+                    speeds.omegaRadiansPerSecond);
+        m_prevSetpoint = setpoint;
         m_log_chassis_speed.log(() -> speeds);
+
+        setModuleStates(states);
     }
 
     /**
@@ -271,16 +282,22 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         final SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
                 m_prevSetpoint,
                 speeds);
-        setModuleStates(setpoint.states());
+
         // ideally delta would be zero because our input would be feasible.
         m_log_setpoint_delta.log(() -> setpoint.speeds().minus(speeds));
         m_log_prev_setpoint.log(m_prevSetpoint::speeds);
         m_log_setpoint.log(setpoint::speeds);
+        // if we're going +x then new course should be opposite heading.
         if (DEBUG)
-            Util.printf("prev course %.8f new course %.8f\n",
+            Util.printf("setChassisSpeedsWithSetpointGenerator() prev course %.8f new course %.8f vx %.8f vy %.8f omega %.8f\n",
                     GeometryUtil.getCourse(m_prevSetpoint.speeds()).orElse(new Rotation2d()).getRadians(),
-                    GeometryUtil.getCourse(setpoint.speeds()).orElse(new Rotation2d()).getRadians());
+                    GeometryUtil.getCourse(setpoint.speeds()).orElse(new Rotation2d()).getRadians(),
+                    setpoint.speeds().vxMetersPerSecond,
+                    setpoint.speeds().vyMetersPerSecond,
+                    setpoint.speeds().omegaRadiansPerSecond                    );
         m_prevSetpoint = setpoint;
+
+        setModuleStates(setpoint.states());
     }
 
     private void setModuleStates(SwerveModuleStates states) {
