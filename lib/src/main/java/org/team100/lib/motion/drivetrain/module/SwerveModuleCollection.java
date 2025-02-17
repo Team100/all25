@@ -19,6 +19,7 @@ import org.team100.lib.util.Util;
  * Do not put logic here; this is just for bundling the modules together.
  */
 public class SwerveModuleCollection {
+    private static final boolean DEBUG = false;
     private static final String kSwerveModules = "Swerve Modules";
     private static final String kFrontLeft = "Front Left";
     private static final String kFrontRight = "Front Right";
@@ -30,7 +31,7 @@ public class SwerveModuleCollection {
     private final SwerveModule100 m_rearLeft;
     private final SwerveModule100 m_rearRight;
 
-    private SwerveModuleCollection(
+    public SwerveModuleCollection(
             SwerveModule100 frontLeft,
             SwerveModule100 frontRight,
             SwerveModule100 rearLeft,
@@ -172,6 +173,8 @@ public class SwerveModuleCollection {
      * @param swerveModuleStates
      */
     public void setDesiredStates(SwerveModuleStates swerveModuleStates) {
+        if (DEBUG)
+            Util.printf("states %s\n", swerveModuleStates);
         m_frontLeft.setDesiredState(swerveModuleStates.frontLeft());
         m_frontRight.setDesiredState(swerveModuleStates.frontRight());
         m_rearLeft.setDesiredState(swerveModuleStates.rearLeft());

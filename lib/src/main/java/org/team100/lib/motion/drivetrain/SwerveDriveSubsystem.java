@@ -83,7 +83,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * Feasibility is enforced by the setpoint generator (if enabled) and the
      * desaturator.
      * 
-     * @param v Field coordinate velocities in meters and radians per second.
+     * @param visionData Field coordinate velocities in meters and radians per
+     *                   second.
      */
     @Override
     public void driveInFieldCoords(final FieldRelativeVelocity vIn) {
@@ -106,6 +107,11 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
         ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
                 vIn, getPose().getRotation());
+        if (DEBUG)
+            Util.printf("speeds x %.6f y %.6f theta %.6f\n",
+                    targetChassisSpeeds.vxMetersPerSecond,
+                    targetChassisSpeeds.vyMetersPerSecond,
+                    targetChassisSpeeds.omegaRadiansPerSecond);
         m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
     }
 
@@ -259,7 +265,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                 m_gyro,
                 m_swerveLocal.positions());
         m_cameras.update();
-        return m_poseEstimator.get(now);
+        SwerveModel swerveModel = m_poseEstimator.get(now);
+        if (DEBUG)
+            Util.printf("sampled: %s\n", swerveModel);
+        return swerveModel;
     }
 
     /** Return cached pose. */

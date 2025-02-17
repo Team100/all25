@@ -160,6 +160,9 @@ public class SwerveDriveKinematics100 {
      * assumes the module deltas represent straight lines.
      * 
      * NOTE: do not use the returned dtheta, use the gyro instead.
+     * 
+     * NOTE: this twist represents the "discrete" motion of the robot; don't use it
+     * as if it were the instantaneous speed.
      */
     public Twist2d toTwist2d(SwerveModuleDeltas deltas) {
         // [d cos; d sin; ...] (2n x 1)
@@ -168,8 +171,6 @@ public class SwerveDriveKinematics100 {
         SimpleMatrix twistVector = m_forwardKinematics.mult(deltaVector);
         return vector2Twist(twistVector);
     }
-
-
 
     ///////////////////////////////////////
 

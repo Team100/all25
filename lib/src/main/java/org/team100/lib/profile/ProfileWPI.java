@@ -7,7 +7,13 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
-/** Wrap the WPI profile. */
+/**
+ * Wrap the WPI profile.
+ * 
+ * note: both the wpi and 100 profiles fail to produce useful feedforward when
+ * the distance is reachable in one time step, i.e. high accel and velocity
+ * limits.
+ */
 public class ProfileWPI implements Profile100 {
     private final Constraints m_constraints;
     private final TrapezoidProfile m_profile;

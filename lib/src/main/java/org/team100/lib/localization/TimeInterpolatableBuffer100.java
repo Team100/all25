@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.interpolation.Interpolatable;
 
@@ -18,6 +18,8 @@ import edu.wpi.first.math.interpolation.Interpolatable;
  * The buffer is never empty, so get() always returns *something*.
  */
 public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> implements Glassy {
+    private static final boolean DEBUG = false;
+
     private final double m_historyS;
     private final NavigableMap<Double, T> m_pastSnapshots = new ConcurrentSkipListMap<>();
 
@@ -29,7 +31,6 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
      * "read" (non-exclusive) lock.
      */
     private final ReadWriteLock m_lock = new ReentrantReadWriteLock();
-
 
     public TimeInterpolatableBuffer100(double historyS, double timeS, T initialValue) {
         m_historyS = historyS;
@@ -80,6 +81,8 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         // Special case for when the requested time is the same as a sample
         T nowEntry = m_pastSnapshots.get(timeSeconds);
         if (nowEntry != null) {
+            if (DEBUG)
+                Util.printf("record for now %.2f\n", timeSeconds);
             return nowEntry;
         }
         Entry<Double, T> topBound = null;
@@ -109,7 +112,7 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         double timeSpan = topBound.getKey() - bottomBound.getKey();
         double timeFraction = timeSinceBottom / timeSpan;
         return bottomBound.getValue().interpolate(topBound.getValue(), timeFraction);
-    
+
     }
 
     public SortedMap<Double, T> tailMap(double t, boolean inclusive) {

@@ -55,6 +55,10 @@ import edu.wpi.first.math.MathUtil;
  * from the paper) and i think you can just scale the constraints. For an
  * implementation of the general case, see team100/studies2023/rrt, specifically
  * the RRTStar classes, which include coordination in their path solvers.
+ * 
+ * note: both the wpi and 100 profiles fail to produce useful feedforward when
+ * the distance is reachable in one time step, i.e. high accel and velocity
+ * limits.
  */
 public class TrapezoidProfile100 implements Profile100 {
     private static final boolean DEBUG = false;

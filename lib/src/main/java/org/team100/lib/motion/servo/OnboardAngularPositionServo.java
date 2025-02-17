@@ -23,6 +23,7 @@ import edu.wpi.first.math.MathUtil;
  * OnboardPositionServo.
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
+    private static final boolean DEBUG = false;
     private static final double kXTolerance = 0.05;
     private static final double kVTolerance = 0.05;
 
@@ -120,6 +121,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // Util.printf("servo measurement %s\n", measurement);
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpointRad = result.feedforward();
+        if (DEBUG)
+            Util.printf("setpoint %s\n", setpointRad);
 
         final double u_FF = setpointRad.v();
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
@@ -144,7 +147,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
-        // Util.printf("servo goal %f\n", goalRad);
+        if (DEBUG)
+            Util.printf("servo goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 

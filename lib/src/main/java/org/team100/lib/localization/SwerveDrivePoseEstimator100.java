@@ -16,18 +16,20 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDeltas;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.util.DriveUtil;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
 public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
+    private static final boolean DEBUG = false;
     /**
      * The buffer only needs to be long enough to catch stale-but-still-helpful
      * vision updates.
      * 
      * The current Raspberry Pi cameras seem to be able to provide frames to RoboRIO
-     * code with about 75-100 ms latency.  There will never be a vision update
+     * code with about 75-100 ms latency. There will never be a vision update
      * older than about 200 ms.
      */
     static final double kBufferDuration = 0.2;
@@ -210,20 +212,29 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
         double dt = currentTimeS - lowerEntry.getKey();
         InterpolationRecord value = lowerEntry.getValue();
         SwerveModel previousState = value.m_state;
+        if (DEBUG)
+            Util.printf("previous x %.6f y %.6f\n", previousState.pose().getX(), previousState.pose().getY());
 
         SwerveModuleDeltas modulePositionDelta = DriveUtil.modulePositionDelta(
                 value.m_wheelPositions,
                 wheelPositions);
+        if (DEBUG)
+            Util.printf("modulePositionDelta %s\n", modulePositionDelta);
 
         Twist2d twist = m_kinodynamics.getKinematics().toTwist2d(modulePositionDelta);
-
+        if (DEBUG)
+            Util.printf("twist x %.6f y %.6f theta %.6f\n", twist.dx, twist.dy, twist.dtheta);
         // replace the twist dtheta with one derived from the current pose
         // pose angle based on the gyro (which is more accurate)
 
         Rotation2d angle = gyroAngle.plus(m_gyroOffset);
+        if (DEBUG)
+            Util.printf("angle %.6f\n", angle.getRadians());
         twist.dtheta = angle.minus(previousState.pose().getRotation()).getRadians();
 
         Pose2d newPose = previousState.pose().exp(twist);
+        if (DEBUG)
+            Util.printf("new pose x %.6f y %.6f\n", newPose.getX(), newPose.getY());
         m_log_pose_x.log(newPose::getX);
 
         // this is the backward finite difference velocity from odometry

@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * Feedforward and feedback control of a single module.
  */
 public abstract class SwerveModule100 implements Glassy {
+    private static final boolean DEBUG = false;
     private final LinearVelocityServo m_driveServo;
     private final AngularPositionServo m_turningServo;
     private Rotation2d m_previousPosition = new Rotation2d();
@@ -64,6 +65,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Turning servo commands always include zero velocity.
      */
     void setRawDesiredState(SwerveModuleState100 desiredState) {
+        if (DEBUG)
+            Util.printf("raw desired state %s\n", desiredState);
         if (desiredState.angle().isEmpty()) {
             desiredState = new SwerveModuleState100(
                     desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
