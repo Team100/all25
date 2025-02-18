@@ -14,14 +14,19 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
  */
 public class SwerveLimiter {
     private final FieldRelativeVelocityLimiter m_velocityLimiter;
+    private final FieldRelativeCapsizeLimiter m_capsizeLimiter;
 
     public SwerveLimiter(SwerveKinodynamics dynamics, DoubleSupplier voltage) {
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(dynamics, voltage);
         m_velocityLimiter = new FieldRelativeVelocityLimiter(limit);
+        m_capsizeLimiter = new FieldRelativeCapsizeLimiter(dynamics);
     }
 
     public FieldRelativeVelocity apply(SwerveModel current, FieldRelativeVelocity next) {
-        return m_velocityLimiter.limit(next);
+        // first limit the goal to a feasible velocity
+        FieldRelativeVelocity result = m_velocityLimiter.limit(next);
+        // then limit acceleration towards that goal to avoid capsize
+        return m_capsizeLimiter.limit(current.velocity(), result);
     }
 
 }

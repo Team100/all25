@@ -2,10 +2,7 @@ package org.team100.lib.motion.drivetrain.kinodynamics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Random;
-
 import org.junit.jupiter.api.Test;
-import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;

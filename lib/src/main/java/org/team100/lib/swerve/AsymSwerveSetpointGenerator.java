@@ -36,7 +36,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
     private final SwerveKinodynamics m_limits;
 
-    private final CapsizeAccelerationLimiter m_centripetalLimiter;
     private final SteeringOverride m_SteeringOverride;
     private final SteeringRateLimiter m_steeringRateLimiter;
     private final DriveAccelerationLimiter m_DriveAccelerationLimiter;
@@ -46,7 +45,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             SwerveKinodynamics limits,
             DoubleSupplier batteryVoltage) {
         m_limits = limits;
-        m_centripetalLimiter = new CapsizeAccelerationLimiter(parent, limits);
         m_SteeringOverride = new SteeringOverride(parent, limits);
         m_steeringRateLimiter = new SteeringRateLimiter(parent, limits);
         m_DriveAccelerationLimiter = new DriveAccelerationLimiter(parent, limits);
@@ -103,12 +101,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             // the complement of the desired angle, and accelerate again.
             return generateSetpoint(prevSetpoint, new ChassisSpeeds());
         }
-
-        double centripetal_min_s = m_centripetalLimiter.enforceCentripetalLimit(prevSetpoint.speeds(), target.speeds());
-        if (DEBUG)
-            Util.printf("centripetal %f\n", centripetal_min_s);
-
-        min_s = Math.min(min_s, centripetal_min_s);
 
         // In cases where an individual module is stopped, we want to remember the right
         // steering angle to command (since
