@@ -46,16 +46,13 @@ public class SimulatedDrivingTest implements Timeless {
             SimulatedSwerveModule100.withInstantaneousSteering(logger, swerveKinodynamics));
 
     Gyro gyro = new SimulatedGyro(swerveKinodynamics, collection);
-    AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-            logger,
-            swerveKinodynamics);
     SwerveDrivePoseEstimator100 poseEstimator = swerveKinodynamics.newPoseEstimator(
             logger,
             gyro,
             collection.positions(),
             GeometryUtil.kPoseZero,
             0);
-    SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, setpointGenerator, collection);
+    SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
     VisionData visionData = new VisionData() {
         @Override
         public void update() {

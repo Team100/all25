@@ -83,7 +83,7 @@ public class Phoenix100 {
      */
     public static void pidConfig(TalonFXConfigurator conf, PIDConstants pid) {
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kV = 0.0; // we use "arbitrary feedforward", not this.
+        slot0Configs.kV = 0.0; // we use "arbitrary feewdforward", not this.
         slot0Configs.kP = pid.getP();
         slot0Configs.kI = pid.getI();
         slot0Configs.kD = pid.getD();

@@ -2,6 +2,8 @@ package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.config.DriverSkill;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -84,7 +86,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied twist by the "speed" driver control modifier.
      * 
-     * Feasibility is enforced by the SwerveLimiter, and, at the moment, the setpoint generator.
+     * Feasibility is enforced by the SwerveLimiter, and, at the moment, the
+     * setpoint generator.
      * 
      * TODO: remove setpoint generator.
      */
@@ -92,13 +95,15 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     public void driveInFieldCoords(final FieldRelativeVelocity input) {
         // scale for driver skill; default is half speed.
         final DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        final FieldRelativeVelocity scaled = GeometryUtil.scale(input, driverSkillLevel.scale());
+        FieldRelativeVelocity scaled = GeometryUtil.scale(input, driverSkillLevel.scale());
 
-        // NEW!  Apply field-relative limits here.
-        final FieldRelativeVelocity target = m_limiter.apply(getState(), scaled);
+        // NEW! Apply field-relative limits here.
+        if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
+            scaled = m_limiter.apply(getVelocity(), scaled);
+        }
 
         final Rotation2d theta = getPose().getRotation();
-        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(target, theta);
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(scaled, theta);
 
         m_log_input.log(() -> input);
         m_log_skill.log(() -> driverSkillLevel);

@@ -53,7 +53,6 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -130,13 +129,9 @@ public class RobotContainer implements Glassy {
                 m_layout,
                 poseEstimator);
 
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                driveLog,
-                swerveKinodynamics);
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
                 swerveKinodynamics,
-                setpointGenerator,
                 m_modules);
 
         SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);

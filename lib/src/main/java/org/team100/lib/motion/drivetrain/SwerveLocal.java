@@ -4,8 +4,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -16,7 +14,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.state.Control100;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Util;
 
@@ -52,11 +49,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final SwerveModuleCollection m_modules;
-    private final AsymSwerveSetpointGenerator m_SwerveSetpointGenerator;
-    private final ChassisSpeedsLogger m_log_desired;
-    private final ChassisSpeedsLogger m_log_setpoint_delta;
-    private final ChassisSpeedsLogger m_log_prev_setpoint;
-    private final ChassisSpeedsLogger m_log_setpoint;
     private final ChassisSpeedsLogger m_log_chassis_speed;
 
     private SwerveSetpoint m_prevSetpoint;
@@ -64,17 +56,11 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     public SwerveLocal(
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
-            AsymSwerveSetpointGenerator setpointGenerator,
             SwerveModuleCollection modules) {
         LoggerFactory child = parent.child(this);
-        m_log_desired = child.chassisSpeedsLogger(Level.DEBUG, "desired chassis speed");
-        m_log_setpoint_delta = child.chassisSpeedsLogger(Level.TRACE, "setpoint delta");
-        m_log_prev_setpoint = child.chassisSpeedsLogger(Level.TRACE, "prevSetpoint chassis speed");
-        m_log_setpoint = child.chassisSpeedsLogger(Level.DEBUG, "setpoint chassis speed");
         m_log_chassis_speed = child.chassisSpeedsLogger(Level.TRACE, "chassis speed LOG");
         m_swerveKinodynamics = swerveKinodynamics;
         m_modules = modules;
-        m_SwerveSetpointGenerator = setpointGenerator;
         m_prevSetpoint = new SwerveSetpoint();
     }
 
@@ -83,19 +69,11 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     // Actuators. These are mutually exclusive within an iteration.
     //
 
-    /**
-     * Drives the modules to produce the target chassis speed.
-     * 
-     * Feasibility is enforced by the setpoint generator, if enabled.
-     */
+
     public void setChassisSpeeds(final ChassisSpeeds speeds) {
-        if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
-            setChassisSpeedsWithSetpointGenerator(speeds);
-        } else {
             setChassisSpeedsNormally(speeds);
-        }
-        m_log_desired.log(() -> speeds);
     }
+
 
     /**
      * Discretizes the speeds, calculates the inverse kinematic module states, and
@@ -117,7 +95,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
                     speeds.omegaRadiansPerSecond);
         m_prevSetpoint = setpoint;
         m_log_chassis_speed.log(() -> speeds);
-
         setModuleStates(states);
     }
 
@@ -276,29 +253,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /////////////////////////////////////////////////////////
-
-    private void setChassisSpeedsWithSetpointGenerator(ChassisSpeeds speeds) {
-        // Informs SwerveDriveKinematics of the module states.
-        final SwerveSetpoint setpoint = m_SwerveSetpointGenerator.generateSetpoint(
-                m_prevSetpoint,
-                speeds);
-
-        // ideally delta would be zero because our input would be feasible.
-        m_log_setpoint_delta.log(() -> setpoint.speeds().minus(speeds));
-        m_log_prev_setpoint.log(m_prevSetpoint::speeds);
-        m_log_setpoint.log(setpoint::speeds);
-        // if we're going +x then new course should be opposite heading.
-        if (DEBUG)
-            Util.printf("setChassisSpeedsWithSetpointGenerator() prev course %.8f new course %.8f vx %.8f vy %.8f omega %.8f\n",
-                    GeometryUtil.getCourse(m_prevSetpoint.speeds()).orElse(new Rotation2d()).getRadians(),
-                    GeometryUtil.getCourse(setpoint.speeds()).orElse(new Rotation2d()).getRadians(),
-                    setpoint.speeds().vxMetersPerSecond,
-                    setpoint.speeds().vyMetersPerSecond,
-                    setpoint.speeds().omegaRadiansPerSecond                    );
-        m_prevSetpoint = setpoint;
-
-        setModuleStates(setpoint.states());
-    }
 
     private void setModuleStates(SwerveModuleStates states) {
         m_modules.setDesiredStates(states);

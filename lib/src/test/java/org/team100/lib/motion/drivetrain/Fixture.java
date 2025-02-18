@@ -14,7 +14,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.testing.Timeless;
 
 /**
@@ -42,10 +41,7 @@ public class Fixture {
         // uses simulated modules
         collection = SwerveModuleCollection.get(logger, 10, 20, swerveKinodynamics);
         gyro = new SimulatedGyro(swerveKinodynamics, collection);
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                logger,
-                swerveKinodynamics);
-        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, setpointGenerator, collection);
+        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
         poseEstimator = swerveKinodynamics.newPoseEstimator(
                 logger,
                 gyro,

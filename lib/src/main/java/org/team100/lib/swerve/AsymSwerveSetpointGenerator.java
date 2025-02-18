@@ -21,7 +21,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             LoggerFactory parent,
             SwerveKinodynamics limits) {
         m_limits = limits;
-        m_DriveAccelerationLimiter = new DriveAccelerationLimiter(parent, limits);
+        m_DriveAccelerationLimiter = new DriveAccelerationLimiter(limits);
     }
 
     /**

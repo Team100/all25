@@ -5,18 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.TestLoggerFactory;
-import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 
 class DriveAccelerationLimiterTest {
     private static final double kDelta = 0.001;
-    private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test
     void testUnconstrained() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forTest();
-        DriveAccelerationLimiter c = new DriveAccelerationLimiter(logger, l);
+        DriveAccelerationLimiter c = new DriveAccelerationLimiter( l);
         double[] prev_vx = new double[] { 0 };
         double[] prev_vy = new double[] { 0 };
         double[] desired_vx = new double[] { 0 };
@@ -32,7 +28,7 @@ class DriveAccelerationLimiterTest {
     @Test
     void testConstrained() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forTest();
-        DriveAccelerationLimiter c = new DriveAccelerationLimiter(logger, l);
+        DriveAccelerationLimiter c = new DriveAccelerationLimiter(l);
         double[] prev_vx = new double[] { 0 };
         double[] prev_vy = new double[] { 0 };
         double[] desired_vx = new double[] { 1 };

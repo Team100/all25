@@ -35,7 +35,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryMaker;
@@ -103,10 +102,7 @@ public class RobotContainerParkingLot implements Glassy {
                 driveLogger,
                 m_layout,
                 poseEstimator);
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                driveLogger,
-                swerveKinodynamics);
-        SwerveLocal swerveLocal = new SwerveLocal(driveLogger, swerveKinodynamics, setpointGenerator, m_modules);
+        SwerveLocal swerveLocal = new SwerveLocal(driveLogger, swerveKinodynamics, m_modules);
         SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
