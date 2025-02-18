@@ -27,7 +27,7 @@ public class ManualFieldRelativeSpeeds implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      */
     @Override
     public FieldRelativeVelocity apply(SwerveModel state, DriverControl.Velocity input) {

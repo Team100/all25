@@ -99,7 +99,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * If you touch the POV and not the twist rotation, it remembers the POV. if you
      * use the twist rotation, it forgets and just uses that.

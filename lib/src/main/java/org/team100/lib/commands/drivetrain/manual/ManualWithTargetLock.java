@@ -78,7 +78,7 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * This uses the current-instant setpoint to calculate feedback error.
      * 

@@ -48,8 +48,7 @@ public class SimulatedDrivingTest implements Timeless {
     Gyro gyro = new SimulatedGyro(swerveKinodynamics, collection);
     AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
             logger,
-            swerveKinodynamics,
-            () -> 12);
+            swerveKinodynamics);
     SwerveDrivePoseEstimator100 poseEstimator = swerveKinodynamics.newPoseEstimator(
             logger,
             gyro,

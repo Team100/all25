@@ -1,6 +1,7 @@
 package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -84,6 +85,69 @@ public class FieldRelativeVelocityLimiterTest {
         assertEquals(0, limited.x(), kDelta);
         assertEquals(0, limited.y(), kDelta);
         assertEquals(0, limited.theta(), kDelta);
+    }
+
+    /** desaturation should keep the same instantaneous course. */
+    @Test
+    void testDesaturationCourseInvariant() {
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
+        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
+
+        { // both motionless
+            FieldRelativeVelocity speed = new FieldRelativeVelocity(0, 0, 0);
+            assertTrue(speed.angle().isEmpty());
+            FieldRelativeVelocity desaturated = l.limit(speed);
+            assertTrue(desaturated.angle().isEmpty());
+        }
+        { // translating ahead
+            FieldRelativeVelocity speed = new FieldRelativeVelocity(10, 0, 0);
+            assertEquals(0, speed.angle().get().getRadians(), kDelta);
+            assertEquals(10, speed.norm(), kDelta);
+            FieldRelativeVelocity desaturated = l.limit(speed);
+            assertEquals(0, desaturated.angle().get().getRadians(), kDelta);
+            assertEquals(5, desaturated.norm(), kDelta);
+        }
+        { // translating ahead and spinning
+            FieldRelativeVelocity speed = new FieldRelativeVelocity(10, 0, 10);
+            assertEquals(0, speed.angle().get().getRadians(), kDelta);
+            assertEquals(10, speed.norm(), kDelta);
+            assertEquals(10, speed.theta(), kDelta);
+            FieldRelativeVelocity desaturated = l.limit(speed);
+            assertEquals(0, desaturated.angle().get().getRadians(), kDelta);
+            assertEquals(3.694, desaturated.norm(), kDelta);
+            assertEquals(3.694, desaturated.theta(), kDelta);
+        }
+        { // translating 45 to the left and spinning
+            FieldRelativeVelocity speed = new FieldRelativeVelocity(10 / Math.sqrt(2), 10 / Math.sqrt(2), 10);
+            assertEquals(Math.PI / 4, speed.angle().get().getRadians(), kDelta);
+            assertEquals(10, speed.norm(), kDelta);
+            assertEquals(10, speed.theta(), kDelta);
+            FieldRelativeVelocity desaturated = l.limit(speed);
+            assertEquals(Math.PI / 4, desaturated.angle().get().getRadians(), kDelta);
+            assertEquals(2.612, desaturated.x(), kDelta);
+            assertEquals(2.612, desaturated.y(), kDelta);
+            // slightly different due to drivetrain geometry
+            assertEquals(3.693, desaturated.norm(), kDelta);
+            assertEquals(3.693, desaturated.theta(), kDelta);
+        }
+    }
+
+    @Test
+    void driveAndSpinLimited() {
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.limiting();
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
+        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
+        FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 25);
+        assertEquals(5, target.x(), kDelta);
+        assertEquals(0, target.y(), kDelta);
+        assertEquals(25, target.theta(), kDelta);
+        // the spin is 5x the drive, as requested.
+        // use the target as the previous setpoint
+        FieldRelativeVelocity setpoint = l.limit(target);
+        assertEquals(1.806, setpoint.x(), kDelta);
+        assertEquals(0, setpoint.y(), kDelta);
+        assertEquals(9.032, setpoint.theta(), kDelta);
     }
 
 }

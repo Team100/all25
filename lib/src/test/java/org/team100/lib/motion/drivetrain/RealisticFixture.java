@@ -43,8 +43,7 @@ public class RealisticFixture {
         gyro = new SimulatedGyro(swerveKinodynamics, collection);
         final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
                 logger,
-                swerveKinodynamics,
-                () -> 12);
+                swerveKinodynamics);
         swerveLocal = new SwerveLocal(logger, swerveKinodynamics, setpointGenerator, collection);
         poseEstimator = swerveKinodynamics.newPoseEstimator(
                 logger,

@@ -132,8 +132,7 @@ public class RobotContainer implements Glassy {
 
         final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
                 driveLog,
-                swerveKinodynamics,
-                RobotController::getBatteryVoltage);
+                swerveKinodynamics);
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
                 swerveKinodynamics,

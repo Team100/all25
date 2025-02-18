@@ -84,7 +84,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * @param state from the drivetrain
      * @param input control units [-1,1]

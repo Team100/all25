@@ -105,8 +105,7 @@ public class RobotContainerParkingLot implements Glassy {
                 poseEstimator);
         final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
                 driveLogger,
-                swerveKinodynamics,
-                RobotController::getBatteryVoltage);
+                swerveKinodynamics);
         SwerveLocal swerveLocal = new SwerveLocal(driveLogger, swerveKinodynamics, setpointGenerator, m_modules);
         SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
         m_drive = new SwerveDriveSubsystem(
