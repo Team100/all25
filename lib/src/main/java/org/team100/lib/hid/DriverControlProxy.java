@@ -125,6 +125,11 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
+    public boolean driveOneMeter() {
+        return m_driverControl.driveOneMeter();
+    }
+
+    @Override
     public boolean trigger() {
         return m_driverControl.trigger();
     }

@@ -70,8 +70,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * Try to keep this container clean; if there's something you want to keep but
  * don't need right now, cut and paste it into {@link RobotContainerParkingLot}.
  */
+// for background on drive current limits:
 public class RobotContainer implements Glassy {
-    // for background on drive current limits:
     // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
     // https://www.chiefdelphi.com/t/the-brushless-era-needs-sensible-default-current-limits/461056/51
     private static final double kDriveCurrentLimit = 50;
@@ -219,10 +219,19 @@ public class RobotContainer implements Glassy {
                 new DriveToPoseWithProfile(
                         fieldLog,
                         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -2, new Rotation2d(Math.PI / 2))))),
+                                .plus(new Transform2d(0, -2.5, new Rotation2d(Math.PI / 2))))),
                         m_drive,
                         holonomicController,
                         profile));
+
+                whileTrue(driverControl::driveOneMeter,
+        new DriveToPoseWithProfile(
+                fieldLog,
+                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                        .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                m_drive,
+                holonomicController,
+                profile));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,

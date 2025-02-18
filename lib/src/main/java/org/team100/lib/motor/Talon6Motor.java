@@ -20,6 +20,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -43,6 +44,7 @@ public abstract class Talon6Motor implements BareMotor {
     /** position is latency-compensated. */
     protected final DoubleSupplier m_position;
     protected final DoubleSupplier m_velocity;
+    protected final DoubleSupplier m_acceleration;
     protected final DoubleSupplier m_dutyCycle;
     protected final DoubleSupplier m_error;
     protected final DoubleSupplier m_supply;
@@ -69,6 +71,7 @@ public abstract class Talon6Motor implements BareMotor {
     private final DoubleLogger m_log_torque_FF;
     private final DoubleLogger m_log_position;
     private final DoubleLogger m_log_velocity;
+    private final DoubleLogger m_log_accel;
     private final DoubleLogger m_log_output;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_supply;
@@ -109,11 +112,13 @@ public abstract class Talon6Motor implements BareMotor {
 
         Phoenix100.crash(() -> m_motor.getPosition().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
         Phoenix100.crash(() -> m_motor.getVelocity().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
+        Phoenix100.crash(() -> m_motor.getAcceleration().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
         Phoenix100.crash(() -> m_motor.getTorqueCurrent().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
 
         // Cache the status signal getters.
         final StatusSignal<Angle> motorPosition = m_motor.getPosition();
         final StatusSignal<AngularVelocity> motorVelocity = m_motor.getVelocity();
+        final StatusSignal<AngularAcceleration> motorAcceleration = m_motor.getAcceleration();
         final StatusSignal<Double> motorDutyCycle = m_motor.getDutyCycle();
         final StatusSignal<Double> motorClosedLoopError = m_motor.getClosedLoopError();
         final StatusSignal<Current> motorSupplyCurrent = m_motor.getSupplyCurrent();
@@ -125,6 +130,7 @@ public abstract class Talon6Motor implements BareMotor {
         // The memoizer refreshes all the signals at once.
         Memo.registerSignal(motorPosition);
         Memo.registerSignal(motorVelocity);
+        Memo.registerSignal(motorAcceleration);
         Memo.registerSignal(motorDutyCycle);
         Memo.registerSignal(motorClosedLoopError);
         Memo.registerSignal(motorSupplyCurrent);
@@ -146,6 +152,7 @@ public abstract class Talon6Motor implements BareMotor {
                 });
         m_velocity = Memo.ofDouble(() -> motorVelocity.getValueAsDouble());
         m_dutyCycle = Memo.ofDouble(() -> motorDutyCycle.getValueAsDouble());
+        m_acceleration = Memo.ofDouble(() -> motorAcceleration.getValueAsDouble());
         m_error = Memo.ofDouble(() -> motorClosedLoopError.getValueAsDouble());
         m_supply = Memo.ofDouble(() -> motorSupplyCurrent.getValueAsDouble());
         m_supplyVoltage = Memo.ofDouble(() -> motorSupplyVoltage.getValueAsDouble());
@@ -164,6 +171,7 @@ public abstract class Talon6Motor implements BareMotor {
 
         m_log_position = child.doubleLogger(Level.DEBUG, "position (rev)");
         m_log_velocity = child.doubleLogger(Level.DEBUG, "velocity (rev_s)");
+        m_log_accel = child.doubleLogger(Level.TRACE, "accel (rev_s2)");
         m_log_output = child.doubleLogger(Level.DEBUG, "output [-1,1]");
         m_log_error = child.doubleLogger(Level.TRACE, "error (rev_s)");
         m_log_supply = child.doubleLogger(Level.DEBUG, "supply current (A)");
@@ -334,6 +342,7 @@ public abstract class Talon6Motor implements BareMotor {
     protected void log() {
         m_log_position.log(m_position);
         m_log_velocity.log(m_velocity);
+        m_log_accel.log(m_acceleration);
         m_log_output.log(m_dutyCycle);
         m_log_error.log(m_error);
         m_log_supply.log(m_supply);
