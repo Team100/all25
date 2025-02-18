@@ -29,6 +29,7 @@ class AsymSwerveSetpointGeneratorTest {
     private final static SwerveKinodynamics kKinematicLimits = SwerveKinodynamicsFactory.limiting();
 
     private final static double kMaxSteeringVelocityError = Math.toRadians(2.0); // rad/s
+    // allow a lot of error
     private final static double kMaxAccelerationError = 0.1; // m/s^2
 
     private void SatisfiesConstraints(int iteration, SwerveSetpoint prev, SwerveSetpoint next) {
@@ -46,12 +47,14 @@ class AsymSwerveSetpointGeneratorTest {
             assertTrue(
                     Math.abs(diffRotation.getRadians()) < kKinematicLimits.getMaxSteeringVelocityRad_S()
                             + kMaxSteeringVelocityError,
-                    String.format("%d %d %f %f %f", iteration, i,
+                    String.format("steering velocity too high: iteration %d i %d diff %f limit %f allowed %f",
+                            iteration, i,
                             diffRotation.getRadians(),
                             kKinematicLimits.getMaxSteeringVelocityRad_S(),
                             kMaxSteeringVelocityError));
             assertTrue(Math.abs(nextModule.speedMetersPerSecond()) <= kKinematicLimits.getMaxDriveVelocityM_S(),
-                    String.format("%d %d %f %f", iteration, i,
+                    String.format("speed too high: iteration %d i %d speed %f limit %f",
+                            iteration, i,
                             nextModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveVelocityM_S()));
             double actual = Math.abs(
@@ -59,7 +62,9 @@ class AsymSwerveSetpointGeneratorTest {
                     / kDt;
             double limit = kKinematicLimits.getMaxDriveAccelerationM_S2() + kMaxAccelerationError;
             assertTrue(actual <= limit,
-                    String.format("%d %d %f %f %f %f %f %f", iteration, i, actual, limit,
+                    String.format(
+                            "accel too high: iteration %d i %d actual %f limit %f next %f prev %f limit %f allowed %f",
+                            iteration, i, actual, limit,
                             nextModule.speedMetersPerSecond(),
                             prevModule.speedMetersPerSecond(),
                             kKinematicLimits.getMaxDriveAccelerationM_S2(),
@@ -72,7 +77,7 @@ class AsymSwerveSetpointGeneratorTest {
             ChassisSpeeds goal,
             AsymSwerveSetpointGenerator generator) {
         int iteration = 0;
-        while (GeometryUtil.norm(goal.minus(prevSetpoint.speeds())) > 1e-6) {
+        while (!GeometryUtil.near(goal, prevSetpoint.speeds())) {
             SwerveSetpoint newsetpoint = generator.generateSetpoint(prevSetpoint, goal);
             SatisfiesConstraints(iteration, prevSetpoint, newsetpoint);
             prevSetpoint = newsetpoint;
@@ -107,14 +112,109 @@ class AsymSwerveSetpointGeneratorTest {
             SwerveSetpoint setpoint = generator.generateSetpoint(
                     prevSetpoint,
                     target);
-            assertEquals(Math.PI / 4, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), kDelta);
+            assertEquals(Math.PI / 4, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(prevSetpoint.speeds()), kDelta);
             assertEquals(3.733, prevSetpoint.speeds().omegaRadiansPerSecond, kDelta);
-            // nothing changes (approximately)
-            assertEquals(Math.PI / 4, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 0.006);
+            //
+            //
+            // ##############
+            // ## this is the bug
+            // ##############
+            //
+            //
+            assertEquals(0.7838560223692357, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-12);
             assertEquals(3.733, GeometryUtil.norm(setpoint.speeds()), 0.2);
+            assertEquals(2.5283945810697666, setpoint.speeds().vxMetersPerSecond, 1e-12);
+            assertEquals(2.5206083004022424, setpoint.speeds().vyMetersPerSecond, 0.2);
             assertEquals(3.733, setpoint.speeds().omegaRadiansPerSecond, 0.2);
         }
+    }
+
+    /** This is pulled from the case below, to isolate the problem. */
+    @Test
+    void testMakeSpeeds() {
+        FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
+        double headingRad = 0.005716666136460628;
+        ChassisSpeeds prevSpeed = new ChassisSpeeds(0.16333333, 0, 0.28583333);
+
+        ChassisSpeeds targetSpeed = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                input,
+                new Rotation2d(headingRad));
+        assertEquals(-0.005716666136460628, GeometryUtil.getCourse(targetSpeed).get().getRadians(), 1e-12);
+
+        AsymSwerveSetpointGenerator generator = new AsymSwerveSetpointGenerator(
+                logger,
+                kKinematicLimits,
+                () -> 12);
+        {
+            // min_s == 1, works fine.
+            double min_s = 1.0;
+            ChassisSpeeds newSpeed = generator.makeSpeeds(prevSpeed, targetSpeed, min_s);
+            // new course needs to be the same as the target course.
+            assertEquals(-0.005716666136460628, GeometryUtil.getCourse(newSpeed).get().getRadians(), 1e-12);
+        }
+        {
+            // this is the failure case.
+            double min_s = 0.1;
+            ChassisSpeeds newSpeed = generator.makeSpeeds(prevSpeed, targetSpeed, min_s);
+            // new course needs to be the same as the target course.
+            // but here we're using the lerp because the projection is too far from the
+            // previous
+            assertEquals(-0.0032949096257036685, GeometryUtil.getCourse(newSpeed).get().getRadians(), 1e-12);
+        }
+    }
+
+    /** This is pulled from SimulatedDrivingTest, to isolate the problem. */
+    @Test
+    void courseInvariantRealistic() {
+        FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
+
+        // this is the current estimated pose heading. we've been driving for one time
+        // step,
+        // so we rotated a tiny bit.
+        double headingRad = 0.005716666136460628;
+
+        // not going very fast. note the previous instantaneous robot-relative speed has
+        // no "y" component at all, because at the previous time, we had heading of zero
+        // (and no speed either).
+        ChassisSpeeds prevSpeed = new ChassisSpeeds(0.16333333, 0, 0.28583333);
+        SwerveModuleStates states = kKinematicLimits.toSwerveModuleStates(prevSpeed);
+        SwerveSetpoint prevSetpoint = new SwerveSetpoint(prevSpeed, states);
+
+        // the previous course is exactly zero: this is the first time step after
+        // starting.
+        assertEquals(0, GeometryUtil.getCourse(prevSetpoint.speeds()).get().getRadians(), 1e-12);
+        assertEquals(0.16333333, GeometryUtil.norm(prevSetpoint.speeds()), 1e-12);
+        assertEquals(0.28583333, prevSetpoint.speeds().omegaRadiansPerSecond, 1e-12);
+
+        // field-relative is +x, field-relative course is zero
+
+        ChassisSpeeds targetSpeed = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                input,
+                new Rotation2d(headingRad));
+
+        // the robot-relative course is the opposite of the heading
+        assertEquals(-0.005716666136460628, GeometryUtil.getCourse(targetSpeed).get().getRadians(), 1e-6);
+        // the norm is the same as the input
+        assertEquals(2, GeometryUtil.norm(targetSpeed), 1e-12);
+        assertEquals(1.9999673198172843, targetSpeed.vxMetersPerSecond, 1e-12);
+        assertEquals(-0.011433269998955463, targetSpeed.vyMetersPerSecond, 1e-12);
+        assertEquals(3.5, targetSpeed.omegaRadiansPerSecond, 1e-12);
+
+        AsymSwerveSetpointGenerator generator = new AsymSwerveSetpointGenerator(
+                logger,
+                kKinematicLimits,
+                () -> 12);
+        SwerveSetpoint setpoint = generator.generateSetpoint(prevSetpoint, targetSpeed);
+
+        // since the real heading of the robot can't change, the course here needs to
+        // still be exactly
+        // the opposite of the field-relative heading. if not, veering ensues.
+        // here we're using the lerp because the projection is too far away.
+        assertEquals(-0.0031125206477041105, GeometryUtil.getCourse(setpoint.speeds()).get().getRadians(), 1e-6);
+        assertEquals(0.3266650809966256, GeometryUtil.norm(setpoint.speeds()), 1e-12);
+        assertEquals(0.5716662108278215, setpoint.speeds().omegaRadiansPerSecond, 1e-12);
+
     }
 
     /** desaturation should keep the same instantaneous course. */
@@ -393,16 +493,31 @@ class AsymSwerveSetpointGeneratorTest {
 
         ChassisSpeeds goalSpeeds = new ChassisSpeeds(0.0, 0.0, 1.0);
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
+        assertEquals(0, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
+        assertEquals(1, setpoint.speeds().omegaRadiansPerSecond, kDelta);
 
         goalSpeeds = new ChassisSpeeds(0.0, 0.0, -1.0);
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
+        assertEquals(0, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
+        assertEquals(-1, setpoint.speeds().omegaRadiansPerSecond, kDelta);
 
         goalSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
+        assertEquals(0, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
 
         goalSpeeds = new ChassisSpeeds(1.0, 0.0, 0.0);
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
+        assertEquals(1, setpoint.speeds().vxMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
+        assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
 
+        // this fails because the direction of the goal is so far from the setpoint,
+        // the projection of the setpoint onto the goal direction results in too
+        // high acceleration.
         goalSpeeds = new ChassisSpeeds(0.0, 1.0, 0.0);
         setpoint = driveToGoal(setpoint, goalSpeeds, generator);
 

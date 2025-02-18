@@ -72,7 +72,7 @@ public class Model100 {
 
     @Override
     public String toString() {
-        return String.format("Model100(X %5.3f V %5.3f)", m_x, m_v);
+        return String.format("Model100(X %11.8f V %11.8f)", m_x, m_v);
     }
 
     @Override

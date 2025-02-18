@@ -22,11 +22,9 @@
         "editor.parameterHints.cycle": false,
         "java.signatureHelp.enabled": false,
         "java.saveActions.organizeImports": false,
-        "debug.console.fontSize": 14,
         "workbench.colorCustomizations": {
             "debugConsole.infoForeground":"#000000"
         },
-        "debug.console.fontFamily": "courier",
         "debug.console.collapseIdenticalLines": false,
         "intellicodeApiExamples.python.enabled": false,
         "intellicodeApiExamples.typescript.enabled": false,

@@ -3,6 +3,8 @@ package org.team100.lib.swerve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -141,29 +143,39 @@ public class SimulatedDrivingTest implements Timeless {
         }
     }
 
-    /** The simulation veers, which is weird, it should be perfect. */
+    /**
+     * Uses the setpoint generator. turn on DEBUG in SwerveLocal to see the bug, the
+     * setpoint generator output is not course-invariant.
+     * 
+     * accel is 10 m/s/s; dt is 0.02, so dv is 0.2.
+     */
     @Test
     void testVeering() {
-        // +x and spinning
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
+        collection.reset();
+        // +x and spinning. course is always zero.
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
         for (int i = 0; i < 5; ++i) {
+            Util.printf("\nstep time ...\n");
             stepTime();
+            Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
             drive.driveInFieldCoords(input);
-            Util.printf("takt: %.2f pose: %s\n", Takt.get(), drive.getPose());
         }
     }
 
-    /** This seems like the simplest case: no setpoint generator here. */
+    /**
+     * No veering. Drive commands go to simulated motors, which respond instantly.
+     */
     @Test
     void testVeeringVerbatim() {
         collection.reset();
         // +x and spinning
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
-        for (int i = 0; i < 5; ++i) {
-            Util.printf("step time ...\n");
+        for (int i = 0; i < 100; ++i) {
+            Util.printf("\nstep time ...\n");
             stepTime();
+            Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
             drive.driveInFieldCoordsVerbatim(input);
-            Util.printf("takt: %.2f pose: %s\n", Takt.get(), drive.getPose());
         }
     }
 

@@ -5,7 +5,10 @@ import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.Profile100.ResultWithETA;
 import org.team100.lib.state.Control100;
+import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
+
+import edu.wpi.first.math.MathUtil;
 
 /**
  * Coordinates three axes so that their profiles complete at about the same
@@ -87,7 +90,11 @@ public class HolonomicProfile {
         }
         Control100 stateX = ppx.calculate(kDt, i.x(), g.x());
         Control100 stateY = ppy.calculate(kDt, i.y(), g.y());
-        Control100 stateTheta = pptheta.calculate(kDt, i.theta(), g.theta());
+        // theta is periodic; choose a setpoint angle near the goal.
+        Model100 theta = new Model100(
+                MathUtil.angleModulus(i.theta().x() - g.theta().x()) + g.theta().x(),
+                i.theta().v());
+        Control100 stateTheta = pptheta.calculate(kDt, theta, g.theta());
         return new SwerveControl(stateX, stateY, stateTheta);
     }
 }

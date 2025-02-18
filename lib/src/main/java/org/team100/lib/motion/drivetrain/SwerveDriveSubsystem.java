@@ -95,23 +95,37 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         final Rotation2d theta = getPose().getRotation();
         final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
 
-        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
-
         m_log_input.log(() -> vIn);
         m_log_skill.log(() -> driverSkillLevel);
+        // here heading and course are exactly opposite, as they should be.
         if (DEBUG)
-            Util.printf("theta %s speeds %s\n", theta, targetChassisSpeeds);
+            Util.printf(
+                    "driveInFieldCoords() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
+                    theta.getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).orElse(new Rotation2d()).getRadians(),
+                    targetChassisSpeeds.vxMetersPerSecond,
+                    targetChassisSpeeds.vyMetersPerSecond,
+                    targetChassisSpeeds.omegaRadiansPerSecond);
+
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
     public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
-        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
                 vIn, getPose().getRotation());
+
+        final Rotation2d theta = getPose().getRotation();
+        // if we're going +x then heading and course should be opposite.
         if (DEBUG)
-            Util.printf("speeds x %.6f y %.6f theta %.6f\n",
+            Util.printf(
+                    "driveInFieldCoordsVerbatim() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
+                    theta.getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).get().getRadians(),
                     targetChassisSpeeds.vxMetersPerSecond,
                     targetChassisSpeeds.vyMetersPerSecond,
                     targetChassisSpeeds.omegaRadiansPerSecond);
+
         m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
     }
 
@@ -267,7 +281,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_cameras.update();
         SwerveModel swerveModel = m_poseEstimator.get(now);
         if (DEBUG)
-            Util.printf("sampled: %s\n", swerveModel);
+            Util.printf("update() estimated pose: %s\n", swerveModel);
         return swerveModel;
     }
 
