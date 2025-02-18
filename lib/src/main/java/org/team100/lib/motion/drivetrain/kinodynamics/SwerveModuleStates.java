@@ -1,7 +1,5 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-
 /**
  * Container for swerve module states.
  * 

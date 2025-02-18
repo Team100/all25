@@ -121,6 +121,7 @@ public class SimulatedDrivingTest implements Timeless {
     @Test
     void testStraight() {
         // just +x
+        collection.reset();
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 0);
         double start = Takt.get();
         for (int i = 0; i < 100; ++i) {
@@ -134,6 +135,7 @@ public class SimulatedDrivingTest implements Timeless {
     void testStraightVerbatim() {
         // just +x
         // this accelerates infinitely, immediately to the requested speed.
+        collection.reset();
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 0);
         double start = Takt.get();
         for (int i = 0; i < 100; ++i) {
