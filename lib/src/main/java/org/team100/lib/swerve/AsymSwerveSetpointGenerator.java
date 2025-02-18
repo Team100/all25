@@ -36,8 +36,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
     private final SwerveKinodynamics m_limits;
 
-    private final SteeringOverride m_SteeringOverride;
-    private final SteeringRateLimiter m_steeringRateLimiter;
     private final DriveAccelerationLimiter m_DriveAccelerationLimiter;
 
     public AsymSwerveSetpointGenerator(
@@ -45,8 +43,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             SwerveKinodynamics limits,
             DoubleSupplier batteryVoltage) {
         m_limits = limits;
-        m_SteeringOverride = new SteeringOverride(parent, limits);
-        m_steeringRateLimiter = new SteeringRateLimiter(parent, limits);
         m_DriveAccelerationLimiter = new DriveAccelerationLimiter(parent, limits);
     }
 
@@ -107,37 +103,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         // inverse kinematics doesn't care about angle, we can be opportunistically
         // lazy).
         SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
-        Rotation2d[] overrideSteering = new Rotation2d[prevModuleStatesAll.length];
-
-        if (GeometryUtil.isZero(target.speeds())) {
-            for (int i = 0; i < prevModuleStatesAll.length; ++i) {
-                if (prevModuleStatesAll[i].angle().isEmpty()) {
-                    overrideSteering[i] = null;
-                } else {
-                    overrideSteering[i] = prevModuleStatesAll[i].angle().get();
-                }
-            }
-        } else {
-            double override_min_s = m_SteeringOverride.overrideIfStopped(
-                    target.states(),
-                    prevModuleStates,
-                    overrideSteering);
-            if (DEBUG)
-                Util.printf("override %f\n", override_min_s);
-            min_s = Math.min(min_s, override_min_s);
-
-            double steering_min_s = m_steeringRateLimiter.enforceSteeringLimit(
-                    prev_vx,
-                    prev_vy,
-                    prev_heading,
-                    desired_vx,
-                    desired_vy,
-                    desired_heading,
-                    overrideSteering);
-            if (DEBUG)
-                Util.printf("steering %f\n", steering_min_s);
-            min_s = Math.min(min_s, steering_min_s);
-        }
 
         double accel_min_s = m_DriveAccelerationLimiter.enforceWheelAccelLimit(
                 prev_vx,
@@ -151,8 +116,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         return makeSetpoint(
                 prevSetpoint,
                 target,
-                min_s,
-                overrideSteering);
+                min_s);
     }
 
     ///////////////////////////////////////////////////////
@@ -249,8 +213,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     private SwerveSetpoint makeSetpoint(
             final SwerveSetpoint prevSetpoint,
             SwerveSetpoint target,
-            double min_s,
-            Rotation2d[] overrideSteering) {
+            double min_s) {
         final SwerveModuleStates prevModuleStates = prevSetpoint.states();
         if (DEBUG)
             Util.printf("makeSetpoint()\n");
@@ -269,7 +232,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         // know the previous state so use that.
         SwerveModuleStates setpointStates = m_limits.toSwerveModuleStates(setpointSpeeds);
         setpointStates = setpointStates.overwriteEmpty(prevModuleStates);
-        setpointStates = setpointStates.override(overrideSteering);
         setpointStates = setpointStates.flipIfRequired(prevModuleStates);
 
         // sync up the speeds with the states. is this needed?

@@ -66,15 +66,6 @@ public record SwerveModuleStates(
                 rearRight.scale(scale));
     }
 
-    /** Overwrite the states with the supplied steering overrides, if any. */
-    public SwerveModuleStates override(Rotation2d[] overrides) {
-        return new SwerveModuleStates(
-                frontLeft.override(overrides[0]),
-                frontRight.override(overrides[1]),
-                rearLeft.override(overrides[2]),
-                rearRight.override(overrides[3]));
-    }
-
     public SwerveModuleStates flipIfRequired(SwerveModuleStates prev) {
         return new SwerveModuleStates(
                 frontLeft.flipIfRequired(prev.frontLeft),
