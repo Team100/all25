@@ -141,8 +141,7 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
                 target.getY(),
                 0 });
 
-        // desaturate to feasibility by preferring the rotational velocity.
-        return m_swerveKinodynamics.preferRotation(twistWithLockM_S);
+        return twistWithLockM_S;
     }
 
     private FieldRelativeVelocity getScaledInput(DriverControl.Velocity input) {

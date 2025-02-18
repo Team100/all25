@@ -10,6 +10,7 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
@@ -58,13 +59,15 @@ public class Fixture {
             }
         };
 
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
         drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 logger,
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                v);
+                v,
+                limiter);
 
         controller = SwerveControllerFactory.test(logger);
     }

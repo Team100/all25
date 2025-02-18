@@ -20,6 +20,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDeltas;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SimulatedSwerveModule100;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
@@ -61,13 +62,16 @@ public class SimulatedDrivingTest implements Timeless {
         public void update() {
         }
     };
+    SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
+
     SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
             fieldLogger,
             logger,
             gyro,
             poseEstimator,
             swerveLocal,
-            visionData);
+            visionData,
+            limiter);
 
     @Test
     void testSteps() {

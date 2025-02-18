@@ -15,6 +15,7 @@ import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Memo;
@@ -36,6 +37,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
     private final VisionData m_cameras;
+    private final SwerveLimiter m_limiter;
 
     // CACHES
     private final Memo.CotemporalCache<SwerveModel> m_stateSupplier;
@@ -55,12 +57,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Gyro gyro,
             SwerveDrivePoseEstimator100 poseEstimator,
             SwerveLocal swerveLocal,
-            VisionData cameras) {
+            VisionData cameras,
+            SwerveLimiter limiter) {
         LoggerFactory child = parent.child(this);
         m_gyro = gyro;
         m_poseEstimator = poseEstimator;
         m_swerveLocal = swerveLocal;
         m_cameras = cameras;
+        m_limiter = limiter;
         m_stateSupplier = Memo.of(this::update);
         stop();
         m_log_state = child.swerveModelLogger(Level.COMP, "state");
@@ -80,22 +84,23 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied twist by the "speed" driver control modifier.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
+     * Feasibility is enforced by the SwerveLimiter, and, at the moment, the setpoint generator.
      * 
-     * @param visionData Field coordinate velocities in meters and radians per
-     *                   second.
+     * TODO: remove setpoint generator.
      */
     @Override
-    public void driveInFieldCoords(final FieldRelativeVelocity vIn) {
+    public void driveInFieldCoords(final FieldRelativeVelocity input) {
         // scale for driver skill; default is half speed.
         final DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        final FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
+        final FieldRelativeVelocity scaled = GeometryUtil.scale(input, driverSkillLevel.scale());
+
+        // NEW!  Apply field-relative limits here.
+        final FieldRelativeVelocity target = m_limiter.apply(getState(), scaled);
 
         final Rotation2d theta = getPose().getRotation();
-        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(target, theta);
 
-        m_log_input.log(() -> vIn);
+        m_log_input.log(() -> input);
         m_log_skill.log(() -> driverSkillLevel);
         // here heading and course are exactly opposite, as they should be.
         if (DEBUG)

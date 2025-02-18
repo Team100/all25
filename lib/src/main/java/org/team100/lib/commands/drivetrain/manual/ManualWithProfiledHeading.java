@@ -129,8 +129,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             // in this case there is no setpoint
             m_thetaSetpoint = null;
             m_log_mode.log(() -> "free");
-            // desaturate to feasibility
-            return m_swerveKinodynamics.analyticDesaturation(control);
+            return control;
         }
 
         // if this is the first run since the latch, then the setpoint should be
@@ -177,7 +176,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
 
         // desaturate the end result to feasibility by preferring the rotation over
         // translation
-        return m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
+        return twistWithSnapM_S;
     }
 
     public FieldRelativeVelocity clipAndScale(DriverControl.Velocity twist1_1) {

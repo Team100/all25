@@ -122,7 +122,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
         // clip the input to the unit circle
         final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
         // scale to max in both translation and rotation
-        final FieldRelativeVelocity twistM_S = DriveUtil.scale(
+        final FieldRelativeVelocity scaled = DriveUtil.scale(
                 clipped,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
@@ -132,14 +132,13 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
                 m_swerveKinodynamics.getMaxAngleAccelRad_S2(),
                 state.theta(),
                 pov,
-                twistM_S.theta());
+                scaled.theta());
         if (m_goal == null) {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
             m_thetaSetpoint = null;
             m_log_mode.log(() -> "free");
-            // desaturate to feasibility
-            return m_swerveKinodynamics.analyticDesaturation(twistM_S);
+            return scaled;
         }
 
         // take the short path
@@ -164,7 +163,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        final FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(twistM_S.x(), twistM_S.y(), omega);
+        final FieldRelativeVelocity withSnap = new FieldRelativeVelocity(scaled.x(), scaled.y(), omega);
 
         m_log_mode.log(() -> "snap");
         m_log_goal_theta.log(m_goal::getRadians);
@@ -177,12 +176,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
         m_log_omega_FB.log(() -> omegaFB);
         m_log_output_omega.log(() -> omega);
 
-        // desaturate the end result to feasibility, optionally preferring the rotation
-        // over translation
-        if (Experiments.instance.enabled(Experiment.SnapPreferRotation))
-            return m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
-        else
-            return m_swerveKinodynamics.analyticDesaturation(twistWithSnapM_S);
+        return withSnap;
     }
 
     private double getOmegaFB(final double omegaError) {

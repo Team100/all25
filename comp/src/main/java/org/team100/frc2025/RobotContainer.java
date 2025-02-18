@@ -48,6 +48,7 @@ import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
@@ -139,13 +140,15 @@ public class RobotContainer implements Glassy {
                 setpointGenerator,
                 m_modules);
 
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 driveLog,
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider);
+                visionDataProvider,
+                limiter);
 
         m_climber = ClimberFactory.get(logger);
 
@@ -224,14 +227,14 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));
 
-                whileTrue(driverControl::driveOneMeter,
-        new DriveToPoseWithProfile(
-                fieldLog,
-                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                        .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                m_drive,
-                holonomicController,
-                profile));
+        whileTrue(driverControl::driveOneMeter,
+                new DriveToPoseWithProfile(
+                        fieldLog,
+                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                        m_drive,
+                        holonomicController,
+                        profile));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
