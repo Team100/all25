@@ -897,27 +897,5 @@ class AsymSwerveSetpointGeneratorTest {
         assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
     }
 
-    @Test
-    void testBrownout() {
-        SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
-        // shouldn't allow any movement at 6v.
-        AsymSwerveSetpointGenerator swerveSetpointGenerator = new AsymSwerveSetpointGenerator(
-                logger, limits, () -> 6);
 
-        ChassisSpeeds initialSpeeds = new ChassisSpeeds(0, 0, 0);
-        SwerveModuleStates initialStates = new SwerveModuleStates(
-                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-                new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)));
-        SwerveSetpoint setpoint = new SwerveSetpoint(initialSpeeds, initialStates);
-
-        ChassisSpeeds desiredSpeeds = new ChassisSpeeds(1, 0, 0);
-
-        // no output allowed
-        setpoint = swerveSetpointGenerator.generateSetpoint(setpoint, desiredSpeeds);
-        assertEquals(0, setpoint.speeds().vxMetersPerSecond, kDelta);
-        assertEquals(0, setpoint.speeds().vyMetersPerSecond, kDelta);
-        assertEquals(0, setpoint.speeds().omegaRadiansPerSecond, kDelta);
-    }
 }

@@ -2,10 +2,14 @@ package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class FieldRelativeVelocityLimiterTest {
     private static final double kDelta = 0.001;
@@ -71,6 +75,19 @@ public class FieldRelativeVelocityLimiterTest {
             assertEquals(0, i.y(), kDelta);
             assertEquals(14.142, i.theta(), kDelta);
         }
+    }
+
+    /** shouldn't allow any movement at 6v. */
+    @Test
+    void testBrownout() {
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 6);
+        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
+        FieldRelativeVelocity target = new FieldRelativeVelocity(1, 0, 0);
+        FieldRelativeVelocity limited = l.limit(target);
+        assertEquals(0, limited.x(), kDelta);
+        assertEquals(0, limited.y(), kDelta);
+        assertEquals(0, limited.theta(), kDelta);
     }
 
 }

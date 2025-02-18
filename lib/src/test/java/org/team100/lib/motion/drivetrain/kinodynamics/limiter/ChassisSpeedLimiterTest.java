@@ -2,6 +2,7 @@ package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
@@ -100,8 +101,6 @@ public class ChassisSpeedLimiterTest {
             assertEquals(5.430, i.omegaRadiansPerSecond, kDelta);
         }
     }
-
-
 
     @Test
     void testAFewCases() {
@@ -230,6 +229,19 @@ public class ChassisSpeedLimiterTest {
                 dump(i, s, i1, i2);
             }
         }
+    }
+
+    /** shouldn't allow any movement at 6v. */
+    @Test
+    void testBrownout() {
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 6);
+        ChassisSpeedLimiter l = new ChassisSpeedLimiter(limit);
+        ChassisSpeeds target = new ChassisSpeeds(1, 0, 0);
+        ChassisSpeeds limited = l.limit(target);
+        assertEquals(0, limited.vxMetersPerSecond, kDelta);
+        assertEquals(0, limited.vyMetersPerSecond, kDelta);
+        assertEquals(0, limited.omegaRadiansPerSecond, kDelta);
     }
 
     private void dump(int i, ChassisSpeeds s, ChassisSpeeds i1, ChassisSpeeds i2) {

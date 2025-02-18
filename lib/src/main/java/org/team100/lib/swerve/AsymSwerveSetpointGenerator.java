@@ -40,7 +40,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     private final SteeringOverride m_SteeringOverride;
     private final SteeringRateLimiter m_steeringRateLimiter;
     private final DriveAccelerationLimiter m_DriveAccelerationLimiter;
-    private final BatterySagLimiter m_BatterySagLimiter;
 
     public AsymSwerveSetpointGenerator(
             LoggerFactory parent,
@@ -51,7 +50,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         m_SteeringOverride = new SteeringOverride(parent, limits);
         m_steeringRateLimiter = new SteeringRateLimiter(parent, limits);
         m_DriveAccelerationLimiter = new DriveAccelerationLimiter(parent, limits);
-        m_BatterySagLimiter = new BatterySagLimiter(batteryVoltage);
     }
 
     /**
@@ -157,12 +155,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
         if (DEBUG)
             Util.printf("accel %f\n", accel_min_s);
         min_s = Math.min(min_s, accel_min_s);
-
-        double battery_min_s = m_BatterySagLimiter.get();
-        if (DEBUG)
-            Util.printf("battery %f\n", battery_min_s);
-
-        min_s = Math.min(min_s, battery_min_s);
 
         return makeSetpoint(
                 prevSetpoint,
