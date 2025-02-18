@@ -57,17 +57,8 @@ public class AsymSwerveSetpointGenerator implements Glassy {
     /**
      * Generate a new setpoint.
      * 
-     * TODO: this is supposed to discretize the speeds prior to inverse kinematics
-     * but it seems not to.
-     * 
-     * or maybe it does?
-     * 
-     * note that the prev setpoint is robot-relative, and the robot has rotated
-     * since
-     * the setpoint was created.
-     * 
-     * 
-     * 
+     * Tries to find a new setpoint with the same course as the desired one, but
+     * gives up if the desired course is too far from the previous one.
      */
     public SwerveSetpoint generateSetpoint(
             final SwerveSetpoint prevSetpoint,
@@ -89,9 +80,6 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
         final SwerveModuleStates prevModuleStates = prevSetpoint.states();
         // the desired module state speeds are always positive.
-        // these are the discretized states, i.e. what we would actually do
-        // SwerveModuleStates desiredModuleStates =
-        // m_limits.toSwerveModuleStates(desiredState);
 
         if (GeometryUtil.isZero(target.speeds())) {
             // use the previous module states if the desired speed is zero
@@ -126,7 +114,7 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
         // In cases where an individual module is stopped, we want to remember the right
         // steering angle to command (since
-        // inverse kinematics doesnccc't care about angle, we can be opportunistically
+        // inverse kinematics doesn't care about angle, we can be opportunistically
         // lazy).
         SwerveModuleState100[] prevModuleStatesAll = prevModuleStates.all();
         Rotation2d[] overrideSteering = new Rotation2d[prevModuleStatesAll.length];
@@ -313,36 +301,12 @@ public class AsymSwerveSetpointGenerator implements Glassy {
 
     /**
      * Scales the commanded accelerations by min_s, i.e. applies the constraints
-     * calculated earlier.
-     * 
-     * This used to also apply the rotation to the translation in a way that I think
-     * was wrong.
-     * 
-     * 
-     * * Applies two transforms to the previous speed:
-     * 
-     * 1. Scales the commanded accelerations by min_s, i.e. applies the constraints
-     * calculated earlier.
-     * 
-     * 2. Transforms translations according to the rotational velocity, regardless
-     * of
-     * min_s -- essentially modeling inertia. This part was missing before, which I
-     * think must just be a mistake.
-     * 
-     * 
-     * why does this work?
-     * 
-     * we want to maintain the intended direction of motion in a field-relative way
-     * 
-     * target is feasible but arbitrarily far from prev.
-     * 
-     * yet we need to maintain the target course.
+     * calculated earlier.  Chooses a course to match the target course, if
+     * it's not too far from the initial course.
      */
     ChassisSpeeds makeSpeeds(ChassisSpeeds prev, ChassisSpeeds target, double min_s) {
 
-        final double dx = target.vxMetersPerSecond - prev.vxMetersPerSecond;
-        final double dy = target.vyMetersPerSecond - prev.vyMetersPerSecond;
-        final double dtheta = target.omegaRadiansPerSecond - prev.omegaRadiansPerSecond;
+        final ChassisSpeeds deltaV = target.minus(prev);
 
         // this does the right thing with the course if min_s is 1.0, otherwise not.
         if (DEBUG) {
@@ -359,19 +323,25 @@ public class AsymSwerveSetpointGenerator implements Glassy {
                     target.omegaRadiansPerSecond,
                     GeometryUtil.getCourse(target).orElse(new Rotation2d()).getRadians());
             Util.printf(
-                    "makeSpeeds() dx %.8f dy %.8f dtheta %.8f s %.8f\n",
-                    dx, dy, dtheta, min_s);
+                    "makeSpeeds() deltaV:[dx %.8f dy %.8f dtheta %.8f] s %.8f\n",
+                    deltaV.vxMetersPerSecond, deltaV.vyMetersPerSecond, deltaV.omegaRadiansPerSecond, min_s);
         }
 
-        double vx = prev.vxMetersPerSecond + min_s * dx;
-        double vy = prev.vyMetersPerSecond + min_s * dy;
-        double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
-
         // interpolate between the prev and target
-        ChassisSpeeds lerp = new ChassisSpeeds(vx, vy, omega);
+        ChassisSpeeds delta = deltaV.times(min_s);
 
         if (DEBUG)
-            Util.printf("makeSpeeds() lerp vx %.8f vy %.8f omega %.8f course %.8f\n",
+            Util.printf("makeSpeeds() delta:[vx %.8f vy %.8f omega %.8f]\n",
+                    delta.vxMetersPerSecond, delta.vyMetersPerSecond, delta.omegaRadiansPerSecond);
+        double deltaNorm = GeometryUtil.norm(delta);
+        if (DEBUG)
+            Util.printf("makeSpeeds() delta norm %.8f\n",
+                    deltaNorm);
+
+        ChassisSpeeds lerp = prev.plus(delta);
+
+        if (DEBUG)
+            Util.printf("makeSpeeds() lerp:[vx %.8f vy %.8f omega %.8f course %.8f]\n",
                     lerp.vxMetersPerSecond,
                     lerp.vyMetersPerSecond,
                     lerp.omegaRadiansPerSecond,
@@ -383,26 +353,31 @@ public class AsymSwerveSetpointGenerator implements Glassy {
             // the best we can do is maintain our current course
             return lerp;
         }
-        ChassisSpeeds chassisSpeeds = GeometryUtil.project(lerp, target);
-
+        ChassisSpeeds projectedLerp = GeometryUtil.project(lerp, target);
+        ChassisSpeeds projectedDelta = projectedLerp.minus(prev);
+        // projectedDelta = projectedDelta.times(0.9);
+        projectedLerp = prev.plus(projectedDelta);
         if (DEBUG)
-            Util.printf("makeSpeeds() chassisSpeeds vx %.8f vy %.8f omega %.8f course %.8f\n",
-                    chassisSpeeds.vxMetersPerSecond,
-                    chassisSpeeds.vyMetersPerSecond,
-                    chassisSpeeds.omegaRadiansPerSecond,
-                    GeometryUtil.getCourse(chassisSpeeds).orElse(new Rotation2d()).getRadians());
+            Util.printf("makeSpeeds() projectedLerp:[vx %.8f vy %.8f omega %.8f course %.8f]\n",
+                    projectedLerp.vxMetersPerSecond,
+                    projectedLerp.vyMetersPerSecond,
+                    projectedLerp.omegaRadiansPerSecond,
+                    GeometryUtil.getCourse(projectedLerp).orElse(new Rotation2d()).getRadians());
+        if (DEBUG)
+            Util.printf("makeSpeeds() projectedDelta:[vx %.8f vy %.8f omega %.8f]\n",
+                    projectedDelta.vxMetersPerSecond, projectedDelta.vyMetersPerSecond,
+                    projectedDelta.omegaRadiansPerSecond);
+        double projectedDeltaNorm = GeometryUtil.norm(projectedDelta);
+        if (DEBUG)
+            Util.printf("makeSpeeds() delta projected delta norm %.8f\n",
+                    projectedDeltaNorm);
+        if (projectedDeltaNorm > deltaNorm) {
+            if (DEBUG)
+                Util.printf("use lerp instead\n");
+            // the projection is outside the interpolation envelope.
+            return lerp;
+        }
 
-        return chassisSpeeds;
-
-        // double omega = prev.omegaRadiansPerSecond + min_s * dtheta;
-        // double drift = -1.0 * omega * TimedRobot100.LOOP_PERIOD_S;
-        // double vx = prev.vxMetersPerSecond * Math.cos(drift)
-        // - prev.vyMetersPerSecond * Math.sin(drift)
-        // + min_s * dx;
-        // double vy = prev.vxMetersPerSecond * Math.sin(drift)
-        // + prev.vyMetersPerSecond * Math.cos(drift)
-        // + min_s * dy;
-        // return new ChassisSpeeds(vx, vy, omega);
-
+        return projectedLerp;
     }
 }

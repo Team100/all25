@@ -159,6 +159,12 @@ public class GeometryUtil {
         return Math.hypot(a.vxMetersPerSecond, a.vyMetersPerSecond);
     }
 
+    public static boolean near(ChassisSpeeds a, ChassisSpeeds b) {
+        return MathUtil.isNear(a.vxMetersPerSecond, b.vxMetersPerSecond, 1e-6)
+                && MathUtil.isNear(a.vyMetersPerSecond, b.vyMetersPerSecond, 1e-6)
+                && MathUtil.isNear(a.omegaRadiansPerSecond, b.omegaRadiansPerSecond, 1e-6);
+    }
+
     public static Rotation2d flip(Rotation2d a) {
         return new Rotation2d(MathUtil.angleModulus(a.getRadians() + Math.PI));
     }

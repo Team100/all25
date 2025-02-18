@@ -6,6 +6,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.util.Math100;
+import org.team100.lib.util.Util;
 
 /**
  * Enforces drive motor torque constraints.
@@ -14,6 +15,7 @@ import org.team100.lib.util.Math100;
  * back EMF), so there's no need for a separate speed limiter.
  */
 public class DriveAccelerationLimiter implements Glassy {
+    private static final boolean DEBUG = false;
     private static final int kMaxIterations = 10;
 
     private final SwerveKinodynamics m_limits;
@@ -41,6 +43,8 @@ public class DriveAccelerationLimiter implements Glassy {
                     prev_vy[i],
                     desired_vx[i],
                     desired_vy[i]);
+            if (DEBUG)
+                Util.printf("wheel limit max vel step %f\n", max_vel_step);
             m_log_max_step.log(() -> max_vel_step);
             // reduces the size of the search space if min_s is already constrained (by
             // earlier modules)

@@ -6,6 +6,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
@@ -13,6 +14,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * Enforces a fixed limit on delta v.
  */
 public class CapsizeAccelerationLimiter implements Glassy {
+    private static final boolean DEBUG = false;
     private final SwerveKinodynamics m_limits;
     private final DoubleLogger m_log_s;
 
@@ -40,6 +42,8 @@ public class CapsizeAccelerationLimiter implements Glassy {
         }
         double s = min_s;
         m_log_s.log(() -> s);
+        if (DEBUG)
+            Util.printf("a %f limit %f\n", a, m_limits.getMaxCapsizeAccelM_S2());
         return s;
     }
 
