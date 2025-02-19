@@ -24,8 +24,8 @@ public class ExampleSubsystem extends SubsystemBase {
 
   public ExampleSubsystem() {
 
-    double supply = 30;
-    double stator = 30;
+    double supply = 60;
+    double stator = 60;
 
     TalonFXConfigurator starboardConfig = starboard.getConfigurator();
     TalonFXConfigurator portConfig = port.getConfigurator();
@@ -41,7 +41,7 @@ public class ExampleSubsystem extends SubsystemBase {
   }
 
   public void setDuty(double value){
-    starboard.set(value);
+    starboard.set(-value);
     port.set(-value);
 
   }
