@@ -36,6 +36,8 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final OutboardLinearPositionServo portServo;
     // private final GravityServoInterface wristServo;
 
+    private final ElevatorVisualization m_viz;
+
     public Elevator(
             LoggerFactory parent,
             int starboardID,
@@ -140,6 +142,7 @@ public class Elevator extends SubsystemBase implements Glassy {
             }
 
         }
+        m_viz = new ElevatorVisualization(this);
     }
 
     @Override
@@ -147,7 +150,7 @@ public class Elevator extends SubsystemBase implements Glassy {
         // This method will be called once per scheduler run
         starboardServo.periodic();
         portServo.periodic();
-
+        m_viz.viz();
     }
 
     public void resetProfile() {
@@ -158,7 +161,10 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void setPosition() {
         starboardServo.setPosition(40, 0);
         portServo.setPosition(40, 0);
+    }
 
+    public double getPosition() {
+        return starboardServo.getPosition().orElse(0);
     }
 
 }

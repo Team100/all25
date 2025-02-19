@@ -78,6 +78,10 @@ public class Logging {
         m_level = level;
     }
 
+    public Level getLevel() {
+        return m_level;
+    }
+
     public static Logging instance() {
         return instance;
     }
