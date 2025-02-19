@@ -6,16 +6,24 @@ public class MockDrive implements DriveSubsystemInterface {
     public boolean m_aligned;
     public FieldRelativeVelocity m_setpoint;
     public FieldRelativeVelocity m_atRestSetpoint;
+    // for when you don't care how it was set
+    public FieldRelativeVelocity m_recentSetpoint;
     public SwerveModel m_state;
 
     @Override
     public void driveInFieldCoords(FieldRelativeVelocity setpoint) {
         m_setpoint = setpoint;
+        m_recentSetpoint = setpoint;
     }
 
     @Override
-    public boolean steerAtRest(FieldRelativeVelocity setpoint) {
+    public void steerAtRest(FieldRelativeVelocity setpoint) {
         m_atRestSetpoint = setpoint;
+        m_recentSetpoint = setpoint;
+    }
+
+    @Override
+    public boolean aligned(FieldRelativeVelocity v) {
         return m_aligned;
     }
 
@@ -27,6 +35,16 @@ public class MockDrive implements DriveSubsystemInterface {
     @Override
     public void stop() {
         // do nothing
+    }
+
+    @Override
+    public void driveInFieldCoordsVerbatim(FieldRelativeVelocity setpoint) {
+        driveInFieldCoords(setpoint);
+    }
+
+    @Override
+    public void resetLimiter() {
+        //
     }
 
 }

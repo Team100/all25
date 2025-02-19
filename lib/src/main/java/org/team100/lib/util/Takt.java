@@ -1,13 +1,25 @@
 package org.team100.lib.util;
 
-import edu.wpi.first.wpilibj.Timer;
-
 /**
  * Takt just caches the FPGA timer, so that all the readers get the same value.
  * 
  * It should be updated in robotPeriodic and nowhere else (except maybe tests).
  */
 public class Takt {
+    /** Like the WPI Timer except it uses Takt time, and it is always "running." */
+    public static class Timer {
+        private double m_startTime;
+
+        public void reset() {
+            m_startTime = Takt.get();
+        }
+
+        public double get() {
+            return Takt.get() - m_startTime;
+        }
+
+    }
+
     private static double now = actual();
 
     /**
@@ -22,7 +34,11 @@ public class Takt {
         now = actual();
     }
 
-    /** The current Takt time. */
+    /**
+     * The current Takt time. Even though this is a double, it's ok to test
+     * equality, because it is only incremented periodically.
+     * TODO: use different type.
+     */
     public static double get() {
         return now;
     }
@@ -31,6 +47,6 @@ public class Takt {
      * A few consumers want the actual time; don't use this unless you really do.
      */
     public static double actual() {
-        return Timer.getFPGATimestamp();
+        return edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
     }
 }

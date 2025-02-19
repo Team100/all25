@@ -3,6 +3,8 @@ package org.team100.lib.swerve;
 import java.util.function.DoubleBinaryOperator;
 
 import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.util.Math100;
 
@@ -113,6 +115,16 @@ public class SwerveUtil {
                 desired_vy);
     }
 
+    public static double getMaxVelStep(
+            SwerveKinodynamics m_limits,
+            FieldRelativeVelocity prev,
+            FieldRelativeVelocity desired) {
+        return TimedRobot100.LOOP_PERIOD_S * getAccelLimit(
+                m_limits,
+                prev,
+                desired);
+    }
+
     /**
      * At low speed, accel is limited by the current limiters.
      * At high speed, accel is limited by back EMF.
@@ -129,6 +141,16 @@ public class SwerveUtil {
         if (isAccel(prev_vx, prev_vy, desired_vx, desired_vy)) {
             double speedM_S = Math.hypot(prev_vx, prev_vy);
             return minAccel(m_limits, speedM_S);
+        }
+        return m_limits.getMaxDriveDecelerationM_S2();
+    }
+
+    public static double getAccelLimit(
+            SwerveKinodynamics m_limits,
+            FieldRelativeVelocity prev,
+            FieldRelativeVelocity desired) {
+        if (isAccel(prev, desired)) {
+            return minAccel(m_limits, prev.norm());
         }
         return m_limits.getMaxDriveDecelerationM_S2();
     }
@@ -157,6 +179,13 @@ public class SwerveUtil {
         double ly = desired_vy_i - prev_vy_i;
         double dot = prev_vx_i * lx + prev_vy_i * ly;
         return (dot >= 0);
+    }
+
+    static boolean isAccel(FieldRelativeVelocity prev,
+            FieldRelativeVelocity target) {
+        FieldRelativeAcceleration accel = target.accel(prev, TimedRobot100.LOOP_PERIOD_S);
+        double dot = prev.x() * accel.x() + prev.y() * accel.y();
+        return dot >= 0;
     }
 
     private SwerveUtil() {

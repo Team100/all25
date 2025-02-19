@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.util.Util;
 
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -66,10 +67,14 @@ public class Rev100 {
     public static void pidConfig(SparkBase motor, PIDConstants pid) {
         SparkMaxConfig conf = new SparkMaxConfig();
         conf.closedLoop.positionWrappingEnabled(false); // don't use position control
-        conf.closedLoop.p(pid.getP());
-        conf.closedLoop.i(pid.getI());
-        conf.closedLoop.d(pid.getD());
-        conf.closedLoop.iZone(pid.getIZone());
+        conf.closedLoop.p(pid.getPositionP(),ClosedLoopSlot.kSlot0);
+        conf.closedLoop.i(pid.getPositionI(),ClosedLoopSlot.kSlot0);
+        conf.closedLoop.d(pid.getPositionD(),ClosedLoopSlot.kSlot0);
+        conf.closedLoop.p(pid.getVelocityP(),ClosedLoopSlot.kSlot1);
+        conf.closedLoop.i(pid.getVelocityP(),ClosedLoopSlot.kSlot1);
+        conf.closedLoop.d(pid.getVelocityP(),ClosedLoopSlot.kSlot1);
+        conf.closedLoop.iZone(pid.getPositionIZone(),ClosedLoopSlot.kSlot0);
+        conf.closedLoop.iZone(pid.getVelocityIZone(),ClosedLoopSlot.kSlot1);
         conf.closedLoop.velocityFF(0); // use arbitrary FF instead
         conf.closedLoop.outputRange(-1, 1);
         crash(()->motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));

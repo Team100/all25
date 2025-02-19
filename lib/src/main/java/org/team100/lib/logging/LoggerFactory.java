@@ -22,7 +22,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.timing.TimedPose;
-import org.team100.lib.trajectory.TrajectorySamplePoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -221,6 +220,11 @@ public class LoggerFactory {
         return new LongLogger(level, leaf);
     }
 
+    /**
+     * Note! Strings can be expensive to produce in Java. Make sure you are using a
+     * supplier with this logger, so you don't generate a string if you're not
+     * actually going to log it (e.g. because you're running at a coarse log level)
+     */
     public class StringLogger {
         private final Level m_level;
         private final PrimitiveLogger.PrimitiveStringLogger m_primitiveLogger;
@@ -442,11 +446,11 @@ public class LoggerFactory {
             m_timedPoseLogger = timedPoseLogger(level, join(leaf, "state"));
         }
 
-        public void log(Supplier<TrajectorySamplePoint> vals) {
+        public void log(Supplier<TimedPose> vals) {
             if (!allow(m_level))
                 return;
-            TrajectorySamplePoint val = vals.get();
-            m_timedPoseLogger.log(val::state);
+            TimedPose val = vals.get();
+            m_timedPoseLogger.log(() -> val);
         }
     }
 

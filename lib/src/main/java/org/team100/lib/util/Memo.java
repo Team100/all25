@@ -21,21 +21,30 @@ import com.ctre.phoenix6.BaseStatusSignal;
  * doesn't need to apply its own cache layer.
  */
 public class Memo {
-    private static final List<Runnable> resetters = new ArrayList<>();
-    private static final List<Runnable> updaters = new ArrayList<>();
+    // TODO: use weak references here
+    private static final List<CotemporalCache<?>> resetters = new ArrayList<>();
+    private static final List<CotemporalCache<?>> updaters = new ArrayList<>();
+    private static final List<DoubleCache> doubleResetters = new ArrayList<>();
+    private static final List<DoubleCache> doubleUpdaters = new ArrayList<>();
     private static final List<BaseStatusSignal> signals = new ArrayList<>();
 
+    /**
+     * Adds the delegate to the set that is reset and updated synchronously by
+     * Robot.robotPeriodic(), so the time represented by the value is as close to
+     * the hardware interrupt time as possible, all values of cached quantities are
+     * consistent and constant through the whole cycle.
+     */
     public static <T> CotemporalCache<T> of(Supplier<T> delegate) {
         CotemporalCache<T> cache = new CotemporalCache<>(delegate);
-        resetters.add(cache::reset);
-        updaters.add(cache::get);
+        resetters.add(cache);
+        updaters.add(cache);
         return cache;
     }
 
     public static DoubleCache ofDouble(DoubleSupplier delegate) {
         DoubleCache cache = new DoubleCache(delegate);
-        resetters.add(cache::reset);
-        updaters.add(cache::getAsDouble);
+        doubleResetters.add(cache);
+        doubleUpdaters.add(cache);
         return cache;
     }
 
@@ -49,16 +58,23 @@ public class Memo {
 
     /** Should be run in Robot.robotPeriodic(). */
     public static void resetAll() {
-        if (!signals.isEmpty())
+        if (!signals.isEmpty()) {
             BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
-        for (Runnable r : resetters) {
-            r.run();
+        }
+        for (CotemporalCache<?> r : resetters) {
+            r.reset();
+        }
+        for (DoubleCache r : doubleResetters) {
+            r.reset();
         }
     }
 
     public static void updateAll() {
-        for (Runnable r : updaters) {
-            r.run();
+        for (CotemporalCache<?> r : updaters) {
+            r.get();
+        }
+        for (DoubleCache r : doubleUpdaters) {
+            r.getAsDouble();
         }
     }
 
@@ -71,6 +87,7 @@ public class Memo {
             m_value = null;
         }
 
+        /** Use the cached value if it exists, otherwise ask the delegate. */
         @Override
         public synchronized T get() {
             // synchronized adds ~20ns.
@@ -80,8 +97,28 @@ public class Memo {
             return m_value;
         }
 
+        /** Erase the cache so the next get() will ask the delegate. */
         public synchronized void reset() {
             m_value = null;
+        }
+
+        /**
+         * Force the cache to contain the value, effectively overriding the delegate's
+         * previous output.
+         */
+        public synchronized void update(T value) {
+            m_value = value;
+        }
+
+        /**
+         * Stop updating this cache.
+         *
+         * There's no way to restart the updates, so you
+         * should discard this object once you call end().
+         */
+        public void end() {
+            resetters.remove(this);
+            updaters.remove(this);
         }
     }
 

@@ -2,6 +2,8 @@ package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.config.DriverSkill;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -13,14 +15,16 @@ import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.sensors.Gyro;
-import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -29,10 +33,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
+    // this produces a LOT of output, you should only enable it while you're looking
+    // at it.
+    private static final boolean DEBUG = false;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
     private final VisionData m_cameras;
+    private final SwerveLimiter m_limiter;
 
     // CACHES
     private final Memo.CotemporalCache<SwerveModel> m_stateSupplier;
@@ -52,12 +60,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Gyro gyro,
             SwerveDrivePoseEstimator100 poseEstimator,
             SwerveLocal swerveLocal,
-            VisionData cameras) {
+            VisionData cameras,
+            SwerveLimiter limiter) {
         LoggerFactory child = parent.child(this);
         m_gyro = gyro;
         m_poseEstimator = poseEstimator;
         m_swerveLocal = swerveLocal;
         m_cameras = cameras;
+        m_limiter = limiter;
         m_stateSupplier = Memo.of(this::update);
         stop();
         m_log_state = child.swerveModelLogger(Level.COMP, "state");
@@ -77,36 +87,66 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied twist by the "speed" driver control modifier.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
+     * Feasibility is enforced by the SwerveLimiter.
      * 
-     * @param v Field coordinate velocities in meters and radians per second.
+     * Remember to reset the setpoint before calling this (e.g. in the "initialize"
+     * of your command, see DriveManually).
      */
     @Override
-    public void driveInFieldCoords(FieldRelativeVelocity vIn) {
-        m_log_input.log(() -> vIn);
-
+    public void driveInFieldCoords(final FieldRelativeVelocity input) {
         // scale for driver skill; default is half speed.
-        DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        m_log_skill.log(() -> driverSkillLevel);
-        FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
+        final DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        FieldRelativeVelocity scaled = GeometryUtil.scale(input, driverSkillLevel.scale());
 
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                v.x(),
-                v.y(),
-                v.theta(),
-                getPose().getRotation());
-        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        // NEW! Apply field-relative limits here.
+        if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
+            scaled = m_limiter.apply(scaled);
+        }
+
+        final Rotation2d theta = getPose().getRotation();
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(scaled, theta);
+
+        m_log_input.log(() -> input);
+        m_log_skill.log(() -> driverSkillLevel);
+        // here heading and course are exactly opposite, as they should be.
+        if (DEBUG)
+            Util.printf(
+                    "driveInFieldCoords() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
+                    theta.getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).orElse(new Rotation2d()).getRadians(),
+                    targetChassisSpeeds.vxMetersPerSecond,
+                    targetChassisSpeeds.vyMetersPerSecond,
+                    targetChassisSpeeds.omegaRadiansPerSecond);
+
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
     /** Skip all scaling, setpoint generator, etc. */
     public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                vIn.x(),
-                vIn.y(),
-                vIn.theta(),
-                getPose().getRotation());
-        m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds, m_gyro.getYawRateNWU());
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                vIn, getPose().getRotation());
+
+        final Rotation2d theta = getPose().getRotation();
+        // if we're going +x then heading and course should be opposite.
+        if (DEBUG)
+            Util.printf(
+                    "driveInFieldCoordsVerbatim() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
+                    theta.getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).orElse(new Rotation2d()).getRadians(),
+                    targetChassisSpeeds.vxMetersPerSecond,
+                    targetChassisSpeeds.vyMetersPerSecond,
+                    targetChassisSpeeds.omegaRadiansPerSecond);
+
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
+    }
+
+    /**
+     * True if wheel steering is aligned to the desired motion.
+     */
+    public boolean aligned(FieldRelativeVelocity v) {
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                v, getPose().getRotation());
+        return m_swerveLocal.aligned(targetChassisSpeeds);
     }
 
     /**
@@ -117,33 +157,23 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
      * @return true if aligned
      */
     @Override
-    public boolean steerAtRest(FieldRelativeVelocity v) {
-        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                v.x(),
-                v.y(),
-                v.theta(),
-                getPose().getRotation());
-        return m_swerveLocal.steerAtRest(targetChassisSpeeds, m_gyro.getYawRateNWU());
+    public void steerAtRest(FieldRelativeVelocity v) {
+        // Util.printf("steer at rest v %s\n", v);
+        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
+                v, getPose().getRotation());
+        m_swerveLocal.steerAtRest(targetChassisSpeeds);
     }
 
     /**
      * Scales the supplied ChassisSpeed by the driver speed modifier.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
-     * 
      * @param speeds in robot coordinates
      */
-    public void setChassisSpeeds(ChassisSpeeds speeds) {
+    public void setChassisSpeeds(final ChassisSpeeds speeds) {
         // scale for driver skill; default is half speed.
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
+        m_swerveLocal.setChassisSpeeds(speeds.times(driverSkillLevel.scale()));
         m_log_skill.log(() -> driverSkillLevel);
-        speeds = speeds.times(driverSkillLevel.scale());
-        m_swerveLocal.setChassisSpeeds(speeds, m_gyro.getYawRateNWU());
-    }
-
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
-        m_swerveLocal.setChassisSpeedsNormally(speeds, m_gyro.getYawRateNWU());
     }
 
     /**
@@ -186,8 +216,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_stateSupplier.reset();
     }
 
-    public void resetSetpoint(SwerveSetpoint setpoint) {
-        m_swerveLocal.resetSetpoint(setpoint);
+    public void resetLimiter() {
+        m_limiter.updateSetpoint(getVelocity());
+
     }
 
     ///////////////////////////////////////////////////////////////
@@ -254,17 +285,23 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                 m_gyro,
                 m_swerveLocal.positions());
         m_cameras.update();
-        return m_poseEstimator.get(now);
+        SwerveModel swerveModel = m_poseEstimator.get(now);
+        if (DEBUG)
+            Util.printf("update() estimated pose: %s\n", swerveModel);
+        return swerveModel;
     }
 
+    /** Return cached pose. */
     public Pose2d getPose() {
         return m_stateSupplier.get().pose();
     }
 
+    /** Return cached velocity. */
     public FieldRelativeVelocity getVelocity() {
         return m_stateSupplier.get().velocity();
     }
 
+    /** Return cached speeds. */
     public ChassisSpeeds getChassisSpeeds() {
         return m_stateSupplier.get().chassisSpeeds();
     }

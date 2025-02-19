@@ -1,162 +1,92 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.Control100Logger;
-import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.profile.TrapezoidProfile100;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.sensors.Gyro;
-import org.team100.lib.state.Control100;
-import org.team100.lib.state.Model100;
+import org.team100.lib.profile.HolonomicProfile;
+import org.team100.lib.reference.ProfileReference;
+import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Rotate in place to the specified angle.
- * 
- * Uses a profile with the holonomic drive controller.
  */
 public class Rotate extends Command implements Glassy {
-    private static final double kXToleranceRad = 0.02;
-    private static final double kVToleranceRad_S = 0.02;
+    /** For testing */
+    private static final boolean DEBUG = false;
+    private static final double kThetaToleranceRad = 0.02;
     // don't try to rotate at max speed
     private static final double kSpeed = 0.5;
 
-    private final SwerveDriveSubsystem m_robotDrive;
-    private final Gyro m_gyro;
+    private final SwerveDriveSubsystem m_drive;
+    private final SwerveController m_controller;
     private final SwerveKinodynamics m_swerveKinodynamics;
-    private final Model100 m_goalState;
+    private final Rotation2d m_target;
+    private final HolonomicProfile m_profile;
 
-    // LOGGERS
-    private final DoubleLogger m_log_error_x;
-    private final DoubleLogger m_log_error_v;
-    private final DoubleLogger m_log_measurement_x;
-    private final DoubleLogger m_log_measurement_v;
-    private final Control100Logger m_log_reference;
-
-    final HolonomicFieldRelativeController m_controller;
-
-    private boolean m_finished = false;
-
-    Profile100 m_profile;
-    Control100 currentRefTheta;
-
-    private boolean m_steeringAligned;
+    private ProfileReference m_reference;
+    private ReferenceController m_referenceController;
 
     public Rotate(
-            LoggerFactory parent,
-            SwerveDriveSubsystem drivetrain,
-            HolonomicFieldRelativeController controller,
-            Gyro gyro,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
             SwerveKinodynamics swerveKinodynamics,
             double targetAngleRadians) {
-        LoggerFactory child = parent.child(this);
-        m_robotDrive = drivetrain;
+        m_drive = drive;
         m_controller = controller;
-        m_gyro = gyro;
         m_swerveKinodynamics = swerveKinodynamics;
-        m_goalState = new Model100(targetAngleRadians, 0);
-        currentRefTheta = new Control100(0, 0);
-
-        addRequirements(drivetrain);
-        m_log_error_x = child.doubleLogger(Level.TRACE, "errorX");
-        m_log_error_v = child.doubleLogger(Level.TRACE, "errorV");
-        m_log_measurement_x = child.doubleLogger(Level.TRACE, "measurementX");
-        m_log_measurement_v = child.doubleLogger(Level.TRACE, "measurementV");
-        m_log_reference = child.control100Logger(Level.TRACE, "reference");
+        m_target = new Rotation2d(targetAngleRadians);
+        m_profile = new HolonomicProfile(
+                m_swerveKinodynamics.getMaxDriveVelocityM_S(),
+                m_swerveKinodynamics.getMaxDriveAccelerationM_S2(),
+                0.01,
+                m_swerveKinodynamics.getMaxAngleSpeedRad_S() * kSpeed,
+                m_swerveKinodynamics.getMaxAngleAccelRad_S2() * kSpeed,
+                kThetaToleranceRad);
+        addRequirements(drive);
     }
 
     @Override
     public void initialize() {
-        m_controller.reset();
-        resetRefTheta();
-        m_profile = new TrapezoidProfile100(
-                m_swerveKinodynamics.getMaxAngleSpeedRad_S() * kSpeed,
-                m_swerveKinodynamics.getMaxAngleAccelRad_S2() * kSpeed,
-                0.05);
-        // first align the wheels
-        m_steeringAligned = false;
-    }
-
-    private void resetRefTheta() {
-        ChassisSpeeds initialSpeeds = m_robotDrive.getChassisSpeeds();
-        currentRefTheta = new Control100(
-                m_robotDrive.getPose().getRotation().getRadians(),
-                initialSpeeds.omegaRadiansPerSecond);
+        if (DEBUG)
+            Util.println("Rotate initialize");
+        Pose2d measurement = m_drive.getPose();
+        // if we use the initial measurement x and y as the target, and we're moving,
+        // then we make a u-turn to get back to the arbitrary place when we pushed the
+        // button.
+        // instead, pick a goal at the stopping distance in the current direction.
+        Translation2d dx = m_drive.getVelocity().stopping(m_swerveKinodynamics.getMaxDriveAccelerationM_S2());
+        Pose2d goal = new Pose2d(measurement.getX() + dx.getX(), measurement.getY() + dx.getY(), m_target);
+        m_reference = new ProfileReference(m_profile);
+        m_reference.setGoal(new SwerveModel(goal));
+        m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
     }
 
     @Override
     public void execute() {
-
-        m_finished = MathUtil.isNear(currentRefTheta.x(), m_goalState.x(), kXToleranceRad)
-                && MathUtil.isNear(currentRefTheta.v(), m_goalState.v(), kVToleranceRad_S);
-
-        SwerveModel measurement = m_robotDrive.getState();
-        Pose2d currentPose = measurement.pose();
-
-        SwerveModel currentRef = new SwerveModel(
-                new Model100(currentPose.getX(), 0), // stationary at current pose
-                new Model100(currentPose.getY(), 0),
-                new Model100(currentRefTheta.x(), currentRefTheta.v()));
-
-        Control100 nextRefTheta = m_profile.calculate(
-                TimedRobot100.LOOP_PERIOD_S,
-                currentRefTheta.model(),
-                m_goalState);
-
-        SwerveModel nextReference = new SwerveModel(
-                new Model100(currentPose.getX(), 0), // stationary at current pose
-                new Model100(currentPose.getY(), 0),
-                new Model100(nextRefTheta.x(), nextRefTheta.v()));
-
-        FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                measurement, currentRef, nextReference);
-
-        currentRefTheta = nextRefTheta;
-
-        if (m_steeringAligned) {
-            // steer normally.
-            // there's no feasibility issue because cartesian speed is zero.
-            m_robotDrive.driveInFieldCoords(fieldRelativeTarget);
-        } else {
-            boolean aligned = m_robotDrive.steerAtRest(fieldRelativeTarget);
-            // while waiting for the wheels, hold the profile at the start.
-            resetRefTheta();
-            if (aligned) {
-                m_steeringAligned = true;
-            }
-        }
-
-        // log what we did
-
-        double headingMeasurement = currentPose.getRotation().getRadians();
-        double headingRate = m_gyro.getYawRateNWU();
-
-        m_log_error_x.log(() -> currentRefTheta.x() - headingMeasurement);
-        m_log_error_v.log(() -> currentRefTheta.v() - headingRate);
-        m_log_measurement_x.log(() -> headingMeasurement);
-        m_log_measurement_v.log(() -> headingRate);
-        m_log_reference.log(() -> currentRefTheta);
+        if (DEBUG)
+            Util.println("Rotate execute");
+        if (m_referenceController != null)
+            m_referenceController.execute();
     }
 
     @Override
     public boolean isFinished() {
-        return m_finished && m_controller.atReference();
+        return m_referenceController != null && m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean isInterupted) {
-        m_robotDrive.stop();
+        m_drive.stop();
+        m_reference.end();
+        m_reference = null;
+        m_referenceController = null;
     }
 }

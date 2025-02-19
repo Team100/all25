@@ -49,10 +49,11 @@ public class DriverControlProxy implements DriverControl {
         m_driverControl = getDriverControl(m_logger, name);
 
         Util.printf("*** CONTROL UPDATE\n");
+        String simpleName = m_driverControl.getClass().getSimpleName();
         Util.printf("*** Driver HID: %s Control: %s\n",
                 m_driverControl.getHIDName(),
-                m_driverControl.getClass().getSimpleName());
-        m_hidLogger.log(() -> m_driverControl.getClass().getSimpleName());
+                simpleName);
+        m_hidLogger.log(() -> simpleName);
     }
 
     private static DriverControl getDriverControl(LoggerFactory parent, String name) {
@@ -99,11 +100,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean shoot() {
-        return m_driverControl.shoot();
-    }
-
-    @Override
     public Velocity velocity() {
         return m_driverControl.velocity();
     }
@@ -124,13 +120,13 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean driveToAmp() {
-        return m_driverControl.driveToAmp();
+    public Translation2d target() {
+        return m_driverControl.target();
     }
 
     @Override
-    public Translation2d target() {
-        return m_driverControl.target();
+    public boolean driveOneMeter() {
+        return m_driverControl.driveOneMeter();
     }
 
     @Override
@@ -154,16 +150,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean driveWithFancyTrajec() {
-        return m_driverControl.driveWithFancyTrajec();
-    }
-
-    @Override
-    public boolean actualCircle() {
-        return m_driverControl.actualCircle();
-    }
-
-    @Override
     public boolean never() {
         return m_driverControl.never();
     }
@@ -174,18 +160,13 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean shooterLock() {
-        return m_driverControl.shooterLock();
+    public boolean button4() {
+        return m_driverControl.button4();
     }
 
     @Override
-    public boolean outtakeFromAmp() {
-        return m_driverControl.shooterLock();
-    }
-
-    @Override
-    public boolean ampLock() {
-        return m_driverControl.ampLock();
+    public boolean button5() {
+        return m_driverControl.button5();
     }
 
 }

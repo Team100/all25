@@ -55,6 +55,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
             double outputRad_S,
             double outputAccelRad_S2,
             double outputTorqueNm) {
+        // Util.printf("velocity %f\n", outputRad_S);
         m_motor.setVelocity(
                 outputRad_S * m_gearRatio,
                 outputAccelRad_S2 * m_gearRatio,
@@ -120,10 +121,11 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
 
     @Override
     public void periodic() {
-        m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
-        m_log_position.log(() -> MathUtil.angleModulus(getPositionRad().getAsDouble()));
         m_motor.periodic();
         m_encoder.periodic();
+        m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
+        m_log_position.log(() -> MathUtil.angleModulus(getPositionRad().getAsDouble()));
+
     }
 
 }

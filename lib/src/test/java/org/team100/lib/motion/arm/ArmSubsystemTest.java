@@ -22,7 +22,7 @@ class ArmSubsystemTest implements Timeless {
 
         for (int i = 0; i < 100; ++i) {
             armSubSystem.set(1, 1);
-            stepTime(0.02);
+            stepTime();
             // since i took out the limits this just spins
             // you have to call getPosition on the simulated sensor for it to do the integraiton.
             armSubSystem.getPosition();

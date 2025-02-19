@@ -19,6 +19,7 @@ import org.team100.lib.util.Util;
  * Do not put logic here; this is just for bundling the modules together.
  */
 public class SwerveModuleCollection {
+    private static final boolean DEBUG = false;
     private static final String kSwerveModules = "Swerve Modules";
     private static final String kFrontLeft = "Front Left";
     private static final String kFrontRight = "Front Right";
@@ -30,7 +31,7 @@ public class SwerveModuleCollection {
     private final SwerveModule100 m_rearLeft;
     private final SwerveModule100 m_rearRight;
 
-    private SwerveModuleCollection(
+    public SwerveModuleCollection(
             SwerveModule100 frontLeft,
             SwerveModule100 frontRight,
             SwerveModule100 rearLeft,
@@ -109,7 +110,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 12,
                                 7,
-                                0.651,
+                                0.657,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE),
                         WCPSwerveModule100.getFalconDrive(frontRightLogger,
@@ -119,7 +120,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 11,
                                 8,
-                                0.38,
+                                0.379,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE),
                         WCPSwerveModule100.getFalconDrive(rearLeftLogger,
@@ -129,7 +130,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 21,
                                 6,
-                                0.41,
+                                0.4055,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE),
                         WCPSwerveModule100.getFalconDrive(rearRightLogger,
@@ -139,7 +140,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 33,
                                 9,
-                                0.170,
+                                0.103,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE));
             case BETA_BOT:
@@ -147,6 +148,10 @@ public class SwerveModuleCollection {
             case BLANK:
             default:
                 Util.println("************** SIMULATED MODULES **************");
+                /*
+                 * Uses simulated position sensors, must be used with clock control (e.g.
+                 * {@link Timeless}).
+                 */
                 return new SwerveModuleCollection(
                         SimulatedSwerveModule100.get(frontLeftLogger, kinodynamics),
                         SimulatedSwerveModule100.get(frontRightLogger, kinodynamics),
@@ -168,6 +173,8 @@ public class SwerveModuleCollection {
      * @param swerveModuleStates
      */
     public void setDesiredStates(SwerveModuleStates swerveModuleStates) {
+        if (DEBUG)
+            Util.printf("states %s\n", swerveModuleStates);
         m_frontLeft.setDesiredState(swerveModuleStates.frontLeft());
         m_frontRight.setDesiredState(swerveModuleStates.frontRight());
         m_rearLeft.setDesiredState(swerveModuleStates.rearLeft());
@@ -232,21 +239,21 @@ public class SwerveModuleCollection {
                 m_rearRight.getPosition());
     }
 
-     public OptionalDouble[] turningPosition() {
+    public OptionalDouble[] turningPosition() {
         return new OptionalDouble[] {
-            m_frontLeft.turningPosition(),
-            m_frontRight.turningPosition(),
-            m_rearLeft.turningPosition(),
-            m_rearRight.turningPosition()
+                m_frontLeft.turningPosition(),
+                m_frontRight.turningPosition(),
+                m_rearLeft.turningPosition(),
+                m_rearRight.turningPosition()
         };
     }
 
     public OptionalDouble[] turningVelocity() {
         return new OptionalDouble[] {
-            m_frontLeft.turningVelocity(),
-            m_frontRight.turningVelocity(),
-            m_rearLeft.turningVelocity(),
-            m_rearRight.turningVelocity()
+                m_frontLeft.turningVelocity(),
+                m_frontRight.turningVelocity(),
+                m_rearLeft.turningVelocity(),
+                m_rearRight.turningVelocity()
         };
     }
 

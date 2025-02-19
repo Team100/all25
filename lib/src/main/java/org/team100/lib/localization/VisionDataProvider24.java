@@ -149,7 +149,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 if (!alliance.isPresent())
                     return;
 
-                double blipTimeSec = v.getServerTime() / 1000000.0;
+                double blipTimeSec = (v.getServerTime() / 1000000.0) -.03;
                 estimateRobotPose(
                         cameraSerialNumber,
                         blips,
@@ -173,10 +173,14 @@ public class VisionDataProvider24 implements VisionData, Glassy {
             final Blip24[] blips,
             double blipTimeSec,
             Alliance alliance) {
+
         m_log_alliance.log(() -> alliance);
         final Transform3d cameraInRobotCoordinates = Camera.get(cameraSerialNumber).getOffset();
 
         final Rotation2d gyroRotation = m_poseEstimator.get(blipTimeSec).pose().getRotation();
+
+        // double endTime = Takt.actual();
+        // System.out.printf("Time: %.4f\n", (endTime - startTime));
 
         estimateFromBlips(
                 blips,
@@ -184,6 +188,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 blipTimeSec,
                 gyroRotation,
                 alliance);
+
     }
 
     private void estimateFromBlips(
@@ -255,8 +260,8 @@ public class VisionDataProvider24 implements VisionData, Glassy {
              * much lower state stddev in RobotContainer.
              */
             return new double[] {
-                    0.03 * distanceM,
-                    0.03 * distanceM,
+                    0.01 * distanceM,
+                    0.01 * distanceM,
                     Double.MAX_VALUE };
         }
         /*
@@ -267,8 +272,8 @@ public class VisionDataProvider24 implements VisionData, Glassy {
          * matters for us.
          */
         return new double[] {
-                0.1 * distanceM,
-                0.1 * distanceM,
+                .1  * distanceM,
+                .1 * distanceM,
                 Double.MAX_VALUE };
     }
 

@@ -104,7 +104,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_log_position.log(() -> posOpt);
 
         // measurement is [-inf,inf]
-        double measurement = posOpt.getAsDouble();
+        final double measurement = posOpt.getAsDouble();
 
         // choose a goal which is near the measurement
         // goal is [-inf, inf]

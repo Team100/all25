@@ -3,7 +3,7 @@ package org.team100.frc2025.Swerve;
 import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate120;
 import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate180;
 import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate60;
-import org.team100.lib.follower.TrajectoryFollowerFactory;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -19,8 +19,7 @@ public class Maker {
 
     LoggerFactory m_logger;
 
-    SwerveDriveSubsystem m_swerve;
-    TrajectoryFollowerFactory m_factory;
+    SwerveDriveSubsystem m_drive;
     TrajectoryVisualization m_viz;
     SwerveKinodynamics m_kinodynamics;
 
@@ -32,7 +31,7 @@ public class Maker {
             SwerveKinodynamics kinodynamics,
             TrajectoryVisualization viz) {
         m_logger = parent.child("Maker");
-        m_swerve = swerve;
+        m_drive = swerve;
         constraints = new TimingConstraintFactory(kinodynamics);
         m_viz = viz;
         m_kinodynamics = kinodynamics;
@@ -43,8 +42,8 @@ public class Maker {
 
         return new Generate60(
                 m_logger,
-                m_swerve,
-                TrajectoryFollowerFactory.fieldRelativeGoodPIDF(m_logger),
+                m_drive,
+                SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
                 m_viz,
                 m_kinodynamics);
 

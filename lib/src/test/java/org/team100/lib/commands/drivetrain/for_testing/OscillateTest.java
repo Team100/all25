@@ -18,12 +18,13 @@ class OscillateTest extends RealisticFixtured implements Timeless {
 
         // half wave is 2 seconds
         for (int i = 0; i < 100; ++i) {
-            stepTime(0.02);
+            stepTime();
             od.execute();
             fixture.drive.periodic();
         }
 
         // stopped
+        stepTime();
         assertEquals(0, fixture.drive.getState().x().v(), kDelta);
         // travel exactly 1 m.
         assertEquals(1, fixture.drive.getState().x().x(), kDelta);

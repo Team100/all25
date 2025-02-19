@@ -2,7 +2,7 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.List;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
@@ -13,6 +13,7 @@ import org.team100.lib.trajectory.TrajectoryMaker;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
@@ -27,29 +28,29 @@ public class FullCycle2 extends SequentialCommandGroup implements Glassy {
 
     public FullCycle2(
             LoggerFactory parent,
-            SwerveDriveSubsystem drivetrain,
+            SwerveDriveSubsystem drive,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
-            HolonomicFieldRelativeController controller) {
-        DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(parent.child(this));
+            SwerveController controller) {
         TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
-        // Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics, viz);
+        // Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics,
+        // viz);
         // Translation2d reefCenter = FieldConstants.getReefCenter();
 
         // for now just drive back and forth.
         addCommands(
-            new ResetPose(drivetrain, 1.86 , 6.6, 0)
+                new ResetPose(drive, new Pose2d(1.86, 6.6, new Rotation2d(0)))
 
-            // new RepeatCommand(
-            //     // makerTrajec.makeTrajectoryCommand()
-            //     )
+        // new RepeatCommand(
+        // // makerTrajec.makeTrajectoryCommand()
+        // )
 
-            // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)
-            // makerTrajec.runClockWiseTraj()
+        // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)
+        // makerTrajec.runClockWiseTraj()
         );
-           
+
     }
 
 }

@@ -51,8 +51,7 @@ public class TimedPose {
     @Override
     public String toString() {
         final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return state().getPose().toString()
-                + ", curve: " + fmt.format(state().getCurvature())
+        return "state: " + state().toString()
                 + ", time: " + fmt.format(getTimeS())
                 + ", vel: " + fmt.format(velocityM_S())
                 + ", acc: " + fmt.format(acceleration());

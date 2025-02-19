@@ -2,26 +2,31 @@ package org.team100.lib.commands.drivetrain.for_testing;
 
 import java.util.List;
 
-import org.team100.lib.commands.drivetrain.DriveToWaypoint3;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
-import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.timing.ConstantConstraint;
-import org.team100.lib.trajectory.StraightLineTrajectory;
 import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
- * Drive in a square. This used to be called "DrawCircle."
+ * Drive in a square.
  */
 public class DrawSquare extends SequentialCommandGroup implements Glassy {
     private static final double maxVelocityM_S = 2.0;
     private static final double maxAccelM_S_S = 2;
+
+    private final SwerveDriveSubsystem m_drive;
+    private final SwerveController m_controller;
+    private final TrajectoryVisualization m_viz;
+    private final TrajectoryToPose maker;
 
     /**
      * Draw a square like so:
@@ -33,35 +38,26 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
      * .Y...2---1/5
      */
     public DrawSquare(
-            LoggerFactory parent,
-            SwerveDriveSubsystem drivetrain,
-            HolonomicFieldRelativeController controller,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
             TrajectoryVisualization viz) {
-        DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(parent.child(this));
-        TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
-        StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
-        addCommands(
-                new DriveToWaypoint3(log,
-                        new Pose2d(-0.5, -0.5, GeometryUtil.kRotationZero),
-                        drivetrain, maker,
-                        controller, viz),
-                new DriveToWaypoint3(log,
-                        new Pose2d(-0.5, 0.5, GeometryUtil.kRotationZero),
-                        drivetrain, maker,
-                        controller, viz),
-                new DriveToWaypoint3(log,
-                        new Pose2d(0.5, 0.5, GeometryUtil.kRotationZero),
-                        drivetrain, maker,
-                        controller, viz),
-                new DriveToWaypoint3(log,
-                        new Pose2d(0.5, -0.5, GeometryUtil.kRotationZero),
-                        drivetrain, maker,
-                        controller, viz),
-                new DriveToWaypoint3(log,
-                        new Pose2d(-0.5, -0.5, GeometryUtil.kRotationZero),
-                        drivetrain, maker,
-                        controller, viz)
+        m_drive = drive;
+        m_controller = controller;
+        m_viz = viz;
+        maker = new TrajectoryToPose(true,
+                new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S))));
 
-        );
+        addCommands(
+                go(-0.5, -0.5),
+                go(-0.5, 0.5),
+                go(0.5, 0.5),
+                go(0.5, -0.5),
+                go(-0.5, -0.5));
+    }
+
+    private Command go(double x, double y) {
+        return new DriveToPoseWithTrajectory(
+                new Pose2d(x, y, GeometryUtil.kRotationZero),
+                m_drive, maker, m_controller, m_viz);
     }
 }

@@ -187,23 +187,20 @@ public class SwerveKinodynamics implements Glassy {
      * translational acceleration.
      * 
      * States may include empty angles for motionless wheels.
-     * 
-     * @param in            chassis speeds to transform
-     * @param gyroRateRad_S current gyro rate, or the trajectory gyro rate
      */
-    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S) {
-        return toSwerveModuleStates(in, gyroRateRad_S, TimedRobot100.LOOP_PERIOD_S);
+    public SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in) {
+        return toSwerveModuleStates(in, TimedRobot100.LOOP_PERIOD_S);
     }
 
     /**
-     * For testing only.
+     * Discretizes.
      * 
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
      */
-    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double gyroRateRad_S, double period) {
+    SwerveModuleStates toSwerveModuleStates(ChassisSpeeds in, double dt) {
         // This is the extra correction angle ...
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(in.omegaRadiansPerSecond));
         // ... which is subtracted here; this isn't really a field-relative
         // transformation it's just a rotation.
         ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -211,37 +208,42 @@ public class SwerveKinodynamics implements Glassy {
                 in.vyMetersPerSecond,
                 in.omegaRadiansPerSecond,
                 angle);
-        ChassisSpeeds descretized = ChassisSpeeds.discretize(chassisSpeeds, period);
-        return m_kinematics.toSwerveModuleStates(descretized);
+        // discretization does not affect omega
+        DiscreteSpeed descretized = discretize(chassisSpeeds, dt);
+        SwerveModuleStates states = m_kinematics.toSwerveModuleStates(descretized);
+        return states;
     }
 
     /**
-     * The resulting state speeds are always positive.
+     * Given a desired instantaneous speed, extrapolate ahead one step, and return
+     * the twist required to achieve that state.
      */
-    public SwerveModuleStates toSwerveModuleStatesWithoutDiscretization(ChassisSpeeds speeds) {
-        return m_kinematics.toSwerveModuleStates(speeds);
+    public static DiscreteSpeed discretize(ChassisSpeeds chassisSpeeds, double dt) {
+        Pose2d desiredDeltaPose = new Pose2d(
+                chassisSpeeds.vxMetersPerSecond * dt,
+                chassisSpeeds.vyMetersPerSecond * dt,
+                new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * dt));
+
+        return new DiscreteSpeed(Pose2d.kZero.log(desiredDeltaPose), dt);
     }
 
     /**
-     * Forward kinematics, module states => chassis speeds.
+     * Returns the "instantaneous" chassis speeds corresponding to the module
+     * states, i.e. the chassis speed pointing at the result of applying the module
+     * state twist.
      * 
-     * Does not do inverse discretization.
-     */
-    public ChassisSpeeds toChassisSpeeds(SwerveModuleStates moduleStates) {
-        return m_kinematics.toChassisSpeeds(moduleStates);
-    }
-
-    /**
      * This could be used with odometry, but because odometry uses module positions
      * instead of velocities, it is not needed.
      * 
      * It performs inverse discretization and an extra correction.
+     * 
+     * TODO: make sure the callers of this function are doing the right thing with
+     * the result.
      */
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
-            double gyroRateRad_S,
-            double dt,
-            SwerveModuleStates moduleStates) {
-        ChassisSpeeds discreteSpeeds = toChassisSpeeds(moduleStates);
+            SwerveModuleStates moduleStates,
+            double dt) {
+        ChassisSpeeds discreteSpeeds = m_kinematics.toChassisSpeeds(moduleStates);
         Twist2d twist = new Twist2d(
                 discreteSpeeds.vxMetersPerSecond * dt,
                 discreteSpeeds.vyMetersPerSecond * dt,
@@ -253,8 +255,9 @@ public class SwerveKinodynamics implements Glassy {
                 deltaPose.getY(),
                 deltaPose.getRotation().getRadians()).div(dt);
 
+        double omega = discreteSpeeds.omegaRadiansPerSecond;
         // This is the opposite direction
-        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(gyroRateRad_S));
+        Rotation2d angle = new Rotation2d(VeeringCorrection.correctionRad(omega));
         return ChassisSpeeds.fromFieldRelativeSpeeds(
                 continuousSpeeds.vxMetersPerSecond,
                 continuousSpeeds.vyMetersPerSecond,
@@ -278,108 +281,26 @@ public class SwerveKinodynamics implements Glassy {
     }
 
     /**
-     * Maintain translation and rotation proportionality but slow to a feasible
-     * velocity, assuming the robot has an infinite number of wheels on a circular
-     * frame.
+     * Robot-relative speed, without discretization.
+     * This simply rotates the velocity from the field frame to the robot frame.
      */
-    public ChassisSpeeds analyticDesaturation(ChassisSpeeds speeds) {
-        double maxV = getMaxDriveVelocityM_S();
-        double maxOmega = getMaxAngleSpeedRad_S();
-        double xySpeed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-        double xyAngle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
-        // this could be negative if xySpeed is too high
-        double omegaForSpeed = maxOmega * (1 - xySpeed / maxV);
-        if (Math.abs(speeds.omegaRadiansPerSecond) <= omegaForSpeed) {
-            // omega + xyspeed is feasible
-            return speeds;
-        }
-        if (xySpeed < 1e-12) {
-            // if we got here then omega alone is infeasible so use maxomega
-            return new ChassisSpeeds(0, 0, Math.signum(speeds.omegaRadiansPerSecond) * maxOmega);
-        }
-        if (Math.abs(speeds.omegaRadiansPerSecond) < 1e-12) {
-            // if we got here then xyspeed alone is infeasible so use maxV
-            return new ChassisSpeeds(maxV * Math.cos(xyAngle), maxV * Math.sin(xyAngle), 0);
-        }
-
-        double v = maxOmega * xySpeed * maxV / (maxOmega * xySpeed + Math.abs(speeds.omegaRadiansPerSecond) * maxV);
-
-        double vRatio = v / xySpeed;
-
-        return new ChassisSpeeds(
-                vRatio * speeds.vxMetersPerSecond,
-                vRatio * speeds.vyMetersPerSecond,
-                vRatio * speeds.omegaRadiansPerSecond);
+    public static ChassisSpeeds toInstantaneousChassisSpeeds(
+            FieldRelativeVelocity v,
+            Rotation2d theta) {
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+                v.x(),
+                v.y(),
+                v.theta(),
+                theta);
     }
 
     /**
-     * Input could be field-relative or robot-relative, the math doesn't depend on
-     * theta, because it treats the robot like a circle.
-     * 
-     * Input must be full-scale, meters/sec and radians/sec, this won't work on
-     * control units [-1,1].
-     * 
-     * @param speeds twist in m/s and rad/s
-     * @return
+     * Field-relative speed, without discretization.
+     * This simply rotates the velocity from the robot frame to the field frame.
      */
-    public FieldRelativeVelocity analyticDesaturation(FieldRelativeVelocity speeds) {
-        double maxV = getMaxDriveVelocityM_S();
-        double maxOmega = getMaxAngleSpeedRad_S();
-        double xySpeed = speeds.norm();
-        double xyAngle = Math.atan2(speeds.y(), speeds.x());
-        // this could be negative if xySpeed is too high
-        double omegaForSpeed = maxOmega * (1 - xySpeed / maxV);
-        if (Math.abs(speeds.theta()) <= omegaForSpeed) {
-            // omega + xyspeed is feasible
-            return speeds;
-        }
-        if (xySpeed < 1e-12) {
-            // if we got here then omega alone is infeasible so use maxomega
-            return new FieldRelativeVelocity(0, 0, Math.signum(speeds.theta()) * maxOmega);
-        }
-        if (Math.abs(speeds.theta()) < 1e-12) {
-            // if we got here then xyspeed alone is infeasible so use maxV
-            return new FieldRelativeVelocity(maxV * Math.cos(xyAngle), maxV * Math.sin(xyAngle), 0);
-        }
-
-        double v = maxOmega * xySpeed * maxV / (maxOmega * xySpeed + Math.abs(speeds.theta()) * maxV);
-
-        double vRatio = v / xySpeed;
-
-        return new FieldRelativeVelocity(
-                vRatio * speeds.x(),
-                vRatio * speeds.y(),
-                vRatio * speeds.theta());
-    }
-
-    /** Scales translation to accommodate the rotation. */
-    public ChassisSpeeds preferRotation(ChassisSpeeds speeds) {
-        double oRatio = Math.min(1, speeds.omegaRadiansPerSecond / getMaxAngleSpeedRad_S());
-        double xySpeed = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-        double maxV = getMaxDriveVelocityM_S();
-        double xyRatio = Math.min(1, xySpeed / maxV);
-        double ratio = Math.min(1 - oRatio, xyRatio);
-        double xyAngle = Math.atan2(speeds.vyMetersPerSecond, speeds.vxMetersPerSecond);
-
-        return new ChassisSpeeds(
-                ratio * maxV * Math.cos(xyAngle),
-                ratio * maxV * Math.sin(xyAngle),
-                speeds.omegaRadiansPerSecond);
-    }
-
-    /** Scales translation to accommodate the rotation. */
-    public FieldRelativeVelocity preferRotation(FieldRelativeVelocity speeds) {
-        double oRatio = Math.min(1, speeds.theta() / getMaxAngleSpeedRad_S());
-        double xySpeed = speeds.norm();
-        double maxV = getMaxDriveVelocityM_S();
-        double xyRatio = Math.min(1, xySpeed / maxV);
-        double ratio = Math.min(1 - oRatio, xyRatio);
-        double xyAngle = Math.atan2(speeds.y(), speeds.x());
-
-        return new FieldRelativeVelocity(
-                ratio * maxV * Math.cos(xyAngle),
-                ratio * maxV * Math.sin(xyAngle),
-                speeds.theta());
+    public static FieldRelativeVelocity fromInstantaneousChassisSpeeds(ChassisSpeeds instantaneous, Rotation2d theta) {
+        ChassisSpeeds c = ChassisSpeeds.fromRobotRelativeSpeeds(instantaneous, theta);
+        return new FieldRelativeVelocity(c.vxMetersPerSecond, c.vyMetersPerSecond, c.omegaRadiansPerSecond);
     }
 
     public SwerveDriveKinematics100 getKinematics() {

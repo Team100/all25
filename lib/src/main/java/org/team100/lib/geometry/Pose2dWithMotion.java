@@ -85,7 +85,11 @@ public class Pose2dWithMotion {
             return true;
         }
 
-        
+        @Override
+        public String toString() {
+            return "MotionDirection [norm()=" + norm() + ", course()=" + course() + "]";
+        }
+
     }
 
     public static final Pose2dWithMotion kIdentity = new Pose2dWithMotion(
@@ -190,8 +194,9 @@ public class Pose2dWithMotion {
 
     public String toString() {
         final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return getPose().toString() + ", twist: " + m_fieldRelativeMotionDirection + ", curvature: "
-                + fmt.format(getCurvature())
+        return "pose: " + getPose().toString()
+                + ", direction: " + m_fieldRelativeMotionDirection
+                + ", curvature: " + fmt.format(getCurvature())
                 + ", dcurvature_ds: " + fmt.format(getDCurvatureDs());
     }
 

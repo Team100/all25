@@ -5,9 +5,13 @@ import java.util.Optional;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * Just like ChassisSpeeds, but field-relative, to avoid mixing them up.
+ * 
+ * Units are always meters per second and radians per second, never anything
+ * else.
  */
 public record FieldRelativeVelocity(double x, double y, double theta) {
 
@@ -66,6 +70,15 @@ public record FieldRelativeVelocity(double x, double y, double theta) {
     /** Dot product of translational part. */
     public double dot(FieldRelativeVelocity other) {
         return x * other.x + y * other.y;
+    }
+
+    /** Stopping distance at the specified acceleration. */
+    public Translation2d stopping(double accel) {
+        double speed = norm();
+        double decelTime = speed / accel;
+        // the unit here is wrong
+        FieldRelativeVelocity dx = normalize().times(0.5 * speed * decelTime);
+        return new Translation2d(dx.x, dx.y);
     }
 
     public FieldRelativeVelocity clamp(double maxVelocity, double maxOmega) {

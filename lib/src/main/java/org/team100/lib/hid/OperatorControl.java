@@ -12,24 +12,8 @@ public interface OperatorControl extends Glassy {
         return "No HID Found!!";
     }
 
-    default boolean pivotToAmpPosition() {
-        return false;
-    }
-
-    default boolean outtake() {
-        return false;
-    }
-
-    default boolean feed() {
-        return false;
-    }
-
-    default boolean intake() {
-        return false;
-    }
-
-    default double ramp() {
-        return 0.0;
+    default Double ramp() {
+        return null;   
     }
 
     // this exists to bind to commands we don't want to run,
@@ -38,37 +22,7 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
-    default boolean homeClimber() {
-        return false;
-    }
 
-    default double leftClimb() {
-        return 0;
-    }
 
-    default double rightClimb() {
-        return 0;
-    }
 
-    /** Put the climber hooks in the "up" position. */
-    default boolean climbUpPosition() {
-        return false;
-    }
-
-    /** Put the climber hooks in the "down" position. */
-    default boolean climbDownPosition() {
-        return false;
-    }
-
-    default boolean feedToAmp() {
-        return false;
-    }
-
-    default boolean outtakeFromAmp() {
-        return false;
-    }
-
-    default boolean testShoot() {
-        return false;
-    }
 }

@@ -34,11 +34,11 @@ class ManualChassisSpeedsTest {
         assertEquals(1, limits.getMaxDriveVelocityM_S(), kDelta);
         assertEquals(2.828, limits.getMaxAngleSpeedRad_S(), kDelta);
         ManualChassisSpeeds manual = new ManualChassisSpeeds(logger, limits);
-        // clipping to the unit circle, then desaturating.
+        // clipping to the unit circle
         DriverControl.Velocity input = new DriverControl.Velocity(1, 2, 3);
         ChassisSpeeds speeds = manual.apply(new SwerveModel(), input);
-        assertEquals(0.223, speeds.vxMetersPerSecond, kDelta);
-        assertEquals(0.447, speeds.vyMetersPerSecond, kDelta);
-        assertEquals(1.414, speeds.omegaRadiansPerSecond, kDelta);
+        assertEquals(0.447, speeds.vxMetersPerSecond, kDelta);
+        assertEquals(0.894, speeds.vyMetersPerSecond, kDelta);
+        assertEquals(2.828, speeds.omegaRadiansPerSecond, kDelta);
     }
 }

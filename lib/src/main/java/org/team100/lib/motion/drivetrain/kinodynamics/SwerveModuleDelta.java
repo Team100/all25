@@ -64,4 +64,9 @@ public class SwerveModuleDelta {
         }
     }
 
+    @Override
+    public String toString() {
+        return "SwerveModuleDelta [distanceMeters=" + distanceMeters + ", angle=" + angle + "]";
+    }
+
 }

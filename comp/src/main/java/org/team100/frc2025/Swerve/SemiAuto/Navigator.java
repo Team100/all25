@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.ReefAproach;
-import org.team100.lib.follower.TrajectoryFollower;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -13,11 +14,12 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.reference.TrajectoryReference;
+import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.PoseSet;
-import org.team100.lib.util.Takt;
+import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -41,58 +43,51 @@ public abstract class Navigator extends Command implements Planner2025 {
         }
     }
 
-    public final Log m_log;
-    private final SwerveDriveSubsystem m_robotDrive;
-    private final TrajectoryFollower m_controller;
-    private Pose2d m_goal = new Pose2d();
+    private final Log m_log;
+    private final SwerveDriveSubsystem m_drive;
+    private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
+    private final TimingConstraintFactory m_constraints;
 
-    TimingConstraintFactory m_constraints;
+    // created in initialize
+    protected ReferenceController m_referenceController;
 
     public Navigator(
             LoggerFactory parent,
-            SwerveDriveSubsystem robotDrive,
-            TrajectoryFollower controller,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics) {
         m_log = new Log(parent);
-        m_robotDrive = robotDrive;
+        m_drive = drive;
         m_controller = controller;
         m_viz = viz;
         m_constraints = new TimingConstraintFactory(kinodynamics);
-        addRequirements(m_robotDrive);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        throw new UnsupportedOperationException("subclasses must implement initialize()");
+        Trajectory100 trajectory = trajectory(m_constraints.medium(), m_drive.getPose());
+        m_viz.setViz(trajectory);
+
+        m_referenceController = new ReferenceController(
+                m_drive,
+                m_controller,
+                new TrajectoryReference(trajectory), true);
     }
+
+    /** Subclasses make trajectories. */
+    protected abstract Trajectory100 trajectory(List<TimingConstraint> constraints, Pose2d currentPose);
 
     @Override
     public final void execute() {
-        final double now = Takt.get();
-        Pose2d currentPose = m_robotDrive.getPose();
-
-        Rotation2d angleToReef = FieldConstants.angleToReefCenter(currentPose);
-        Rotation2d currentHeading = currentPose.getRotation();
-        Rotation2d thetaError = angleToReef.minus(currentHeading);
-
-        // m_controller.setThetaError(thetaError);
-        FieldRelativeVelocity output = m_controller.update(now, m_robotDrive.getState());
-
-        m_robotDrive.driveInFieldCoordsVerbatim(output);
-
-        m_log.m_log_chassis_speeds.log(() -> output);
-        double thetaErrorRad = m_goal.getRotation().getRadians()
-                - m_robotDrive.getPose().getRotation().getRadians();
-        m_log.m_log_THETA_ERROR.log(() -> thetaErrorRad);
-        m_log.m_log_FINSIHED.log(() -> false);
+        m_referenceController.execute();
     }
 
     @Override
     public final void end(boolean interrupted) {
-        m_log.m_log_FINSIHED.log(() -> true);
-        m_robotDrive.stop();
+        m_drive.stop();
         m_viz.clear();
     }
 
@@ -142,15 +137,16 @@ public abstract class Navigator extends Command implements Planner2025 {
         return new PoseSet(waypointsWithPose, headingsWithPose);
     }
 
-    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation, Translation2d vectorFromCenterToRobot, ReefAproach approach, double magicNumber){
+    public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation,
+            Translation2d vectorFromCenterToRobot, ReefAproach approach, double magicNumber) {
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 
         Translation2d translationToTarget = targetPoint.minus(currTranslation);
-        
+
         Rotation2d rotationAngle = new Rotation2d();
 
-        switch(approach){
+        switch (approach) {
             case CCW:
                 rotationAngle = Rotation2d.fromDegrees(90);
                 break;
@@ -159,15 +155,15 @@ public abstract class Navigator extends Command implements Planner2025 {
                 break;
         }
 
-
         Translation2d tangentVector = vectorFromCenterToRobot.rotateBy(rotationAngle);
 
-
-        Translation2d tangentVectorAdjusted = tangentVector.times((1/distanceToReef) * magicNumber); // MAGIC NUMBER is a MAGIC NUMBER
+        Translation2d tangentVectorAdjusted = tangentVector.times((1 / distanceToReef) * magicNumber); // MAGIC NUMBER
+                                                                                                       // is a MAGIC
+                                                                                                       // NUMBER
 
         Translation2d finalVector = translationToTarget.plus(tangentVectorAdjusted);
 
-        Rotation2d finalAngle =  finalVector.getAngle();
+        Rotation2d finalAngle = finalVector.getAngle();
 
         return finalAngle;
     }

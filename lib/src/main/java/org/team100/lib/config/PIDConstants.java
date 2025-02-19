@@ -7,35 +7,80 @@ package org.team100.lib.config;
  * every use of this class.
  */
 public class PIDConstants {
-    private final double m_p;
-    private final double m_i;
-    private final double m_d;
-    private final double m_iZone;
+    private final double m_positionP;
+    private final double m_positionI;
+    private final double m_positionD;
+    private final double m_positionIZone;
+    private final double m_velocityP;
+    private final double m_velocityI;
+    private final double m_velocityD;
+    private final double m_velocityIZone;
 
-    public PIDConstants(double p) {
-        this(p, 0, 0);
+    public static PIDConstants makeVelocityPID(double p) {
+        return new PIDConstants(0, p);
     }
 
-    public PIDConstants(double p, double i, double d) {
-        m_p = p;
-        m_i = i;
-        m_d = d;
-        m_iZone = 0;
+    public static PIDConstants makePositionPID(double p) {
+        return new PIDConstants(p, 0);
     }
 
-    public double getP() {
-        return m_p;
+    public static PIDConstants makeVelocityPID(double p, double i, double d) {
+        return new PIDConstants(0, 0, 0, p, i, d);
     }
 
-    public double getI() {
-        return m_i;
+    public static PIDConstants makePositionPID(double p, double i, double d) {
+        return new PIDConstants(p, i, d, 0, 0, 0);
     }
 
-    public double getD() {
-        return m_d;
+    public PIDConstants(double positionP, double velocityP) {
+        this(positionP, 0, 0, velocityP, 0, 0);
     }
 
-    public double getIZone() {
-        return m_iZone;
+    public PIDConstants() {
+        this(0, 0);
+    }
+
+    public PIDConstants(double positionP, double positionI, double positionD, double velocityP, double velocityI,
+            double velocityD) {
+        m_positionP = positionP;
+        m_positionI = positionI;
+        m_positionD = positionD;
+        m_positionIZone = 0;
+        m_velocityP = velocityP;
+        m_velocityI = velocityI;
+        m_velocityD = velocityD;
+        m_velocityIZone = 0;
+    }
+
+    public double getPositionP() {
+        return m_positionP;
+    }
+
+    public double getPositionI() {
+        return m_positionI;
+    }
+
+    public double getPositionD() {
+        return m_positionD;
+    }
+
+    public double getPositionIZone() {
+        return m_positionIZone;
+    }
+
+    public double getVelocityP() {
+        return m_velocityP;
+    }
+
+    public double getVelocityI() {
+        return m_velocityI;
+    }
+
+    public double getVelocityD() {
+        return m_velocityD;
+    }
+
+    public double getVelocityIZone() {
+        return m_velocityIZone;
     }
 }

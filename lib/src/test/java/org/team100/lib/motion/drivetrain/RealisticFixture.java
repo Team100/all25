@@ -1,7 +1,7 @@
 package org.team100.lib.motion.drivetrain;
 
-import org.team100.lib.controller.drivetrain.HolonomicDriveControllerFactory;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -10,14 +10,18 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
+import org.team100.lib.testing.Timeless;
 
 /**
  * A real swerve subsystem populated with simulated motors and encoders,
  * for testing.
+ * 
+ * Uses simulated position sensors, must be used with clock control (e.g.
+ * {@link Timeless}).
  */
 public class RealisticFixture {
     public SwerveModuleCollection collection;
@@ -26,7 +30,7 @@ public class RealisticFixture {
     public SwerveKinodynamics swerveKinodynamics;
     public SwerveLocal swerveLocal;
     public SwerveDriveSubsystem drive;
-    public HolonomicFieldRelativeController controller;
+    public SwerveController controller;
     public LoggerFactory logger;
     public LoggerFactory fieldLogger;
 
@@ -36,11 +40,7 @@ public class RealisticFixture {
         swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
         collection = SwerveModuleCollection.get(logger, 10, 20, swerveKinodynamics);
         gyro = new SimulatedGyro(swerveKinodynamics, collection);
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                logger,
-                swerveKinodynamics,
-                () -> 12);
-        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, setpointGenerator, collection);
+        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
         poseEstimator = swerveKinodynamics.newPoseEstimator(
                 logger,
                 gyro,
@@ -52,6 +52,7 @@ public class RealisticFixture {
             public void update() {
             }
         };
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
 
         drive = new SwerveDriveSubsystem(
                 fieldLogger,
@@ -59,10 +60,10 @@ public class RealisticFixture {
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                v);
+                v,
+                limiter);
 
-        controller = HolonomicDriveControllerFactory.get(logger,
-                new HolonomicFieldRelativeController.Log(logger));
+        controller = SwerveControllerFactory.test(logger);
     }
 
     public void close() {

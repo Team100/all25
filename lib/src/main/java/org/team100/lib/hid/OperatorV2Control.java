@@ -1,7 +1,5 @@
 package org.team100.lib.hid;
 
-import static org.team100.lib.hid.ControlUtil.deadband;
-
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -39,75 +37,12 @@ public class OperatorV2Control implements OperatorControl {
     }
 
     @Override
+    public Double ramp() {
+        return m_controller.getLeftX();
+    }
+ 
+    @Override
     public String getHIDName() {
         return m_controller.getName();
-    }
-
-    @Override
-    public boolean intake() {
-        return m_controller.getXButton();
-    }
-
-    @Override
-    public boolean outtake() {
-        return m_controller.getBButton();
-    }
-
-    @Override
-    public double ramp() {
-        return m_controller.getRightY();
-    }
-
-    @Override
-    public boolean feed() {
-        // this used to be "Y" but right bumper seems easier since you're holding "A".
-        return m_controller.getRightBumper();
-    }
-
-    @Override
-    public boolean homeClimber() {
-        return m_controller.getBackButton();
-    }
-
-    @Override
-    public boolean climbUpPosition() {
-        return m_controller.getPOV() == 0;
-    }
-
-    @Override
-    public boolean climbDownPosition() {
-        return m_controller.getPOV() == 180;
-    }
-
-    @Override
-    public double leftClimb() {
-        // NOTE this used to use rightY, i.e. it was reversed.
-        return -deadband(m_controller.getLeftY(), 0.2, Double.MAX_VALUE);
-    }
-
-    @Override
-    public double rightClimb() {
-        // NOTE this used to use leftY, i.e. it was reversed.
-        return -deadband(m_controller.getRightY(), 0.2, Double.MAX_VALUE);
-    }
-
-    @Override
-    public boolean pivotToAmpPosition() {
-        return m_controller.getLeftBumperButton();
-    }
-
-    @Override
-    public boolean feedToAmp() {
-        return m_controller.getLeftStickButton();
-    }
-
-    @Override
-    public boolean outtakeFromAmp() {
-        return m_controller.getRightStickButton();
-    }
-
-    @Override
-    public boolean testShoot() {
-        return m_controller.getStartButton();
     }
 }

@@ -6,11 +6,16 @@ import java.util.Optional;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.swerve.SwerveUtil;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.util.struct.StructSerializable;
 
-/** The state of one swerve module. */
+/**
+ * The state of one swerve module.
+ * 
+ * TODO: This would be better as (dx, dy).
+ */
 public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, StructSerializable {
     private final double m_speedM_S;
     private final Optional<Rotation2d> m_angle;
@@ -23,6 +28,18 @@ public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, S
     public SwerveModuleState100(double speedM_S, Optional<Rotation2d> angle) {
         m_speedM_S = speedM_S;
         m_angle = angle;
+    }
+
+    /**
+     * Returns empty angle if velocity is about zero.
+     * Otherwise angle is always within [-pi, pi].
+     */
+    public static SwerveModuleState100 fromSpeed(double vx, double vy) {
+        if (Math.abs(vx) < 0.004 && Math.abs(vy) < 0.004) {
+            return new SwerveModuleState100(0.0, Optional.empty());
+        } else {
+            return new SwerveModuleState100(Math.hypot(vx, vy), Optional.of(new Rotation2d(vx, vy)));
+        }
     }
 
     /** Replace empty angle in this state with the supplied angle. */
@@ -59,6 +76,11 @@ public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, S
                 m_speedM_S * -1.0,
                 Optional.of(GeometryUtil.flip(m_angle.get())));
 
+    }
+
+    /** Return an optimized copy. */
+    public SwerveModuleState100 optimize(Rotation2d currentAngle) {
+        return optimize(this, currentAngle);
     }
 
     /**
@@ -108,6 +130,20 @@ public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, S
      */
     public Optional<Rotation2d> angle() {
         return m_angle;
+    }
+
+    double dx() {
+        return m_angle.isPresent() ? m_speedM_S * m_angle.get().getCos() : 0;
+    }
+
+    double dy() {
+        return m_angle.isPresent() ? m_speedM_S * m_angle.get().getSin() : 0;
+    }
+
+    public boolean near(SwerveModuleState100 other, double tolerance) {
+        return MathUtil.isNear(dx(), other.dx(), tolerance) &&
+                MathUtil.isNear(dy(), other.dy(), tolerance);
+
     }
 
     @Override

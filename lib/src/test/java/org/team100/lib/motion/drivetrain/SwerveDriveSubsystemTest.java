@@ -1,10 +1,13 @@
 package org.team100.lib.motion.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,35 +24,38 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.resetPose(new Pose2d());
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
         verify(drive, 0, 0, 0);
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
-        assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond());
 
-        stepTime(0.02);
+        // actuation is reflected in measurement after time passes
+        assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond());
+        stepTime();
+        assertEquals(1, fixture.collection.states().frontLeft().speedMetersPerSecond());
+
         drive.periodic();
-        assertEquals(0.0004, fixture.collection.positions().frontLeft().distanceMeters, 1e-6);
+        assertEquals(0.02, fixture.collection.positions().frontLeft().distanceMeters, 1e-6);
 
-        assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond());
+        assertEquals(1, fixture.collection.states().frontLeft().speedMetersPerSecond());
 
         // the acceleration limit is applied here
-        verify(drive, 0.0003, 0.019, 1.0);
+        verify(drive, 0.02, 1, 1.0);
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
-        verify(drive, 0.001, 0.039, 1.0);
+        verify(drive, 0.039, 1, 1.0);
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
-        verify(drive, 0.0024, 0.06, 1.0);
+        verify(drive, 0.06, 1, 0.06);
 
         drive.close();
     }
@@ -58,10 +64,12 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
     void testWithoutSetpointGenerator() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
         SwerveDriveSubsystem drive = fixture.drive;
+        fixture.collection.reset();
+        stepTime();
 
         drive.resetPose(new Pose2d());
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         verify(drive, 0, 0, 0);
@@ -69,7 +77,7 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
         // go 1 m/s in +x
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // at 1 m/s for 0.02 s, so we go 0.02 m
@@ -77,8 +85,10 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         // it took 0.02 s to go from 0 m/s to 1 m/s, so we accelerated 50 m/s/s.
         verify(drive, 0.02, 1.00, 50.0);
+        
+        drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // we went a little further, no longer accelerating.
@@ -86,13 +96,37 @@ class SwerveDriveSubsystemTest extends Fixtured implements Timeless {
 
         drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
 
-        stepTime(0.02);
+        stepTime();
         drive.periodic();
 
         // a little further, but no longer accelerating
         verify(drive, 0.06, 1.00, 0.0);
 
         drive.close();
+    }
+
+    @Test
+    void testAligned() {
+        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
+        SwerveDriveSubsystem drive = fixture.drive;
+
+        drive.resetPose(new Pose2d());
+
+        stepTime();
+        drive.periodic();
+
+        verify(drive, 0, 0, 0);
+        // if the desired speed is zero, it's always ok
+        assertTrue(drive.aligned(new FieldRelativeVelocity(0, 0, 0)));
+        // the initial positions happen to be +x
+        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
+        // so we can't go in +y
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
+
+        // go 1 m/s in +x
+        drive.setChassisSpeeds(new ChassisSpeeds(1, 0, 0));
+        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
+        assertFalse(drive.aligned(new FieldRelativeVelocity(0, 1, 0)));
     }
 
     private void verify(SwerveDriveSubsystem drive, double x, double v, double a) {

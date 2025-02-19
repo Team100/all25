@@ -3,8 +3,7 @@ package org.team100.frc2025.Swerve;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
-import org.team100.lib.commands.drivetrain.DriveToWaypoint3;
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
@@ -33,8 +32,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
             SwerveDriveSubsystem drivetrain,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
-            HolonomicFieldRelativeController controller) {
-        DriveToWaypoint3.Log log = new DriveToWaypoint3.Log(parent.child(this));
+            SwerveController controller) {
         TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);

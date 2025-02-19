@@ -15,7 +15,11 @@ public interface Gyro extends Glassy {
      */
     Rotation2d getYawNWU();
 
-    /** Yaw rate in rad/s, NWU, counterclockwise positive. */
+    /**
+     * Yaw rate in rad/s, NWU, counterclockwise positive.
+     * Not cached, may be inconsistent with the yaw value, and not constant during
+     * the cycle.
+     */
     double getYawRateNWU();
 
     /** Pitch in radians, NWU, positive-down. */

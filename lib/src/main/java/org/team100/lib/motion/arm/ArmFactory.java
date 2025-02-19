@@ -47,7 +47,7 @@ public class ArmFactory {
                 MotorPhase.FORWARD,
                 8,
                 Feedforward100.makeNeo(),
-                new PIDConstants(0, 0, 0));
+                new PIDConstants());
         RotaryMechanism lowerMech = new SimpleRotaryMechanism(
                 lowerLogger,
                 lowerMotor,
@@ -69,7 +69,7 @@ public class ArmFactory {
                 MotorPhase.FORWARD,
                 1,
                 Feedforward100.makeNeo(),
-                new PIDConstants(0, 0, 0));
+                new PIDConstants());
         RotaryMechanism upperMech = new SimpleRotaryMechanism(
                 upperLogger,
                 upperMotor,
@@ -89,6 +89,10 @@ public class ArmFactory {
                 upperEncoder);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     private static ArmSubsystem simulated(LoggerFactory parent) {
         // for testing
         // note very high reduction ratio

@@ -65,18 +65,19 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
             double goalM,
             double goalVelocityM_S,
             double feedForwardTorqueNm) {
-        OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
+        final OptionalDouble position = getPosition();
+        final OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty())
             return;
-        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        Model100 goal = new Model100(goalM, goalVelocityM_S);
-        ProfiledController.Result result = m_controller.calculate(measurement, goal);
-        Control100 setpoint = result.feedforward();
-        double u_FF = m_kV * setpoint.v();
-        double u_FB = result.feedback();
-        double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
+        final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+        final Model100 goal = new Model100(goalM, goalVelocityM_S);
+        final ProfiledController.Result result = m_controller.calculate(measurement, goal);
+        final Control100 setpoint = result.feedforward();
+        final double u_FF = m_kV * setpoint.v();
+        final double u_FB = result.feedback();
+        final double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
         m_mechanism.setDutyCycle(u_TOTAL);
+
         m_log_goal.log(() -> goal);
         m_log_measurement.log(() -> position.getAsDouble());
         m_log_setpoint.log(() -> setpoint);

@@ -29,23 +29,22 @@ public class ManualChassisSpeeds implements ChassisSpeedDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      */
     @Override
     public ChassisSpeeds apply(SwerveModel state, DriverControl.Velocity input) {
         // clip the input to the unit circle
-        DriverControl.Velocity clipped = DriveUtil.clampTwist(input, 1.0);
+        final DriverControl.Velocity clipped = DriveUtil.clampTwist(input, 1.0);
         // scale to max in both translation and rotation
 
-        ChassisSpeeds scaled = DriveUtil.scaleChassisSpeeds(
+        final ChassisSpeeds scaled = DriveUtil.scaleChassisSpeeds(
                 clipped,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
 
-        // desaturate to feasibility
-        ChassisSpeeds speeds = m_swerveKinodynamics.analyticDesaturation(scaled);
-        m_log_chassis_speeds.log(() -> speeds);
-        return speeds;
+
+        m_log_chassis_speeds.log(() -> scaled);
+        return scaled;
     }
 
     public void reset(SwerveModel p) {

@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class OscillateProfile extends Command implements Glassy {
     private static final double TOLERANCE = 0.05;
 
-    private final SwerveDriveSubsystem m_swerve;
+    private final SwerveDriveSubsystem m_drive;
     private final HolonomicProfile m_profile;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveController m_controller;
     private final double m_offsetM;
 
     private SwerveControl m_setpoint;
@@ -28,9 +28,9 @@ public class OscillateProfile extends Command implements Glassy {
     public OscillateProfile(
             SwerveDriveSubsystem swerve,
             HolonomicProfile profile,
-            HolonomicFieldRelativeController controller,
+            SwerveController controller,
             double offsetM) {
-        m_swerve = swerve;
+        m_drive = swerve;
         m_profile = profile;
         m_controller = controller;
         m_offsetM = offsetM;
@@ -39,10 +39,10 @@ public class OscillateProfile extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        m_swerve.stop();
+        m_drive.stop();
         m_controller.reset();
         // choose a goal 1m away
-        SwerveModel start = m_swerve.getState();
+        SwerveModel start = m_drive.getState();
         Pose2d startPose = start.pose();
         // don't rotate
         Pose2d endPose = startPose.plus(new Transform2d(m_offsetM, 0, new Rotation2d()));
@@ -56,23 +56,23 @@ public class OscillateProfile extends Command implements Glassy {
 
     @Override
     public void execute() {
-        SwerveModel measurement = m_swerve.getState();
+        SwerveModel measurement = m_drive.getState();
         SwerveControl nextSetpoint = m_profile.calculate(m_setpoint.model(), m_goal);
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
                 measurement, m_setpoint.model(), nextSetpoint.model());
         m_setpoint = nextSetpoint;
-        m_swerve.driveInFieldCoords(fieldRelativeTarget);
+        m_drive.driveInFieldCoords(fieldRelativeTarget);
     }
 
     @Override
     public boolean isFinished() {
-        SwerveModel measurement = m_swerve.getState();
+        SwerveModel measurement = m_drive.getState();
         return measurement.near(m_goal, TOLERANCE);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 
 }

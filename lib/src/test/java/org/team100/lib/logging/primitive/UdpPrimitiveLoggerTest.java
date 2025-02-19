@@ -23,7 +23,7 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 class UdpPrimitiveLoggerTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
 
     ByteBuffer bb; // data
     ByteBuffer mb; // metadata
@@ -193,7 +193,7 @@ class UdpPrimitiveLoggerTest {
         for (int j = 0; j < keys; ++j) {
             loggers[j] = logger.doubleLogger(Level.COMP, "doublekey" + j);
         }
-        if (kPrint)
+        if (DEBUG)
             Util.println("expected keys per second: " + expected_keys_per_sec);
         double t1 = Takt.actual();
         for (int i = 0; i < (total_time / interval); ++i) {
@@ -207,7 +207,7 @@ class UdpPrimitiveLoggerTest {
             udpLogger.flush();
         }
         double t2 = Takt.actual();
-        if (kPrint)
+        if (DEBUG)
             Util.printf("et %.3f\n", t2 - t1);
     }
 
@@ -253,7 +253,7 @@ class UdpPrimitiveLoggerTest {
             udpLogger.flush();
         }
         double t2 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("duration sec %.3f\n", t2 - t1);
             Util.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
             Util.printf("duration per key us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS * KEYS));
@@ -301,7 +301,7 @@ class UdpPrimitiveLoggerTest {
             udpLogger.flush();
         }
         double t2 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("duration sec %.3f\n", t2 - t1);
             Util.printf("duration per flush us %.3f\n", 1000000 * (t2 - t1) / (ITERATIONS));
             Util.printf("duration per packet us %.3f\n", 1000000 * (t2 - t1) / (dataSink.getCounter()));

@@ -26,8 +26,7 @@ import org.team100.lib.util.Util;
 import edu.wpi.first.math.MathUtil;
 
 class AngularPositionProfileTest implements Timeless {
-
-    boolean dump = false;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
@@ -115,10 +114,10 @@ class AngularPositionProfileTest implements Timeless {
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
             servo.setPosition(1, 0);
+            stepTime();
         }
-        // stepTime(0.02);
         // useful to fix up the examples above
-        if (dump)
+        if (DEBUG)
             Util.printf("verify(%5.3f, %5.3f, %5.3f);\n", motor.velocity,
                     servo.getSetpoint().x(), servo.getSetpoint().v());
         assertEquals(setpointPosition, servo.getSetpoint().x(), kDelta);

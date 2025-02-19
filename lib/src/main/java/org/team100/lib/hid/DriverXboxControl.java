@@ -114,7 +114,7 @@ public class DriverXboxControl implements DriverControl {
     }
 
     public boolean shoot() {
-        return m_controller.getRightBumper();
+        return m_controller.getRightBumperButton();
     }
 
     /**
@@ -158,25 +158,10 @@ public class DriverXboxControl implements DriverControl {
     public boolean driveToObject() {
         return m_controller.getYButton();
     }
-
+    
     @Override
-    public boolean driveToAmp() {
-        return m_controller.getLeftStickButton();
-    }
-
-    @Override
-    public boolean ampLock() {
+    public boolean driveOneMeter() {
         return m_controller.getAButton();
-    }
-
-    @Override
-    public boolean shooterLock() {
-        return m_controller.getBButton();
-    }
-
-    @Override
-    public boolean actualCircle() {
-        return false;
     }
 
     @Override

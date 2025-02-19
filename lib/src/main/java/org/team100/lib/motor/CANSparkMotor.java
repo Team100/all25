@@ -115,20 +115,20 @@ public abstract class CANSparkMotor implements BareMotor {
      */
     @Override
     public void setVelocity(double motorRad_S, double motorAccelRad_S2, double motorTorqueNm) {
-        double motorRev_S = motorRad_S / (2 * Math.PI);
-        double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
-        double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;
+        final double motorRev_S = motorRad_S / (2 * Math.PI);
+        final double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
+        final double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;
 
-        double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
-        double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
-        double accelFFVolts = m_ff.accelFFVolts(motorRev_S2);
-        double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
+        final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
+        final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
+        final double accelFFVolts = m_ff.accelFFVolts(motorRev_S2);
+        final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
-        double kFF = frictionFFVolts + velocityFFVolts + accelFFVolts + torqueFFVolts;
+        final double kFF = frictionFFVolts + velocityFFVolts + accelFFVolts + torqueFFVolts;
 
-        double motorRev_M = motorRev_S * 60;
+        final double motorRev_M = motorRev_S * 60;
         Rev100.warn(() -> m_pidController.setReference(
-                motorRev_M, ControlType.kVelocity, ClosedLoopSlot.kSlot0, kFF, ArbFFUnits.kVoltage));
+                motorRev_M, ControlType.kVelocity, ClosedLoopSlot.kSlot1, kFF, ArbFFUnits.kVoltage));
 
         m_log_desired_speed.log(() -> motorRev_S);
         m_log_desired_accel.log(() -> motorRev_S2);
@@ -147,15 +147,15 @@ public abstract class CANSparkMotor implements BareMotor {
      */
     @Override
     public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorTorqueNm) {
-        double motorRev = motorPositionRad / (2 * Math.PI);
-        double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
-        double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;
+        final double motorRev = motorPositionRad / (2 * Math.PI);
+        final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
+        final double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;
 
-        double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
-        double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
-        double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
+        final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
+        final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
+        final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
-        double kFF = frictionFFVolts + velocityFFVolts + torqueFFVolts;
+        final double kFF = frictionFFVolts + velocityFFVolts + torqueFFVolts;
 
         Rev100.warn(() -> m_pidController.setReference(
                 motorRev, ControlType.kPosition, ClosedLoopSlot.kSlot0, kFF, ArbFFUnits.kVoltage));

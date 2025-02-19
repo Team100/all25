@@ -41,7 +41,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 class SwerveDrivePoseEstimator100Test {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
 
     private final SwerveModulePosition100 p0 = new SwerveModulePosition100(0, Optional.of(GeometryUtil.kRotationZero));
     private final SwerveModulePositions positionZero = new SwerveModulePositions(p0, p0, p0, p0);
@@ -129,7 +129,8 @@ class SwerveDrivePoseEstimator100Test {
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // not sure what's happening here
         verify(0.25, poseEstimator.get(0.02));
-        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // velocity is STILL unchanged, i.e. not consistent with the pose history, which
+        // is probably better
         // than making velocity reflect the camera noise.
         verifyVelocity(5.000, poseEstimator.get(0.02));
     }
@@ -163,7 +164,8 @@ class SwerveDrivePoseEstimator100Test {
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // camera does nothing
         verify(0.1, poseEstimator.get(0.02));
-        // velocity is STILL unchanged, i.e. not consistent with the post history, which is probably better
+        // velocity is STILL unchanged, i.e. not consistent with the post history, which
+        // is probably better
         // than making velocity reflect the camera noise.
         verifyVelocity(5.000, poseEstimator.get(0.02));
         // this is 0.1 towards the camera 1.0
@@ -774,7 +776,8 @@ class SwerveDrivePoseEstimator100Test {
 
             ChassisSpeeds chassisSpeeds = chassisSpeedsGenerator.apply(groundTruthState);
 
-            SwerveModuleStates moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+            SwerveModuleStates moduleStates = kinematics
+                    .toSwerveModuleStates(SwerveKinodynamics.discretize(chassisSpeeds, 0.02));
             SwerveModuleState100[] moduleStatesAll = moduleStates.all();
             SwerveModulePosition100[] positionsAll = positions.all();
             for (int i = 0; i < moduleStatesAll.length; i++) {
@@ -806,7 +809,7 @@ class SwerveDrivePoseEstimator100Test {
             }
             errorSum += error;
 
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("t %5.3f refX %5.3f refY %5.3f xhatX %5.3f xhatY %5.3f\n",
                         t,
                         groundTruthState.poseMeters.getX(),

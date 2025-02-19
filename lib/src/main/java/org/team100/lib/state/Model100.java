@@ -11,7 +11,8 @@ import edu.wpi.first.math.MathUtil;
  * The usual state-space representation would be X = (x,v) and Xdot = (v,a).
  * Units are meters, radians, and seconds.
  * 
- * TODO: include modulus here: the "x" is always either periodic (rotary) or not.
+ * TODO: include modulus here: the "x" is always either periodic (rotary) or
+ * not.
  */
 public class Model100 {
     private final double m_x;
@@ -64,9 +65,14 @@ public class Model100 {
                 MathUtil.isNear(m_v, other.m_v, tolerance);
     }
 
+    public boolean near(Model100 other, double xTolerance, double vTolerance) {
+        return MathUtil.isNear(m_x, other.m_x, xTolerance) &&
+                MathUtil.isNear(m_v, other.m_v, vTolerance);
+    }
+
     @Override
     public String toString() {
-        return String.format("Model100(X %5.3f V %5.3f)", m_x, m_v);
+        return String.format("Model100(X %11.8f V %11.8f)", m_x, m_v);
     }
 
     @Override

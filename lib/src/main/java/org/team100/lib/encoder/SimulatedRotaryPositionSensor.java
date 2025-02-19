@@ -11,6 +11,10 @@ import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.MathUtil;
 
+/**
+ * Integrates mechanism velocity to find position. If you use this in tests,
+ * you'll have to control the clock somehow, e.g. by using {@link Timeless}.
+ */
 public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final RotaryMechanism m_mechanism;
     // LOGGERS
@@ -31,6 +35,10 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_log_rate = child.optionalDoubleLogger(Level.TRACE, "rate");
     }
 
+    /**
+     * Integrates the mechanism velocity between the previous call and the current
+     * instant.
+     */
     @Override
     public OptionalDouble getPositionRad() {
         double nowS = Takt.get();

@@ -1,6 +1,6 @@
 package org.team100.lib.commands.drivetrain.for_testing;
 
-import org.team100.lib.controller.drivetrain.HolonomicFieldRelativeController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -24,8 +24,8 @@ public class Spin extends Command implements Glassy {
     private static final double kMaxSpeed = 0.5;
     private static final double kAccel = 0.5;
 
-    private final SwerveDriveSubsystem m_swerve;
-    private final HolonomicFieldRelativeController m_controller;
+    private final SwerveDriveSubsystem m_drive;
+    private final SwerveController m_controller;
 
     Translation2d m_center;
     double m_initialRotation;
@@ -35,16 +35,16 @@ public class Spin extends Command implements Glassy {
 
     public Spin(
             SwerveDriveSubsystem swerve,
-            HolonomicFieldRelativeController controller) {
-        m_swerve = swerve;
+            SwerveController controller) {
+        m_drive = swerve;
         m_controller = controller;
-        addRequirements(m_swerve);
+        addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
         m_controller.reset();
-        Pose2d currentPose = m_swerve.getPose();
+        Pose2d currentPose = m_drive.getPose();
         m_center = currentPose.getTranslation();
         m_initialRotation = currentPose.getRotation().getRadians();
         m_speedRad_S = 0;
@@ -74,18 +74,18 @@ public class Spin extends Command implements Glassy {
         }
 
         FieldRelativeVelocity fieldRelativeTarget = m_controller.calculate(
-                m_swerve.getState(), m_currentReference, nextReference);
+                m_drive.getState(), m_currentReference, nextReference);
         m_currentReference = nextReference;
 
         // force dx and dy to zero, clamp dtheta
         FieldRelativeVelocity clamped = new FieldRelativeVelocity(0, 0,
                 MathUtil.clamp(fieldRelativeTarget.theta(), -kMaxSpeed, kMaxSpeed));
-        m_swerve.driveInFieldCoords(clamped);
+        m_drive.driveInFieldCoords(clamped);
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_swerve.stop();
+        m_drive.stop();
     }
 
 }

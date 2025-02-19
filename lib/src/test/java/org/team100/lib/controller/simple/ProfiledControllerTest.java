@@ -1,5 +1,7 @@
 package org.team100.lib.controller.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -12,7 +14,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class ProfiledControllerTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     /** Double integrator system simulator, kinda */
@@ -44,6 +46,24 @@ public class ProfiledControllerTest {
         }
     }
 
+    @Test
+    void test2() {
+        Profile100 p = new TrapezoidProfile100(100, 100, 0.01);
+        // Profile100 p = new ProfileWPI(100, 100);
+        final double k1 = 5.0;
+        final double k2 = 1.0;
+        Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
+
+        ProfiledController controller = new ProfiledController(p, f, x -> x);
+        Model100 measurement = new Model100(0, 0);
+        controller.init(measurement);
+        Model100 goal = new Model100(0.1, 0);
+        ProfiledController.Result result = controller.calculate(measurement, goal);
+        // this is for the *next* timestep so there should be non-zero velocity.
+        assertEquals(2, result.feedforward().v(), 1e-12);
+
+    }
+
     /**
      * I think we have a habit of mixing up previous-step, current-step, and
      * future-step quantities when writing profile/control loops. This verifies the
@@ -73,14 +93,14 @@ public class ProfiledControllerTest {
         sim.y = 0;
         sim.yDot = 0;
         double u_FB = 0;
-        if (kPrint)
+        if (DEBUG)
             Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         for (double currentTime = 0.0; currentTime < 3; currentTime += 0.02) {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            if (kPrint)
+            if (DEBUG)
                 Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                         currentTime,
                         setpointControl.x(),
@@ -119,11 +139,11 @@ public class ProfiledControllerTest {
         Control100 setpointControl = new Control100();
 
         Model100 setpointModel = initial;
-        if (kPrint)
+        if (DEBUG)
             Util.printf(" t,      x,      v,      a,      y,      ydot,  fb\n");
 
         // log initial state
-        if (kPrint)
+        if (DEBUG)
             Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                     0.0, setpointModel.x(), setpointModel.v(), 0.0, sim.y, sim.yDot, 0.0);
 
@@ -132,7 +152,7 @@ public class ProfiledControllerTest {
             // at the beginning of the time step, we show the current measurement
             // and the setpoint calculated in the previous time step (which applies to this
             // one)
-            if (kPrint)
+            if (DEBUG)
                 Util.printf("%6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f, %6.3f\n",
                         currentTime,
                         setpointControl.x(),

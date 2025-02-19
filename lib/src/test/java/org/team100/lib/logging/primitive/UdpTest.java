@@ -16,7 +16,7 @@ import org.team100.lib.util.Util;
 
 /** Timing is on my desktop, real address (not localhost), no listener. */
 class UdpTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
     private static final int PACKET_BUF_SIZE = 1472;
     private static final byte[] SOCKET_ADDR = new byte[] { 10, 1, 0, 16 };
     private static final int PORT = 1995;
@@ -50,7 +50,7 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("1: duration sec %5.3f\n", (t1 - t0));
             Util.printf("1: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }
@@ -78,7 +78,7 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("2: duration sec %5.3f\n", (t1 - t0));
             Util.printf("2: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }
@@ -109,7 +109,7 @@ class UdpTest {
             }
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("3: duration sec %5.3f\n", (t1 - t0));
             Util.printf("3: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }
@@ -135,7 +135,7 @@ class UdpTest {
             channel.send(m_bb, sockAddr);
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("4: duration sec %5.3f\n", (t1 - t0));
             Util.printf("4: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }
@@ -160,7 +160,7 @@ class UdpTest {
             channel.send(m_bb, sockAddr);
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("5: duration sec %5.3f\n", (t1 - t0));
             Util.printf("5: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }
@@ -186,7 +186,7 @@ class UdpTest {
             channel.write(m_bb);
         }
         double t1 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("6: duration sec %5.3f\n", (t1 - t0));
             Util.printf("6: duration per row us %5.3f\n", 1000000 * (t1 - t0) / N);
         }

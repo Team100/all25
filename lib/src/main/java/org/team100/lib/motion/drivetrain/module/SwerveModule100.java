@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * Feedforward and feedback control of a single module.
  */
 public abstract class SwerveModule100 implements Glassy {
+    private static final boolean DEBUG = false;
     private final LinearVelocityServo m_driveServo;
     private final AngularPositionServo m_turningServo;
     private Rotation2d m_previousPosition = new Rotation2d();
@@ -52,6 +53,7 @@ public abstract class SwerveModule100 implements Glassy {
         Rotation2d currentAngle = new Rotation2d(position.getAsDouble());
         SwerveModuleState100 optimized = SwerveModuleState100.optimize(
                 desiredState, currentAngle);
+        // Util.printf("optimized %s\n", optimized);
         setRawDesiredState(optimized);
     }
 
@@ -59,13 +61,18 @@ public abstract class SwerveModule100 implements Glassy {
      * Does not optimize.
      * 
      * Works fine with empty angles.
+     * 
+     * Turning servo commands always include zero velocity.
      */
     void setRawDesiredState(SwerveModuleState100 desiredState) {
+        if (DEBUG)
+            Util.printf("raw desired state %s\n", desiredState);
         if (desiredState.angle().isEmpty()) {
             desiredState = new SwerveModuleState100(
                     desiredState.speedMetersPerSecond(), Optional.of(m_previousPosition));
         }
         m_driveServo.setVelocityM_S(desiredState.speedMetersPerSecond());
+        // Util.printf("desired angle %f\n", desiredState.angle().get().getRadians());
         m_turningServo.setPosition(desiredState.angle().get().getRadians(), 0);
     }
 
@@ -133,7 +140,9 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     public OptionalDouble turningPosition() {
-        return m_turningServo.getPosition();
+        OptionalDouble position = m_turningServo.getPosition();
+        // Util.printf("position %s\n", position);
+        return position;
     }
 
     public OptionalDouble turningVelocity() {
@@ -145,7 +154,9 @@ public abstract class SwerveModule100 implements Glassy {
     }
 
     boolean atGoal() {
-        return m_turningServo.atGoal();
+        boolean atGoal = m_turningServo.atGoal();
+        // Util.printf("module atgoal %b\n", atGoal);
+        return atGoal;
     }
 
     void stop() {

@@ -12,7 +12,7 @@ import org.team100.lib.util.Util;
 
 /** Learning how to use ByteBuffer encoders. */
 class ByteBufferTest {
-    private static final boolean kPrint = false;
+    private static final boolean DEBUG = false;
 
     @Test
     void testBuffer() {
@@ -49,7 +49,7 @@ class ByteBufferTest {
                 b[0] = (byte) 1;
             }
             double t1 = Takt.actual();
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("array fill duration (ms) %5.1f\n", 1e3 * (t1 - t0));
                 Util.printf("array fill per op (ns)   %5.1f\n", 1e9 * (t1 - t0) / N);
             }
@@ -64,7 +64,7 @@ class ByteBufferTest {
                 b[0] = (byte) 1;
             }
             double t1 = Takt.actual();
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("new array duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
                 Util.printf("new array per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
             }
@@ -78,7 +78,7 @@ class ByteBufferTest {
                 bb.put((byte) 1);
             }
             double t1 = Takt.actual();
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("buf wrap duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
                 Util.printf("buf wrap per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
             }
@@ -91,7 +91,7 @@ class ByteBufferTest {
                 b.put((byte) 1);
             }
             double t1 = Takt.actual();
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
                 Util.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
             }
@@ -107,7 +107,7 @@ class ByteBufferTest {
 
             }
             double t1 = Takt.actual();
-            if (kPrint) {
+            if (DEBUG) {
                 Util.printf("new buf duration (ms)  %5.1f\n", 1e3 * (t1 - t0));
                 Util.printf("new buf per op (ns)    %5.1f\n", 1e9 * (t1 - t0) / N);
             }
@@ -129,7 +129,7 @@ class ByteBufferTest {
             }
         }
         double t2 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("string duration sec %.3f\n", t2 - t1);
             Util.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
         }
@@ -155,7 +155,7 @@ class ByteBufferTest {
             }
         }
         double t2 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("total %f\n", total);
             Util.printf("string duration sec %.3f\n", t2 - t1);
             Util.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
@@ -184,10 +184,10 @@ class ByteBufferTest {
                 total += db.get();
             }
         }
-        if (kPrint)
+        if (DEBUG)
             Util.printf("total %f\n", total);
         double t2 = Takt.actual();
-        if (kPrint) {
+        if (DEBUG) {
             Util.printf("string duration sec %.3f\n", t2 - t1);
             Util.printf("string duration per row ns %.3f\n", 1e9 * (t2 - t1) / (ITERATIONS * N));
         }

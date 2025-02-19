@@ -67,6 +67,13 @@ class DriveUtilTest {
             Twist2d t2 = m_kinematics.toTwist2d(p);
             assertEquals(t, t2);
         }
+        {
+            // turning and moving really fast
+            Twist2d t = new Twist2d(10, 10, 10);
+            SwerveModuleDeltas p = m_kinematics.toSwerveModuleDelta(t);
+            Twist2d t2 = m_kinematics.toTwist2d(p);
+            assertEquals(t, t2);
+        }
         Random random = new Random(0);
         for (int i = 0; i < 500; ++i) {
             // inverse always works

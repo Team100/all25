@@ -38,28 +38,27 @@ public class ReduxGyro implements Gyro {
 
         // Both position and velocity should be reasonably fresh.
         CanandgyroSettings settings = new CanandgyroSettings();
-        settings.setAngularPositionFramePeriod(10);
-        settings.setAngularVelocityFramePeriod(10);
+        settings.setAngularPositionFramePeriod(0.01);
+        settings.setAngularVelocityFramePeriod(0.01);
         if (!m_gyro.setSettings(settings, 0.1)) {
             Util.warn("!!!!!!!!!!!! GYRO SETTING FAILED! !!!!!!!!!!!!");
         }
-
         m_gyro.clearStickyFaults();
         m_gyro.setYaw(0);
+
         m_log_yaw = child.rotation2dLogger(Level.TRACE, "Yaw NWU (rad)");
         m_log_yaw_rate = child.doubleLogger(Level.TRACE, "Yaw Rate NWU (rad_s)");
         m_log_pitch = child.rotation2dLogger(Level.TRACE, "Pitch NWU (rad)");
         m_log_roll = child.rotation2dLogger(Level.TRACE, "Roll NWU (rad)");
-
     }
 
     /** This is latency-compensated to the current Takt time. */
     @Override
     public Rotation2d getYawNWU() {
-        QuaternionFrame q = m_gyro.getAngularPositionFrame();
-        double t = q.getTimestamp();
-        double yaw = q.getYaw();
-        double rate = m_gyro.getAngularVelocityYaw();
+        final QuaternionFrame q = m_gyro.getAngularPositionFrame();
+        final double t = q.getTimestamp();
+        final double yaw = q.getYaw();
+        final double rate = m_gyro.getAngularVelocityYaw();
         double dt = Takt.get() - t;
         // it's ok if takt is slightly behind the gyro, in case a CAN packet came in
         // before we got here.
@@ -71,15 +70,15 @@ public class ReduxGyro implements Gyro {
             Util.warn("Gyro data is very old!");
             dt = 0;
         }
-        double correctedYaw = yaw + rate * dt;
-        Rotation2d yawNWU = Rotation2d.fromRotations(correctedYaw);
+        final double correctedYaw = yaw + rate * dt;
+        final Rotation2d yawNWU = Rotation2d.fromRotations(correctedYaw);
         m_log_yaw.log(() -> yawNWU);
         return yawNWU;
     }
 
     @Override
     public double getYawRateNWU() {
-        double yawRateRad_S = Units.rotationsToRadians(m_gyro.getAngularVelocityYaw());
+        final double yawRateRad_S = Units.rotationsToRadians(m_gyro.getAngularVelocityYaw());
         m_log_yaw_rate.log(() -> yawRateRad_S);
         return yawRateRad_S;
     }
@@ -87,7 +86,7 @@ public class ReduxGyro implements Gyro {
     /** Not latency-compensated. */
     @Override
     public Rotation2d getPitchNWU() {
-        Rotation2d pitchNWU = Rotation2d.fromRotations(m_gyro.getPitch());
+        final Rotation2d pitchNWU = Rotation2d.fromRotations(m_gyro.getPitch());
         m_log_pitch.log(() -> pitchNWU);
         return pitchNWU;
     }
@@ -95,7 +94,7 @@ public class ReduxGyro implements Gyro {
     /** Not latency-compensated. */
     @Override
     public Rotation2d getRollNWU() {
-        Rotation2d rollNWU = Rotation2d.fromRotations(m_gyro.getRoll());
+        final Rotation2d rollNWU = Rotation2d.fromRotations(m_gyro.getRoll());
         m_log_roll.log(() -> rollNWU);
         return rollNWU;
     }
@@ -104,7 +103,7 @@ public class ReduxGyro implements Gyro {
     public void periodic() {
         if (m_gyro.isCalibrating())
             Util.println("Redux Gyro Calibrating ......");
-        CanandgyroFaults activeFaults = m_gyro.getActiveFaults();
+        final CanandgyroFaults activeFaults = m_gyro.getActiveFaults();
         if (activeFaults.faultsValid())
             Util.warn("Redux Gyro fault!");
 

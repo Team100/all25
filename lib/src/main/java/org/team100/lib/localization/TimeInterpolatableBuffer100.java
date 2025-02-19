@@ -8,10 +8,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.interpolation.Interpolatable;
 
@@ -21,6 +18,8 @@ import edu.wpi.first.math.interpolation.Interpolatable;
  * The buffer is never empty, so get() always returns *something*.
  */
 public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> implements Glassy {
+    private static final boolean DEBUG = false;
+
     private final double m_historyS;
     private final NavigableMap<Double, T> m_pastSnapshots = new ConcurrentSkipListMap<>();
 
@@ -32,18 +31,11 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
      * "read" (non-exclusive) lock.
      */
     private final ReadWriteLock m_lock = new ReentrantReadWriteLock();
-    private final StringLogger m_log_bottom;
-    private final StringLogger m_log_top;
-    private final DoubleLogger m_log_lerpTime;
 
-    public TimeInterpolatableBuffer100(LoggerFactory parent, double historyS, double timeS, T initialValue) {
-        LoggerFactory child = parent.child(this);
+    public TimeInterpolatableBuffer100(double historyS, double timeS, T initialValue) {
         m_historyS = historyS;
         // no lock needed in constructor
         m_pastSnapshots.put(timeS, initialValue);
-        m_log_bottom = child.stringLogger(Level.TRACE, "bottom");
-        m_log_top = child.stringLogger(Level.TRACE, "top");
-        m_log_lerpTime = child.doubleLogger(Level.TRACE, "lerptime");
     }
 
     /**
@@ -89,7 +81,8 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         // Special case for when the requested time is the same as a sample
         T nowEntry = m_pastSnapshots.get(timeSeconds);
         if (nowEntry != null) {
-            m_log_lerpTime.log(() -> 0.0);
+            if (DEBUG)
+                Util.printf("record for now %.2f\n", timeSeconds);
             return nowEntry;
         }
         Entry<Double, T> topBound = null;
@@ -104,15 +97,9 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         }
         // Return the opposite bound if the other is null
         if (topBound == null) {
-            String bottomValue = bottomBound.getValue().toString();
-            m_log_bottom.log(() -> bottomValue);
-            m_log_lerpTime.log(() -> 0.0);
             return bottomBound.getValue();
         }
         if (bottomBound == null) {
-            String topValue = topBound.getValue().toString();
-            m_log_top.log(() -> topValue);
-            m_log_lerpTime.log(() -> 1.0);
             return topBound.getValue();
         }
 
@@ -121,15 +108,11 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         // (the difference between the current time and bottom bound) and (the
         // difference between top and bottom bounds).
 
-        String bottomValue = bottomBound.getValue().toString();
-        m_log_bottom.log(() -> bottomValue);
-        String topValue = topBound.getValue().toString();
-        m_log_top.log(() -> topValue);
         double timeSinceBottom = timeSeconds - bottomBound.getKey();
         double timeSpan = topBound.getKey() - bottomBound.getKey();
         double timeFraction = timeSinceBottom / timeSpan;
-        m_log_lerpTime.log(() -> timeFraction);
         return bottomBound.getValue().interpolate(topBound.getValue(), timeFraction);
+
     }
 
     public SortedMap<Double, T> tailMap(double t, boolean inclusive) {

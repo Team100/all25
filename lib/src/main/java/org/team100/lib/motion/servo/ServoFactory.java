@@ -14,7 +14,6 @@ import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
-import org.team100.lib.motor.BareMotor;
 import org.team100.lib.motor.CANSparkMotor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.NeoCANSparkMotor;
@@ -70,7 +69,7 @@ public class ServoFactory {
             double maxAccel,
             double maxDecel) {
         // motor speed is rad/s
-        BareMotor motor = new SimulatedBareMotor(parent, 600);
+        SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
         LinearMechanism mech = new SimpleLinearMechanism(
                 motor,
                 new SimulatedBareEncoder(parent, motor),
@@ -124,6 +123,10 @@ public class ServoFactory {
                 controller);
     }
 
+    /**
+     * Uses simulated position sensors, must be used with clock control (e.g.
+     * {@link Timeless}).
+     */
     public static AngularPositionServo simulatedAngleServo(
             LoggerFactory parent,
             double maxVelocity,

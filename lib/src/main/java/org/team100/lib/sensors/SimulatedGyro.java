@@ -28,9 +28,7 @@ public class SimulatedGyro implements Gyro {
     @Override
     public Rotation2d getYawNWU() {
         SwerveModuleStates states = m_moduleCollection.states();
-        // discretization is not necessary here because we only use the rotation, which
-        // is invariant
-        ChassisSpeeds speeds = m_kinodynamics.toChassisSpeeds(states);
+        ChassisSpeeds speeds = m_kinodynamics.toChassisSpeedsWithDiscretization(states, 0.02);
         double now = Takt.get();
         double dt = now - m_time;
         m_heading += speeds.omegaRadiansPerSecond * dt;
@@ -41,9 +39,7 @@ public class SimulatedGyro implements Gyro {
     @Override
     public double getYawRateNWU() {
         SwerveModuleStates states = m_moduleCollection.states();
-        // discretization is not necessary here because we only use the rotation, which
-        // is invariant
-        ChassisSpeeds speeds = m_kinodynamics.toChassisSpeeds(states);
+        ChassisSpeeds speeds = m_kinodynamics.toChassisSpeedsWithDiscretization(states, 0.02);
         return speeds.omegaRadiansPerSecond;
     }
 
