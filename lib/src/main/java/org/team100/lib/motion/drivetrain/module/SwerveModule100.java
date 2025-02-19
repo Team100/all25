@@ -134,9 +134,12 @@ public abstract class SwerveModule100 implements Glassy {
             Util.warn("no turning position measurement!");
             return null;
         }
+        double drive_M = driveDistance.getAsDouble();
+        double turn_rot = turningPosition.getAsDouble();
+        drive_M -= .0975*(turn_rot)/3.8;
         return new SwerveModulePosition100(
-                driveDistance.getAsDouble(),
-                Optional.of(new Rotation2d(turningPosition.getAsDouble())));
+                drive_M,
+                Optional.of(new Rotation2d(turn_rot)));
     }
 
     public OptionalDouble turningPosition() {
