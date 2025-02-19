@@ -1,4 +1,5 @@
-package org.team100.lib.swerve;
+package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,7 +21,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDeltas;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
-import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SimulatedSwerveModule100;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
