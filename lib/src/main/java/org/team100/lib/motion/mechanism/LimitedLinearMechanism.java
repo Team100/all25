@@ -47,7 +47,7 @@ public class LimitedLinearMechanism implements LinearMechanism {
     }
 
     @Override
-    public void setPosition(double outputPositionM, double outputVelocityM_S, double outputForceN) {
+    public void setPosition(double outputPositionM, double outputVelocityM_S, double outputAccelM_S2, double outputForceN) {
         if (outputPositionM < m_minPositionM) {
             m_delegate.stop();
             return;
@@ -56,7 +56,7 @@ public class LimitedLinearMechanism implements LinearMechanism {
             m_delegate.stop();
             return;
         }
-        m_delegate.setPosition(outputPositionM, outputVelocityM_S, outputForceN);
+        m_delegate.setPosition(outputPositionM, outputVelocityM_S, outputAccelM_S2, outputForceN);
     }
 
     /** Use for homing. */

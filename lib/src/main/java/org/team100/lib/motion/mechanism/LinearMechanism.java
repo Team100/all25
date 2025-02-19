@@ -20,6 +20,7 @@ public interface LinearMechanism {
     void setPosition(
             double outputPositionM,
             double outputVelocityM_S,
+            double outputAccelM_S2,
             double outputForceN);
 
     OptionalDouble getVelocityM_S();

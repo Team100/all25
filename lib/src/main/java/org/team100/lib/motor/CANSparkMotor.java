@@ -146,7 +146,7 @@ public abstract class CANSparkMotor implements BareMotor {
      * Motor revolutions wind up, so setting 0 revs and 1 rev are different.
      */
     @Override
-    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorTorqueNm) {
+    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorAccelRad_S2, double motorTorqueNm) {
         final double motorRev = motorPositionRad / (2 * Math.PI);
         final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
         final double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;

@@ -64,7 +64,7 @@ public class SimulatedBareMotor implements BareMotor {
 
     /** ignores velocity and torque */
     @Override
-    public void setPosition(double position, double velocity, double torque) {
+    public void setPosition(double position, double velocity, double accel, double torque) {
         double now = Takt.get();
         double dt = now - m_time;
         double dx = position - m_position;

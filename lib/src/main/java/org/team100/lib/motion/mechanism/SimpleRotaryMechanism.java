@@ -70,6 +70,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         m_motor.setPosition(
                 outputPositionRad * m_gearRatio,
                 outputVelocityRad_S * m_gearRatio,
+                0,
                 outputTorqueNm / m_gearRatio);
     }
 

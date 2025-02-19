@@ -44,7 +44,7 @@ public class BareMotorController100 implements BareMotor {
 
     /** MotorControllers do not support positional control. */
     @Override
-    public void setPosition(double position, double velocity, double torque) {
+    public void setPosition(double position, double velocity, double accel, double torque) {
         throw new UnsupportedOperationException();
     }
 

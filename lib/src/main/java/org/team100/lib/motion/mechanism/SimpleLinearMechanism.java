@@ -50,10 +50,12 @@ public class SimpleLinearMechanism implements LinearMechanism {
     public void setPosition(
             double outputPositionM,
             double outputVelocityM_S,
+            double outputAccelM_S2,
             double outputForceN) {
         m_motor.setPosition(
                 (outputPositionM / m_wheelRadiusM) * m_gearRatio,
                 (outputVelocityM_S / m_wheelRadiusM) * m_gearRatio,
+                (outputAccelM_S2 / m_wheelRadiusM) * m_gearRatio,
                 outputForceN * m_wheelRadiusM / m_gearRatio);
     }
 
