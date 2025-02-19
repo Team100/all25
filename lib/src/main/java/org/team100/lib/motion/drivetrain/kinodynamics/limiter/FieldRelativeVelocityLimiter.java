@@ -3,11 +3,14 @@ package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.util.Util;
 
 /**
  * Return feasible velocity, using a simple worst-case model (diagonal course).
  */
 public class FieldRelativeVelocityLimiter {
+    private static final boolean DEBUG = false;
+
     private final BatterySagSpeedLimit m_limits;
 
     public FieldRelativeVelocityLimiter(BatterySagSpeedLimit limit) {
@@ -44,12 +47,15 @@ public class FieldRelativeVelocityLimiter {
 
         double v = maxOmega * xySpeed * maxV / (maxOmega * xySpeed + Math.abs(speeds.theta()) * maxV);
 
-        double vRatio = v / xySpeed;
+        double scale = v / xySpeed;
+
+        if (DEBUG)
+            Util.printf("FieldRelativeVelocityLimiter proportional scale %.5f\n", scale);
 
         return new FieldRelativeVelocity(
-                vRatio * speeds.x(),
-                vRatio * speeds.y(),
-                vRatio * speeds.theta());
+                scale * speeds.x(),
+                scale * speeds.y(),
+                scale * speeds.theta());
     }
 
     /** Scales translation to accommodate the rotation. */
@@ -60,6 +66,9 @@ public class FieldRelativeVelocityLimiter {
         double xyRatio = Math.min(1, xySpeed / maxV);
         double ratio = Math.min(1 - oRatio, xyRatio);
         double xyAngle = Math.atan2(speeds.y(), speeds.x());
+
+        if (DEBUG)
+            Util.printf("FieldRelativeVelocityLimiter rotation ratio %.5f\n", ratio);
 
         return new FieldRelativeVelocity(
                 ratio * maxV * Math.cos(xyAngle),

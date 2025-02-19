@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
@@ -131,7 +131,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Util.printf(
                     "driveInFieldCoordsVerbatim() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
                     theta.getRadians(),
-                    GeometryUtil.getCourse(targetChassisSpeeds).get().getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).orElse(new Rotation2d()).getRadians(),
                     targetChassisSpeeds.vxMetersPerSecond,
                     targetChassisSpeeds.vyMetersPerSecond,
                     targetChassisSpeeds.omegaRadiansPerSecond);

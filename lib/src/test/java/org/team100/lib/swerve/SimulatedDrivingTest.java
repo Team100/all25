@@ -157,7 +157,7 @@ public class SimulatedDrivingTest implements Timeless {
         collection.reset();
         // +x and spinning. course is always zero.
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 50; ++i) {
             Util.printf("\nstep time ...\n");
             stepTime();
             Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());

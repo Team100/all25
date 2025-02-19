@@ -3,6 +3,7 @@ package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 import java.util.function.DoubleSupplier;
 
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
@@ -15,6 +16,8 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
  * wiring resistance, but it's ok to neglect that effect.
  */
 public class BatterySagSpeedLimit {
+    private static final boolean DEBUG = false;
+
     private final SwerveKinodynamics m_dynamics;
     private final DoubleSupplier m_voltage;
     private final InterpolatingDoubleTreeMap m_table;
@@ -35,11 +38,15 @@ public class BatterySagSpeedLimit {
 
     public double getMaxDriveVelocityM_S() {
         double scale = m_table.get(m_voltage.getAsDouble());
+                if (DEBUG)
+            Util.printf("BatterySagSpeedLimit velocity scale %.5f\n", scale);
         return scale * m_dynamics.getMaxDriveVelocityM_S();
     }
 
     public double getMaxAngleSpeedRad_S() {
         double scale = m_table.get(m_voltage.getAsDouble());
+        if (DEBUG)
+        Util.printf("BatterySagSpeedLimit  omega scale %.5f\n", scale);
         return scale * m_dynamics.getMaxAngleSpeedRad_S();
     }
 

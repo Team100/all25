@@ -126,6 +126,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
     /** Use a real drivetrain to observe the effect on the motors etc. */
     @Test
     void testRealDrive() {
+        fixture.collection.reset();
         // 1m along +x, no rotation.
         Trajectory100 trajectory = maker.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
@@ -175,7 +176,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // etc
         stepTime();
         command.execute();
-        assertEquals(-5, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
     }
 

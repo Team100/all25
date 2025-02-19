@@ -126,6 +126,7 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     /** Use a real drivetrain to observe the effect on the motors etc. */
     @Test
     void testRealDrive() {
+        fixture.collection.reset();
         // this test depends on the behavior of the setpoint generator, so make sure
         // it's on (otherwise it's in whatever state the previous test left it)
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
@@ -175,7 +176,7 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
         // etc
         stepTime();
         command.execute();
-        assertEquals(-5, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
     }
 
