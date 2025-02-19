@@ -27,7 +27,7 @@ public class FieldRelativeAccelerationLimiter {
         double accelLimit = SwerveUtil.getAccelLimit(m_limits, prev, target);
         double scale = Math.min(1, accelLimit / a);
         if (DEBUG)
-            Util.printf("FieldRelativeAccelerationLimiter scale %.5f\n", scale);
+            Util.printf("FieldRelativeAccelerationLimiter prev %s target %s scale %.5f\n", prev, target, scale);
         return prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
 
     }

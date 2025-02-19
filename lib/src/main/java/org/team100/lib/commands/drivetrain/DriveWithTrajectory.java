@@ -25,11 +25,11 @@ public class DriveWithTrajectory extends Command implements Glassy {
     private ReferenceController m_referenceController;
 
     public DriveWithTrajectory(
-            DriveSubsystemInterface swerve,
+            DriveSubsystemInterface drive,
             SwerveController controller,
             Trajectory100 trajectory,
             TrajectoryVisualization viz) {
-        m_drive = swerve;
+        m_drive = drive;
         m_controller = controller;
         m_trajectory = trajectory;
         m_viz = viz;
@@ -44,6 +44,7 @@ public class DriveWithTrajectory extends Command implements Glassy {
                 new TrajectoryReference(m_trajectory),
                 false);
         m_viz.setViz(m_trajectory);
+        m_drive.resetLimiter();
     }
 
     @Override

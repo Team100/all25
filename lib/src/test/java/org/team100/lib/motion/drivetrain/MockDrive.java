@@ -42,4 +42,9 @@ public class MockDrive implements DriveSubsystemInterface {
         driveInFieldCoords(setpoint);
     }
 
+    @Override
+    public void resetLimiter() {
+        //
+    }
+
 }

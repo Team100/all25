@@ -21,9 +21,8 @@ public class SwerveLimiterTest {
         {
             // motionless
             FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
-            FieldRelativeVelocity setpoint = limiter.apply(
-                    prevSetpoint,
-                    target);
+            limiter.updateSetpoint(prevSetpoint);
+            FieldRelativeVelocity setpoint = limiter.apply(target);
             assertTrue(prevSetpoint.angle().isEmpty());
             assertTrue(setpoint.angle().isEmpty());
         }
@@ -31,20 +30,12 @@ public class SwerveLimiterTest {
             // at max speed, 45 to the left and spinning
             FieldRelativeVelocity speed = new FieldRelativeVelocity(2.640, 2.640, 3.733);
             FieldRelativeVelocity prevSetpoint = speed;
-            FieldRelativeVelocity setpoint = limiter.apply(
-                    prevSetpoint,
-                    target);
+            limiter.updateSetpoint(prevSetpoint);
+            FieldRelativeVelocity setpoint = limiter.apply(target);
             assertEquals(Math.PI / 4, prevSetpoint.angle().get().getRadians(), 1e-12);
             assertEquals(3.733, prevSetpoint.norm(), kDelta);
             assertEquals(3.733, prevSetpoint.theta(), kDelta);
-            //
-            //
-            // ##############
-            // ## this is the bug
-            // ##############
-            //
-            //
-            assertEquals(0.7853981633974483, setpoint.angle().get().getRadians(), 1e-12);
+            assertEquals(Math.PI / 4, setpoint.angle().get().getRadians(), 1e-12);
             assertEquals(3.733, setpoint.norm(), 0.2);
             assertEquals(2.5245058924061974, setpoint.x(), 1e-12);
             assertEquals(2.5206083004022424, setpoint.y(), 0.2);
@@ -56,11 +47,6 @@ public class SwerveLimiterTest {
     @Test
     void courseInvariantRealistic() {
         FieldRelativeVelocity targetSpeed = new FieldRelativeVelocity(2, 0, 3.5);
-
-        // this is the current estimated pose heading. we've been driving for one time
-        // step,
-        // so we rotated a tiny bit.
-        double headingRad = 0.005716666136460628;
 
         // not going very fast. note the previous instantaneous robot-relative speed has
         // no "y" component at all, because at the previous time, we had heading of zero
@@ -75,7 +61,6 @@ public class SwerveLimiterTest {
 
         // field-relative is +x, field-relative course is zero
 
-        // the robot-relative course is the opposite of the heading
         assertEquals(0, targetSpeed.angle().get().getRadians(), 1e-6);
         // the norm is the same as the input
         assertEquals(2, targetSpeed.norm(), 1e-12);
@@ -84,14 +69,10 @@ public class SwerveLimiterTest {
         assertEquals(3.5, targetSpeed.theta(), 1e-12);
 
         SwerveLimiter limiter = new SwerveLimiter(kKinematicLimits, () -> 12);
-        FieldRelativeVelocity setpoint = limiter.apply(prevSpeed, targetSpeed);
+        limiter.updateSetpoint(prevSpeed);
+        FieldRelativeVelocity setpoint = limiter.apply(targetSpeed);
 
-        // since the real heading of the robot can't change, the course here needs to
-        // still be exactly
-        // the opposite of the field-relative heading. if not, veering ensues.
-        // here we're using the lerp because the projection is too far away,
-        // i.e. this is wrong.
-        assertEquals(0, setpoint.angle().get().getRadians(), 1e-6);
+        assertEquals(0, setpoint.angle().get().getRadians(), 1e-12);
         assertEquals(0.3266666633333334, setpoint.norm(), 1e-12);
         assertEquals(0.5716666631110103, setpoint.theta(), 1e-12);
 
@@ -109,7 +90,8 @@ public class SwerveLimiterTest {
         assertEquals(0, target.theta(), kDelta);
 
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
-        FieldRelativeVelocity setpoint = limiter.apply(prevSetpoint, target);
+        limiter.updateSetpoint(prevSetpoint);
+        FieldRelativeVelocity setpoint = limiter.apply(target);
         assertEquals(0, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
@@ -128,7 +110,8 @@ public class SwerveLimiterTest {
         assertEquals(0, target.theta(), kDelta);
 
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
-        FieldRelativeVelocity setpoint = limiter.apply(prevSetpoint, target);
+        limiter.updateSetpoint(prevSetpoint);
+        FieldRelativeVelocity setpoint = limiter.apply(target);
         assertEquals(1, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
@@ -147,7 +130,8 @@ public class SwerveLimiterTest {
         assertEquals(1, target.theta(), kDelta);
 
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
-        FieldRelativeVelocity setpoint = limiter.apply(prevSetpoint, target);
+        limiter.updateSetpoint(prevSetpoint);
+        FieldRelativeVelocity setpoint = limiter.apply(target);
         assertEquals(0, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(1, setpoint.theta(), kDelta);
@@ -167,7 +151,8 @@ public class SwerveLimiterTest {
 
         // this should do nothing since the limits are so high
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
-        FieldRelativeVelocity setpoint = limiter.apply(prevSetpoint, target);
+        limiter.updateSetpoint(prevSetpoint);
+        FieldRelativeVelocity setpoint = limiter.apply(target);
         assertEquals(5, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(25, setpoint.theta(), kDelta);
@@ -193,7 +178,8 @@ public class SwerveLimiterTest {
 
         // the first setpoint should be accel limited: 10 m/s^2, 0.02 sec,
         // so v = 0.2 m/s
-        setpoint = limiter.apply(setpoint, desiredSpeeds);
+        limiter.updateSetpoint(setpoint);
+        setpoint = limiter.apply(desiredSpeeds);
         assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
@@ -203,7 +189,7 @@ public class SwerveLimiterTest {
 
         // after 1 second, it's going faster.
         for (int i = 0; i < 50; ++i) {
-            setpoint = limiter.apply(setpoint, desiredSpeeds);
+            setpoint = limiter.apply(desiredSpeeds);
         }
         assertEquals(4.9, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
@@ -222,7 +208,8 @@ public class SwerveLimiterTest {
         // desired speed is feasible, max accel = 10 * dt = 0.02 => v = 0.2
         FieldRelativeVelocity desiredSpeeds = new FieldRelativeVelocity(0.2, 0, 0);
 
-        setpoint = limiter.apply(setpoint, desiredSpeeds);
+        limiter.updateSetpoint(setpoint);
+        setpoint = limiter.apply(desiredSpeeds);
         assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
@@ -241,12 +228,13 @@ public class SwerveLimiterTest {
         // iterations.
         FieldRelativeVelocity desiredSpeeds = new FieldRelativeVelocity(0.4, 0, 0);
 
-        setpoint = limiter.apply(setpoint, desiredSpeeds);
+        limiter.updateSetpoint(setpoint);
+        setpoint = limiter.apply(desiredSpeeds);
         assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
 
-        setpoint = limiter.apply(setpoint, desiredSpeeds);
+        setpoint = limiter.apply(desiredSpeeds);
         assertEquals(0.4, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
@@ -262,8 +250,8 @@ public class SwerveLimiterTest {
 
         // desired state is 1 +x
         final FieldRelativeVelocity desiredSpeeds = new FieldRelativeVelocity(1, 0, 0);
-
-        setpoint = limiter.apply(setpoint, desiredSpeeds);
+        limiter.updateSetpoint(setpoint);
+        setpoint = limiter.apply(desiredSpeeds);
 
         assertEquals(0.146, setpoint.x(), kDelta);
         assertEquals(0.427, setpoint.y(), kDelta);

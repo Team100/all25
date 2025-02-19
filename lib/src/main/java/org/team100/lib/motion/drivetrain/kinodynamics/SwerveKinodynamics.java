@@ -195,8 +195,6 @@ public class SwerveKinodynamics implements Glassy {
     /**
      * Discretizes.
      * 
-     * If you want desaturation, use the setpoint generator.
-     * 
      * States may include empty angles for motionless wheels.
      * Otherwise angle is always within [-pi, pi].
      */
@@ -219,8 +217,6 @@ public class SwerveKinodynamics implements Glassy {
     /**
      * Given a desired instantaneous speed, extrapolate ahead one step, and return
      * the twist required to achieve that state.
-     * 
-     * Tangent velocity
      */
     public static DiscreteSpeed discretize(ChassisSpeeds chassisSpeeds, double dt) {
         Pose2d desiredDeltaPose = new Pose2d(
@@ -229,9 +225,6 @@ public class SwerveKinodynamics implements Glassy {
                 new Rotation2d(chassisSpeeds.omegaRadiansPerSecond * dt));
 
         return new DiscreteSpeed(Pose2d.kZero.log(desiredDeltaPose), dt);
-
-        // return new ChassisSpeeds(twist.dx / period, twist.dy / period, twist.dtheta /
-        // period);
     }
 
     /**
@@ -286,11 +279,6 @@ public class SwerveKinodynamics implements Glassy {
                 initialPoseMeters,
                 timestampSeconds);
     }
-
-
-
-
-
 
     /**
      * Robot-relative speed, without discretization.

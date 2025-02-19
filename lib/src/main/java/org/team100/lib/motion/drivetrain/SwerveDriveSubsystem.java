@@ -19,7 +19,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.sensors.Gyro;
-import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -34,6 +33,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
+    // this produces a LOT of output, you should only enable it while you're looking
+    // at it.
     private static final boolean DEBUG = false;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
@@ -86,10 +87,10 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied twist by the "speed" driver control modifier.
      * 
-     * Feasibility is enforced by the SwerveLimiter, and, at the moment, the
-     * setpoint generator.
+     * Feasibility is enforced by the SwerveLimiter.
      * 
-     * TODO: remove setpoint generator.
+     * Remember to reset the setpoint before calling this (e.g. in the "initialize"
+     * of your command, see DriveManually).
      */
     @Override
     public void driveInFieldCoords(final FieldRelativeVelocity input) {
@@ -99,7 +100,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
 
         // NEW! Apply field-relative limits here.
         if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
-            scaled = m_limiter.apply(getVelocity(), scaled);
+            scaled = m_limiter.apply(scaled);
         }
 
         final Rotation2d theta = getPose().getRotation();
@@ -136,7 +137,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                     targetChassisSpeeds.vyMetersPerSecond,
                     targetChassisSpeeds.omegaRadiansPerSecond);
 
-        m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
     /**
@@ -166,8 +167,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied ChassisSpeed by the driver speed modifier.
      * 
-     * Feasibility is enforced by the setpoint generator, if enabled.
-     * 
      * @param speeds in robot coordinates
      */
     public void setChassisSpeeds(final ChassisSpeeds speeds) {
@@ -175,10 +174,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
         m_swerveLocal.setChassisSpeeds(speeds.times(driverSkillLevel.scale()));
         m_log_skill.log(() -> driverSkillLevel);
-    }
-
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
-        m_swerveLocal.setChassisSpeedsNormally(speeds);
     }
 
     /**
@@ -221,8 +216,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_stateSupplier.reset();
     }
 
-    public void resetSetpoint(SwerveSetpoint setpoint) {
-        m_swerveLocal.resetSetpoint(setpoint);
+    public void resetLimiter() {
+        m_limiter.updateSetpoint(getVelocity());
+
     }
 
     ///////////////////////////////////////////////////////////////

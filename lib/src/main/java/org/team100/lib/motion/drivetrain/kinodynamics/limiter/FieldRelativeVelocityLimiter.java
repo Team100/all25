@@ -19,7 +19,7 @@ public class FieldRelativeVelocityLimiter {
 
     public FieldRelativeVelocity limit(FieldRelativeVelocity target) {
         // TODO: allow the caller to force rotation preference.
-        if (Experiments.instance.enabled(Experiment.SnapPreferRotation))
+        if (Experiments.instance.enabled(Experiment.LimitsPreferRotation))
             return preferRotation(target);
         return proportional(target);
     }
