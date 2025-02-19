@@ -18,4 +18,6 @@ public interface DriveSubsystemInterface extends Subsystem {
     SwerveModel getState();
 
     void stop();
+
+    void resetLimiter();
 }

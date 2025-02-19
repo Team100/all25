@@ -10,10 +10,10 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.testing.Timeless;
 
 /**
@@ -40,11 +40,7 @@ public class RealisticFixture {
         swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
         collection = SwerveModuleCollection.get(logger, 10, 20, swerveKinodynamics);
         gyro = new SimulatedGyro(swerveKinodynamics, collection);
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                logger,
-                swerveKinodynamics,
-                () -> 12);
-        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, setpointGenerator, collection);
+        swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
         poseEstimator = swerveKinodynamics.newPoseEstimator(
                 logger,
                 gyro,
@@ -56,6 +52,7 @@ public class RealisticFixture {
             public void update() {
             }
         };
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
 
         drive = new SwerveDriveSubsystem(
                 fieldLogger,
@@ -63,7 +60,8 @@ public class RealisticFixture {
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                v);
+                v,
+                limiter);
 
         controller = SwerveControllerFactory.test(logger);
     }

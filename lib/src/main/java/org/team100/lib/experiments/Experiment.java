@@ -36,9 +36,9 @@ public enum Experiment {
      */
     SnapThetaFilter,
     /**
-     * Snaps can prefer rotation or translation
+     * Make the kinodynamic limiter prefer rotation.
      */
-    SnapPreferRotation,
+    LimitsPreferRotation,
     /**
      * Clip the snap omega
      */

@@ -78,7 +78,7 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * This uses the current-instant setpoint to calculate feedback error.
      * 
@@ -141,8 +141,7 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
                 target.getY(),
                 0 });
 
-        // desaturate to feasibility by preferring the rotational velocity.
-        return m_swerveKinodynamics.preferRotation(twistWithLockM_S);
+        return twistWithLockM_S;
     }
 
     private FieldRelativeVelocity getScaledInput(DriverControl.Velocity input) {

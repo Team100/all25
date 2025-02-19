@@ -8,12 +8,9 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
-import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.NamedChooser;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -62,15 +59,7 @@ public class DriveManually extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        // the setpoint generator remembers what it was doing before, but it might be
-        // interrupted by some other command, so when we start, we have to tell it what
-        // the real previous setpoint is.
-        // Note this is not necessarily "at rest," because we might start driving
-        // manually while the robot is moving.
-        ChassisSpeeds currentSpeeds = m_drive.getChassisSpeeds();
-        SwerveModuleStates currentStates = m_drive.getSwerveLocal().states();
-        SwerveSetpoint setpoint = new SwerveSetpoint(currentSpeeds, currentStates);
-        m_drive.resetSetpoint(setpoint);
+        m_drive.resetLimiter();
         SwerveModel p = m_drive.getState();
         for (Driver d : m_drivers.values()) {
             d.reset(p);

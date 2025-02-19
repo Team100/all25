@@ -6,8 +6,8 @@ import java.util.function.BooleanSupplier;
 
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
-import org.team100.lib.commands.drivetrain.PermissiveTrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.DriveWithTrajectoryList;
+import org.team100.lib.commands.drivetrain.PermissiveTrajectoryListCommand;
 import org.team100.lib.commands.drivetrain.for_testing.DrawSquare;
 import org.team100.lib.commands.drivetrain.for_testing.DriveInACircle;
 import org.team100.lib.commands.drivetrain.for_testing.DriveInALittleSquare;
@@ -31,10 +31,10 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryMaker;
@@ -102,18 +102,16 @@ public class RobotContainerParkingLot implements Glassy {
                 driveLogger,
                 m_layout,
                 poseEstimator);
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                driveLogger,
-                swerveKinodynamics,
-                RobotController::getBatteryVoltage);
-        SwerveLocal swerveLocal = new SwerveLocal(driveLogger, swerveKinodynamics, setpointGenerator, m_modules);
+        SwerveLocal swerveLocal = new SwerveLocal(driveLogger, swerveKinodynamics, m_modules);
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 driveLogger,
                 m_gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider);
+                visionDataProvider,
+                limiter);
         SwerveController controller = SwerveControllerFactory.byIdentity(driveLogger);
 
         ///////////////////////

@@ -1,7 +1,5 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-
 /**
  * Container for swerve module states.
  * 
@@ -64,15 +62,6 @@ public record SwerveModuleStates(
                 frontRight.scale(scale),
                 rearLeft.scale(scale),
                 rearRight.scale(scale));
-    }
-
-    /** Overwrite the states with the supplied steering overrides, if any. */
-    public SwerveModuleStates override(Rotation2d[] overrides) {
-        return new SwerveModuleStates(
-                frontLeft.override(overrides[0]),
-                frontRight.override(overrides[1]),
-                rearLeft.override(overrides[2]),
-                rearRight.override(overrides[3]));
     }
 
     public SwerveModuleStates flipIfRequired(SwerveModuleStates prev) {

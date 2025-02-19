@@ -19,6 +19,10 @@ public record FieldRelativeAcceleration(double x, double y, double theta) {
         return new FieldRelativeAcceleration(x * scalar, y * scalar, theta * scalar);
     }
 
+    public double norm() {
+        return Math.hypot(x, y);
+    }
+
     public static FieldRelativeAcceleration diff(
             FieldRelativeVelocity v1,
             FieldRelativeVelocity v2,

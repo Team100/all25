@@ -2,6 +2,8 @@ package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.config.DriverSkill;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
@@ -15,8 +17,8 @@ import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.sensors.Gyro;
-import org.team100.lib.swerve.SwerveSetpoint;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -31,11 +33,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * We depend on CommandScheduler to enforce the mutex.
  */
 public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, DriveSubsystemInterface {
+    // this produces a LOT of output, you should only enable it while you're looking
+    // at it.
     private static final boolean DEBUG = false;
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
     private final VisionData m_cameras;
+    private final SwerveLimiter m_limiter;
 
     // CACHES
     private final Memo.CotemporalCache<SwerveModel> m_stateSupplier;
@@ -55,12 +60,14 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Gyro gyro,
             SwerveDrivePoseEstimator100 poseEstimator,
             SwerveLocal swerveLocal,
-            VisionData cameras) {
+            VisionData cameras,
+            SwerveLimiter limiter) {
         LoggerFactory child = parent.child(this);
         m_gyro = gyro;
         m_poseEstimator = poseEstimator;
         m_swerveLocal = swerveLocal;
         m_cameras = cameras;
+        m_limiter = limiter;
         m_stateSupplier = Memo.of(this::update);
         stop();
         m_log_state = child.swerveModelLogger(Level.COMP, "state");
@@ -80,22 +87,26 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied twist by the "speed" driver control modifier.
      * 
-     * Feasibility is enforced by the setpoint generator (if enabled) and the
-     * desaturator.
+     * Feasibility is enforced by the SwerveLimiter.
      * 
-     * @param visionData Field coordinate velocities in meters and radians per
-     *                   second.
+     * Remember to reset the setpoint before calling this (e.g. in the "initialize"
+     * of your command, see DriveManually).
      */
     @Override
-    public void driveInFieldCoords(final FieldRelativeVelocity vIn) {
+    public void driveInFieldCoords(final FieldRelativeVelocity input) {
         // scale for driver skill; default is half speed.
         final DriverSkill.Level driverSkillLevel = DriverSkill.level();
-        final FieldRelativeVelocity v = GeometryUtil.scale(vIn, driverSkillLevel.scale());
+        FieldRelativeVelocity scaled = GeometryUtil.scale(input, driverSkillLevel.scale());
+
+        // NEW! Apply field-relative limits here.
+        if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
+            scaled = m_limiter.apply(scaled);
+        }
 
         final Rotation2d theta = getPose().getRotation();
-        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(v, theta);
+        final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(scaled, theta);
 
-        m_log_input.log(() -> vIn);
+        m_log_input.log(() -> input);
         m_log_skill.log(() -> driverSkillLevel);
         // here heading and course are exactly opposite, as they should be.
         if (DEBUG)
@@ -121,12 +132,12 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Util.printf(
                     "driveInFieldCoordsVerbatim() target heading %.8f target course %.8f speeds x %.6f y %.6f theta %.6f\n",
                     theta.getRadians(),
-                    GeometryUtil.getCourse(targetChassisSpeeds).get().getRadians(),
+                    GeometryUtil.getCourse(targetChassisSpeeds).orElse(new Rotation2d()).getRadians(),
                     targetChassisSpeeds.vxMetersPerSecond,
                     targetChassisSpeeds.vyMetersPerSecond,
                     targetChassisSpeeds.omegaRadiansPerSecond);
 
-        m_swerveLocal.setChassisSpeedsNormally(targetChassisSpeeds);
+        m_swerveLocal.setChassisSpeeds(targetChassisSpeeds);
     }
 
     /**
@@ -156,8 +167,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     /**
      * Scales the supplied ChassisSpeed by the driver speed modifier.
      * 
-     * Feasibility is enforced by the setpoint generator, if enabled.
-     * 
      * @param speeds in robot coordinates
      */
     public void setChassisSpeeds(final ChassisSpeeds speeds) {
@@ -165,10 +174,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         DriverSkill.Level driverSkillLevel = DriverSkill.level();
         m_swerveLocal.setChassisSpeeds(speeds.times(driverSkillLevel.scale()));
         m_log_skill.log(() -> driverSkillLevel);
-    }
-
-    public void setChassisSpeedsNormally(ChassisSpeeds speeds) {
-        m_swerveLocal.setChassisSpeedsNormally(speeds);
     }
 
     /**
@@ -211,8 +216,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_stateSupplier.reset();
     }
 
-    public void resetSetpoint(SwerveSetpoint setpoint) {
-        m_swerveLocal.resetSetpoint(setpoint);
+    public void resetLimiter() {
+        m_limiter.updateSetpoint(getVelocity());
+
     }
 
     ///////////////////////////////////////////////////////////////

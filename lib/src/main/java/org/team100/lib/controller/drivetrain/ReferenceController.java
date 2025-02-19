@@ -18,7 +18,6 @@ import org.team100.lib.util.Util;
  * trajectory, so create it in Command.initialize().
  */
 public class ReferenceController implements Glassy {
-    /** For testing */
     private static final boolean DEBUG = false;
     private final DriveSubsystemInterface m_drive;
     private final SwerveController m_controller;
@@ -32,11 +31,11 @@ public class ReferenceController implements Glassy {
      * this at runtime, not in advance.
      */
     public ReferenceController(
-            DriveSubsystemInterface swerve,
+            DriveSubsystemInterface drive,
             SwerveController controller,
             SwerveReference reference,
             boolean verbatim) {
-        m_drive = swerve;
+        m_drive = drive;
         m_controller = controller;
         m_reference = reference;
         m_verbatim = verbatim;
@@ -50,6 +49,7 @@ public class ReferenceController implements Glassy {
             m_aligned = false;
         }
         m_reference.initialize(m_drive.getState());
+        m_drive.resetLimiter();
     }
 
     public void execute() {
@@ -65,7 +65,11 @@ public class ReferenceController implements Glassy {
             m_aligned = true;
         }
         if (DEBUG) {
-            Util.printf("output %s\n", fieldRelativeTarget);
+            Util.printf("ReferenceController.execute() measurement %s current %s next %s output %s\n",
+                    measurement,
+                    m_reference.current(),
+                    m_reference.next(),
+                    fieldRelativeTarget);
         }
         if (!m_aligned) {
             // Still not aligned, so keep steering.

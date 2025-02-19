@@ -95,7 +95,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * If you touch the POV and not the twist rotation, it remembers the POV. if you
      * use the twist rotation, it forgets and just uses that.
@@ -129,8 +129,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             // in this case there is no setpoint
             m_thetaSetpoint = null;
             m_log_mode.log(() -> "free");
-            // desaturate to feasibility
-            return m_swerveKinodynamics.analyticDesaturation(control);
+            return control;
         }
 
         // if this is the first run since the latch, then the setpoint should be
@@ -175,9 +174,8 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_log_theta_FB.log(() -> thetaFB);
         m_log_output_omega.log(() -> omega);
 
-        // desaturate the end result to feasibility by preferring the rotation over
-        // translation
-        return m_swerveKinodynamics.preferRotation(twistWithSnapM_S);
+
+        return twistWithSnapM_S;
     }
 
     public FieldRelativeVelocity clipAndScale(DriverControl.Velocity twist1_1) {

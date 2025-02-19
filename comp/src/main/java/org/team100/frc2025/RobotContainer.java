@@ -48,11 +48,11 @@ import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.swerve.AsymSwerveSetpointGenerator;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -129,23 +129,20 @@ public class RobotContainer implements Glassy {
                 m_layout,
                 poseEstimator);
 
-        final AsymSwerveSetpointGenerator setpointGenerator = new AsymSwerveSetpointGenerator(
-                driveLog,
-                swerveKinodynamics,
-                RobotController::getBatteryVoltage);
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
                 swerveKinodynamics,
-                setpointGenerator,
                 m_modules);
 
+        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 driveLog,
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider);
+                visionDataProvider,
+                limiter);
 
         m_climber = ClimberFactory.get(logger);
 
@@ -224,14 +221,14 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));  
 
-                whileTrue(driverControl::driveOneMeter,
-        new DriveToPoseWithProfile(
-                fieldLog,
-                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                        .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                m_drive,
-                holonomicController,
-                profile));
+        whileTrue(driverControl::driveOneMeter,
+                new DriveToPoseWithProfile(
+                        fieldLog,
+                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                        m_drive,
+                        holonomicController,
+                        profile));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,

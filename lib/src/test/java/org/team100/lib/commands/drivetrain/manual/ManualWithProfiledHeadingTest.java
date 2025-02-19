@@ -258,8 +258,6 @@ class ManualWithProfiledHeadingTest {
 
         // NOTE no feedback here.
         Feedback100 thetaFeedback = new PIDFeedback(logger, 0, 0, 0, true, 0.05, 1);
-        // NOTE no feedback here.
-        Feedback100 omegaFeedback = new PIDFeedback(logger, 0, 0, 0, false, 0.05, 1);
 
         final ManualWithProfiledHeading m_manualWithHeading = new ManualWithProfiledHeading(
                 logger,

@@ -84,7 +84,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
 
     /**
      * Clips the input to the unit circle, scales to maximum (not simultaneously
-     * feasible) speeds, and then desaturates to a feasible holonomic velocity.
+     * feasible) speeds.
      * 
      * @param state from the drivetrain
      * @param input control units [-1,1]
@@ -114,12 +114,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
 
         if (!target.isPresent()) {
             // if there's no target, then drive normally.
-            FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(),
-                    scaledInput.theta());
-
-            // desaturate to feasibility by preferring the rotational velocity.
-            twistWithLockM_S = m_swerveKinodynamics.preferRotation(twistWithLockM_S);
-            return twistWithLockM_S;
+            return scaledInput;
         }
 
         final Translation2d currentTranslation = state.pose().getTranslation();
@@ -157,10 +152,9 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
                 target.get().getY(),
                 0 });
 
-        final FieldRelativeVelocity twistWithLockM_S = new FieldRelativeVelocity(scaledInput.x(), scaledInput.y(),
+        return new FieldRelativeVelocity(
+                scaledInput.x(),
+                scaledInput.y(),
                 omega);
-
-        // desaturate to feasibility by preferring the rotational velocity.
-        return m_swerveKinodynamics.preferRotation(twistWithLockM_S);
     }
 }
