@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+
+import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.SetElevator;
+
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
+
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
@@ -82,7 +87,11 @@ public class RobotContainer implements Glassy {
 
     // SUBSYSTEMS
     final SwerveDriveSubsystem m_drive;
+
+    final Elevator m_elevator;
+
     final Climber m_climber;
+
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -104,6 +113,10 @@ public class RobotContainer implements Glassy {
 
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
+        final LoggerFactory elevatorLog = logger.child("Elevator");
+
+        m_elevator = new Elevator(elevatorLog, 2, 1, 3);
+
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
@@ -253,7 +266,7 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
 
         // OPERATOR BUTTONS
-        // whileTrue(operatorControl::outtake, new ClimberRotate(m_climber, -0.2 ));
+        whileTrue(operatorControl::outtake, new SetElevator(m_elevator));
 
     }
 

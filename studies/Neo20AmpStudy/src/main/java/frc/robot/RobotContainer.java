@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SetElevator;
+import frc.robot.subsystems.SetNone;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -25,7 +26,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+      new CommandXboxController(1);
 
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -34,7 +35,7 @@ public class RobotContainer {
     configureBindings();
 
     ExampleSubsystem sub = new ExampleSubsystem();
-
+    sub.setDefaultCommand(new SetNone(sub));
     m_driverController.a().whileTrue( new SetElevator(sub, () -> m_driverController.getLeftY()));
 
   }

@@ -26,7 +26,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final Control100Logger m_log_setpoint;
-
+    private final DoubleLogger m_log_position;
 
 
     public OutboardLinearPositionServo(
@@ -36,9 +36,10 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
         m_profile = profile;
-        m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
+        m_log_goal = child.model100Logger(Level.TRACE, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
+        m_log_position = child.doubleLogger(Level.TRACE, "position (m)");
+        m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (m)");
     }  
     @Override
     public void reset() {
@@ -90,5 +91,12 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
 
     public Control100 getSetpoint() {
         return m_setpoint;
+    }
+
+    @Override
+    public void periodic() {
+        m_mechanism.periodic();
+
+        m_log_position.log( () -> getPosition().orElse(Double.NaN));
     }
 }
