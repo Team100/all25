@@ -4,7 +4,6 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.swerve.SwerveUtil;
 import org.team100.lib.util.Util;
 
 public class FieldRelativeAccelerationLimiter {

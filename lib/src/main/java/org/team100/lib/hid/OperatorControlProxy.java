@@ -78,6 +78,11 @@ public class OperatorControlProxy implements OperatorControl {
         return m_operatorControl.never();
     }
 
+    @Override
+    public boolean elevate() {
+        return m_operatorControl.elevate();
+    }
+
 
 
 }

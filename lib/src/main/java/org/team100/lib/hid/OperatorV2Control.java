@@ -45,4 +45,9 @@ public class OperatorV2Control implements OperatorControl {
     public String getHIDName() {
         return m_controller.getName();
     }
+
+    @Override
+    public boolean elevate() {
+        return m_controller.getXButton();
+    }
 }

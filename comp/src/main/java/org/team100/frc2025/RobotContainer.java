@@ -266,7 +266,7 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::outtake, new SetElevator(m_elevator));
+        whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
 
     }
 
