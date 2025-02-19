@@ -19,8 +19,8 @@ public class Kraken6Motor extends Talon6Motor {
             double statorLimit,
             PIDConstants pid,
             Feedforward100 ff) {
-        super(parent, canId, motorPhase, supplyLimit, statorLimit, pid, ff);
-    }
+            super(parent, canId, motorPhase, supplyLimit, statorLimit, pid, ff);
+        }
 
     @Override
     public double kROhms() {

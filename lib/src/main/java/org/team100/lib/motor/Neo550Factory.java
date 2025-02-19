@@ -35,7 +35,7 @@ public class Neo550Factory {
                 motorPhase,
                 currentLimit,
                 Feedforward100.makeNeo550(),
-                new PIDConstants(.00000001));
+                new PIDConstants());
         return new SimpleLinearMechanism(
                 motor,
                 new CANSparkEncoder(moduleLogger, motor),
@@ -57,7 +57,7 @@ public class Neo550Factory {
                 motorPhase,
                 currentLimit,
                 Feedforward100.makeNeo550(),
-                new PIDConstants(1));
+                PIDConstants.makePositionPID(1));
         return new SimpleRotaryMechanism(
                 moduleLogger,
                 motor,
@@ -83,7 +83,7 @@ public class Neo550Factory {
             double upperLimit) {
         LoggerFactory moduleLogger = parent.child(name);
         Neo550CANSparkMotor driveMotor = new Neo550CANSparkMotor(moduleLogger, canID, motorPhase, currentLimit,
-                Feedforward100.makeNeo550(), new PIDConstants(p));
+                Feedforward100.makeNeo550(), PIDConstants.makePositionPID(p));
         RotaryMechanism rotaryMechanism = new LimitedRotaryMechanism(new SimpleRotaryMechanism(moduleLogger, driveMotor,
                 new CANSparkEncoder(moduleLogger, driveMotor), gearRatio), lowerLimit, upperLimit);
         return new OutboardGravityServo(

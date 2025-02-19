@@ -28,7 +28,7 @@ public class Climber extends SubsystemBase {
 
   public Climber(LoggerFactory logger, int canID) {
     LoggerFactory child = logger.child("Climber");
-    m_motor = new Falcon6Motor(child, canID, MotorPhase.FORWARD, 50, 50, new PIDConstants(0.1), Feedforward100.makeArmPivot());
+    m_motor = new Falcon6Motor(child, canID, MotorPhase.FORWARD, 50, 50, new PIDConstants(), Feedforward100.makeArmPivot());
     RotaryMechanism rotaryMechanism = new LimitedRotaryMechanism(new SimpleRotaryMechanism(child, m_motor, new Talon6Encoder(child, m_motor), 25*3*4),Math.PI,0);
     Profile100 profile100 = new TrapezoidProfile100(Math.PI, Math.PI,.1);
     climberMotor = new OutboardAngularPositionServo(child,rotaryMechanism,new CombinedEncoder(child, new ProxyRotaryPositionSensor(rotaryMechanism), rotaryMechanism),profile100);
