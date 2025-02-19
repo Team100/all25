@@ -278,11 +278,12 @@ class RealCamera(Camera):
     @staticmethod
     def __get_exposure_time(identity: Identity) -> int:
         """exposure time in microseconds"""
-        match identity:
-            case Identity.GLOBAL_RIGHT | Identity.GLOBAL_LEFT:
-                return 300  # from b5879a6, works with GS cameras
-            case _:
-                return 300  # the old value, works with v2 cameras
+        return 1000
+        # match identity:
+        #     case Identity.GLOBAL_RIGHT | Identity.GLOBAL_LEFT:
+        #         return 500  # from b5879a6, works with GS cameras
+        #     case _:
+        #         return 500  # the old value, works with v2 cameras
 
     @staticmethod
     def __mtx_from_model(identity: Identity, model: Model) -> Mat:
@@ -305,31 +306,31 @@ class RealCamera(Camera):
                     ]
                 )
             case Model.GS:
-                if identity == Identity.DIST_TEST: # 3.2mm lens
+                # if identity == Identity.DIST_TEST: # 3.2mm lens
                     # this is for the 3.2 mm lens
-                    #  return np.array(
-                    #     [
-                    #         [935, 0, 728], # 728 = 1456/2, not actually in the center
-                    #         [0, 935, 544], # 544 = 1088/2, actually center :-)
-                    #         [0, 0, 1],
-                    #     ]
-                    # )
+                return np.array(
+                [
+                    [935, 0, 728], # 728 = 1456/2, not actually in the center
+                    [0, 935, 544], # 544 = 1088/2, actually center :-)
+                    [0, 0, 1],
+                ]
+                )
                     # this is for the 6 mm lens
-                    return np.array(
-                        [
-                            [1780, 0, 728], # 728 = 1456/2, not actually in the center
-                            [0, 1780, 544], # 544 = 1088/2, actually center :-)
-                            [0, 0, 1],
-                        ]
-                    )
-                else: # 6mm lens
-                    return np.array(
-                        [
-                            [1780, 0, 728],
-                            [0, 1780, 544],
-                            [0, 0, 1],
-                        ]
-                    )
+                #     return np.array(
+                #         [
+                #             [1780, 0, 728], # 728 = 1456/2, not actually in the center
+                #             [0, 1780, 544], # 544 = 1088/2, actually center :-)
+                #             [0, 0, 1],
+                #         ]
+                #     )
+                # else: # 6mm lens
+                #     return np.array(
+                #         [
+                #             [1780, 0, 728],
+                #             [0, 1780, 544],
+                #             [0, 0, 1],
+                #         ]
+                #     )
             case _:
                 return np.array(
                     [
@@ -351,13 +352,13 @@ class RealCamera(Camera):
             case Model.V2:
                 return np.array([[-0.003, 0.04, 0, 0]])
             case Model.GS:
-                if identity == Identity.DIST_TEST:
+                # if identity == Identity.DIST_TEST:
 # this is for the 3.2 mm lens from 2/1/25 testing
-#                    return np.array([[-0.306, 0.107, 0, 0]])
+                return np.array([[-0.306, 0.107, 0, 0]])
 # this is for the 6 mm lens from 2/1/25 testing
-                    return np.array([[-0.510, 0.335, 0, 0]])
-                else:
-                    return np.array([[-0.2, -0.4, 0, 0]])
+                #     return np.array([[-0.510, 0.335, 0, 0]])
+                # else:
+                #     return np.array([[-0.2, -0.4, 0, 0]])
             case _:
                 return np.array([[0, 0, 0, 0]])
 

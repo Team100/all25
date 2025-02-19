@@ -86,7 +86,7 @@ public abstract class Talon6Motor implements BareMotor {
             MotorPhase motorPhase,
             double supplyLimit,
             double statorLimit,
-            PIDConstants lowLevelVelocityConstants,
+            PIDConstants lowLevelPIDConstants,
             Feedforward100 ff) {
         m_velocityVoltage = new VelocityVoltage(0);
         m_dutyCycleOut = new DutyCycleOut(0);
@@ -108,7 +108,7 @@ public abstract class Talon6Motor implements BareMotor {
         Phoenix100.baseConfig(talonFXConfigurator);
         Phoenix100.motorConfig(talonFXConfigurator, motorPhase);
         Phoenix100.currentConfig(talonFXConfigurator, supplyLimit, statorLimit);
-        Phoenix100.pidConfig(talonFXConfigurator, lowLevelVelocityConstants);
+        Phoenix100.pidConfig(talonFXConfigurator, lowLevelPIDConstants);
 
         Phoenix100.crash(() -> m_motor.getPosition().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
         Phoenix100.crash(() -> m_motor.getVelocity().setUpdateFrequency(SIGNAL_UPDATE_FREQ_HZ));
@@ -222,6 +222,7 @@ public abstract class Talon6Motor implements BareMotor {
         // arbitrary feedforward for that.
         Phoenix100.warn(() -> m_motor.setControl(
                 m_velocityVoltage
+                        .withSlot(1)
                         .withVelocity(motorRev_S)
                         .withFeedForward(kFFVolts)));
 
@@ -263,6 +264,7 @@ public abstract class Talon6Motor implements BareMotor {
         // feedforward for that.
         Phoenix100.warn(() -> m_motor.setControl(
                 m_positionVoltage
+                        .withSlot(0)
                         .withPosition(motorRev)
                         .withFeedForward(kFFVolts)));
 

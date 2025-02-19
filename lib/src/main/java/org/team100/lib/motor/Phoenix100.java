@@ -9,6 +9,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -83,11 +84,16 @@ public class Phoenix100 {
      */
     public static void pidConfig(TalonFXConfigurator conf, PIDConstants pid) {
         Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kV = 0.0; // we use "arbitrary feewdforward", not this.
-        slot0Configs.kP = pid.getP();
-        slot0Configs.kI = pid.getI();
-        slot0Configs.kD = pid.getD();
+        Slot1Configs slot1Configs = new Slot1Configs();
+        slot0Configs.kV = 0.0; // we use "arbitrary feedforward", not this.
+        slot0Configs.kP = pid.getPositionP();
+        slot0Configs.kI = pid.getPositionI();
+        slot0Configs.kD = pid.getPositionD();
+        slot1Configs.kP = pid.getVelocityP();
+        slot1Configs.kI = pid.getVelocityI();
+        slot1Configs.kD = pid.getVelocityD();
         crash(() -> conf.apply(slot0Configs, TIMEOUT_SEC));
+        crash(() -> conf.apply(slot1Configs, TIMEOUT_SEC));
     }
 
     private Phoenix100() {

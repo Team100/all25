@@ -47,7 +47,7 @@ public class ArmFactory {
                 MotorPhase.FORWARD,
                 8,
                 Feedforward100.makeNeo(),
-                new PIDConstants(0, 0, 0));
+                new PIDConstants());
         RotaryMechanism lowerMech = new SimpleRotaryMechanism(
                 lowerLogger,
                 lowerMotor,
@@ -69,7 +69,7 @@ public class ArmFactory {
                 MotorPhase.FORWARD,
                 1,
                 Feedforward100.makeNeo(),
-                new PIDConstants(0, 0, 0));
+                new PIDConstants());
         RotaryMechanism upperMech = new SimpleRotaryMechanism(
                 upperLogger,
                 upperMotor,
