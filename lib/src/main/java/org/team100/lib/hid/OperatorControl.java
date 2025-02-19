@@ -22,7 +22,10 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
-
+    /** placeholder for elevator development */
+    default boolean elevate() {
+        return false;
+    }
 
 
 }

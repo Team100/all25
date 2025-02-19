@@ -11,8 +11,6 @@ import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 
-import org.team100.lib.commands.drivetrain.FullStateTrajectoryListCommand;
-import org.team100.lib.follower.TrajectoryFollower;
 
 import org.team100.lib.controller.drivetrain.SwerveController;
 
@@ -92,7 +90,7 @@ public class Generate60 extends Navigator {
 
     Rotation2d rotationToAnchorPoint = anchorWaypoint.minus(currTranslation).getAngle();
 
-    condition = rotationToAnchorPoint.getDegrees() <= 0;
+    //  condition = rotationToAnchorPoint.getDegrees() <= 0;
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 

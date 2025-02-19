@@ -8,155 +8,157 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.encoder.AS5048RotaryPositionSensor;
-import org.team100.lib.encoder.EncoderDrive;
+import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
-import org.team100.lib.motion.servo.GravityServoInterface;
-import org.team100.lib.motion.servo.LinearVelocityServo;
-import org.team100.lib.motion.servo.OnboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.OutboardLinearPositionServo;
-import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
+import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
-  /** Creates a new Elevator. */
+    /** Creates a new Elevator. */
 
-  private static final double kElevatorReduction = 2; //TODO CHANGE THIS
-  private static final double kElevatorWheelDiamater = 1; //TODO CHANGE THIS
+    private static final double kElevatorReduction = 2; // TODO CHANGE THIS
+    private static final double kElevatorWheelDiamater = 1; // TODO CHANGE THIS
 
-  private static final double kWristReduction = 1; //TODO CHANGE THIS
-  private static final double kWristWheelDiameter = 1; //TODO CHANGE THIS
+    private static final double kWristReduction = 1; // TODO CHANGE THIS
+    private static final double kWristWheelDiameter = 1; // TODO CHANGE THIS
 
+    private final OutboardLinearPositionServo starboardServo;
+    private final OutboardLinearPositionServo portServo;
+    // private final GravityServoInterface wristServo;
 
-  private final OutboardLinearPositionServo starboardServo;
-  private final OutboardLinearPositionServo portServo;
-//   private final GravityServoInterface wristServo;
+    public Elevator(
+            LoggerFactory parent,
+            int starboardID,
+            int portID,
+            int wristID) {
 
-  public Elevator(
-      LoggerFactory parent,
-      int starboardID,
-      int portID,
-      int wristID) {
+        LoggerFactory child = parent.child(this);
 
-	LoggerFactory child = parent.child(this);	
+        LoggerFactory starboardLogger = child.child("Starboard");
+        LoggerFactory portLogger = child.child("Port");
+        LoggerFactory wristLogger = child.child("Wrist");
 
-	LoggerFactory starboardLogger = child.child("Starboard");
-    LoggerFactory portLogger = child.child("Port");
-    LoggerFactory wristLogger = child.child("Wrist");
+        LoggerFactory starboardMotorLogger = child.child("Port Motor");
+        LoggerFactory portMotorLogger = child.child("Wrist Motor");
 
-    LoggerFactory starboardMotorLogger = child.child("Port Motor");
-    LoggerFactory portMotorLogger = child.child("Wrist Motor");
+        int elevatorSupplyLimit = 50;
+        int elevatorStatorLimit = 50;
 
-	int elevatorSupplyLimit = 50;
-	int elevatorStatorLimit = 50;
+        // PIDConstants elevatorPID = new PIDConstants(2, 0, 0);
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(0.3);
 
-	// PIDConstants elevatorPID = new PIDConstants(2, 0, 0);
-	PIDConstants elevatorPID = PIDConstants.makePositionPID(0.3);
+        Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(10, 10, 1); // TODO CHANGE THESE
 
-	Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
-    TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(10, 10, 1); //TODO CHANGE THESE
+        int wristSupplyLimit = 10;
+        int wristStatorLimit = 10;
 
-	int wristSupplyLimit = 10;
-	int wristStatorLimit = 10;
+        // PIDConstants wristPID = new PIDConstants(1, 0, 0);
+        PIDConstants wristPID = PIDConstants.makePositionPID(0.3);
 
+        Feedforward100 wristFF = Feedforward100.makeKraken6Elevator();
+        PIDController wristPIDController = new PIDController(wristPID.getPositionP(), wristPID.getPositionI(),
+                wristPID.getPositionD());
+        wristPIDController.setTolerance(0.02);
+        wristPIDController.setIntegratorRange(0, 1);
+        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(1, 1, 1); // TODO CHANGE THESE
 
-	// PIDConstants wristPID = new PIDConstants(1, 0, 0);
-	PIDConstants wristPID =  PIDConstants.makePositionPID(0.3);
+        switch (Identity.instance) {
+            case FRC_100_ea4 -> {
+                Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.FORWARD,
+                        elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
+                Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
+                        elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
+                // Kraken6Motor wristMotor = new Kraken6Motor(parent, wristID,
+                // MotorPhase.FORWARD, wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
-	Feedforward100 wristFF = Feedforward100.makeKraken6Elevator();
-    PIDController wristPIDController = new PIDController(wristPID.getPositionP(), wristPID.getPositionI(), wristPID.getPositionD());
-    wristPIDController.setTolerance(0.02);
-    wristPIDController.setIntegratorRange(0, 1);
-    TrapezoidProfile100 wristProfile = new TrapezoidProfile100(1, 1, 1); //TODO CHANGE THESE
-
-
-	switch(Identity.instance) {
-		case FRC_100_ea4:
-			Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.FORWARD, elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
-			Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE, elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
-			// Kraken6Motor wristMotor = new Kraken6Motor(parent, wristID, MotorPhase.FORWARD, wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
-
-			LinearMechanism starboardMech = new SimpleLinearMechanism(
-						starboardMotor,
+                LinearMechanism starboardMech = new SimpleLinearMechanism(
+                        starboardMotor,
                         new Talon6Encoder(starboardLogger, starboardMotor),
                         kElevatorReduction,
                         kElevatorWheelDiamater);
-            
-            starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
-            
-            LinearMechanism portMech = new SimpleLinearMechanism(
-						portMotor,
+
+                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
+
+                LinearMechanism portMech = new SimpleLinearMechanism(
+                        portMotor,
                         new Talon6Encoder(portLogger, portMotor),
                         kElevatorReduction,
                         kElevatorWheelDiamater);
-            
-            portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
 
-            // RotaryMechanism wristMech = new SimpleRotaryMechanism(
-            //             wristLogger,
-			// 			wristMotor,
-            //             new Talon6Encoder(portLogger, portMotor),
-            //             kElevatorReduction);
+                portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
 
-            // AS5048RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
-            //             wristLogger, 0, 0.508753,
-            //             EncoderDrive.DIRECT);
+                // RotaryMechanism wristMech = new SimpleRotaryMechanism(
+                // wristLogger,
+                // wristMotor,
+                // new Talon6Encoder(portLogger, portMotor),
+                // kElevatorReduction);
 
-            // AngularPositionServo wristAngleServo = new OnboardAngularPositionServo(
-            //             wristLogger,
-            //             wristMech,
-            //             encoder,
-            //             () -> wristProfile,
-            //             wristPIDController);
+                // AS5048RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
+                // wristLogger, 0, 0.508753,
+                // EncoderDrive.DIRECT);
 
-            AngularPositionServo wristAngleServo = null;
-            
-            // wristServo = new OutboardGravityServo(wristAngleServo, 5, 0);
-            break;
-        default:
-            starboardServo = null;
-            portServo = null;
-            // wristServo = null;
+                // AngularPositionServo wristAngleServo = new OnboardAngularPositionServo(
+                // wristLogger,
+                // wristMech,
+                // encoder,
+                // () -> wristProfile,
+                // wristPIDController);
 
+                AngularPositionServo wristAngleServo = null;
 
+                // wristServo = new OutboardGravityServo(wristAngleServo, 5, 0);
+                break;
+            }
+            default -> {
+                SimulatedBareMotor starboardMotor = new SimulatedBareMotor(starboardMotorLogger, 100);
+                SimulatedBareMotor portMotor = new SimulatedBareMotor(portMotorLogger, 100);
 
-	}
-  }
+                LinearMechanism starboardMech = new SimpleLinearMechanism(
+                        starboardMotor,
+                        new SimulatedBareEncoder(starboardLogger, starboardMotor),
+                        kElevatorReduction,
+                        kElevatorWheelDiamater);
+                LinearMechanism portMech = new SimpleLinearMechanism(
+                        portMotor,
+                        new SimulatedBareEncoder(portLogger, portMotor),
+                        kElevatorReduction,
+                        kElevatorWheelDiamater);
+                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
+                portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
+                // wristServo = null;
+            }
 
-  
+        }
+    }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    starboardServo.periodic();
-    portServo.periodic();
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+        starboardServo.periodic();
+        portServo.periodic();
 
-  }
+    }
 
-  public void resetProfile(){
-    starboardServo.reset();
-    portServo.reset();
-  }
+    public void resetProfile() {
+        starboardServo.reset();
+        portServo.reset();
+    }
 
-  public void setPosition(){
-    starboardServo.setPosition(40, 0);
-    portServo.setPosition(40, 0);
+    public void setPosition() {
+        starboardServo.setPosition(40, 0);
+        portServo.setPosition(40, 0);
 
-  }
+    }
 
-  
 }
