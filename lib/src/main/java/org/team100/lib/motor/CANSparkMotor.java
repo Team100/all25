@@ -128,7 +128,7 @@ public abstract class CANSparkMotor implements BareMotor {
 
         final double motorRev_M = motorRev_S * 60;
         Rev100.warn(() -> m_pidController.setReference(
-                motorRev_M, ControlType.kVelocity, ClosedLoopSlot.kSlot0, kFF, ArbFFUnits.kVoltage));
+                motorRev_M, ControlType.kVelocity, ClosedLoopSlot.kSlot1, kFF, ArbFFUnits.kVoltage));
 
         m_log_desired_speed.log(() -> motorRev_S);
         m_log_desired_accel.log(() -> motorRev_S2);

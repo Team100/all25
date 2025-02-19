@@ -208,7 +208,7 @@ public class RobotContainer implements Glassy {
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
+                swerveKinodynamics.getMaxDriveVelocityM_S(),
                 swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.25,
                 0.01, // 1 cm
                 swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
@@ -219,10 +219,10 @@ public class RobotContainer implements Glassy {
                 new DriveToPoseWithProfile(
                         fieldLog,
                         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -2.5, new Rotation2d(Math.PI / 2))))),
+                                .plus(new Transform2d(0, -2, new Rotation2d(Math.PI / 2))))),
                         m_drive,
                         holonomicController,
-                        profile));
+                        profile));  
 
                 whileTrue(driverControl::driveOneMeter,
         new DriveToPoseWithProfile(

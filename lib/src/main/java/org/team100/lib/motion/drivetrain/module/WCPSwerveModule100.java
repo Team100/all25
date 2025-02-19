@@ -55,7 +55,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
     }
 
     // WCP 4 inch wheel
-    private static final double kWheelDiameterM = 0.0985; // 0.1015
+    private static final double kWheelDiameterM = 0.0955; // 0.1015
 
     /**
      * MAKE SURE THAT THE BEVELS ON THE WHEELS FOR ZEROING GO TO THE RIGHT
@@ -137,7 +137,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             DriveRatio ratio) {
         Feedforward100 ff = Feedforward100.makeWCPSwerveDriveFalcon6();
         // note (10/2/24) 0.4 produces oscillation, on carpet.
-        PIDConstants pid = new PIDConstants(0.3);
+        PIDConstants pid = PIDConstants.makeVelocityPID(0.3);
         Kraken6Motor driveMotor = new Kraken6Motor(
                 parent,
                 driveMotorCanId,
@@ -163,7 +163,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             int driveMotorCanId,
             DriveRatio ratio) {
         Feedforward100 ff = Feedforward100.makeWCPSwerveDriveFalcon6();
-        PIDConstants pid = new PIDConstants(0.25);
+        PIDConstants pid = PIDConstants.makeVelocityPID(0.25);
         Falcon6Motor driveMotor = new Falcon6Motor(
                 parent,
                 driveMotorCanId,
@@ -196,7 +196,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
         // Talon outboard POSITION PID
         // 10/2/24 drive torque produces about a 0.5 degree deviation so maybe
         // this is too low.
-        PIDConstants lowLevelPID = new PIDConstants(10.0, 0.0, 0.0);
+        PIDConstants lowLevelPID = PIDConstants.makePositionPID(10.0);
 
         // java uses this to calculate feedforward voltages from target velocities etc
         Feedforward100 ff = Feedforward100.makeWCPSwerveTurningFalcon6();
