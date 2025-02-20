@@ -189,12 +189,25 @@ public class FieldConstants {
   }
 
   public static Rotation2d calculateDeltaSpline(Rotation2d originalRotation, Rotation2d deltaRotation, ReefAproach approach, double scale) {
+    
     Translation2d originalTranslation = new Translation2d(1, originalRotation);
     Translation2d deltaTranslation = new Translation2d(scale, deltaRotation);
     Translation2d newTranslation = originalTranslation.plus(deltaTranslation);
 
     return newTranslation.getAngle();
   }
+
+  public static Rotation2d calculateDeltaSplineEnd(Rotation2d originalRotation, Rotation2d deltaRotation, ReefAproach approach, double scale) {
+    if(approach == ReefAproach.CW){
+        scale *= -1;
+    }
+    Translation2d originalTranslation = new Translation2d(1, originalRotation);
+    Translation2d deltaTranslation = new Translation2d(scale, deltaRotation);
+    Translation2d newTranslation = originalTranslation.plus(deltaTranslation);
+
+    return newTranslation.getAngle();
+  }
+
 
   public static LandingDestinationGroup getRotationGroup(ReefAproach approach, FieldSector end, double kScaleFactor) {
     Translation2d parallelLandingVector = new Translation2d(1, FieldConstants.getLandingAngle(end, approach));

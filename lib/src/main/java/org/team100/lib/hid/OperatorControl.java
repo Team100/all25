@@ -27,5 +27,9 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
+    default boolean downavate() {
+        return false;
+    }
+
 
 }

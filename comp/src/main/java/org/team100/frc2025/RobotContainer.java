@@ -6,6 +6,7 @@ import java.util.function.BooleanSupplier;
 
 
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
 
 import org.team100.frc2025.Climber.Climber;
@@ -267,6 +268,7 @@ public class RobotContainer implements Glassy {
 
         // OPERATOR BUTTONS
         whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
+        whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
 
     }
 

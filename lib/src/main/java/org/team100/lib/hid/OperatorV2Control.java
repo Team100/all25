@@ -50,4 +50,9 @@ public class OperatorV2Control implements OperatorControl {
     public boolean elevate() {
         return m_controller.getXButton();
     }
+
+    @Override
+    public boolean downavate() {
+        return m_controller.getYButton();
+    }
 }

@@ -4,6 +4,8 @@
 
 package org.team100.frc2025.Elevator;
 
+import java.lang.Thread.State;
+
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -51,14 +53,14 @@ public class Elevator extends SubsystemBase implements Glassy {
         LoggerFactory starboardMotorLogger = child.child("Port Motor");
         LoggerFactory portMotorLogger = child.child("Wrist Motor");
 
-        int elevatorSupplyLimit = 50;
-        int elevatorStatorLimit = 50;
+        int elevatorSupplyLimit = 60;
+        int elevatorStatorLimit = 90;
 
         // PIDConstants elevatorPID = new PIDConstants(2, 0, 0);
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(0.3);
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(0);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(10, 10, 1); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(250, 250, 0.05); // TODO CHANGE THESE
 
         int wristSupplyLimit = 10;
         int wristStatorLimit = 10;
@@ -156,8 +158,17 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public void setPosition() {
-        starboardServo.setPosition(40, 0);
-        portServo.setPosition(40, 0);
+        starboardServo.setPosition(40, 1.3); //54 max
+        portServo.setPosition(40, 1.3); //54 max
+
+    }
+
+    public void setDutyCycle(double value) {
+        // starboardServo.setPosition(30, 2); //54 max
+        // portServo.setPosition(30, 2); //54 max
+
+        starboardServo.setDutyCycle(value);
+        portServo.setDutyCycle(value);
 
     }
 
