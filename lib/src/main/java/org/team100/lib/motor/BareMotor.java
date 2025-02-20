@@ -56,6 +56,7 @@ public interface BareMotor extends Glassy {
     void setPosition(
             double positionRad,
             double velocityRad_S,
+            double accelRad_S2,
             double torqueNm);
 
     /**

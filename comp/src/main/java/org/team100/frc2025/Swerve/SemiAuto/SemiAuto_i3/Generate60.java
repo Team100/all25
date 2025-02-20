@@ -11,7 +11,6 @@ import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 
-
 import org.team100.lib.controller.drivetrain.SwerveController;
 
 import org.team100.lib.logging.LoggerFactory;
@@ -47,7 +46,7 @@ public class Generate60 extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
 
         FieldSector start = FieldConstants.getSector(currentPose);
-        FieldSector end = FieldSector.CD;
+        FieldSector end = FieldSector.AB;
         ReefDestination reefDestination = ReefDestination.CENTER;
 
         Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
@@ -69,28 +68,37 @@ public class Generate60 extends Navigator {
 
         Rotation2d endSpline = new Rotation2d(0);
 
-    // if(approach == ReefAproach.CCW){
-    //     Rotation2d newRotation = parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
-    //     condition = initialSpline.getDegrees() <= newRotation.getDegrees();
-    // } else{
-    //     Rotation2d newRotation = parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
-    //     condition = initialSpline.getDegrees() >= newRotation.getDegrees();
-    // }
+        // if(approach == ReefAproach.CCW){
+        // Rotation2d newRotation =
+        // parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
+        // condition = initialSpline.getDegrees() <= newRotation.getDegrees();
+        // } else{
+        // Rotation2d newRotation =
+        // parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
+        // condition = initialSpline.getDegrees() >= newRotation.getDegrees();
+        // }
 
-    Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(FieldConstants.getSectorAngle(start), approach);
-    Translation2d anchorWaypoint =  FieldConstants.getOrbitWaypoint(anchorPointRotation);
-    
-    Translation2d pointToAnchor = anchorWaypoint.minus(FieldConstants.getReefCenter());
-    Translation2d perpVector = new Translation2d();
-    if(approach == ReefAproach.CCW){
-        perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(90));
-    }else{
-        perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(-90));
-    }
+        Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(FieldConstants.getSectorAngle(start),
+                approach);
+        Translation2d anchorWaypoint = FieldConstants.getOrbitWaypoint(anchorPointRotation);
 
-    Rotation2d rotationToAnchorPoint = anchorWaypoint.minus(currTranslation).getAngle();
+        Translation2d pointToAnchor = anchorWaypoint.minus(FieldConstants.getReefCenter());
+        // Translation2d perpVector = new Translation2d();
 
-    //  condition = rotationToAnchorPoint.getDegrees() <= 0;
+        // if(approach == ReefAproach.CCW){
+        // perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(90));
+        // }else{
+        // perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(-90));
+        // }
+
+        Translation2d vectorToAnchorPoint = anchorWaypoint.minus(currTranslation);
+
+        double dotProduct = (pointToAnchor.getX() * vectorToAnchorPoint.getX())
+                + (pointToAnchor.getY() * vectorToAnchorPoint.getY());
+
+        // System.out.println(dotProduct);
+
+        // condition = rotationToAnchorPoint.getDegrees() <= 0;
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 
@@ -98,19 +106,9 @@ public class Generate60 extends Navigator {
         Rotation2d parallelInitialRotation = FieldConstants.getLandingAngle(end, approach);
 
 
-        if (approach == ReefAproach.CCW) {
-            Rotation2d newRotation = parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
-            condition = initialSpline.getDegrees() <= newRotation.getDegrees();
-        } else {
-            Rotation2d newRotation = parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
-            condition = initialSpline.getDegrees() >= newRotation.getDegrees();
-        }
+        if (dotProduct >= 0) {
 
-        condition = initialSpline.getDegrees() <= 0;
-
-        if (condition) {
-
-            endSpline = FieldConstants.calculateDeltaSpline(FieldConstants.getLandingAngle(end, approach),
+            endSpline = FieldConstants.calculateDeltaSplineEnd(FieldConstants.getLandingAngle(end, approach),
                     FieldConstants.getSectorAngle(end), approach, 0.25);
 
             initialSpline = FieldConstants.calculateDeltaSpline(initialSpline, FieldConstants.getSectorAngle(start),

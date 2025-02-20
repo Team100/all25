@@ -68,6 +68,7 @@ public abstract class Talon6Motor implements BareMotor {
     private final DoubleLogger m_log_friction_FF;
     private final DoubleLogger m_log_velocity_FF;
     private final DoubleLogger m_log_accel_FF;
+    private final DoubleLogger m_totalFeedForward;
     private final DoubleLogger m_log_torque_FF;
     private final DoubleLogger m_log_position;
     private final DoubleLogger m_log_velocity;
@@ -168,6 +169,7 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_velocity_FF = child.doubleLogger(Level.TRACE, "velocity feedforward (v)");
         m_log_accel_FF = child.doubleLogger(Level.TRACE, "accel feedforward (v)");
         m_log_torque_FF = child.doubleLogger(Level.TRACE, "torque feedforward (v)");
+        m_totalFeedForward = child.doubleLogger(Level.TRACE, "total feedforward (v)");
 
         m_log_position = child.doubleLogger(Level.DEBUG, "position (rev)");
         m_log_velocity = child.doubleLogger(Level.DEBUG, "velocity (rev_s)");
@@ -237,6 +239,8 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_velocity_FF.log(() -> velocityFFVolts);
         m_log_accel_FF.log(() -> accelFFVolts);
         m_log_torque_FF.log(() -> torqueFFVolts);
+        m_totalFeedForward.log(() -> kFFVolts);
+
         log();
     }
 
@@ -249,16 +253,20 @@ public abstract class Talon6Motor implements BareMotor {
      * Motor revolutions wind up, so setting 0 revs and 1 rev are different.
      */
     @Override
-    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorTorqueNm) {
+    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorAccelRad_S2, double motorTorqueNm) {
         final double motorRev = motorPositionRad / (2 * Math.PI);
         final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
+        final double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
+
         final double currentMotorRev_S = m_velocity.getAsDouble();
 
         final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
         final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
         final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
+        final double accelFFVolts = m_ff.accelFFVolts(motorRev_S2);
 
         final double kFFVolts = frictionFFVolts + velocityFFVolts + torqueFFVolts;
+        // final double kFFVolts = torqueFFVolts;
 
         // PositionVoltage has a velocity field for kV feedforward but we use arbitrary
         // feedforward for that.
@@ -270,9 +278,14 @@ public abstract class Talon6Motor implements BareMotor {
 
         m_log_desired_position.log(() -> motorRev);
         m_log_desired_speed.log(() -> motorRev_S);
+        m_log_desired_accel.log(() -> motorRev_S2);
         m_log_friction_FF.log(() -> frictionFFVolts);
         m_log_velocity_FF.log(() -> velocityFFVolts);
         m_log_torque_FF.log(() -> torqueFFVolts);
+        m_log_accel_FF.log(() -> accelFFVolts);
+        m_totalFeedForward.log(() -> kFFVolts);
+
+
         log();
     }
 

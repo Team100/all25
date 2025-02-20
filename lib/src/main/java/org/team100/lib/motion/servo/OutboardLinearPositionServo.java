@@ -28,6 +28,8 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private final Control100Logger m_log_setpoint;
     private final DoubleLogger m_log_position;
 
+    // for calculating acceleration
+    private double previousSetpoint = 0;
 
     public OutboardLinearPositionServo(
             LoggerFactory parent,
@@ -57,7 +59,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // NOTE: fixed dt here
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
 
-        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), feedForwardTorqueNm);
+        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_goal.log( () -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
@@ -72,6 +74,10 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     @Override
     public OptionalDouble getPosition() {
         return m_mechanism.getPositionM();
+    }
+
+    public void setDutyCycle(double value){
+        m_mechanism.setDutyCycle(value);
     }
 
     @Override
@@ -98,5 +104,20 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_mechanism.periodic();
 
         m_log_position.log( () -> getPosition().orElse(Double.NaN));
+    }
+
+    /**
+     * Acceleration from trailing difference in velocity.
+     * 
+     * To avoid injecting clock noise into the acceleration signal, this uses
+     * a constant dt, TimedRobot100.LOOP_PERIOD_S, so you'd better be calling this
+     * at about that rate.
+     * 
+     * @param setpoint desired velocity
+     */
+    private double accel(double setpoint) {
+        double accel = (setpoint - previousSetpoint) / TimedRobot100.LOOP_PERIOD_S;
+        previousSetpoint = setpoint;
+        return accel;
     }
 }
