@@ -48,7 +48,7 @@ public class OperatorControlProxy implements OperatorControl {
             return new OperatorV2Control();
         }
         if (name.contains("8Bit")) {
-            return new OperatorV2Control();   
+            return new OperatorV2Control();
         }
         if (name.contains("Xbox")) {
             return new OperatorV2Control();
@@ -83,6 +83,9 @@ public class OperatorControlProxy implements OperatorControl {
         return m_operatorControl.elevate();
     }
 
-
+    @Override
+    public boolean downavate() {
+        return m_operatorControl.downavate();
+    }
 
 }
