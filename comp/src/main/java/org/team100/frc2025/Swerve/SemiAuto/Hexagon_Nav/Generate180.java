@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3;
+package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -29,13 +28,20 @@ public class Generate180 extends Navigator {
     private final double kTangentScale = 3;
     private final double kEntranceCurveFactor = 0.25;
 
+    private final FieldSector m_end;
+    private final ReefDestination m_reefDestination;
+
     public Generate180(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController controller,
             TrajectoryVisualization viz,
-            SwerveKinodynamics kinodynamics) {
+            SwerveKinodynamics kinodynamics,
+            FieldSector endSector,
+            ReefDestination reefDest) {
         super(parent, drive, controller, viz, kinodynamics);
+        m_end = endSector;
+        m_reefDestination = reefDest;
     }
 
     @Override
@@ -44,8 +50,8 @@ public class Generate180 extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
 
         FieldSector start = FieldConstants.getSector(currentPose);
-        FieldSector end = FieldSector.AB;
-        ReefDestination reefDestination = ReefDestination.CENTER;
+        FieldSector end = m_end;
+        ReefDestination reefDestination = m_reefDestination;
 
         Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
 
@@ -91,7 +97,9 @@ public class Generate180 extends Navigator {
 
         PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
 
-        return TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
+        Translation2d currentSpeed = new Translation2d(m_drive.getChassisSpeeds().vxMetersPerSecond, m_drive.getChassisSpeeds().vyMetersPerSecond);
+        // return TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
+        return TrajectoryPlanner.generateTrajectory(poseSet.poses(), poseSet.headings(), constraints, currentSpeed.getNorm(), 0);
 
     }
 

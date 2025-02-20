@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3;
+package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 
@@ -31,13 +30,20 @@ public class Generate60 extends Navigator {
     private final double kTangentScale = 1;
     private final double kEntranceCurveFactor = 0.25;
 
+    private final FieldSector m_end;
+    private final ReefDestination m_reefDestination;
+
     public Generate60(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController controller,
             TrajectoryVisualization viz,
-            SwerveKinodynamics kinodynamics) {
+            SwerveKinodynamics kinodynamics,
+            FieldSector endSector,
+            ReefDestination reefDest) {
         super(parent, drive, controller, viz, kinodynamics);
+        m_end = endSector;
+        m_reefDestination = reefDest;
     }
 
     @Override
@@ -46,8 +52,8 @@ public class Generate60 extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
 
         FieldSector start = FieldConstants.getSector(currentPose);
-        FieldSector end = FieldSector.EF;
-        ReefDestination reefDestination = ReefDestination.CENTER;
+        FieldSector end = m_end;
+        ReefDestination reefDestination = m_reefDestination;
 
         Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
 

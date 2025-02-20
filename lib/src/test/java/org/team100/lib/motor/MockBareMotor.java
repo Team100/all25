@@ -16,7 +16,7 @@ public class MockBareMotor implements BareMotor {
     }
 
     @Override
-    public void setPosition(double position, double velocity, double torque) {
+    public void setPosition(double position, double velocity, double accel, double torque) {
         this.position = position;
     }
 

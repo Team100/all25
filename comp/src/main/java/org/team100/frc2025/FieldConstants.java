@@ -7,8 +7,8 @@ package org.team100.frc2025;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
+import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.LandingDestinationGroup;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
