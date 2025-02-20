@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3;
+package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -24,18 +23,25 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class Generate180 extends Navigator {
+public class Generate120 extends Navigator {
 
-    private final double kTangentScale = 3;
+    private final double kTangentScale = 1;
     private final double kEntranceCurveFactor = 0.25;
 
-    public Generate180(
+    private final FieldSector m_end;
+    private final ReefDestination m_reefDestination;
+
+    public Generate120(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
-            SwerveController controller,
+            SwerveController hcontroller,
             TrajectoryVisualization viz,
-            SwerveKinodynamics kinodynamics) {
-        super(parent, drive, controller, viz, kinodynamics);
+            SwerveKinodynamics kinodynamics,
+            FieldSector endSector,
+            ReefDestination reefDest) {
+        super(parent, drive, hcontroller, viz, kinodynamics);
+        m_end = endSector;
+        m_reefDestination = reefDest;
     }
 
     @Override
@@ -44,8 +50,8 @@ public class Generate180 extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
 
         FieldSector start = FieldConstants.getSector(currentPose);
-        FieldSector end = FieldSector.AB;
-        ReefDestination reefDestination = ReefDestination.CENTER;
+        FieldSector end = m_end;
+        ReefDestination reefDestination = m_reefDestination;
 
         Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
 
@@ -53,7 +59,7 @@ public class Generate180 extends Navigator {
         List<Integer> list = path.paths();
         ReefAproach approach = path.approach();
 
-        FieldSector anchorPreviousSector = FieldSector.fromValue(list.get(1));
+        FieldSector anchorPreviousSector = FieldSector.fromValue(list.get(0));
         Rotation2d anchorPreviousRotation = FieldConstants.getSectorAngle(anchorPreviousSector);
 
         Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(anchorPreviousRotation, approach);
@@ -92,7 +98,6 @@ public class Generate180 extends Navigator {
         PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
 
         return TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
-
     }
 
 }

@@ -7,8 +7,8 @@ package org.team100.frc2025;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.Swerve.SemiAuto.LandingDestinationGroup;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
+import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.LandingDestinationGroup;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -188,6 +188,15 @@ public class FieldConstants {
 
   }
 
+  public static Translation2d getOrbitWaypoint(Rotation2d angle, double radius) {
+    Translation2d reefCenter = getReefCenter();
+    double x = reefCenter.getX() + (radius * angle.getCos());
+    double y = reefCenter.getY() + (radius * angle.getSin());
+
+    return new Translation2d(x, y);
+
+  }
+
   public static Rotation2d calculateDeltaSpline(Rotation2d originalRotation, Rotation2d deltaRotation, ReefAproach approach, double scale) {
     
     Translation2d originalTranslation = new Translation2d(1, originalRotation);
@@ -198,9 +207,9 @@ public class FieldConstants {
   }
 
   public static Rotation2d calculateDeltaSplineEnd(Rotation2d originalRotation, Rotation2d deltaRotation, ReefAproach approach, double scale) {
-    if(approach == ReefAproach.CW){
+    // if(approach == ReefAproach.CW){
         scale *= -1;
-    }
+    // }
     Translation2d originalTranslation = new Translation2d(1, originalRotation);
     Translation2d deltaTranslation = new Translation2d(scale, deltaRotation);
     Translation2d newTranslation = originalTranslation.plus(deltaTranslation);

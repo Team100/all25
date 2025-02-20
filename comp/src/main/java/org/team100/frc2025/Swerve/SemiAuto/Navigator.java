@@ -44,7 +44,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     }
 
     private final Log m_log;
-    private final SwerveDriveSubsystem m_drive;
+    public final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
     private final TimingConstraintFactory m_constraints;

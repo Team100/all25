@@ -1,12 +1,18 @@
 package org.team100.frc2025.Swerve;
 
-import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate120;
-import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate180;
-import org.team100.frc2025.Swerve.SemiAuto.SemiAuto_i3.Generate60;
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate120;
+import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate180;
+import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate60;
+import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -39,13 +45,28 @@ public class Maker {
     }
 
     public Command test() {
+        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        final SwerveController holonomicController = SwerveControllerFactory.ridiculous(m_logger);
 
-        return new Generate60(
+
+        final HolonomicProfile profile = new HolonomicProfile(
+                swerveKinodynamics.getMaxDriveVelocityM_S(),
+                swerveKinodynamics.getMaxDriveAccelerationM_S2(),
+                0.01, // 1 cm
+                swerveKinodynamics.getMaxAngleSpeedRad_S(),
+                swerveKinodynamics.getMaxAngleAccelRad_S2(),
+                0.1); // 5 degrees
+
+        return new Generate180(
                 m_logger,
                 m_drive,
                 SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
                 m_viz,
-                m_kinodynamics);
+                m_kinodynamics,
+                FieldSector.AB,
+                ReefDestination.CENTER);
+
+        // return new Embark(m_drive, holonomicController, profile);
 
     }
 

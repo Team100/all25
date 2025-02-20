@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.SemiAuto;
+package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
 
 import java.util.List;
 
