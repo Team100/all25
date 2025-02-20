@@ -22,6 +22,7 @@ class RotateTest extends Fixtured implements Timeless {
 
     @Test
     void testRotate() {
+        fixture.collection.reset();
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
         // remember the test rotation rate is *very* slow.

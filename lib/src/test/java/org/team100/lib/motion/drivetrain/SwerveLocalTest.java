@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.text.CollationElementIterator;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -61,5 +62,39 @@ class SwerveLocalTest extends Fixtured implements Timeless {
 
         // just at the limit
         assertTrue(local.aligned(new ChassisSpeeds(1, 0.05, 0)));
+    }
+
+    @Test
+    void testAlignedRotationOnly() {
+        SwerveLocal local = fixture.swerveLocal;
+
+        assertEquals(0, local.positions().frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(0, local.positions().frontRight().angle.get().getRadians(), kDelta);
+        assertEquals(0, local.positions().rearLeft().angle.get().getRadians(), kDelta);
+        assertEquals(0, local.positions().rearRight().angle.get().getRadians(), kDelta);
+
+        // pure rotation
+        assertFalse(local.aligned(new ChassisSpeeds(0, 0, 1)));
+    }
+
+    @Test
+    void testSteerAtRest() {
+        fixture.collection.reset();
+        ChassisSpeeds goal = new ChassisSpeeds(0, 0, 1);
+        SwerveLocal local = fixture.swerveLocal;
+        local.steerAtRest(goal);
+        stepTime();
+        assertEquals(-0.013, fixture.collection.positions().frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(0.013, fixture.collection.positions().frontRight().angle.get().getRadians(), kDelta);
+        assertEquals(0.013, fixture.collection.positions().rearLeft().angle.get().getRadians(), kDelta);
+        assertEquals(-0.013, fixture.collection.positions().rearRight().angle.get().getRadians(), kDelta);
+        for (int i = 0; i < 100; ++i) {
+            local.steerAtRest(goal);
+            stepTime();
+        }
+        assertEquals(-Math.PI / 4, fixture.collection.positions().frontLeft().angle.get().getRadians(), kDelta);
+        assertEquals(Math.PI / 4, fixture.collection.positions().frontRight().angle.get().getRadians(), kDelta);
+        assertEquals(Math.PI / 4, fixture.collection.positions().rearLeft().angle.get().getRadians(), kDelta);
+        assertEquals(-Math.PI / 4, fixture.collection.positions().rearRight().angle.get().getRadians(), kDelta);
     }
 }

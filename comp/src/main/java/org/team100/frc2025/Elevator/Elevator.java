@@ -4,8 +4,6 @@
 
 package org.team100.frc2025.Elevator;
 
-import java.lang.Thread.State;
-
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;

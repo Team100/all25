@@ -9,9 +9,6 @@ public interface SwerveLocalObserver {
 
     SwerveModuleStates getDesiredStates();
 
-    /** @return current measurements */
-    SwerveModuleStates states();
-
     SwerveModulePositions positions();
 
     boolean[] atSetpoint();
