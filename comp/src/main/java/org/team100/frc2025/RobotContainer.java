@@ -220,7 +220,7 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
                 swerveKinodynamics.getMaxDriveVelocityM_S(),
-                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.25,
+                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
                 0.01, // 1 cm
                 swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,

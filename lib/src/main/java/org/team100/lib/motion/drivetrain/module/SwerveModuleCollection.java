@@ -110,7 +110,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 12,
                                 7,
-                                0.657,
+                                0.658,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE),
                         WCPSwerveModule100.getFalconDrive(frontRightLogger,
@@ -130,7 +130,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 21,
                                 6,
-                                0.4055,
+                                0.41,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE),
                         WCPSwerveModule100.getFalconDrive(rearRightLogger,
@@ -140,7 +140,7 @@ public class SwerveModuleCollection {
                                 DriveRatio.FAST, DutyCycleRotaryPositionSensor.class,
                                 33,
                                 9,
-                                0.103,
+                                0.03,
                                 kinodynamics,
                                 EncoderDrive.INVERSE, MotorPhase.REVERSE));
             case BETA_BOT:
@@ -302,6 +302,7 @@ public class SwerveModuleCollection {
 
     /** Updates visualization. */
     public void periodic() {
+
         m_frontLeft.periodic();
         m_frontRight.periodic();
         m_rearLeft.periodic();

@@ -8,6 +8,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
+import org.team100.lib.logging.LoggerFactory.SwerveModulePosition100Logger;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -47,6 +48,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     private final SwerveKinodynamics m_swerveKinodynamics;
     private final SwerveModuleCollection m_modules;
+    private final SwerveModulePosition100Logger m_swerveModuleFrontLeftPosition;
+    private final SwerveModulePosition100Logger m_swerveModuleFrontRightPosition;
+    private final SwerveModulePosition100Logger m_swerveModuleRearLeftPosition;
+    private final SwerveModulePosition100Logger m_swerveModuleRearRightPosition;
     private final ChassisSpeedsLogger m_log_chassis_speed;
 
     public SwerveLocal(
@@ -55,6 +60,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
             SwerveModuleCollection modules) {
         LoggerFactory child = parent.child(this);
         m_log_chassis_speed = child.chassisSpeedsLogger(Level.TRACE, "chassis speed LOG");
+        m_swerveModuleFrontLeftPosition = child.swerveModulePosition100Logger(Level.TRACE, "Fromt Left");
+        m_swerveModuleFrontRightPosition = child.swerveModulePosition100Logger(Level.TRACE, "Front Right");
+        m_swerveModuleRearLeftPosition = child.swerveModulePosition100Logger(Level.TRACE, "Rear Left");
+        m_swerveModuleRearRightPosition = child.swerveModulePosition100Logger(Level.TRACE, "Rear Right");
         m_swerveKinodynamics = swerveKinodynamics;
         m_modules = modules;
     }
@@ -210,6 +219,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     /** Updates visualization. */
     void periodic() {
+        m_swerveModuleFrontLeftPosition.log(() -> positions().frontLeft());
+        m_swerveModuleFrontRightPosition.log(() -> positions().frontRight());
+        m_swerveModuleRearLeftPosition.log(() -> positions().rearLeft());
+        m_swerveModuleRearRightPosition.log(() -> positions().rearRight());
         m_modules.periodic();
     }
 
