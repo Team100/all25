@@ -3,6 +3,7 @@ package org.team100.lib.motion.drivetrain.module;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
+import org.team100.lib.config.Identity;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
@@ -136,7 +137,16 @@ public abstract class SwerveModule100 implements Glassy {
         }
         double drive_M = driveDistance.getAsDouble();
         double turn_rot = turningPosition.getAsDouble();
-        drive_M -= .0975*(turn_rot)/3.8;
+        switch (Identity.instance) {
+            case SWERVE_ONE:
+            case SWERVE_TWO:
+            case COMP_BOT:
+                drive_M -= .0975*(turn_rot)/3.8;
+                break;
+            case BLANK:
+            default:
+                break;
+        }
         return new SwerveModulePosition100(
                 drive_M,
                 Optional.of(new Rotation2d(turn_rot)));
