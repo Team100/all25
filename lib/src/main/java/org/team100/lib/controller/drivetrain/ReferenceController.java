@@ -53,6 +53,7 @@ public class ReferenceController implements Glassy {
     }
 
     public void execute() {
+        // m_aligned = true;
         SwerveModel measurement = m_drive.getState();
         if (!m_aligned) {
             // Haven't started the trajectory yet, so use the references from zero.
