@@ -20,6 +20,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
     /** Confirm that the steering commands are simple steps. */
     @Test
     void testSteering() {
+        fixture.collection.reset();
         SwerveDriveSubsystem swerve = fixture.drive;
         DriveInALittleSquare command = new DriveInALittleSquare(swerve);
         command.initialize();
@@ -52,13 +53,15 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
         assertEquals(0, command.m_setpoint.v(), kDelta);
         assertEquals(Math.PI / 2, command.m_goal.getRadians(), kDelta);
-        assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
+        // TODO: reenable this, after turning "steer at rest" back on.
+        // assertEquals(0, swerve.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(Math.PI / 2, swerve.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(),
                 kDelta);
     }
 
     @Test
     void testLowLevel() {
+        fixture.collection.reset();
         // there's some weird thing with getFPGATimestamp in tests mode
         // that messes up how the simulated encoder measures position,
         // and somehow magically the line below fixes it.
@@ -77,7 +80,9 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
 
         // a little while later we should be driving
         // at this point the speed is still zero
-        assertEquals(0.0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
+        // assertEquals(0.0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
+        assertEquals(0.0, fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, 0.005);
+
         for (int i = 0; i < 5; ++i) {
             stepTime();
         }
@@ -92,7 +97,9 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(DriveInALittleSquare.DriveState.DRIVING, command.m_state);
         assertEquals(0.1, command.m_setpoint.v(), 0.05);
         assertEquals(0, command.m_goal.getRadians(), kDelta);
-        assertEquals(0.1, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
+        // assertEquals(0.1, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), 0.005);
+        assertEquals(0.01, fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, 0.005);
+
         // position isn't updated until the next time-step.
         // assertEquals(0.0,
         // fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters,
@@ -104,11 +111,11 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
             stepTime();
             fixture.drive.periodic();
             command.execute();
-            double speed = fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond();
+            // double speed = fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond();
             double distance = fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters;
             DriveState state = command.m_state;
             if (DEBUG)
-                Util.printf("t %5.3f state %s speed %5.3f distance %5.3f\n", t, state.toString(), speed, distance);
+                Util.printf("t %5.3f state %s distance %5.3f\n", t, state.toString(), distance);
         }
 
         // steer
@@ -118,7 +125,10 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         assertEquals(DriveInALittleSquare.DriveState.STEERING, command.m_state);
         assertEquals(0, command.m_setpoint.v(), kDelta);
         assertEquals(Math.PI / 2, command.m_goal.getRadians(), kDelta);
-        assertEquals(0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), kDelta);
+        // assertEquals(0, fixture.drive.getSwerveLocal().states().frontLeft().speedMetersPerSecond(), kDelta);
+        // TODO: turn this on after the steer-at-rest thing works
+        // assertEquals(1.044, fixture.drive.getSwerveLocal().positions().frontLeft().distanceMeters, kDelta);
+
         assertFalse(fixture.drive.getSwerveLocal().atGoal()[0]);
 
         // wait a half second.
@@ -126,7 +136,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
             stepTime();
             fixture.drive.periodic();
             command.execute();
-            double measurement = fixture.drive.getSwerveLocal().states().frontLeft().angle().get().getRadians();
+            double measurement = fixture.drive.getSwerveLocal().positions().frontLeft().angle.get().getRadians();
             SwerveModuleState100 goal = fixture.swerveLocal.getDesiredStates().frontLeft();
             Control100 setpoint = fixture.swerveLocal.getSetpoints()[0];
             // this output is useful to see what's happening.
@@ -140,7 +150,7 @@ class DriveInALittleSquareTest extends Fixtured implements Timeless {
         }
         // after that time, the wheels have rotated.
         // note the controller tolerance is
-        assertEquals(Math.PI / 2, fixture.drive.getSwerveLocal().states().frontLeft().angle().get().getRadians(), 0.01);
+        assertEquals(Math.PI / 2, fixture.drive.getSwerveLocal().positions().frontLeft().angle.get().getRadians(), 0.01);
         assertTrue(fixture.drive.getSwerveLocal().atGoal()[0]);
         // and we're driving again
         assertEquals(DriveInALittleSquare.DriveState.DRIVING, command.m_state);

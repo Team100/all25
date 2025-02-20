@@ -184,11 +184,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     @Override
-    public SwerveModuleStates states() {
-        return m_modules.states();
-    }
-
-    @Override
     public SwerveModulePositions positions() {
         return m_modules.positions();
     }
