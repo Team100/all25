@@ -5,6 +5,9 @@ import org.team100.lib.dashboard.Glassy;
 /**
  * Represents the HID used by the "operator" role, which typically controls
  * everything other than the drivetrain.
+ * 
+ * When you change this interface, you'll need to also change the "proxy," don't
+ * forget. :-)
  */
 public interface OperatorControl extends Glassy {
 
@@ -13,7 +16,7 @@ public interface OperatorControl extends Glassy {
     }
 
     default Double ramp() {
-        return null;   
+        return null;
     }
 
     // this exists to bind to commands we don't want to run,
@@ -30,6 +33,5 @@ public interface OperatorControl extends Glassy {
     default boolean downavate() {
         return false;
     }
-
 
 }
