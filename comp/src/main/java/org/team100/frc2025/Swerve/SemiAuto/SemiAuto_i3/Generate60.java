@@ -46,67 +46,46 @@ public class Generate60 extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
 
         FieldSector start = FieldConstants.getSector(currentPose);
-        FieldSector end = FieldSector.AB;
+        FieldSector end = FieldSector.EF;
         ReefDestination reefDestination = ReefDestination.CENTER;
 
         Translation2d destination = FieldConstants.getOrbitDestination(end, reefDestination);
 
         ReefPath path = FieldConstants.findShortestPath(start.getValue(), end.getValue());
-        List<Integer> list = path.paths();
         ReefAproach approach = path.approach();
 
-        Translation2d landingZone = FieldConstants.getOrbitLandingZone(end, approach);
 
         List<Pose2d> waypointsM = new ArrayList<>();
         List<Rotation2d> headings = new ArrayList<>();
 
-        LandingDestinationGroup rotationGroup = FieldConstants.getRotationGroup(approach, end, kEntranceCurveFactor);
 
         Rotation2d initialSpline = destination.minus(currTranslation).getAngle();
 
-        Rotation2d initialSplineUnotuched = initialSpline;
-
         Rotation2d endSpline = new Rotation2d(0);
 
-        // if(approach == ReefAproach.CCW){
-        // Rotation2d newRotation =
-        // parallelInitialRotation.plus(Rotation2d.fromDegrees(10));
-        // condition = initialSpline.getDegrees() <= newRotation.getDegrees();
-        // } else{
-        // Rotation2d newRotation =
-        // parallelInitialRotation.minus(Rotation2d.fromDegrees(10));
-        // condition = initialSpline.getDegrees() >= newRotation.getDegrees();
-        // }
+    
 
         Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(FieldConstants.getSectorAngle(start),
                 approach);
-        Translation2d anchorWaypoint = FieldConstants.getOrbitWaypoint(anchorPointRotation);
+        Translation2d anchorWaypoint = FieldConstants.getOrbitWaypoint(anchorPointRotation, 2.4);
 
         Translation2d pointToAnchor = anchorWaypoint.minus(FieldConstants.getReefCenter());
-        // Translation2d perpVector = new Translation2d();
-
-        // if(approach == ReefAproach.CCW){
-        // perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(90));
-        // }else{
-        // perpVector = pointToAnchor.rotateBy(Rotation2d.fromDegrees(-90));
-        // }
+       
 
         Translation2d vectorToAnchorPoint = anchorWaypoint.minus(currTranslation);
 
-        double dotProduct = (pointToAnchor.getX() * vectorToAnchorPoint.getX())
-                + (pointToAnchor.getY() * vectorToAnchorPoint.getY());
 
-        // System.out.println(dotProduct);
 
-        // condition = rotationToAnchorPoint.getDegrees() <= 0;
+        double dotProduct = ((pointToAnchor.getX()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getX()/vectorToAnchorPoint.getNorm()))
+                + ((pointToAnchor.getY()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getY()/vectorToAnchorPoint.getNorm()));
+
+        System.out.println(dotProduct);
+
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 
-        boolean condition = false;
-        Rotation2d parallelInitialRotation = FieldConstants.getLandingAngle(end, approach);
 
-
-        if (dotProduct >= 0) {
+        if (dotProduct <= 1 && dotProduct >= Math.cos(65 * 180/Math.PI)) {
 
             endSpline = FieldConstants.calculateDeltaSplineEnd(FieldConstants.getLandingAngle(end, approach),
                     FieldConstants.getSectorAngle(end), approach, 0.25);
