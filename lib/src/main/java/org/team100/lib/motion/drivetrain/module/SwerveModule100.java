@@ -74,9 +74,9 @@ public abstract class SwerveModule100 implements Glassy {
         if (dt > 1e-6) {
             // avoid short intervals
             double omega = dtheta.getRadians() / dt;
-            System.out.println(omega);
+            // System.out.println(omega);
             // TODO: should this be positive or negative?
-            desiredSpeed += .0975 * (omega) / 3.8;
+            // desiredSpeed += .0975 * (omega) / 3.8;
         }
 
         m_previousDesiredAngle = desiredAngle;
