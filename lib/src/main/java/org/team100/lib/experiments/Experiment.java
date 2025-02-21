@@ -42,5 +42,13 @@ public enum Experiment {
     /**
      * Clip the snap omega
      */
-    SnapGentle
+    SnapGentle,
+    /**
+     * Limit jerk in the swerve limiter.
+     */
+    SwerveJerkLimit,
+    /**
+     * Ignore very small inputs, to reduce jittering.
+     */
+    SwerveDeadband
 }
