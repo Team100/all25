@@ -28,6 +28,7 @@ public class SwerveUtil {
     /**
      * At low speed, accel is limited by the current limiters.
      * At high speed, accel is limited by back EMF.
+     * Note at full speed this can return zero.
      */
     public static double minAccel(SwerveKinodynamics m_limits, double velocity) {
         double speedFraction = Math100.limit(velocity / m_limits.getMaxDriveVelocityM_S(), 0, 1);

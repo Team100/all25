@@ -4,10 +4,12 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeJerk;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
+import org.team100.lib.util.Util;
 
 public class JerkLimiter {
+    private static final boolean DEBUG = true;
     // TODO: is this a reasonable limit?
-    private final double m_jerkLimitM_S3 = 25;
+    private final double m_jerkLimitM_S3 = 175;
 
     public FieldRelativeVelocity apply(
             FieldRelativeVelocity prev,
@@ -25,6 +27,9 @@ public class JerkLimiter {
             return next;
         double scale = Math.min(1, m_jerkLimitM_S3 / j);
         FieldRelativeAcceleration accel = accel0.plus(jerk.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
-        return current.plus(accel.integrate(TimedRobot100.LOOP_PERIOD_S));
+        FieldRelativeVelocity result = current.plus(accel.integrate(TimedRobot100.LOOP_PERIOD_S));
+        if (DEBUG)
+            Util.printf("jerk limit %s %s %s %s\n", prev, current, next, result);
+        return result;
     }
 }

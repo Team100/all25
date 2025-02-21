@@ -63,6 +63,6 @@ public class JerkLimiterTest {
         FieldRelativeVelocity v2 = new FieldRelativeVelocity(0.06, 0, 0);
         JerkLimiter limiter = new JerkLimiter();
         FieldRelativeVelocity result = limiter.apply(v0, v1, v2);
-        assertEquals(0.05, result.x(), kDelta);
+        assertEquals(0.06, result.x(), kDelta);
     }
 }

@@ -50,5 +50,11 @@ public enum Experiment {
     /**
      * Ignore very small inputs, to reduce jittering.
      */
-    SwerveDeadband
+    SwerveDeadband,
+    /**
+     * Slow the initial acceleration of the drivetrain, to give the modules time to
+     * align.  This might be better than the "steer at rest" logic.
+     */
+    
+    SlowStart
 }
