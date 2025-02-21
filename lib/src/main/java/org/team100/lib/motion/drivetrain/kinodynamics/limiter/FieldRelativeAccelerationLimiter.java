@@ -23,11 +23,20 @@ public class FieldRelativeAccelerationLimiter {
                 prev,
                 TimedRobot100.LOOP_PERIOD_S);
         double a = accel.norm();
+        if (Math.abs(a) < 1e-6) {
+            // avoid divide-by-zero
+            return target;
+        }
         double accelLimit = SwerveUtil.getAccelLimit(m_limits, prev, target);
+        // at full speed both a and accelLimit are around zero
+        if (a < accelLimit) {
+            return target;
+        }
         double scale = Math.min(1, accelLimit / a);
+        FieldRelativeVelocity result = prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
         if (DEBUG)
-            Util.printf("FieldRelativeAccelerationLimiter prev %s target %s scale %.5f\n", prev, target, scale);
-        return prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
+            Util.printf("accel limit prev %s target %s a %f scale %.5f %s\n", prev, target, a, scale, result);
+        return result;
 
     }
 }

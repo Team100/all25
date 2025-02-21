@@ -48,7 +48,7 @@ class RotateTest extends Fixtured implements Timeless {
             rotate.execute();
         }
         // now we're ready to start rotating
-        assertEquals(-0.02, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
+        assertEquals(-0.417, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().speedMetersPerSecond(),
                 kDelta);
         assertEquals(-Math.PI / 4,
                 fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), 0.1);

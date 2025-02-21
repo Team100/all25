@@ -78,4 +78,9 @@ class SwerveUtilTest {
             v += dt * a;
         }
     }
+
+    @Test
+    void testJerkLimit() {
+        
+    }
 }
