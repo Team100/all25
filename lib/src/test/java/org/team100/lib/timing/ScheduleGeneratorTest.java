@@ -24,7 +24,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class TimingUtilTest {
+public class ScheduleGeneratorTest {
     public static final double kTestEpsilon = 1e-12;
 
     public static final List<Pose2dWithMotion> kWaypoints = Arrays.asList(
@@ -47,7 +47,7 @@ public class TimingUtilTest {
             double end_vel,
             double max_vel,
             double max_acc) {
-        TimingUtil u = new TimingUtil(constraints);
+        ScheduleGenerator u = new ScheduleGenerator(constraints);
         Trajectory100 timed_traj = u.timeParameterizeTrajectory(
                 path,
                 step_size,
@@ -236,27 +236,27 @@ public class TimingUtilTest {
     void testAccel() {
         // average v = 0.5
         // dv = 1
-        assertEquals(0.5, TimingUtil.accel(0, 1, 1.0), 0.001);
-        assertEquals(1.0, TimingUtil.accel(0, 1, 0.5), 0.001);
+        assertEquals(0.5, ScheduleGenerator.accel(0, 1, 1.0), 0.001);
+        assertEquals(1.0, ScheduleGenerator.accel(0, 1, 0.5), 0.001);
         // average v = 1.5
         // dv = 1
-        assertEquals(1.5, TimingUtil.accel(1, 2, 1.0), 0.001);
+        assertEquals(1.5, ScheduleGenerator.accel(1, 2, 1.0), 0.001);
         // same case, backwards
-        assertEquals(1.5, TimingUtil.accel(2, 1, -1.0), 0.001);
+        assertEquals(1.5, ScheduleGenerator.accel(2, 1, -1.0), 0.001);
     }
 
     @Test
     void testV1() {
         // no v or a => no new v
-        assertEquals(0.0, TimingUtil.v1(0, 0, 1.0));
+        assertEquals(0.0, ScheduleGenerator.v1(0, 0, 1.0));
         // no a => keep old v
-        assertEquals(1.0, TimingUtil.v1(1, 0, 1.0));
+        assertEquals(1.0, ScheduleGenerator.v1(1, 0, 1.0));
         // a = 0.5 for 1 => final v is 1
-        assertEquals(1.0, TimingUtil.v1(0, 0.5, 1.0));
+        assertEquals(1.0, ScheduleGenerator.v1(0, 0.5, 1.0));
         // same case, backwards
-        assertEquals(0.0, TimingUtil.v1(1.0, 0.5, -1.0));
+        assertEquals(0.0, ScheduleGenerator.v1(1.0, 0.5, -1.0));
         // backwards with negative accel
-        assertEquals(1.0, TimingUtil.v1(0.0, -0.5, -1.0));
+        assertEquals(1.0, ScheduleGenerator.v1(0.0, -0.5, -1.0));
     }
 
 }

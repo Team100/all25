@@ -9,7 +9,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
 import org.team100.lib.path.PathPlanner;
 import org.team100.lib.timing.TimingConstraint;
-import org.team100.lib.timing.TimingUtil;
+import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,10 +30,10 @@ public class TrajectoryPlanner {
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
 
-    private final TimingUtil u;
+    private final ScheduleGenerator u;
 
     public TrajectoryPlanner(List<TimingConstraint> constraints) {
-        u = new TimingUtil(constraints);
+        u = new ScheduleGenerator(constraints);
     }
 
     /** A square counterclockwise starting with +x. */

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.lib.geometry.Pose2dWithMotion;
-import org.team100.lib.timing.TimingUtil;
+import org.team100.lib.timing.ScheduleGenerator;
 
 /**
- * Represents a 2d path with heading.
+ * Represents a 2d holonomic path, i.e. with heading independent from course.
  * 
- * There's no timing information here. For that, see Trajectory.
+ * There's no timing information here. For that, see Trajectory100.
  */
 public class Path100 {
     private final List<Pose2dWithMotion> m_points;
@@ -45,6 +45,7 @@ public class Path100 {
         return m_points.get(index);
     }
 
+    /** This is always non-negative. */
     public double getMaxDistance() {
         if (m_points.isEmpty())
             return 0.0;
@@ -56,9 +57,9 @@ public class Path100 {
     }
 
     /**
-     * @param distance in meters
+     * @param distance in meters, always a non-negative number.
      */
-    public Pose2dWithMotion sample(double distance) throws TimingUtil.TimingException {
+    public Pose2dWithMotion sample(double distance) throws ScheduleGenerator.TimingException {
         if (distance >= getMaxDistance()) {
             Pose2dWithMotion point = getPoint(length() - 1);
             return point;
@@ -80,7 +81,7 @@ public class Path100 {
                 }
             }
         }
-        throw new TimingUtil.TimingException();
+        throw new ScheduleGenerator.TimingException();
     }
 
     public Pose2dWithMotion getInterpolated(final double index) {

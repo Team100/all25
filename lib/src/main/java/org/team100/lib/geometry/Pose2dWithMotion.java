@@ -11,11 +11,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
- * This is from 254 2023 motion planning; the main reason to include it
- * is because it represents both heading and course, whereas the WPI equivalent
- * represents only course.
+ * Represents a state within a 2d holonomic path, i.e. with heading independent
+ * from course.
  * 
- * Note, Pose2dWithMotion is a purely spatial construct.
+ * This is a purely spatial construct: for the notion of velocity, you probably
+ * want TimedPose.
  */
 public class Pose2dWithMotion {
     /**

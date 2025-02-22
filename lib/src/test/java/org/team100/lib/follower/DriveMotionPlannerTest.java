@@ -20,7 +20,7 @@ import org.team100.lib.path.Path100;
 import org.team100.lib.path.PathPlanner;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.testing.Timeless;
-import org.team100.lib.timing.TimingUtil;
+import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.util.Util;
 
@@ -50,7 +50,7 @@ class DriveMotionPlannerTest implements Timeless {
         assertFalse(path.isEmpty());
 
         double stepSize = 2;
-        TimingUtil u = new TimingUtil(Arrays.asList());
+        ScheduleGenerator u = new ScheduleGenerator(Arrays.asList());
         Trajectory100 trajectory = u.timeParameterizeTrajectory(
                 path,
                 stepSize,

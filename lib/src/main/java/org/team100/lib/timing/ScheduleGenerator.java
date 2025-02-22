@@ -9,12 +9,10 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.util.Util;
 
 /**
- * Distance is always positive.
- * Velocity is always positive.
- * Max accel is positive.
- * Min accel is negative.
+ * Given a path, produces a trajectory, which includes the path and adds a
+ * schedule.
  */
-public class TimingUtil {
+public class ScheduleGenerator {
     private static final double kEpsilon = 1e-6;
     /** this is the default, in order to make the constraints set the actual */
     private static final double HIGH_ACCEL = 1000;
@@ -22,12 +20,12 @@ public class TimingUtil {
     private final List<TimingConstraint> m_constraints;
 
     /** If you want a max velocity or accel constraint, use ConstantConstraint. */
-    public TimingUtil(List<TimingConstraint> constraints) {
+    public ScheduleGenerator(List<TimingConstraint> constraints) {
         m_constraints = constraints;
     }
 
     /**
-     * sample the path evenly by distance, and then assign times to each sample.
+     * Samples the path evenly by distance, and then assign times to each sample.
      */
     public Trajectory100 timeParameterizeTrajectory(
             Path100 path,

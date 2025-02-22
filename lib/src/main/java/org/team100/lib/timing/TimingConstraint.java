@@ -10,7 +10,7 @@ import org.team100.lib.geometry.Pose2dWithMotion;
  */
 public interface TimingConstraint {
     /**
-     * Maximum allowed velocity m/s.
+     * Maximum allowed velocity m/s.  This is always non-negative.
      */
     NonNegativeDouble getMaxVelocity(Pose2dWithMotion state);
 
@@ -47,8 +47,8 @@ public interface TimingConstraint {
         }
 
         /**
-         * @param minAccel negative
-         * @param maxAccel positive
+         * @param minAccel a negative number
+         * @param maxAccel a positive number
          */
         public MinMaxAcceleration(double minAccel, double maxAccel) {
             if (minAccel > 0) {
