@@ -3,7 +3,7 @@ package org.team100.lib.trajectory;
 import java.util.List;
 
 import org.team100.lib.path.Path100;
-import org.team100.lib.path.PathDistanceSampler;
+import org.team100.lib.path.PathPlanner;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingUtil;
 import org.team100.lib.util.Util;
@@ -59,13 +59,12 @@ public class TrajectoryPlanner {
             double end_vel) {
         try {
             // Create a path from splines.
-            Path100 path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(
+            Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
                     waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta);
             // Generate the timed trajectory.
-            var view = new PathDistanceSampler(path);
             TimingUtil u = new TimingUtil(constraints);
             return u.timeParameterizeTrajectory(
-                    view,
+                    path,
                     kMaxDx,
                     start_vel,
                     end_vel);
@@ -88,13 +87,12 @@ public class TrajectoryPlanner {
             List<Double> mN) {
         try {
             // Create a path from splines.
-            Path100 path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(
+            Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
                     waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta, mN);
             // Generate the timed trajectory.
-            var view = new PathDistanceSampler(path);
             TimingUtil u = new TimingUtil(constraints);
             return u.timeParameterizeTrajectory(
-                    view,
+                    path,
                     kMaxDx,
                     start_vel,
                     end_vel);
