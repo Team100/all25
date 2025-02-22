@@ -167,7 +167,8 @@ class Trajectory100Test {
     }
 
     /** Does the index help? No. */
-    @Test
+    // There's no need to run this all the time
+    // @Test
     void testSamplePerformance() {
         List<Pose2d> waypointsM = List.of(
                 new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),

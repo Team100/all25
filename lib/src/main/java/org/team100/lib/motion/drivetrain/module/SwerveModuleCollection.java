@@ -147,7 +147,8 @@ public class SwerveModuleCollection {
             case SWERVE_TWO:
             case BLANK:
             default:
-                Util.println("************** SIMULATED MODULES **************");
+                if (DEBUG)
+                    Util.println("************** SIMULATED MODULES **************");
                 /*
                  * Uses simulated position sensors, must be used with clock control (e.g.
                  * {@link Timeless}).
