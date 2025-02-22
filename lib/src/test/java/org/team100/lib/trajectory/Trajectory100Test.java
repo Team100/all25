@@ -18,7 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-class TrajectoryTimeIteratorTest {
+class Trajectory100Test {
     private static final double kDelta = 0.001;
     private static final boolean DEBUG = false;
 
@@ -41,8 +41,9 @@ class TrajectoryTimeIteratorTest {
                 end.getRotation());
 
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
 
         TimedPose sample = trajectory.sample(0);
         assertEquals(0, sample.state().getPose().getX(), kDelta);
@@ -76,8 +77,9 @@ class TrajectoryTimeIteratorTest {
                 end.getRotation());
 
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
 
         assertEquals(1.415, trajectory.duration(), kDelta);
         TimedPose sample = trajectory.sample(0);
@@ -104,8 +106,9 @@ class TrajectoryTimeIteratorTest {
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
 
         assertEquals(1.415, trajectory.duration(), kDelta);
         assertEquals(0.000, trajectory.sample(0).state().getPose().getX(), kDelta);
@@ -139,8 +142,9 @@ class TrajectoryTimeIteratorTest {
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
 
         assertEquals(1.499, trajectory.duration(), kDelta);
         assertEquals(0.000, trajectory.sample(0).state().getPose().getX(), kDelta);
@@ -177,8 +181,9 @@ class TrajectoryTimeIteratorTest {
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = TrajectoryPlanner.restToRest(waypointsM, headings, constraints);
+        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
 
         assertEquals(1851, trajectory.length());
         int reps = 500000;

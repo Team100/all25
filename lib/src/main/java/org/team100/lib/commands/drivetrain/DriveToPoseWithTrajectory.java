@@ -1,12 +1,14 @@
 package org.team100.lib.commands.drivetrain;
 
+import java.util.function.BiFunction;
+
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class DriveToPoseWithTrajectory extends Command implements Glassy {
     private final Pose2d m_goal;
     private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryToPose m_trajectories;
+    private final BiFunction<SwerveModel, Pose2d, Trajectory100> m_trajectories;
     private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
  
@@ -35,7 +37,7 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
     public DriveToPoseWithTrajectory(
             Pose2d goal,
             SwerveDriveSubsystem drive,
-            TrajectoryToPose trajectories,
+            BiFunction<SwerveModel, Pose2d, Trajectory100> trajectories,
             SwerveController controller,
             TrajectoryVisualization viz) {
         m_goal = goal;

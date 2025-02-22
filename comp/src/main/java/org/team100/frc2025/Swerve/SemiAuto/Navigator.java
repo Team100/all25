@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.ReefAproach;
-import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -16,10 +16,10 @@ import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.reference.TrajectoryReference;
-import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -47,9 +47,11 @@ public abstract class Navigator extends Command implements Planner2025 {
     public final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
-    private final TimingConstraintFactory m_constraints;
 
-    // created in initialize
+    // used by trajectory()
+    protected final TrajectoryPlanner m_planner;
+
+    // created in initialize()
     protected ReferenceController m_referenceController;
 
     public Navigator(
@@ -62,13 +64,13 @@ public abstract class Navigator extends Command implements Planner2025 {
         m_drive = drive;
         m_controller = controller;
         m_viz = viz;
-        m_constraints = new TimingConstraintFactory(kinodynamics);
+        m_planner = new TrajectoryPlanner(new TimingConstraintFactory(kinodynamics).medium());
         addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        Trajectory100 trajectory = trajectory(m_constraints.medium(), m_drive.getPose());
+        Trajectory100 trajectory = trajectory(m_drive.getPose());
         m_viz.setViz(trajectory);
 
         m_referenceController = new ReferenceController(
@@ -78,7 +80,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     }
 
     /** Subclasses make trajectories. */
-    protected abstract Trajectory100 trajectory(List<TimingConstraint> constraints, Pose2d currentPose);
+    protected abstract Trajectory100 trajectory(Pose2d currentPose);
 
     @Override
     public final void execute() {

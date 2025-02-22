@@ -8,8 +8,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.timing.ConstantConstraint;
-import org.team100.lib.trajectory.TrajectoryMaker;
-import org.team100.lib.trajectory.TrajectoryToPose;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,7 +25,7 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final TrajectoryVisualization m_viz;
-    private final TrajectoryToPose maker;
+    private final TrajectoryPlanner m_planner;
 
     /**
      * Draw a square like so:
@@ -44,8 +43,8 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
         m_drive = drive;
         m_controller = controller;
         m_viz = viz;
-        maker = new TrajectoryToPose(true,
-                new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S))));
+        m_planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         addCommands(
                 go(-0.5, -0.5),
@@ -58,6 +57,9 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
     private Command go(double x, double y) {
         return new DriveToPoseWithTrajectory(
                 new Pose2d(x, y, GeometryUtil.kRotationZero),
-                m_drive, maker, m_controller, m_viz);
+                m_drive,
+                (start, end) -> m_planner.movingToRest(start, end),
+                m_controller,
+                m_viz);
     }
 }
