@@ -170,13 +170,13 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
         stepTime();
         command.execute();
         // this is the output from the previous takt
-        assertEquals(0.01, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
 
         // etc
         stepTime();
         command.execute();
-        assertEquals(0.02, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
+        assertEquals(0.04, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
     }
 

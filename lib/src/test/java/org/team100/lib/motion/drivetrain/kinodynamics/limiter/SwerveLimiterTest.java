@@ -112,8 +112,7 @@ public class SwerveLimiterTest {
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
         limiter.updateSetpoint(prevSetpoint);
         FieldRelativeVelocity setpoint = limiter.apply(target);
-        // TODO: make this actually unconstrained
-        assertEquals(0.01, setpoint.x(), kDelta);
+        assertEquals(1, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
 
@@ -154,10 +153,9 @@ public class SwerveLimiterTest {
         FieldRelativeVelocity prevSetpoint = new FieldRelativeVelocity(0, 0, 0);
         limiter.updateSetpoint(prevSetpoint);
         FieldRelativeVelocity setpoint = limiter.apply(target);
-        // TODO: fix this test
-        assertEquals(0.01, setpoint.x(), kDelta);
+        assertEquals(5, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
-        assertEquals(0.05, setpoint.theta(), kDelta);
+        assertEquals(25, setpoint.theta(), kDelta);
 
     }
 
@@ -182,8 +180,7 @@ public class SwerveLimiterTest {
         // so v = 0.2 m/s
         limiter.updateSetpoint(setpoint);
         setpoint = limiter.apply(desiredSpeeds);
-        // TODO: fix this test
-        assertEquals(0.01, setpoint.x(), kDelta);
+        assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
 
@@ -194,7 +191,7 @@ public class SwerveLimiterTest {
         for (int i = 0; i < 50; ++i) {
             setpoint = limiter.apply(desiredSpeeds);
         }
-        assertEquals(4.759, setpoint.x(), kDelta);
+        assertEquals(4.9, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
     }
@@ -213,8 +210,7 @@ public class SwerveLimiterTest {
 
         limiter.updateSetpoint(setpoint);
         setpoint = limiter.apply(desiredSpeeds);
-        // TODO: fix this test
-        assertEquals(0.01, setpoint.x(), kDelta);
+        assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
     }
@@ -234,13 +230,12 @@ public class SwerveLimiterTest {
 
         limiter.updateSetpoint(setpoint);
         setpoint = limiter.apply(desiredSpeeds);
-        // TODO: fix this test
-        assertEquals(0.01, setpoint.x(), kDelta);
+        assertEquals(0.2, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
 
         setpoint = limiter.apply(desiredSpeeds);
-        assertEquals(0.02, setpoint.x(), kDelta);
+        assertEquals(0.4, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
     }
