@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.lib.geometry.Pose2dWithMotion;
-import org.team100.lib.path.PathDistanceSampler;
+import org.team100.lib.path.Path100;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.util.Util;
 
@@ -30,18 +30,18 @@ public class TimingUtil {
      * sample the path evenly by distance, and then assign times to each sample.
      */
     public Trajectory100 timeParameterizeTrajectory(
-            PathDistanceSampler sampler,
+            Path100 path,
             double step,
             double start_vel,
             double end_vel) {
         try {
-            double maxDistance = sampler.getMaxDistance();
+            double maxDistance = path.getMaxDistance();
             if (maxDistance == 0)
                 throw new IllegalArgumentException();
             int num_states = (int) Math.ceil(maxDistance / step + 1);
             List<Pose2dWithMotion> samples = new ArrayList<>(num_states);
             for (int i = 0; i < num_states; ++i) {
-                Pose2dWithMotion state = sampler.sample(Math.min(i * step, maxDistance)).state();
+                Pose2dWithMotion state = path.sample(Math.min(i * step, maxDistance));
                 samples.add(state);
             }
             return timeParameterizeTrajectory(samples, start_vel, end_vel);
