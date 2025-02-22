@@ -18,7 +18,7 @@ import org.team100.lib.util.Util;
  * estimator. Remember to update the setpoint!
  */
 public class SwerveLimiter {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private final FieldRelativeVelocityLimiter m_velocityLimiter;
     private final FieldRelativeCapsizeLimiter m_capsizeLimiter;
     private final FieldRelativeAccelerationLimiter m_accelerationLimiter;
