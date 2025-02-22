@@ -23,9 +23,6 @@ public class SwerveLimiter {
     private final FieldRelativeCapsizeLimiter m_capsizeLimiter;
     private final FieldRelativeAccelerationLimiter m_accelerationLimiter;
     private final SwerveDeadband m_deadband;
-    private final JerkLimiter m_jerkLimiter;
-    private final SlowStart m_slowStart;
-
     // the velocity expected at the current time step, i.e. the previous time step's
     // desire.
     private FieldRelativeVelocity m_current;
@@ -38,8 +35,6 @@ public class SwerveLimiter {
         m_capsizeLimiter = new FieldRelativeCapsizeLimiter(dynamics);
         m_accelerationLimiter = new FieldRelativeAccelerationLimiter(dynamics);
         m_deadband = new SwerveDeadband();
-        m_jerkLimiter = new JerkLimiter();
-        m_slowStart = new SlowStart();
     }
 
     /**
@@ -68,13 +63,6 @@ public class SwerveLimiter {
         result = m_accelerationLimiter.limit(m_current, result);
         if (DEBUG)
             Util.printf("result4 %s\n", result);
-
-        result = m_slowStart.limit(m_current, result);
-
-        // NEW! Limit jerk
-        if (Experiments.instance.enabled(Experiment.SwerveJerkLimit)) {
-            result = m_jerkLimiter.apply(m_prev, m_current, result);
-        }
 
         // NEW! Ignore very small inputs.
         if (Experiments.instance.enabled(Experiment.SwerveDeadband)) {
