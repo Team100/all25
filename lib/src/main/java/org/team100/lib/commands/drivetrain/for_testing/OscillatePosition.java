@@ -6,8 +6,8 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.reference.TrajectoryReference;
-import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.trajectory.Trajectory100;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class OscillatePosition extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
-    private final TrajectoryToPose m_trajectories;
+    private final TrajectoryPlanner m_trajectories;
     private final SwerveController m_controller;
     private final double m_offsetM;
     private final TrajectoryVisualization m_viz;
@@ -35,7 +35,7 @@ public class OscillatePosition extends Command implements Glassy {
 
     public OscillatePosition(
             SwerveDriveSubsystem drive,
-            TrajectoryToPose trajectories,
+            TrajectoryPlanner trajectories,
             SwerveController controller,
             double offsetM,
             TrajectoryVisualization viz) {
@@ -53,7 +53,7 @@ public class OscillatePosition extends Command implements Glassy {
         SwerveModel start = m_drive.getState();
         Pose2d startPose = start.pose();
         Pose2d endPose = startPose.plus(new Transform2d(m_offsetM, 0, new Rotation2d()));
-        m_trajectory = m_trajectories.apply(start, endPose);
+        m_trajectory = m_trajectories.restToRest(start.pose(), endPose);
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,

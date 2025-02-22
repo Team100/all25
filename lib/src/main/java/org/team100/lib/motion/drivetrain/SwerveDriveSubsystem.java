@@ -212,7 +212,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     public void resetPose(Pose2d robotPose) {
-        Util.warn("Make sure resetting the swerve module collection doesn't break anything");
+        if (DEBUG)
+            Util.warn("Make sure resetting the swerve module collection doesn't break anything");
         m_swerveLocal.reset();
         m_poseEstimator.reset(
                 m_gyro,

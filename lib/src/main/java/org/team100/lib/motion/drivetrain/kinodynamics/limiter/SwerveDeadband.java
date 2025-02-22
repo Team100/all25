@@ -1,7 +1,6 @@
 package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
-import org.team100.lib.util.Util;
 
 /**
  * Ignores very small inputs.
@@ -30,7 +29,6 @@ public class SwerveDeadband {
         if (Math.abs(target.theta()) > m_omegaLimit)
             return target;
 
-        Util.printf("deadband to zero\n");
         return FieldRelativeVelocity.kZero;
     }
 }

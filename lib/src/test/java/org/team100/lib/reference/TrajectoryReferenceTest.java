@@ -13,7 +13,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -21,11 +21,11 @@ public class TrajectoryReferenceTest implements Timeless {
     private static final double kDelta = 0.001;
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-    TrajectoryMaker maker = new TrajectoryMaker(constraints);
+    TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
     @Test
     void testSimple() {
-        Trajectory100 t = maker.restToRest(
+        Trajectory100 t = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         TrajectoryReference r = new TrajectoryReference(t);

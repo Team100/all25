@@ -23,7 +23,7 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -36,7 +36,7 @@ class DriveWithTrajectoryListTest extends Fixtured implements Timeless {
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
 
     List<TimingConstraint> constraints = new TimingConstraintFactory(fixture.swerveKinodynamics).allGood();
-    TrajectoryMaker maker = new TrajectoryMaker(constraints);
+    TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
     @BeforeEach
     void nolog() {
@@ -50,7 +50,7 @@ class DriveWithTrajectoryListTest extends Fixtured implements Timeless {
         DriveWithTrajectoryList c = new DriveWithTrajectoryList(
                 fixture.drive,
                 control,
-                x -> List.of(maker.line(x)),
+                x -> List.of(planner.line(x)),
                 viz);
         c.initialize();
         assertEquals(0, fixture.drive.getPose().getX(), kDelta);
@@ -77,7 +77,7 @@ class DriveWithTrajectoryListTest extends Fixtured implements Timeless {
         DriveWithTrajectoryList command = new DriveWithTrajectoryList(
                 fixture.drive,
                 controller,
-                x -> maker.square(x),
+                x -> planner.square(x),
                 viz);
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
         fixture.drive.periodic();

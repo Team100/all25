@@ -1,6 +1,5 @@
 package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class SimulatedDrivingTest implements Timeless {
+    private static final boolean DEBUG = false;
     LoggerFactory fieldLogger = new TestLoggerFactory(new TestPrimitiveLogger());
     LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
@@ -104,7 +104,8 @@ public class SimulatedDrivingTest implements Timeless {
         SwerveModuleDeltas modulePositionDelta = DriveUtil.modulePositionDelta(
                 startPositions,
                 endPositions);
-        Util.printf("%s\n", modulePositionDelta);
+        if (DEBUG)
+            Util.printf("%s\n", modulePositionDelta);
 
         Twist2d twist = swerveKinodynamics.getKinematics().toTwist2d(modulePositionDelta);
 
@@ -127,7 +128,8 @@ public class SimulatedDrivingTest implements Timeless {
         for (int i = 0; i < 100; ++i) {
             stepTime();
             drive.driveInFieldCoords(input);
-            Util.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
+            if (DEBUG)
+                Util.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
         }
     }
 
@@ -141,7 +143,8 @@ public class SimulatedDrivingTest implements Timeless {
         for (int i = 0; i < 100; ++i) {
             stepTime();
             drive.driveInFieldCoordsVerbatim(input);
-            Util.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
+            if (DEBUG)
+                Util.printf("%.2f %s\n", Takt.get() - start, drive.getPose());
         }
     }
 
@@ -158,9 +161,11 @@ public class SimulatedDrivingTest implements Timeless {
         // +x and spinning. course is always zero.
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
         for (int i = 0; i < 50; ++i) {
-            Util.printf("\nstep time ...\n");
+            if (DEBUG)
+                Util.printf("\nstep time ...\n");
             stepTime();
-            Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
+            if (DEBUG)
+                Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
             drive.driveInFieldCoords(input);
         }
     }
@@ -174,9 +179,11 @@ public class SimulatedDrivingTest implements Timeless {
         // +x and spinning
         FieldRelativeVelocity input = new FieldRelativeVelocity(2, 0, 3.5);
         for (int i = 0; i < 100; ++i) {
-            Util.printf("\nstep time ...\n");
+            if (DEBUG)
+                Util.printf("\nstep time ...\n");
             stepTime();
-            Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
+            if (DEBUG)
+                Util.printf("takt: %.2f state: %s\n", Takt.get(), drive.getState());
             drive.driveInFieldCoordsVerbatim(input);
         }
     }
@@ -186,30 +193,35 @@ public class SimulatedDrivingTest implements Timeless {
     void testGyro() {
         // spin fast
         FieldRelativeVelocity input = new FieldRelativeVelocity(0, 0, 4);
-        Util.printf("pose %s, gyro %s, rate %f\n",
-                drive.getPose(),
-                gyro.getYawNWU(),
-                gyro.getYawRateNWU());
+        if (DEBUG)
+            Util.printf("pose %s, gyro %s, rate %f\n",
+                    drive.getPose(),
+                    gyro.getYawNWU(),
+                    gyro.getYawRateNWU());
         drive.driveInFieldCoordsVerbatim(input);
-        Util.printf("pose %s, gyro %s, rate %f\n",
-                drive.getPose(),
-                gyro.getYawNWU(),
-                gyro.getYawRateNWU());
+        if (DEBUG)
+            Util.printf("pose %s, gyro %s, rate %f\n",
+                    drive.getPose(),
+                    gyro.getYawNWU(),
+                    gyro.getYawRateNWU());
         stepTime();
-        Util.printf("pose %s, gyro %s, rate %f\n",
-                drive.getPose(),
-                gyro.getYawNWU(),
-                gyro.getYawRateNWU());
+        if (DEBUG)
+            Util.printf("pose %s, gyro %s, rate %f\n",
+                    drive.getPose(),
+                    gyro.getYawNWU(),
+                    gyro.getYawRateNWU());
         drive.driveInFieldCoordsVerbatim(input);
-        Util.printf("pose %s, gyro %s, rate %f\n",
-                drive.getPose(),
-                gyro.getYawNWU(),
-                gyro.getYawRateNWU());
+        if (DEBUG)
+            Util.printf("pose %s, gyro %s, rate %f\n",
+                    drive.getPose(),
+                    gyro.getYawNWU(),
+                    gyro.getYawRateNWU());
         stepTime();
-        Util.printf("pose %s, gyro %s, rate %f\n",
-                drive.getPose(),
-                gyro.getYawNWU(),
-                gyro.getYawRateNWU());
+        if (DEBUG)
+            Util.printf("pose %s, gyro %s, rate %f\n",
+                    drive.getPose(),
+                    gyro.getYawNWU(),
+                    gyro.getYawRateNWU());
 
     }
 }

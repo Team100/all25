@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -51,7 +50,8 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
      * If we *did* want to optimize it, we could move the replay from the vision
      * writer to the pose reader, and save something like 20 us (0.4%) on average.
      */
-    @Test
+    // There's no need to run this all the time
+    // @Test
     void test0() {
         SwerveKinodynamics kinodynamics = SwerveKinodynamicsFactory.forTest();
         double[] stateStdDevs = new double[] { 0.1, 0.1, 0.1 };

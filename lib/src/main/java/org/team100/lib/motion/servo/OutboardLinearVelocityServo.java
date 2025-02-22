@@ -11,6 +11,7 @@ import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.util.Util;
 
 public class OutboardLinearVelocityServo implements LinearVelocityServo {
+    private static final boolean DEBUG = false;
     private final LinearMechanism m_mechanism;
     // LOGGERS
     private final DoubleLogger m_log_setpoint_v;
@@ -33,7 +34,8 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
 
     @Override
     public void reset() {
-        Util.warn("make sure resetting encoder position doesn't break anything");
+        if (DEBUG)
+            Util.warn("make sure resetting encoder position doesn't break anything");
         m_mechanism.resetEncoderPosition();
     }
 

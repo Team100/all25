@@ -7,7 +7,10 @@ import java.text.DecimalFormat;
 import org.team100.lib.geometry.Pose2dWithMotion;
 
 /**
- * Timed Pose now includes the heading part, timed rotation is gone.
+ * Represents a state within a 2d holonomic trajectory, i.e. with heading
+ * independent from course.
+ * 
+ * The timing fields are set by the ScheduleGenerator.
  */
 public class TimedPose {
     private final Pose2dWithMotion m_state;

@@ -26,7 +26,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,11 +37,11 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-    TrajectoryMaker maker = new TrajectoryMaker(constraints);
+    TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
     @Test
     void testTrajectoryStart() {
-        Trajectory100 t = maker.restToRest(
+        Trajectory100 t = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
@@ -97,7 +97,7 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
 
     @Test
     void testTrajectoryDone() {
-        Trajectory100 t = maker.restToRest(
+        Trajectory100 t = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
@@ -131,7 +131,7 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
         // it's on (otherwise it's in whatever state the previous test left it)
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
         // 1m along +x, no rotation.
-        Trajectory100 trajectory = maker.restToRest(
+        Trajectory100 trajectory = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless

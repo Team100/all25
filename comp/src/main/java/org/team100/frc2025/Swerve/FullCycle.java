@@ -10,7 +10,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.timing.ConstantConstraint;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,7 +33,8 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
             SwerveController controller) {
-        TrajectoryMaker tmaker = new TrajectoryMaker(List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
+        TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
         Maker makerTrajec = new Maker(parent, drivetrain, kinodynamics, viz);

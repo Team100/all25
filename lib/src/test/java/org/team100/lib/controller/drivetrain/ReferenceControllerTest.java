@@ -23,7 +23,7 @@ import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -32,11 +32,11 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-    TrajectoryMaker maker = new TrajectoryMaker(constraints);
+    TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
     @Test
     void testTrajectoryStart() {
-        Trajectory100 t = maker.restToRest(
+        Trajectory100 t = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
@@ -95,7 +95,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
 
     @Test
     void testTrajectoryDone() {
-        Trajectory100 t = maker.restToRest(
+        Trajectory100 t = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless
@@ -129,7 +129,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
     void testRealDrive() {
         fixture.collection.reset();
         // 1m along +x, no rotation.
-        Trajectory100 trajectory = maker.restToRest(
+        Trajectory100 trajectory = planner.restToRest(
                 new Pose2d(0, 0, GeometryUtil.kRotationZero),
                 new Pose2d(1, 0, GeometryUtil.kRotationZero));
         // first state is motionless

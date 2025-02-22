@@ -37,7 +37,7 @@ import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -137,22 +137,22 @@ public class RobotContainerParkingLot implements Glassy {
 
         // calibration
 
-        TrajectoryMaker maker = new TrajectoryMaker(constraints);
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
         // make a one-meter line
         whileTrue(driverControl::never,
                 new DriveWithTrajectoryList(m_drive, controller,
-                        x -> List.of(maker.line(x)), viz));
+                        x -> List.of(planner.line(x)), viz));
 
         // make a one-meter square
         whileTrue(driverControl::never,
                 new DriveWithTrajectoryList(m_drive, controller,
-                        maker::square, viz));
+                        planner::square, viz));
 
         // one-meter square with reset at the corners
         whileTrue(driverControl::never,
                 new PermissiveTrajectoryListCommand(m_drive, controller,
-                        maker.permissiveSquare(), viz));
+                        planner.permissiveSquare(), viz));
 
         // this should be a field.
         final DrawSquare m_drawCircle = new DrawSquare(m_drive, controller, viz);
