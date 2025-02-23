@@ -53,7 +53,8 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
                 goal,
                 drive,
                 (start, end) -> new Trajectory100(
-                        List.of(new TimedPose(Pose2dWithMotion.kIdentity, 0, 0, 0))),
+                        List.of(new TimedPose(new Pose2dWithMotion(
+                                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0, 0, 0))),
                 controller,
                 viz);
         command.initialize();

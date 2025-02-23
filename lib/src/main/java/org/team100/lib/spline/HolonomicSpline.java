@@ -29,72 +29,92 @@ public class HolonomicSpline {
     /** spline control points need to be not too close to a u-turn. */
     private static final double MIN_ANGLE = 2 * Math.PI / 2;
     private static final double kEpsilon = 1e-5;
+    // TODO: find a good step size.
     private static final double kStepSize = 1.0;
     private static final double kMinDelta = 0.001;
     private static final int kSamples = 100;
     private static final int kMaxIterations = 100;
 
-    private final Spline1d x;
-    private final Spline1d y;
-    private final Spline1d theta;
-    private final Rotation2d r0;
+    private final Spline1d m_x;
+    private final Spline1d m_y;
+    private final Spline1d m_theta;
+    /**
+     * Offset for rotational spline: the rotational spline doesn't include the
+     * starting point in order to correctly handle wrapping.
+     */
+    private final Rotation2d m_r0;
 
     /**
      * Note: the p0 direction needs to be within 90 degrees of p1-p0, and vice
      * versa, to prevent "bad" trajectories, where the robot ends up accelerating
      * away from the target. If you really want a u-turn, add a stopping point.
      * 
-     * @param p0 The starting point and direction of the spline
-     * @param p1 The ending point and direction of the spline
-     * @param r0 The starting heading
-     * @param r1 The ending heading
+     * @param p0       The starting point and direction of the spline
+     * @param p1       The ending point and direction of the spline
+     * @param heading0 The starting heading
+     * @param heading1 The ending heading
      */
-    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d r0, Rotation2d r1) {
-        checkBounds(p0, p1);
-        // the 1.2 here is a magic number that makes the spline look nice.
-        double scale = 1.2 * GeometryUtil.distance(p0.getTranslation(), p1.getTranslation());
-        double x0 = p0.getTranslation().getX();
-        double x1 = p1.getTranslation().getX();
-        double dx0 = p0.getRotation().getCos() * scale;
-        double dx1 = p1.getRotation().getCos() * scale;
-        double ddx0 = 0;
-        double ddx1 = 0;
-        double y0 = p0.getTranslation().getY();
-        double y1 = p1.getTranslation().getY();
-        double dy0 = p0.getRotation().getSin() * scale;
-        double dy1 = p1.getRotation().getSin() * scale;
-        double ddy0 = 0;
-        double ddy1 = 0;
-
-        this.x = Spline1d.newSpline1d(x0, x1, dx0, dx1, ddx0, ddx1);
-        this.y = Spline1d.newSpline1d(y0, y1, dy0, dy1, ddy0, ddy1);
-        this.r0 = r0;
-        double delta = r0.unaryMinus().rotateBy(r1).getRadians();
-        theta = Spline1d.newSpline1d(0.0, delta, 0, 0, 0, 0);
+    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d heading0, Rotation2d heading1) {
+        this(p0, p1, heading0, heading1, 1.2);
     }
 
-    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d r0, Rotation2d r1, double mN) {
+    /**
+     * Specify the magic number you want: this scales the derivatives at the
+     * endpoints, i.e. how "strongly" the derivative affects the curve. High magic
+     * number means low curvature at the endpoint.
+     * 
+     * The theta endpoint derivative is just the average theta rate, which is new,
+     * it used to be zero.
+     * 
+     * @param p0       The starting point and direction of the spline
+     * @param p1       The ending point and direction of the spline
+     * @param heading0 The starting heading
+     * @param heading1 The ending heading
+     * @param mN
+     */
+    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d heading0, Rotation2d heading1, double mN) {
         checkBounds(p0, p1);
-        // the 1.2 here is a magic number that makes the spline look nice.
-        double scale = mN * GeometryUtil.distance(p0.getTranslation(), p1.getTranslation());
-        double x0 = p0.getTranslation().getX();
-        double x1 = p1.getTranslation().getX();
-        double dx0 = p0.getRotation().getCos() * scale;
-        double dx1 = p1.getRotation().getCos() * scale;
+        Translation2d t0 = p0.getTranslation();
+        Rotation2d course0 = p0.getRotation();
+        Translation2d t1 = p1.getTranslation();
+        Rotation2d course1 = p1.getRotation();
+
+        double scale = mN * GeometryUtil.distance(t0, t1);
+
+        double x0 = t0.getX();
+        double x1 = t1.getX();
+        // first derivatives are just the course
+        double dx0 = course0.getCos() * scale;
+        double dx1 = course1.getCos() * scale;
+        // second derivatives are zero at the ends
         double ddx0 = 0;
         double ddx1 = 0;
-        double y0 = p0.getTranslation().getY();
-        double y1 = p1.getTranslation().getY();
-        double dy0 = p0.getRotation().getSin() * scale;
-        double dy1 = p1.getRotation().getSin() * scale;
+
+        double y0 = t0.getY();
+        double y1 = t1.getY();
+        // first derivatives are just the course
+        double dy0 = course0.getSin() * scale;
+        double dy1 = course1.getSin() * scale;
+        // second derivatives are zero at the ends
         double ddy0 = 0;
         double ddy1 = 0;
 
-        this.x = Spline1d.newSpline1d(x0, x1, dx0, dx1, ddx0, ddx1);
-        this.y = Spline1d.newSpline1d(y0, y1, dy0, dy1, ddy0, ddy1);
-        this.r0 = r0;
-        double delta = r0.unaryMinus().rotateBy(r1).getRadians();
-        theta = Spline1d.newSpline1d(0.0, delta, 0, 0, 0, 0);
+        m_x = Spline1d.newSpline1d(x0, x1, dx0, dx1, ddx0, ddx1);
+        m_y = Spline1d.newSpline1d(y0, y1, dy0, dy1, ddy0, ddy1);
+
+        m_r0 = heading0;
+        double delta = heading0.unaryMinus().rotateBy(heading1).getRadians();
+
+        // previously dtheta was zero, which is bad.
+        // double dtheta0 = 0;
+        // double dtheta1 = 0;
+        // a reasonable derivative for theta is just the average
+        double dtheta0 = delta;
+        double dtheta1 = delta;
+        // second derivatives are zero at the ends
+        double ddtheta0 = 0;
+        double ddtheta1 = 0;
+        m_theta = Spline1d.newSpline1d(0.0, delta, dtheta0, dtheta1, ddtheta0, ddtheta1);
     }
 
     static void checkBounds(Pose2d p0, Pose2d p1) {
@@ -117,10 +137,10 @@ public class HolonomicSpline {
             Spline1d y,
             Spline1d theta,
             Rotation2d r0) {
-        this.x = x;
-        this.y = y;
-        this.theta = theta;
-        this.r0 = r0;
+        m_x = x;
+        m_y = y;
+        m_theta = theta;
+        m_r0 = r0;
     }
 
     public Pose2dWithMotion getPose2dWithMotion(double p) {
@@ -181,11 +201,11 @@ public class HolonomicSpline {
     ////////////////////////////////////////////////////////////////////////
 
     protected Rotation2d getHeading(double t) {
-        return r0.rotateBy(Rotation2d.fromRadians(theta.getPosition(t)));
+        return m_r0.rotateBy(Rotation2d.fromRadians(m_theta.getPosition(t)));
     }
 
     protected double getDHeading(double t) {
-        return theta.getVelocity(t);
+        return m_theta.getVelocity(t);
     }
 
     /**
@@ -196,10 +216,10 @@ public class HolonomicSpline {
             double ddx0_sub, double ddx1_sub,
             double ddy0_sub, double ddy1_sub) {
         return new HolonomicSpline(
-                x.addCoefs(Spline1d.newSpline1d(0, 0, 0, 0, ddx0_sub, ddx1_sub)),
-                y.addCoefs(Spline1d.newSpline1d(0, 0, 0, 0, ddy0_sub, ddy1_sub)),
-                theta,
-                r0);
+                m_x.addCoefs(Spline1d.newSpline1d(0, 0, 0, 0, ddx0_sub, ddx1_sub)),
+                m_y.addCoefs(Spline1d.newSpline1d(0, 0, 0, 0, ddy0_sub, ddy1_sub)),
+                m_theta,
+                m_r0);
     }
 
     /**
@@ -254,31 +274,31 @@ public class HolonomicSpline {
      * @return the point on the spline for that t value
      */
     protected Translation2d getPoint(double t) {
-        return new Translation2d(x.getPosition(t), y.getPosition(t));
+        return new Translation2d(m_x.getPosition(t), m_y.getPosition(t));
     }
 
     double dx(double t) {
-        return x.getVelocity(t);
+        return m_x.getVelocity(t);
     }
 
     private double dy(double t) {
-        return y.getVelocity(t);
+        return m_y.getVelocity(t);
     }
 
     double ddx(double t) {
-        return x.getAcceleration(t);
+        return m_x.getAcceleration(t);
     }
 
     private double ddy(double t) {
-        return y.getAcceleration(t);
+        return m_y.getAcceleration(t);
     }
 
     private double dddx(double t) {
-        return x.getJerk(t);
+        return m_x.getJerk(t);
     }
 
     private double dddy(double t) {
-        return y.getJerk(t);
+        return m_y.getJerk(t);
     }
 
     /**
