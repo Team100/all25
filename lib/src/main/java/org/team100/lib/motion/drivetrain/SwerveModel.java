@@ -2,7 +2,6 @@ package org.team100.lib.motion.drivetrain;
 
 import java.util.Optional;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.state.Model100;
@@ -117,18 +116,26 @@ public class SwerveModel {
         double yx = timedPose.state().getPose().getY();
         double thetax = timedPose.state().getHeading().getRadians();
 
-        double velocityM_s = timedPose.velocityM_S();
         Optional<Rotation2d> course = timedPose.state().getCourse();
-        // TODO: using rotation zero here seems like a bug
-        Rotation2d motion_direction = course.isPresent() ? course.get() : GeometryUtil.kRotationZero;
-        double xv = motion_direction.getCos() * velocityM_s;
-        double yv = motion_direction.getSin() * velocityM_s;
-        double thetav = timedPose.state().getHeadingRate() * velocityM_s;
+        if (course.isPresent()) {
+            Rotation2d motion_direction = course.get();
+            double velocityM_s = timedPose.velocityM_S();
+            double xv = motion_direction.getCos() * velocityM_s;
+            double yv = motion_direction.getSin() * velocityM_s;
+            double thetav = timedPose.state().getHeadingRate() * velocityM_s;
+            return new SwerveModel(
+                    new Model100(xx, xv),
+                    new Model100(yx, yv),
+                    new Model100(thetax, thetav));
+        }
 
+        // no course means no velocity.
+        // this is one of the reasons that pure rotations don't work.
+        // TODO: make pure rotation work
         return new SwerveModel(
-                new Model100(xx, xv),
-                new Model100(yx, yv),
-                new Model100(thetax, thetav));
+                new Model100(xx, 0),
+                new Model100(yx, 0),
+                new Model100(thetax, 0));
     }
 
     public String toString() {

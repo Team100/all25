@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
-import org.team100.lib.timing.TimingUtil.TimingException;
+import org.team100.lib.timing.ScheduleGenerator.TimingException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -41,16 +41,15 @@ class PathDistanceSamplerTest {
                         new MotionDirection(1, 0, 0.1), 0, 0));
 
         // Create the reference trajectory (straight line motion between waypoints).
-        Path100 trajectory = new Path100(waypoints);
-        PathDistanceSampler sampler = new PathDistanceSampler(trajectory);
+        Path100 path = new Path100(waypoints);
 
-        assertEquals(0.0, sampler.getMinDistance(), kDelta);
+        assertEquals(0.0, path.getMinDistance(), kDelta);
         // the total path length is a bit more than the straight-line path because each
         // path is a constant-twist arc.
-        assertEquals(89.435, sampler.getMaxDistance(), kDelta);
+        assertEquals(89.435, path.getMaxDistance(), kDelta);
 
         // initial sample is exactly at the start
-        Pose2dWithMotion sample0 = sampler.sample(0.0).state();
+        Pose2dWithMotion sample0 = path.sample(0.0);
         assertEquals(0, sample0.getPose().getX(), kDelta);
         assertEquals(0, sample0.getPose().getY(), kDelta);
 
@@ -63,7 +62,7 @@ class PathDistanceSamplerTest {
         // these are constant-twist paths, so they are little arcs.
         // halfway between 0 and 1, the path sags a little, and it's a little longer,
         // so this is not (12,0).
-        Pose2dWithMotion sample12 = sampler.sample(12.0).state();
+        Pose2dWithMotion sample12 = path.sample(12.0);
         assertEquals(11.862, sample12.getPose().getX(), kDelta);
         assertEquals(-1.58, sample12.getPose().getY(), kDelta);
 
@@ -74,13 +73,13 @@ class PathDistanceSamplerTest {
         // longer than the straight line, we're not quite to the middle of it yet
         assertEquals(14.829, sample12.getHeading().getDegrees(), kDelta);
 
-        Pose2dWithMotion sample5 = sampler.sample(48).state();
+        Pose2dWithMotion sample5 = path.sample(48);
         assertEquals(36, sample5.getPose().getX(), kDelta);
         assertEquals(11.585, sample5.getPose().getY(), kDelta);
         assertEquals(46.978, sample5.getCourse().get().getDegrees(), kDelta);
         assertEquals(60, sample5.getHeading().getDegrees(), kDelta);
 
-        Pose2dWithMotion sample6 = sampler.sample(60).state();
+        Pose2dWithMotion sample6 = path.sample(60);
         assertEquals(36, sample6.getPose().getX(), kDelta);
         assertEquals(23.585, sample6.getPose().getY(), kDelta);
         assertEquals(1.006, sample6.getCourse().get().getDegrees(), kDelta);
@@ -88,7 +87,7 @@ class PathDistanceSamplerTest {
 
         // halfway between the last two points, the path sags a little,
         // and it's a little longer, so this is not (48,0)
-        Pose2dWithMotion sample72 = sampler.sample(72.0).state();
+        Pose2dWithMotion sample72 = path.sample(72.0);
         assertEquals(45.097, sample72.getPose().getX(), kDelta);
         assertEquals(17.379, sample72.getPose().getY(), kDelta);
 
@@ -99,7 +98,7 @@ class PathDistanceSamplerTest {
         // paths, we're not quite to the center of the arc yet
         assertEquals(107.905, sample72.getHeading().getDegrees(), kDelta);
 
-        Pose2dWithMotion sample8 = sampler.sample(84).state();
+        Pose2dWithMotion sample8 = path.sample(84);
         assertEquals(56.440, sample8.getPose().getX(), kDelta);
         assertEquals(19.939, sample8.getPose().getY(), kDelta);
         assertEquals(0, sample8.getCourse().get().getDegrees(), kDelta);

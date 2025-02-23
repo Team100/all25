@@ -19,16 +19,14 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.Fixtured;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
-import org.team100.lib.trajectory.TrajectoryToPose;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryMaker;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -43,25 +41,20 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
 
     SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
-    TrajectoryMaker tmaker = new TrajectoryMaker(constraints);
+    TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
     @Test
     void testSimple() {
         Pose2d goal = GeometryUtil.kPoseZero;
         SwerveDriveSubsystem drive = fixture.drive;
 
-        TrajectoryToPose trajectories = new TrajectoryToPose(true, null) {
-            @Override
-            public Trajectory100 apply(SwerveModel startState, Pose2d end) {
-                return new Trajectory100(List.of(new TimedPose(Pose2dWithMotion.kIdentity, 0, 0, 0)));
-            }
-        };
-
         SwerveController controller = SwerveControllerFactory.test(logger);
         DriveToPoseWithTrajectory command = new DriveToPoseWithTrajectory(
                 goal,
                 drive,
-                trajectories,
+                (start, end) -> new Trajectory100(
+                        List.of(new TimedPose(new Pose2dWithMotion(
+                                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0, 0, 0))),
                 controller,
                 viz);
         command.initialize();
@@ -76,7 +69,6 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
         SwerveDriveSubsystem drive = fixture.drive;
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
 
-        TrajectoryToPose maker = new TrajectoryToPose(true, tmaker);
         Transform2d transform = new Transform2d(
                 new Translation2d(-1, -1),
                 GeometryUtil.kRotationZero);
@@ -89,7 +81,10 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
         assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
 
         SwerveController m_controller = SwerveControllerFactory.test(logger);
-        DriveToPoseWithTrajectory command = new DriveToPoseWithTrajectory(goal, drive, maker, m_controller, viz);
+        DriveToPoseWithTrajectory command = new DriveToPoseWithTrajectory(
+                goal, drive,
+                (start, end) -> planner.movingToRest(start, end),
+                m_controller, viz);
         command.initialize();
         assertEquals(0, fixture.drive.getPose().getX(), kDelta);
         command.execute();

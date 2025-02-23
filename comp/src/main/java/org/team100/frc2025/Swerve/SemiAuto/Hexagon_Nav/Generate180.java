@@ -13,10 +13,8 @@ import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -45,7 +43,7 @@ public class Generate180 extends Navigator {
     }
 
     @Override
-    public Trajectory100 trajectory(List<TimingConstraint> constraints, Pose2d currentPose) {
+    public Trajectory100 trajectory(Pose2d currentPose) {
 
         Translation2d currTranslation = currentPose.getTranslation();
 
@@ -98,8 +96,8 @@ public class Generate180 extends Navigator {
         PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
 
         Translation2d currentSpeed = new Translation2d(m_drive.getChassisSpeeds().vxMetersPerSecond, m_drive.getChassisSpeeds().vyMetersPerSecond);
-        // return TrajectoryPlanner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
-        return TrajectoryPlanner.generateTrajectory(poseSet.poses(), poseSet.headings(), constraints, currentSpeed.getNorm(), 0);
+        // return m_planner.restToRest(poseSet.poses(), poseSet.headings(), constraints);
+        return m_planner.generateTrajectory(poseSet.poses(), poseSet.headings(), currentSpeed.getNorm(), 0);
 
     }
 

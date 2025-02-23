@@ -17,12 +17,11 @@ import org.team100.lib.motion.drivetrain.MockDrive;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
-import org.team100.lib.path.PathDistanceSampler;
+import org.team100.lib.path.PathPlanner;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.testing.Timeless;
-import org.team100.lib.timing.TimingUtil;
+import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryUtil100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -47,14 +46,13 @@ class DriveMotionPlannerTest implements Timeless {
         double start_vel = 0.0;
         double end_vel = 0.0;
 
-        Path100 path = TrajectoryUtil100.trajectoryFromWaypointsAndHeadings(waypoints, headings, 2, 0.25, 0.1);
+        Path100 path = PathPlanner.pathFromWaypointsAndHeadings(waypoints, headings, 2, 0.25, 0.1);
         assertFalse(path.isEmpty());
 
-        PathDistanceSampler view = new PathDistanceSampler(path);
         double stepSize = 2;
-        TimingUtil u = new TimingUtil(Arrays.asList());
+        ScheduleGenerator u = new ScheduleGenerator(Arrays.asList());
         Trajectory100 trajectory = u.timeParameterizeTrajectory(
-                view,
+                path,
                 stepSize,
                 start_vel,
                 end_vel);

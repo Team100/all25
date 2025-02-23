@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  * nothing about the outside world, it just accepts chassis speeds.
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
+    private static final boolean DEBUG = false;
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
@@ -184,11 +185,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     @Override
-    public SwerveModuleStates states() {
-        return m_modules.states();
-    }
-
-    @Override
     public SwerveModulePositions positions() {
         return m_modules.positions();
     }
@@ -213,7 +209,8 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     public void reset() {
-        Util.warn("make sure resetting in SwerveLocal doesn't break anything");
+        if (DEBUG)
+            Util.warn("make sure resetting in SwerveLocal doesn't break anything");
         m_modules.reset();
     }
 

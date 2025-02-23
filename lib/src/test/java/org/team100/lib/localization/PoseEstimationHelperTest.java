@@ -185,7 +185,8 @@ class PoseEstimationHelperTest {
      * 
      * So, not an issue.
      */
-    @Test
+    // There's no need to run this all the time
+    // @Test
     void posePerformance() {
         Transform3d cameraInRobotCoords = new Transform3d(
                 new Translation3d(1, 1, 1),

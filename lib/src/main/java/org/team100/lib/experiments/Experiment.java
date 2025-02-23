@@ -42,5 +42,9 @@ public enum Experiment {
     /**
      * Clip the snap omega
      */
-    SnapGentle
+    SnapGentle,
+    /**
+     * Ignore very small inputs, to reduce jittering.
+     */
+    SwerveDeadband
 }

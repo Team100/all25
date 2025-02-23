@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.CapsizeAccelerationConstraint;
@@ -15,6 +17,7 @@ import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.SwerveDriveDynamicsConstraint;
 import org.team100.lib.timing.TimedPose;
 import org.team100.lib.timing.TimingConstraint;
+import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.timing.YawRateConstraint;
 import org.team100.lib.util.Util;
 
@@ -33,7 +36,8 @@ class TrajectoryPlannerTest {
         List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d());
         List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
         List<TimingConstraint> constraints = new ArrayList<>();
-        Trajectory100 t = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        Trajectory100 t = planner.restToRest(waypoints, headings);
         assertTrue(t.isEmpty());
     }
 
@@ -42,7 +46,8 @@ class TrajectoryPlannerTest {
         List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d(1, 0, new Rotation2d()));
         List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
         List<TimingConstraint> constraints = new ArrayList<>();
-        Trajectory100 t = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        Trajectory100 t = planner.restToRest(waypoints, headings);
         assertEquals(80, t.length());
         TimedPose p = t.getPoint(40);
         assertEquals(0.5, p.state().getPose().getX(), kDelta);
@@ -68,9 +73,10 @@ class TrajectoryPlannerTest {
                         new CapsizeAccelerationConstraint(limits, 0.2));
         double start_vel = 1;
         double end_vel = 0;
-        Trajectory100 t = TrajectoryPlanner.generateTrajectory(
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        Trajectory100 t = planner.generateTrajectory(
                 waypoints,
-                headings, constraints, start_vel, end_vel);
+                headings, start_vel, end_vel);
         TimedPose p = t.getPoint(40);
         assertEquals(0.18, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
@@ -90,12 +96,13 @@ class TrajectoryPlannerTest {
         List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d(1, 1, new Rotation2d(Math.PI / 2)));
         List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
         List<TimingConstraint> constraints = new ArrayList<>();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         long startTimeNs = System.nanoTime();
         Trajectory100 t = new Trajectory100();
         final int iterations = 100;
         for (int i = 0; i < iterations; ++i) {
-            t = TrajectoryPlanner.restToRest(
-                    waypoints, headings, constraints);
+            t = planner.restToRest(
+                    waypoints, headings);
         }
         long endTimeNs = System.nanoTime();
         double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
@@ -117,8 +124,70 @@ class TrajectoryPlannerTest {
         List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d());
         List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d(1));
         List<TimingConstraint> constraints = new ArrayList<>();
-        Trajectory100 t = TrajectoryPlanner.restToRest(waypoints, headings, constraints);
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        Trajectory100 t = planner.restToRest(waypoints, headings);
         assertTrue(t.isEmpty());
+    }
+
+    @Test
+    void testRestToRest() {
+        SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 0, 0));
+        Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+        Trajectory100 trajectory = planner.restToRest(start.pose(), end);
+        assertEquals(0.904, trajectory.duration(), kDelta);
+
+        /** progress along trajectory */
+        double m_timeS = 0;
+
+        // initial velocity is zero.
+        assertEquals(0, trajectory.sample(m_timeS).velocityM_S(), kDelta);
+
+        double maxDriveVelocityM_S = swerveKinodynamics.getMaxDriveVelocityM_S();
+        double maxDriveAccelerationM_S2 = swerveKinodynamics.getMaxDriveAccelerationM_S2();
+        assertEquals(5, maxDriveVelocityM_S);
+        assertEquals(10, maxDriveAccelerationM_S2);
+        for (TimedPose p : trajectory.getPoints()) {
+            assertTrue(p.velocityM_S() - 0.001 <= maxDriveVelocityM_S,
+                    String.format("%f %f", p.velocityM_S(), maxDriveVelocityM_S));
+            assertTrue(p.acceleration() - 0.001 <= maxDriveAccelerationM_S2,
+                    String.format("%f %f", p.acceleration(), maxDriveAccelerationM_S2));
+        }
+    }
+
+    @Test
+    void testMovingToRest() {
+        SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(1, 0, 0));
+        Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+        Trajectory100 traj = planner.movingToRest(start, end);
+        assertEquals(0.744, traj.duration(), kDelta);
+    }
+
+    @Test
+    void testBackingUp2() {
+        SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(-1, 0, 0));
+        Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+        Trajectory100 traj = planner.movingToRest(start, end);
+        assertEquals(0.877, traj.duration(), kDelta);
+    }
+
+    @Test
+    void test2d() {
+        SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+        List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
+        TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
+        SwerveModel start = new SwerveModel(GeometryUtil.kPoseZero, new FieldRelativeVelocity(0, 1, 0));
+        Pose2d end = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+        Trajectory100 traj = planner.movingToRest(start, end);
+        assertEquals(1.247, traj.duration(), kDelta);
     }
 
 }

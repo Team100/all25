@@ -15,8 +15,17 @@ public record FieldRelativeAcceleration(double x, double y, double theta) {
         return new FieldRelativeAcceleration(x - other.x, y - other.y, theta - other.theta);
     }
 
+    public FieldRelativeJerk jerk(FieldRelativeAcceleration previous, double dt) {
+        FieldRelativeAcceleration v = minus(previous).div(dt);
+        return new FieldRelativeJerk(v.x(), v.y(), v.theta());
+    }
+
     public FieldRelativeAcceleration times(double scalar) {
         return new FieldRelativeAcceleration(x * scalar, y * scalar, theta * scalar);
+    }
+
+    public FieldRelativeAcceleration div(double scalar) {
+        return new FieldRelativeAcceleration(x / scalar, y / scalar, theta / scalar);
     }
 
     public double norm() {

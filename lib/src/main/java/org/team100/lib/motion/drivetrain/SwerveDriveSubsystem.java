@@ -101,6 +101,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         // NEW! Apply field-relative limits here.
         if (Experiments.instance.enabled(Experiment.UseSetpointGenerator)) {
             scaled = m_limiter.apply(scaled);
+        } else {
+            // keep the limiter up to date on what we're doing
+            m_limiter.updateSetpoint(scaled);
         }
 
         final Rotation2d theta = getPose().getRotation();
@@ -122,9 +125,12 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     /** Skip all scaling, setpoint generator, etc. */
-    public void driveInFieldCoordsVerbatim(FieldRelativeVelocity vIn) {
+    public void driveInFieldCoordsVerbatim(FieldRelativeVelocity input) {
+        // keep the limiter up to date on what we're doing
+        m_limiter.updateSetpoint(input);
+
         final ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
-                vIn, getPose().getRotation());
+                input, getPose().getRotation());
 
         final Rotation2d theta = getPose().getRotation();
         // if we're going +x then heading and course should be opposite.
@@ -206,7 +212,8 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     public void resetPose(Pose2d robotPose) {
-        Util.warn("Make sure resetting the swerve module collection doesn't break anything");
+        if (DEBUG)
+            Util.warn("Make sure resetting the swerve module collection doesn't break anything");
         m_swerveLocal.reset();
         m_poseEstimator.reset(
                 m_gyro,

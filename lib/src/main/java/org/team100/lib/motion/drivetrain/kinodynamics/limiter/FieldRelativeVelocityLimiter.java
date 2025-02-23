@@ -26,6 +26,8 @@ public class FieldRelativeVelocityLimiter {
 
     /** Maintain translation and rotation proportionality. */
     FieldRelativeVelocity proportional(FieldRelativeVelocity speeds) {
+        if (DEBUG)
+            Util.printf("proportional %s\n", speeds);
         double maxV = m_limits.getMaxDriveVelocityM_S();
         double maxOmega = m_limits.getMaxAngleSpeedRad_S();
         double xySpeed = speeds.norm();
@@ -34,14 +36,20 @@ public class FieldRelativeVelocityLimiter {
         double omegaForSpeed = maxOmega * (1 - xySpeed / maxV);
         if (Math.abs(speeds.theta()) <= omegaForSpeed) {
             // omega + xyspeed is feasible
+            if (DEBUG)
+                Util.printf("feasible %s\n", speeds);
             return speeds;
         }
         if (xySpeed < 1e-12) {
             // if we got here then omega alone is infeasible so use maxomega
+            if (DEBUG)
+                Util.printf("max omega %s\n", speeds);
             return new FieldRelativeVelocity(0, 0, Math.signum(speeds.theta()) * maxOmega);
         }
         if (Math.abs(speeds.theta()) < 1e-12) {
             // if we got here then xyspeed alone is infeasible so use maxV
+            if (DEBUG)
+                Util.printf("max v %s\n", speeds);
             return new FieldRelativeVelocity(maxV * Math.cos(xyAngle), maxV * Math.sin(xyAngle), 0);
         }
 

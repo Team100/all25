@@ -11,11 +11,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
- * This is from 254 2023 motion planning; the main reason to include it
- * is because it represents both heading and course, whereas the WPI equivalent
- * represents only course.
+ * Represents a state within a 2d holonomic path, i.e. with heading independent
+ * from course.
  * 
- * Note, Pose2dWithMotion is a purely spatial construct.
+ * This is a purely spatial construct: for the notion of velocity, you probably
+ * want TimedPose.
  */
 public class Pose2dWithMotion {
     /**
@@ -34,21 +34,21 @@ public class Pose2dWithMotion {
      * translation, or radians-per-radian otherwise.
      */
     public static class MotionDirection {
-        public double dx;
-        public double dy;
-        public double dtheta;
+        private final double m_dx;
+        private final double m_dy;
+        private final double m_dtheta;
 
         public MotionDirection(double dx, double dy, double dtheta) {
-            this.dx = dx;
-            this.dy = dy;
-            this.dtheta = dtheta;
+            m_dx = dx;
+            m_dy = dy;
+            m_dtheta = dtheta;
         }
 
         /**
          * Magnitude of the translational part of the motion.
          */
         double norm() {
-            return Math.hypot(dx, dy);
+            return Math.hypot(m_dx, m_dy);
         }
 
         /**
@@ -56,15 +56,15 @@ public class Pose2dWithMotion {
          */
         Optional<Rotation2d> course() {
             if (norm() > 1e-12)
-                return Optional.of(new Rotation2d(dx, dy));
+                return Optional.of(new Rotation2d(m_dx, m_dy));
             return Optional.empty();
         }
 
         MotionDirection interpolate(MotionDirection other, double x) {
             return new MotionDirection(
-                    MathUtil.interpolate(dx, other.dx, x),
-                    MathUtil.interpolate(dy, other.dy, x),
-                    MathUtil.interpolate(dtheta, other.dtheta, x));
+                    MathUtil.interpolate(m_dx, other.m_dx, x),
+                    MathUtil.interpolate(m_dy, other.m_dy, x),
+                    MathUtil.interpolate(m_dtheta, other.m_dtheta, x));
         }
 
         @Override
@@ -76,11 +76,11 @@ public class Pose2dWithMotion {
             if (getClass() != obj.getClass())
                 return false;
             MotionDirection other = (MotionDirection) obj;
-            if (!MathUtil.isNear(dx, other.dx, 1e-6))
+            if (!MathUtil.isNear(m_dx, other.m_dx, 1e-6))
                 return false;
-            if (!MathUtil.isNear(dy, other.dy, 1e-6))
+            if (!MathUtil.isNear(m_dy, other.m_dy, 1e-6))
                 return false;
-            if (!MathUtil.isNear(dtheta, other.dtheta, 1e-6))
+            if (!MathUtil.isNear(m_dtheta, other.m_dtheta, 1e-6))
                 return false;
             return true;
         }
@@ -91,9 +91,6 @@ public class Pose2dWithMotion {
         }
 
     }
-
-    public static final Pose2dWithMotion kIdentity = new Pose2dWithMotion(
-            GeometryUtil.kPoseZero, new MotionDirection(0, 0, 0), 0, 0);
 
     private final Pose2d m_pose;
 
@@ -213,6 +210,6 @@ public class Pose2dWithMotion {
      * If you want radians per second, multiply by velocity (meters per second).
      */
     public double getHeadingRate() {
-        return m_fieldRelativeMotionDirection.dtheta;
+        return m_fieldRelativeMotionDirection.m_dtheta;
     }
 }

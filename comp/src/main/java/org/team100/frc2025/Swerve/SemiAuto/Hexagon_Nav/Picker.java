@@ -1,10 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
-
-import java.lang.reflect.Field;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
@@ -42,7 +36,7 @@ public class Picker {
         constraints = new TimingConstraintFactory(kinodynamics);
         m_viz = viz;
         m_kinodynamics = kinodynamics;
-        
+
     }
 
     public Command pickReefPath(FieldConstants.FieldSector end, ReefDestination reefDestination) {
@@ -53,18 +47,22 @@ public class Picker {
 
         switch (path.paths().size()) {
             case 4:
-                return new Generate180(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz, m_kinodynamics, end, reefDestination);
-            case 3: 
-                return new Generate120(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz, m_kinodynamics, end, reefDestination);
-            case 2: 
-                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz, m_kinodynamics, end, reefDestination);
+                return new Generate180(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz, m_kinodynamics, end, reefDestination);
+            case 3:
+                return new Generate120(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz, m_kinodynamics, end, reefDestination);
+            case 2:
+                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz,
+                        m_kinodynamics, end, reefDestination);
             case 1:
-                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz, m_kinodynamics, end, reefDestination);
+                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz,
+                        m_kinodynamics, end, reefDestination);
             default:
-                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz, m_kinodynamics, end, reefDestination);
+                return new Generate60(m_logger, m_drive, SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger), m_viz,
+                        m_kinodynamics, end, reefDestination);
 
         }
-
 
     }
 }

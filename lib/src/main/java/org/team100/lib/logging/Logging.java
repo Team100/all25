@@ -1,22 +1,14 @@
 package org.team100.lib.logging;
 
-import org.team100.lib.logging.primitive.DummySender;
 import org.team100.lib.logging.primitive.NTPrimitiveLogger;
 import org.team100.lib.logging.primitive.PrimitiveLogger;
-import org.team100.lib.logging.primitive.UdpPrimitiveLogger;
-import org.team100.lib.logging.primitive.UdpSender;
-import org.team100.lib.util.Util;
 
 import com.ctre.phoenix6.SignalLogger;
 
 /** Logging singleton */
 public class Logging {
-    private static final boolean USE_UDP_LOGGING = false;
-    private static final boolean USE_REAL_UDP = false;
-
     private static final Logging instance = new Logging();
 
-    private UdpPrimitiveLogger udpLogger;
     private PrimitiveLogger ntLogger;
     private Level m_level;
 
@@ -33,27 +25,10 @@ public class Logging {
     private Logging() {
         // this will be overridden by {@link LogLevelPoller}
         m_level = Level.COMP;
-        if (USE_UDP_LOGGING) {
-            Util.warn("=======================================");
-            Util.warn("Using UDP network logging!");
-            Util.warn("You must have a log listener connected!");
-            Util.warn("=======================================");
-            if (USE_REAL_UDP) {
-                udpLogger = new UdpPrimitiveLogger(
-                        UdpSender.data(),
-                        UdpSender.meta());
-            } else {
-                udpLogger = new UdpPrimitiveLogger(
-                        new DummySender(),
-                        new DummySender());
-            }
-            fieldLogger = new LoggerFactory(() -> m_level, "field", udpLogger);
-            rootLogger = new LoggerFactory(() -> m_level, "log", udpLogger);
-        } else {
-            ntLogger = new NTPrimitiveLogger();
-            fieldLogger = new LoggerFactory(() -> m_level, "field", ntLogger);
-            rootLogger = new LoggerFactory(() -> m_level, "log", ntLogger);
-        }
+
+        ntLogger = new NTPrimitiveLogger();
+        fieldLogger = new LoggerFactory(() -> m_level, "field", ntLogger);
+        rootLogger = new LoggerFactory(() -> m_level, "log", ntLogger);
 
         fieldLogger.stringLogger(Level.COMP, ".type").log(() -> "Field2d");
 
@@ -62,16 +37,12 @@ public class Logging {
     }
 
     public int keyCount() {
-        if (udpLogger != null)
-            return udpLogger.keyCount();
         if (ntLogger != null)
             return ntLogger.keyCount();
         return 0;
     }
 
     public void periodic() {
-        if (udpLogger != null)
-            udpLogger.periodic();
     }
 
     public void setLevel(Level level) {

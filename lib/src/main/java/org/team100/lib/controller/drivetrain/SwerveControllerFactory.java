@@ -5,8 +5,6 @@ import org.team100.lib.logging.LoggerFactory;
 
 /**
  * Known-good controller settings.
- * 
- * TODO: combine with holonomic drive controller factory.
  */
 public class SwerveControllerFactory {
 
@@ -17,7 +15,7 @@ public class SwerveControllerFactory {
                 return new FullStateSwerveController(log, 0.5, 3.5, 0, 0, 0.01, 0.01, 0.01, 0.01);
             }
             case SWERVE_ONE -> {
-                return new FullStateSwerveController(log, 2, 3.5, 0, 0, 0.01, 0.01, 0.01, 0.01);
+                return new FullStateSwerveController(log, 3, 3.5, 0.05, 0, 0.01, 0.01, 1, 1);
             }
             case SWERVE_TWO -> {
                 return new FullStateSwerveController(log, 4, 4, 0.25, 0.25, 0.01, 0.02, 0.01, 0.02);
