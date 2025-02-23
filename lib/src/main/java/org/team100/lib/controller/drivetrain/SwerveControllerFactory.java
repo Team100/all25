@@ -5,8 +5,6 @@ import org.team100.lib.logging.LoggerFactory;
 
 /**
  * Known-good controller settings.
- * 
- * TODO: combine with holonomic drive controller factory.
  */
 public class SwerveControllerFactory {
 
