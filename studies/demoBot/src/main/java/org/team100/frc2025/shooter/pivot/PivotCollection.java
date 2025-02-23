@@ -26,7 +26,7 @@ public class PivotCollection {
         switch (Identity.instance) {
             case DEMO_BOT:
             //TODO get canID, gearRatio, p values, and gravityNm
-            Neo550CANSparkMotor pivot = new Neo550CANSparkMotor(collectionLogger, 5, MotorPhase.FORWARD, currentLimit, Feedforward100.makeNeo550(), new PIDConstants(1));
+            Neo550CANSparkMotor pivot = new Neo550CANSparkMotor(collectionLogger, 5, MotorPhase.FORWARD, currentLimit, Feedforward100.makeNeo550(), new PIDConstants());
             return new PivotCollection(pivot);
             case BLANK:
             default:
