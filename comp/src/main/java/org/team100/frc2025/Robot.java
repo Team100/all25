@@ -38,6 +38,8 @@ public class Robot extends TimedRobot100 {
     private final StringLogger m_log_active_auton_routine;
     private final DoubleLogger m_log_voltage;
     private final JvmLogger m_jvmLogger;
+    private final DoubleLogger m_log_update;
+
 
     private RobotContainer m_robotContainer;
 
@@ -52,6 +54,7 @@ public class Robot extends TimedRobot100 {
         m_log_active_auton_routine = m_robotLogger.stringLogger(Level.COMP, "active auton routine");
         m_log_voltage = m_robotLogger.doubleLogger(Level.TRACE, "voltage");
         m_jvmLogger = new JvmLogger(m_robotLogger);
+        m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
         CanBridge.runTCP();
 
     }
@@ -103,6 +106,9 @@ public class Robot extends TimedRobot100 {
      */
     @Override
     public void robotPeriodic() {
+        // Measure how long the update takes prior to the scheduler running.
+        double startUpdateS = Takt.actual();
+
         // Advance the drumbeat.
         Takt.update();
 
@@ -115,6 +121,10 @@ public class Robot extends TimedRobot100 {
         // possible, so the times of those observations are as close to the interrupt
         // time as possible.  This might yield a whole lot of work, though.
         Memo.updateAll();
+        double endUpdateS = Takt.actual();
+        double updateS = endUpdateS - startUpdateS;
+        // this is how long it takes to update all the memos
+        m_log_update.log(() -> updateS);
 
         CommandScheduler.getInstance().run();
         // What is the logical separation?
