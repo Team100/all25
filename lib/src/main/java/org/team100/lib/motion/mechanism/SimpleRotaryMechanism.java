@@ -36,6 +36,8 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         m_motor = motor;
         m_encoder = encoder;
         m_gearRatio = gearRatio;
+
+        m_encoder.reset();
         m_log_velocity = child.doubleLogger(Level.TRACE, "velocity (rad_s)");
         m_log_position = child.doubleLogger(Level.TRACE, "position (rad)");
     }
@@ -125,7 +127,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         m_motor.periodic();
         m_encoder.periodic();
         m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
-        m_log_position.log(() -> MathUtil.angleModulus(getPositionRad().getAsDouble()));
+        m_log_position.log(() -> getPositionRad().getAsDouble());
 
     }
 
