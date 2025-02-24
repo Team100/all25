@@ -180,7 +180,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
         final Rotation2d gyroRotation = m_poseEstimator.get(blipTimeSec).pose().getRotation();
 
         // double endTime = Takt.actual();
-        // System.out.printf("Time: %.4f\n", (endTime - startTime));
+        // Util.printf("Time: %.4f\n", (endTime - startTime));
 
         estimateFromBlips(
                 blips,

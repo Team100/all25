@@ -26,7 +26,7 @@ class QuinticHermiteOptimizerTest {
         splines.add(new HolonomicSpline(a, b, new Rotation2d(), new Rotation2d()));
         splines.add(new HolonomicSpline(b, c, new Rotation2d(), new Rotation2d()));
 
-        assertTrue(HolonomicSpline.optimizeSpline(splines) < 0.014);
+        assertTrue(SplineUtil.optimizeSpline(splines) < 0.014);
 
         Pose2d d = new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(90));
         Pose2d e = new Pose2d(new Translation2d(0, 50), Rotation2d.fromDegrees(0));
@@ -38,7 +38,7 @@ class QuinticHermiteOptimizerTest {
         splines1.add(new HolonomicSpline(e, f, new Rotation2d(), new Rotation2d()));
         splines1.add(new HolonomicSpline(f, g, new Rotation2d(), new Rotation2d()));
 
-        assertEquals(0.54, HolonomicSpline.optimizeSpline(splines1), 0.01);
+        assertEquals(0.54, SplineUtil.optimizeSpline(splines1), 0.01);
 
         Pose2d h = new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
         Pose2d i = new Pose2d(new Translation2d(50, 0), Rotation2d.fromDegrees(0));
@@ -52,7 +52,7 @@ class QuinticHermiteOptimizerTest {
         splines2.add(new HolonomicSpline(j, k, new Rotation2d(), new Rotation2d()));
         splines2.add(new HolonomicSpline(k, l, new Rotation2d(), new Rotation2d()));
 
-        assertTrue(HolonomicSpline.optimizeSpline(splines2) < 0.05);
+        assertTrue(SplineUtil.optimizeSpline(splines2) < 0.05);
         assertEquals(0.0, splines2.get(0).getCurvature(1.0), kEpsilon);
         assertEquals(0.0, splines2.get(2).getCurvature(1.0), kEpsilon);
     }
@@ -70,7 +70,7 @@ class QuinticHermiteOptimizerTest {
         splines.add(new HolonomicSpline(a, b, r0, r1));
         splines.add(new HolonomicSpline(b, c, r1, r2));
 
-        assertTrue(HolonomicSpline.optimizeSpline(splines) < 0.014);
+        assertTrue(SplineUtil.optimizeSpline(splines) < 0.014);
 
         Pose2d d = new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(90));
         Pose2d e = new Pose2d(new Translation2d(0, 50), Rotation2d.fromDegrees(0));
@@ -82,7 +82,7 @@ class QuinticHermiteOptimizerTest {
         splines1.add(new HolonomicSpline(e, f, r1, r2));
         splines1.add(new HolonomicSpline(f, g, r0, r2));
 
-        assertEquals(0.54, HolonomicSpline.optimizeSpline(splines1), 0.01);
+        assertEquals(0.54, SplineUtil.optimizeSpline(splines1), 0.01);
 
         Pose2d h = new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
         Pose2d i = new Pose2d(new Translation2d(50, 0), Rotation2d.fromDegrees(0));
@@ -96,7 +96,7 @@ class QuinticHermiteOptimizerTest {
         splines2.add(new HolonomicSpline(j, k, r0, r2));
         splines2.add(new HolonomicSpline(k, l, r2, r0));
 
-        assertTrue(HolonomicSpline.optimizeSpline(splines2) < 0.05);
+        assertTrue(SplineUtil.optimizeSpline(splines2) < 0.05);
         assertEquals(0.0, splines2.get(0).getCurvature(1.0), kEpsilon);
         assertEquals(0.0, splines2.get(2).getCurvature(1.0), kEpsilon);
 
