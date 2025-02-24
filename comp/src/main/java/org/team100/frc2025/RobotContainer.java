@@ -8,7 +8,10 @@ import java.util.function.BooleanSupplier;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
-
+import org.team100.frc2025.Elevator.SetWrist;
+import org.team100.frc2025.Intake.AlgaeIntake;
+import org.team100.frc2025.Intake.RunIntake;
+import org.team100.frc2025.Intake.RunOuttake;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
@@ -93,6 +96,7 @@ public class RobotContainer implements Glassy {
 
     final Climber m_climber;
 
+    // final AlgaeIntake m_intake;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -159,6 +163,8 @@ public class RobotContainer implements Glassy {
                 limiter);
 
         m_climber = ClimberFactory.get(logger);
+
+        // m_intake = new AlgaeIntake(logger, 8);
 
         ///////////////////////////
         //
@@ -267,8 +273,12 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
+        whileTrue(operatorControl::elevate, new SetWrist(m_elevator));
         whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
+        // whileTrue(operatorControl::intake, new RunIntake(m_intake));
+        // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));
+
+        // whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
 
     }
 

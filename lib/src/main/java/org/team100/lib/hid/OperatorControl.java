@@ -34,4 +34,12 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
+    default boolean intake() {
+        return false;
+    }
+
+    default boolean outtake() {
+        return false;
+    }
+
 }

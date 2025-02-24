@@ -107,7 +107,13 @@ public class Feedforward100 {
     }
 
     public static Feedforward100 makeKraken6Elevator() {
-        return new Feedforward100(0.14, 0.001, 0.005, 0.005, 0.1);
+        return new Feedforward100(0.135, 0.005, 0.005, 0.005, 0.1);
+        // return new Feedforward100(0, 0, 0, 0, 0);
+
+    }
+
+    public static Feedforward100 makeKraken6Wrist() {
+        return new Feedforward100(0.14, 0.005, 0.005, 0.005, 0.1);
         // return new Feedforward100(0, 0, 0, 0, 0);
 
     }
