@@ -5,6 +5,8 @@ import java.util.OptionalDouble;
 
 import org.team100.lib.config.Identity;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.servo.AngularPositionServo;
@@ -13,6 +15,7 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
@@ -47,39 +50,64 @@ public abstract class SwerveModule100 implements Glassy {
     void setDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
         desired = optimize(desired);
-        m_driveServo.setVelocityM_S(correctSpeed(desired));
-        m_turningServo.setPosition(desired.angle().get().getRadians(), 0);
+        actuate(desired);
     }
 
     /**
      * Does not optimize.
      * 
      * Works fine with empty angles.
-     * 
-     * Turning servo commands always include zero velocity.
      */
     void setRawDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
-        m_driveServo.setVelocityM_S(correctSpeed(desired));
-        m_turningServo.setPosition(desired.angle().get().getRadians(), 0);
+        actuate(desired);
+    }
+
+    /** Turning servo commands always specify zero-velocity goal. */
+    private void actuate(SwerveModuleState100 desired) {
+        double speed = desired.speedMetersPerSecond();
+        if (desired.angle().isEmpty())
+            throw new IllegalArgumentException("actuation needs a real angle");
+        Rotation2d desiredAngle = desired.angle().get();
+
+        if (Experiments.instance.enabled(Experiment.CorrectSpeedForSteering)) {
+            // help drive motors overcome steering.
+            speed = correctSpeedForSteering(speed, desiredAngle);
+        }
+        if (Experiments.instance.enabled(Experiment.ReduceCrossTrackError)) {
+            OptionalDouble optMeasurement = m_turningServo.getPosition();
+            if (optMeasurement.isPresent()) {
+                double measuredAngleRad = optMeasurement.getAsDouble();
+                speed = reduceCrossTrackError(measuredAngleRad, speed, desiredAngle);
+            }
+        }
+        m_driveServo.setVelocityM_S(speed);
+        m_turningServo.setPosition(desiredAngle.getRadians(), 0);
+        m_previousDesiredAngle = desiredAngle;
+    }
+
+    static double reduceCrossTrackError(double measuredAngleRad, double desiredSpeed, Rotation2d desiredAngle) {
+        double error = MathUtil.angleModulus(desiredAngle.getRadians() - measuredAngleRad);
+        // cosine is pretty forgiving of misalignment
+        // double scale = Math.abs(Math.cos(error));
+        // gaussian is much less forgiving. note the adjustable factor.  The value of
+        // 4 means there is almost no motion past about 60 degrees of error.
+        final double width = 4.0;
+        double scale = Math.exp(-width * error * error);
+        return scale * desiredSpeed;
     }
 
     /** Correct the desired speed for steering coupling. */
-    private double correctSpeed(SwerveModuleState100 desired) {
-        Rotation2d desiredAngle = desired.angle().get();
-        double desiredSpeed = desired.speedMetersPerSecond();
+    private double correctSpeedForSteering(double desiredSpeed, Rotation2d desiredAngle) {
         Rotation2d dtheta = desiredAngle.minus(m_previousDesiredAngle);
         double now = Takt.get();
         double dt = now - m_previousTime;
         if (dt > 1e-6) {
             // avoid short intervals
             double omega = dtheta.getRadians() / dt;
-            // System.out.println(omega);
             // TODO: should this be positive or negative?
-            // desiredSpeed += .0975 * (omega) / 3.8;
+            desiredSpeed += .0975 * (omega) / 3.8;
         }
-
-        m_previousDesiredAngle = desiredAngle;
         m_previousTime = now;
         return desiredSpeed;
     }
@@ -181,6 +209,8 @@ public abstract class SwerveModule100 implements Glassy {
             case SWERVE_ONE:
             case SWERVE_TWO:
             case COMP_BOT:
+                // TODO: replace the magic number here with .. i think this is like wheel
+                // diameter? radius? what is this?
                 drive_M -= .0975 * (steerRad) / 3.8;
                 break;
             case BLANK:
