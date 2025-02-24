@@ -88,4 +88,14 @@ public class OperatorControlProxy implements OperatorControl {
         return m_operatorControl.downavate();
     }
 
+    @Override
+    public boolean intake() {
+        return m_operatorControl.intake();
+    }
+
+    @Override
+    public boolean outtake() {
+        return m_operatorControl.outtake();
+    }
+
 }

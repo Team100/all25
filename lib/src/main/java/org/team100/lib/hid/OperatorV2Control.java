@@ -55,4 +55,14 @@ public class OperatorV2Control implements OperatorControl {
     public boolean downavate() {
         return m_controller.getYButton();
     }
+
+    @Override
+    public boolean intake() {
+        return m_controller.getAButton();
+    }
+
+    @Override
+    public boolean outtake() {
+        return m_controller.getBButton();
+    }
 }
