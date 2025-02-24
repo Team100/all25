@@ -26,7 +26,9 @@ public class PathPlanner {
                     waypoints.get(i - 1), waypoints.get(i),
                     headings.get(i - 1), headings.get(i), mN.get(i)));
         }
-        SplineUtil.forceC1(splines);
+        // does not force C1, theta responds too much
+        // TODO: find a way to make theta C1
+        // SplineUtil.forceC1(splines);
         SplineUtil.optimizeSpline(splines);
         return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
     }
@@ -43,15 +45,9 @@ public class PathPlanner {
                     waypoints.get(i - 1), waypoints.get(i),
                     headings.get(i - 1), headings.get(i)));
         }
-        System.out.println("==== BEFORE ====");
-        for (HolonomicSpline s: splines) {
-            System.out.println(s);
-        }
-        SplineUtil.forceC1(splines);
-        System.out.println("==== AFTER ====");
-        for (HolonomicSpline s: splines) {
-            System.out.println(s);
-        }
+        // does not force C1, theta responds too much
+        // TODO: find a way to make theta C1
+        // SplineUtil.forceC1(splines);
         SplineUtil.optimizeSpline(splines);
         return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
     }

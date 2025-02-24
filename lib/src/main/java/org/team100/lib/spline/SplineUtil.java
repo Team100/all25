@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /** Static utility methods for splines. */
 public class SplineUtil {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kEpsilon = 1e-5;
     // TODO: find a good step size.
     private static final double kStepSize = 1.0;
@@ -115,6 +115,8 @@ public class SplineUtil {
 
     /**
      * Force derivatives to be the same at joints, by choosing the average.
+     * 
+     * Note that it is easy to create large theta excursions with this method.
      */
     public static void forceC1(List<HolonomicSpline> splines) {
         if (splines.size() < 2)

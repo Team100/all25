@@ -25,7 +25,7 @@ public class TimingConstraintFactory {
 
     /** Absolute maximum. Probably too fast to actually use. */
     public List<TimingConstraint> fast() {
-        return scaled(1.0, 1.0, 1.0, 1.0);
+        return scaled(1.0, 1.0, 1.0, 0.25);
     }
 
     /** Very slow, 25% speed. */
@@ -36,7 +36,7 @@ public class TimingConstraintFactory {
     /** Maybe unrealistically fast? */
     public List<TimingConstraint> medium() {
         // note low yaw scale
-        return scaled(0.75, 0.75, 0.75, 0.5);
+        return scaled(0.75, 0.75, 0.75, 0.25);
     }
 
     /**

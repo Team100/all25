@@ -28,7 +28,7 @@ import edu.wpi.first.math.geometry.Translation2d;
  * derivatives don't match. To fix that, use SplineUtil.forceC1().
  */
 public class HolonomicSpline {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     /** spline control points need to be not too close to a u-turn. */
     private static final double MIN_ANGLE = 2 * Math.PI / 2;
     private static final int kSamples = 100;
@@ -115,7 +115,7 @@ public class HolonomicSpline {
         // completely smooth.
         // a reasonable derivative for theta is just the average (i.e. the course from
         // the preceding point to the following point)
-        // this will produce a "corner" in theta, which you should fix with
+        // this will produce a "corner" in theta, which you may want to fix with
         // SplineUtil.forceC1().
         double dtheta0 = delta;
         double dtheta1 = delta;

@@ -21,7 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class PathPlannerTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.01;
 
     @Test

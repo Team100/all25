@@ -21,7 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 class HolonomicSplineTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
 
     @Test
@@ -40,7 +40,7 @@ class HolonomicSplineTest {
         assertEquals(0, p.getPose().getRotation().getRadians(), kDelta);
         assertEquals(0, p.getHeadingRate(), kDelta);
         p = s.getPose2dWithMotion(1);
-        assertEquals(0, p.getPose().getX(), kDelta);
+        assertEquals(0, p.getPose().getX(), kDelta);z
         assertEquals(0, p.getPose().getRotation().getRadians(), kDelta);
         assertEquals(0, p.getHeadingRate(), kDelta);
     }
@@ -198,16 +198,7 @@ class HolonomicSplineTest {
 
         // optimization does not help, the individual splines are already "optimal."
 
-        
-        System.out.println("==== BEFORE ====");
-        for (HolonomicSpline s: splines) {
-            System.out.println(s);
-        }
         SplineUtil.forceC1(splines);
-        System.out.println("==== AFTER ====");
-        for (HolonomicSpline s: splines) {
-            System.out.println(s);
-        }
 
         SplineUtil.optimizeSpline(splines);
 
