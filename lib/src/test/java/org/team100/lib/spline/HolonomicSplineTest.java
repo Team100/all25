@@ -2,6 +2,7 @@ package org.team100.lib.spline;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.path.Path100;
+import org.team100.lib.timing.ScheduleGenerator;
+import org.team100.lib.timing.TimingConstraint;
+import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,7 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 class HolonomicSplineTest {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final double kDelta = 0.001;
 
     @Test
@@ -192,7 +197,26 @@ class HolonomicSplineTest {
         // }
 
         // optimization does not help, the individual splines are already "optimal."
-        HolonomicSpline.optimizeSpline(splines);
+
+        
+        System.out.println("==== BEFORE ====");
+        for (HolonomicSpline s: splines) {
+            System.out.println(s);
+        }
+        SplineUtil.forceC1(splines);
+        System.out.println("==== AFTER ====");
+        for (HolonomicSpline s: splines) {
+            System.out.println(s);
+        }
+
+        SplineUtil.optimizeSpline(splines);
+
+        // spline joints are C1 smooth (i.e. same slope)
+        assertTrue(SplineUtil.verifyC1(splines));
+        // spline joints are C2 smooth (i.e. same curvature)
+        assertTrue(SplineUtil.verifyC2(splines));
+        // spline joints are C3 smooth (i.e. same rate of change of curvature)
+        // assertTrue(SplineUtil.verifyC3(splines));
 
         for (int i = 0; i < 4; ++i) {
             HolonomicSpline s = splines.get(i);
@@ -210,6 +234,131 @@ class HolonomicSplineTest {
                             i + j, p.getX(), p.getY(), p.getRotation().getRadians());
             }
         }
+    }
+
+    @Test
+    void testMismatchedThetaDerivatives() {
+        // if the theta derivative and each endpoint is the average delta,
+        // what happens when adjacent segments have different deltas?
+        // the optimizer needs to make them the same.
+        double magicNumber = 1.0;
+        HolonomicSpline s0 = new HolonomicSpline(
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero),
+                Rotation2d.kZero,
+                new Rotation2d(1), // turn a bit to the left
+                magicNumber);
+        HolonomicSpline s1 = new HolonomicSpline(
+                new Pose2d(1, 0, Rotation2d.kZero),
+                new Pose2d(2, 0, Rotation2d.kZero),
+                new Rotation2d(1),
+                Rotation2d.k180deg, // turn much more to the left
+                magicNumber);
+        List<HolonomicSpline> splines = new ArrayList<>();
+        splines.add(s0);
+        splines.add(s1);
+
+        // for (int i = 0; i < 2; ++i) {
+        // HolonomicSpline s = splines.get(i);
+        // for (double j = 0; j < 0.99; j += 0.1) {
+        // Pose2d p = s.getPose2d(j);
+        // if (DEBUG)
+        // Util.printf("%.1f, %.2f, %.2f, %.2f\n",
+        // i + j, p.getX(), p.getY(), p.getRotation().getRadians());
+        // }
+        // }
+
+        SplineUtil.forceC1(splines);
+
+        SplineUtil.optimizeSpline(splines);
+
+        // spline joints are C1 smooth (i.e. same slope)
+        assertTrue(SplineUtil.verifyC1(splines));
+        // spline joints are C2 smooth (i.e. same curvature)
+        assertTrue(SplineUtil.verifyC2(splines));
+        // spline joints are C3 smooth (i.e. same rate of change of curvature)
+        // assertTrue(SplineUtil.verifyC3(splines));
+
+        for (int i = 0; i < 2; ++i) {
+            HolonomicSpline s = splines.get(i);
+            for (double j = 0; j < 0.99; j += 0.1) {
+                Pose2d p = s.getPose2d(j);
+                if (DEBUG)
+                    Util.printf("%.1f, %.2f, %.2f, %.2f\n",
+                            i + j, p.getX(), p.getY(), p.getRotation().getRadians());
+            }
+        }
+    }
+
+    @Test
+    void testMismatchedXYDerivatives() {
+        // corners seem to be allowed, but yield un-traversable trajectories
+        // with infinite accelerations at the corners, so they should be prohibited.
+        double magicNumber = 1.0;
+        // this goes straight ahead to (1,0)
+        HolonomicSpline s0 = new HolonomicSpline(
+                // derivatives point straight ahead
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero),
+                Rotation2d.kZero,
+                Rotation2d.kZero,
+                magicNumber);
+        // this is a sharp turn to the left
+        HolonomicSpline s1 = new HolonomicSpline(
+                // derivatives point to the left
+                new Pose2d(1, 0, Rotation2d.kCCW_90deg),
+                new Pose2d(1, 1, Rotation2d.kCCW_90deg),
+                Rotation2d.kZero,
+                Rotation2d.kZero,
+                magicNumber);
+        List<HolonomicSpline> splines = new ArrayList<>();
+        splines.add(s0);
+        splines.add(s1);
+
+        // for (int i = 0; i < 2; ++i) {
+        // HolonomicSpline s = splines.get(i);
+        // for (double j = 0; j < 0.99; j += 0.1) {
+        // Pose2d p = s.getPose2d(j);
+        // if (DEBUG)
+        // Util.printf("%.1f, %.2f, %.2f, %.2f\n",
+        // i + j, p.getX(), p.getY(), p.getRotation().getRadians());
+        // }
+        // }
+
+        SplineUtil.forceC1(splines);
+
+        SplineUtil.optimizeSpline(splines);
+
+        for (HolonomicSpline s : splines) {
+            if (DEBUG)
+                Util.printf("spline %s\n", s);
+        }
+
+        // spline joints are C1 smooth (i.e. same slope)
+        assertTrue(SplineUtil.verifyC1(splines));
+        // spline joints are C2 smooth (i.e. same curvature)
+        assertTrue(SplineUtil.verifyC2(splines));
+        // spline joints are C3 smooth (i.e. same rate of change of curvature)
+        // assertTrue(SplineUtil.verifyC3(splines));
+
+        for (int i = 0; i < 2; ++i) {
+            HolonomicSpline s = splines.get(i);
+            for (double j = 0; j < 0.99; j += 0.1) {
+                Pose2d p = s.getPose2d(j);
+                if (DEBUG)
+                    Util.printf("%.1f, %.2f, %.2f, %.2f\n",
+                            i + j, p.getX(), p.getY(), p.getRotation().getRadians());
+            }
+        }
+
+        Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05));
+        Util.printf("path %s\n", path);
+        List<TimingConstraint> constraints = new ArrayList<>();
+        ScheduleGenerator scheduleGenerator = new ScheduleGenerator(constraints);
+        Trajectory100 trajectory = scheduleGenerator.timeParameterizeTrajectory(path,
+                0.05, 0, 0);
+        Util.printf("trajectory %s\n", trajectory);
+
     }
 
 }

@@ -2,6 +2,7 @@ package org.team100.lib.motion.drivetrain.kinodynamics;
 
 import edu.wpi.first.math.MathUtil;
 
+/** Meters, radians, and seconds. */
 public record FieldRelativeAcceleration(double x, double y, double theta) {
     public FieldRelativeVelocity integrate(double dtSec) {
         return new FieldRelativeVelocity(x * dtSec, y * dtSec, theta * dtSec);

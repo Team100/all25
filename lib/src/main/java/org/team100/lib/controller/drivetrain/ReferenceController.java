@@ -53,6 +53,7 @@ public class ReferenceController implements Glassy {
     }
 
     public void execute() {
+        // TODO: decide whether to keep the "steer at rest" idea.  for now, it's off.
         m_aligned = true;
         SwerveModel measurement = m_drive.getState();
         if (!m_aligned) {

@@ -33,9 +33,10 @@ public class TimingConstraintFactory {
         return scaled(0.25, 0.25, 0.25, 0.25);
     }
 
-     /** Very slow, 25% speed. */
-     public List<TimingConstraint> medium() {
-        return scaled(0.75, 0.75, 0.75, 0.75);
+    /** Maybe unrealistically fast? */
+    public List<TimingConstraint> medium() {
+        // note low yaw scale
+        return scaled(0.75, 0.75, 0.75, 0.5);
     }
 
     /**
@@ -45,7 +46,11 @@ public class TimingConstraintFactory {
         return scaled(1.0, 1.0, 1.0, 1.0);
     }
 
-    private List<TimingConstraint> scaled(double vScale, double aScale, double centripetalScale, double yawRateScale) {
+    private List<TimingConstraint> scaled(
+            double vScale,
+            double aScale,
+            double centripetalScale,
+            double yawRateScale) {
         return List.of(
                 new ConstantConstraint(
                         vScale * m_limits.getMaxDriveVelocityM_S(),

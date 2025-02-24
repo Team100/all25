@@ -30,10 +30,10 @@ public class TrajectoryPlanner {
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
 
-    private final ScheduleGenerator u;
+    private final ScheduleGenerator m_scheduleGenerator;
 
     public TrajectoryPlanner(List<TimingConstraint> constraints) {
-        u = new ScheduleGenerator(constraints);
+        m_scheduleGenerator = new ScheduleGenerator(constraints);
     }
 
     /** A square counterclockwise starting with +x. */
@@ -155,7 +155,28 @@ public class TrajectoryPlanner {
             Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
                     waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta);
             // Generate the timed trajectory.
-            return u.timeParameterizeTrajectory(
+            return m_scheduleGenerator.timeParameterizeTrajectory(
+                    path,
+                    kMaxDx,
+                    start_vel,
+                    end_vel);
+        } catch (IllegalArgumentException e) {
+            // catches various kinds of malformed input, returns a no-op.
+            // this should never actually happen.
+            Util.warn("Bad trajectory input!!");
+            // print the stack trace if you want to know who is calling
+            // e.printStackTrace();
+            return new Trajectory100();
+        }
+    }
+
+    public Trajectory100 generateTrajectory(
+            Path100 path,
+            double start_vel,
+            double end_vel) {
+        try {
+            // Generate the timed trajectory.
+            return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
                     kMaxDx,
                     start_vel,
@@ -181,7 +202,7 @@ public class TrajectoryPlanner {
             Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
                     waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta, mN);
             // Generate the timed trajectory.
-            return u.timeParameterizeTrajectory(
+            return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
                     kMaxDx,
                     start_vel,

@@ -40,7 +40,13 @@ public class Spline1d {
         this.f = f;
     }
 
-    public static Spline1d newSpline1d(double x0, double x1, double dx0, double dx1, double ddx0, double ddx1) {
+    public static Spline1d newSpline1d(
+            double x0,
+            double x1,
+            double dx0,
+            double dx1,
+            double ddx0,
+            double ddx1) {
         if (Double.isNaN(x0))
             throw new IllegalArgumentException();
         if (Double.isNaN(x1))
@@ -100,6 +106,13 @@ public class Spline1d {
      */
     public double getJerk(double t) {
         return 60 * a * t * t + 24 * b * t + 6 * c;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Spline1d [%6.2f %6.2f %6.2f] - [%6.2f %6.2f %6.2f]",
+                getPosition(0), getVelocity(0), getAcceleration(0),
+                getPosition(1), getVelocity(1), getAcceleration(1));
     }
 
 }
