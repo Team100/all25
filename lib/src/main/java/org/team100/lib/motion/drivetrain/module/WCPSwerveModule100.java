@@ -25,8 +25,12 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.Profile100;
 
 public class WCPSwerveModule100 extends SwerveModule100 {
-    private static final double kSteeringSupplyLimit = 10;
-    private static final double kSteeringStatorLimit = 20;
+    // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L212
+    // 2/26/25 Joel increased the steering limits *a lot*, they were 10/20, now
+    // 60/80, which may mean it's more imporant now to avoid twitching and
+    // oscillating.
+    private static final double kSteeringSupplyLimit = 60;
+    private static final double kSteeringStatorLimit = 80;
     /**
      * WCP calls this "rotation ratio" here, we use the "flipped belt" which is the
      * fastest steering ratio.
