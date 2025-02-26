@@ -87,16 +87,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if (controller.getXButton()) {
-      state = profile.calculate(kDefaultPeriod, state, new State(5, 0));
+      state = profile.calculate(kDefaultPeriod, state, new State(-5.25, 0));
       extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", true);     
     } else {
-      state = profile.calculate(kDefaultPeriod, state, new State(1.5, 0));
+      state = profile.calculate(kDefaultPeriod, state, new State(-1, 0));
       extend.setControl(positionCommand.withPosition(state.position));
       SmartDashboard.putBoolean("out", false);
     }
     if (controller.getYButton()) {
-      roller.set(1);
+      roller.set(1);  
       SmartDashboard.putBoolean("roll", true);
     } else {
       roller.set(0.0);
