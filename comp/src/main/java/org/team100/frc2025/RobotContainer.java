@@ -1,6 +1,7 @@
 package org.team100.frc2025;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
@@ -21,6 +22,7 @@ import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
@@ -62,6 +64,8 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
+import org.team100.lib.timing.ConstantConstraint;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -106,6 +110,8 @@ public class RobotContainer implements Glassy {
         Util.printf("Using log level %s\n", poller.getLevel().name());
         Util.println("Do not use TRACE in comp, with NT logging, it will overrun");
 
+        final TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(2, 2)));
         final LoggerFactory fieldLogger = logging.fieldLogger;
         final FieldLogger.Log fieldLog = new FieldLogger.Log(fieldLogger);
 
@@ -225,30 +231,31 @@ public class RobotContainer implements Glassy {
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S(),
+                swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
                 swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
                 0.01, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
-                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,
+                swerveKinodynamics.getMaxAngleSpeedRad_S() ,
+                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1); // 5 degrees
 
         whileTrue(driverControl::driveToObject,
                 new DriveToPoseWithProfile(
                         fieldLog,
                         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -2, new Rotation2d(Math.PI / 2))))),
+                                .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
                         m_drive,
                         holonomicController,
                         profile));  
 
         whileTrue(driverControl::driveOneMeter,
-                new DriveToPoseWithProfile(
-                        fieldLog,
-                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                        m_drive,
-                        holonomicController,
-                        profile));
+                // new DriveToPoseWithProfile(
+                //         fieldLog,
+                //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                //         m_drive,
+                //         holonomicController,
+                //         profile));
+                new DriveToPoseWithTrajectory(() -> m_drive.getPose(), m_drive,(start, end) -> planner.movingToRest(start, end),holonomicController,viz));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,

@@ -56,7 +56,7 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
 
     private Command go(double x, double y) {
         return new DriveToPoseWithTrajectory(
-                new Pose2d(x, y, GeometryUtil.kRotationZero),
+                () -> new Pose2d(x, y, GeometryUtil.kRotationZero),
                 m_drive,
                 (start, end) -> m_planner.movingToRest(start, end),
                 m_controller,
