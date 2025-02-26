@@ -87,14 +87,18 @@ public class TrajectoryPlanner {
     }
 
     public Trajectory100 movingToRest(SwerveModel startState, Pose2d end) {
-        if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON) {
-            return restToRest(startState.pose(), end);
+        return movingToMoving(startState, new SwerveModel(end));
+    }
+    
+    public Trajectory100 movingToMoving(SwerveModel startState, SwerveModel endState) {
+        if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON && Math.abs(endState.velocity().norm()) < VELOCITY_EPSILON) {
+            return restToRest(startState.pose(), endState.pose());
         }
-
         Translation2d currentTranslation = startState.translation();
         FieldRelativeVelocity currentSpeed = startState.velocity();
+        FieldRelativeVelocity endSpeed = endState.velocity();
 
-        Translation2d goalTranslation = end.getTranslation();
+        Translation2d goalTranslation = endState.translation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
 
@@ -112,9 +116,9 @@ public class TrajectoryPlanner {
                                     angleToGoal)),
                     List.of(
                             startState.pose().getRotation(),
-                            end.getRotation()),
+                            endState.rotation()),
                     currentSpeed.norm(),
-                    0);
+                    endSpeed.norm());
         } catch (TrajectoryGenerationException e) {
             Util.warn("Trajectory Generation Exception");
             return new Trajectory100();

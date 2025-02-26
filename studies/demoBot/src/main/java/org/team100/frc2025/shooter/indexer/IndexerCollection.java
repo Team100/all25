@@ -18,13 +18,11 @@ public class IndexerCollection {
 
                     @Override
                     public void set(double value) {
-                        // TODO Auto-generated method stub
                         throw new UnsupportedOperationException("Unimplemented method 'set'");
                     }
 
                     @Override
                     public void stop() {
-                        // TODO Auto-generated method stub
                         throw new UnsupportedOperationException("Unimplemented method 'stop'");
                     }
                     

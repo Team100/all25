@@ -50,7 +50,7 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
 
         SwerveController controller = SwerveControllerFactory.test(logger);
         DriveToPoseWithTrajectory command = new DriveToPoseWithTrajectory(
-                goal,
+                () -> goal,
                 drive,
                 (start, end) -> new Trajectory100(
                         List.of(new TimedPose(new Pose2dWithMotion(
@@ -82,7 +82,7 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
 
         SwerveController m_controller = SwerveControllerFactory.test(logger);
         DriveToPoseWithTrajectory command = new DriveToPoseWithTrajectory(
-                goal, drive,
+                () -> goal, drive,
                 (start, end) -> planner.movingToRest(start, end),
                 m_controller, viz);
         command.initialize();
