@@ -91,6 +91,7 @@ public class TrajectoryPlanner {
     }
     
     public Trajectory100 movingToMoving(SwerveModel startState, SwerveModel endState) {
+        
         if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON && Math.abs(endState.velocity().norm()) < VELOCITY_EPSILON) {
             return restToRest(startState.pose(), endState.pose());
         }
@@ -101,10 +102,9 @@ public class TrajectoryPlanner {
         Translation2d goalTranslation = endState.translation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-
-        // if we don't have a valid course, then just use the angle to the goal
+        System.out.println(angleToGoal);
         Rotation2d startingAngle = currentSpeed.angle().orElse(angleToGoal);
-
+        System.out.println(startingAngle);
         try {
             return generateTrajectory(
                     List.of(
@@ -115,9 +115,9 @@ public class TrajectoryPlanner {
                                     goalTranslation,
                                     angleToGoal)),
                     List.of(
-                            startState.pose().getRotation(),
+                            startState.rotation(),
                             endState.rotation()),
-                    currentSpeed.norm(),
+                    Math.abs(currentSpeed.norm()),
                     endSpeed.norm());
         } catch (TrajectoryGenerationException e) {
             Util.warn("Trajectory Generation Exception");

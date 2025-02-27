@@ -52,6 +52,11 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
     @Override
     public void initialize() {
         m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal.get());
+        System.out.println(m_drive.getState());
+        if (m_trajectory.isEmpty()) {
+            m_trajectory = null; 
+            return;
+        }
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
@@ -62,12 +67,13 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
+        if (m_trajectory == null) return;
         m_referenceController.execute();
     }
 
     @Override
     public boolean isFinished() {
-        return m_referenceController.isFinished();
+        return m_trajectory == null || m_referenceController.isFinished();
     }
 
     @Override

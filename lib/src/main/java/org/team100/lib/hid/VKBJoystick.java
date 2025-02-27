@@ -104,8 +104,12 @@ public class VKBJoystick implements DriverControl {
 
     @Override
     public boolean driveToObject() {
-        // return button(7);
-        return false;
+        return button(7);
+    }
+
+    @Override
+    public boolean driveOneMeter() {
+        return button(8);
     }
 
     private double axis(int axis) {
