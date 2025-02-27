@@ -4,11 +4,6 @@
       "visible": true
     }
   },
-  "System Joysticks": {
-    "window": {
-      "visible": false
-    }
-  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -31,13 +26,13 @@
       "buttonCount": 8,
       "buttonKeys": [
         90,
-        -1,
         88,
         67,
         86,
-        -1,
-        75,
-        76
+        66,
+        78,
+        77,
+        44
       ],
       "povConfig": [
         {
@@ -65,10 +60,10 @@
       "axisCount": 2,
       "buttonCount": 4,
       "buttonKeys": [
-        77,
-        44,
-        46,
-        47
+        -1,
+        -1,
+        -1,
+        -1
       ],
       "povCount": 0
     },

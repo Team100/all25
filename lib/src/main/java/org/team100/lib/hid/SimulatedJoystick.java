@@ -9,13 +9,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 
 /**
- * VKB Joystick.
+ * Simulated Joystick.
  * 
- * X, Y, and twist should work.
- * POV rotation should work.
- * Only one joystick is required.
- * Operator features are not implemented.
- * Command buttons are not implemented.
+ * This is used for simulation.
  */
 public class SimulatedJoystick implements DriverControl {
     private static final double kDeadband = 0.02;
@@ -33,13 +29,35 @@ public class SimulatedJoystick implements DriverControl {
     }
 
     @Override
+    public boolean trigger() {
+        // return button(1);
+        return false;
+    }
+
+    @Override
     public boolean fullCycle() {
-        return button(1); // trigger halfway down
+        return button(1);
     }
 
     @Override
     public boolean test() {
-        return button(3); // red thumb
+        return button(3);
+    }
+
+    @Override
+    public boolean driveToObject() {
+        return button(4);
+    }
+
+    @Override
+    public boolean button5() {
+        // return button(5);
+        return false;
+    }
+
+    @Override
+    public boolean driveOneMeter() {
+        return button(6);
     }
 
     @Override
@@ -50,12 +68,6 @@ public class SimulatedJoystick implements DriverControl {
     @Override
     public boolean resetRotation180() {
         return button(8); // "F2"
-    }
-
-    @Override
-    public boolean button5() {
-        // return button(5);
-        return false;
     }
 
     /**
@@ -96,21 +108,7 @@ public class SimulatedJoystick implements DriverControl {
         // return new Translation2d(0.431985, 5.446929);
     }
 
-    @Override
-    public boolean trigger() {
-        // return button(1);
-        return false;
-    }
-
-    @Override
-    public boolean driveToObject() {
-        return button(7);
-    }
-
-    @Override
-    public boolean driveOneMeter() {
-        return button(8);
-    }
+    //////////////////
 
     private double axis(int axis) {
         return m_hid.getRawAxis(axis);
