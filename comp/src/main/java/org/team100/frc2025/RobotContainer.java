@@ -113,9 +113,6 @@ public class RobotContainer implements Glassy {
         final LevelPoller poller = new LevelPoller(async, logging::setLevel, Level.TRACE);
         Util.printf("Using log level %s\n", poller.getLevel().name());
         Util.println("Do not use TRACE in comp, with NT logging, it will overrun");
-
-        final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(2, 2)));
         final LoggerFactory fieldLogger = logging.fieldLogger;
         final FieldLogger.Log fieldLog = new FieldLogger.Log(fieldLogger);
 
@@ -126,6 +123,8 @@ public class RobotContainer implements Glassy {
         final OperatorControl operatorControl = new OperatorControlProxy(async);
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
+        final TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(), swerveKinodynamics.getMaxDriveAccelerationM_S2()*0.5)));
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
         final LoggerFactory elevatorLog = logger.child("Elevator");
@@ -242,25 +241,27 @@ public class RobotContainer implements Glassy {
                 0.1); // 5 degrees
 
         whileTrue(driverControl::driveToObject,
-                new DriveToPoseWithProfile(
-                        fieldLog,
-                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-                        m_drive,
-                        holonomicController,
-                        profile));
+
+                // new DriveToPoseWithProfile(
+                //         fieldLog,
+                //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                //         m_drive,
+                //         holonomicController,
+                //         profile));  
+                new DriveToPoseWithTrajectory(() -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))), m_drive,(start, end) -> planner.movingToRest(start, end),holonomicController,viz));
 
         whileTrue(driverControl::driveOneMeter,
                 // new DriveToPoseWithProfile(
-                // fieldLog,
-                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-                // 16).get().toPose2d()
-                // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                // m_drive,
-                // holonomicController,
-                // profile));
-                new DriveToPoseWithTrajectory(() -> m_drive.getPose(), m_drive,
-                        (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+                //         fieldLog,
+                //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                //         m_drive,
+                //         holonomicController,
+                //         profile));
+                new DriveToPoseWithTrajectory(() -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))), m_drive,(start, end) -> planner.movingToRest(start, end),holonomicController,viz));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
