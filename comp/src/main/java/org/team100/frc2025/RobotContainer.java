@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
-
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
@@ -87,8 +86,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer implements Glassy {
     // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
     // https://www.chiefdelphi.com/t/the-brushless-era-needs-sensible-default-current-limits/461056/51
-    private static final double kDriveCurrentLimit = 50;
-    private static final double kDriveStatorLimit = 100;
+    // https://docs.google.com/document/d/10uXdmu62AFxyolmwtDY8_9UNnci7eVcev4Y64ZS0Aqk
+    // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L195
+    // 2/26/25: Joel updated the supply limit to 90A, see 1678 code above. This is
+    // essentially unlimited, so you'll need to run some other kind of limiter (e.g.
+    // acceleration) to keep from browning out.
+    private static final double kDriveCurrentLimit = 90;
+    private static final double kDriveStatorLimit = 110;
 
     private final SwerveModuleCollection m_modules;
     // private final Command m_auton;
@@ -126,7 +130,6 @@ public class RobotContainer implements Glassy {
         final LoggerFactory elevatorLog = logger.child("Elevator");
 
         m_elevator = new Elevator(elevatorLog, 2, 1, 3);
-
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
@@ -233,11 +236,12 @@ public class RobotContainer implements Glassy {
                 swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
                 swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
                 0.01, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S() ,
+                swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1); // 5 degrees
 
         whileTrue(driverControl::driveToObject,
+
                 // new DriveToPoseWithProfile(
                 //         fieldLog,
                 //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
