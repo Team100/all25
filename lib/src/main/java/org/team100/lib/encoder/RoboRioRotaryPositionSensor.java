@@ -29,11 +29,15 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
     private Double m_prevAngleRad = null;
     private Double m_prevTimeS = null;
 
+    private boolean m_wrapped = false;
+
     protected RoboRioRotaryPositionSensor(
             LoggerFactory parent,
             double inputOffset,
-            EncoderDrive drive) {
+            EncoderDrive drive,
+            boolean wrapped) {
         LoggerFactory child = parent.child(this);
+        m_wrapped = wrapped;
         m_positionOffset = Util.inRange(inputOffset, 0.0, 1.0);
         m_drive = drive;
         m_log_position = child.optionalDoubleLogger(Level.TRACE, "position (rad)");
@@ -86,14 +90,26 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
         double turnsMinusOffset = posTurns - m_positionOffset;
         m_log_position_turns_offset.log(() -> turnsMinusOffset);
 
-        switch (m_drive) {
-            case DIRECT:
-                return OptionalDouble.of(MathUtil.angleModulus(turnsMinusOffset * kTwoPi));
-            case INVERSE:
-                return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
-            default:
-                throw new IllegalArgumentException();
+        if(m_wrapped){
+            switch (m_drive) {
+                case DIRECT:
+                    return OptionalDouble.of(MathUtil.angleModulus(turnsMinusOffset * kTwoPi));
+                case INVERSE:
+                    return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }else{
+            switch (m_drive) {
+                case DIRECT:
+                    return OptionalDouble.of(turnsMinusOffset * kTwoPi);
+                case INVERSE:
+                    return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
+        
     }
 
     /**

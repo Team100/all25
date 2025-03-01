@@ -7,9 +7,9 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.SetNine;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.SetElevator;
-import frc.robot.subsystems.SetNone;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,8 +35,8 @@ public class RobotContainer {
     configureBindings();
 
     ExampleSubsystem sub = new ExampleSubsystem();
-    sub.setDefaultCommand(new SetNone(sub));
-    m_driverController.a().whileTrue( new SetElevator(sub, () -> m_driverController.getLeftY()));
+    sub.setDefaultCommand(new SetNine(sub));
+    m_driverController.a().whileTrue( new ExampleCommand(sub));
 
   }
 

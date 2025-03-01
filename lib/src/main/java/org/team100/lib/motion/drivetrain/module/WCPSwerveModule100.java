@@ -250,7 +250,8 @@ public class WCPSwerveModule100 extends SwerveModule100 {
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
-                mech);
+                mech,
+                true);
         AngularPositionServo servo = new OutboardAngularPositionServo(
                 parent,
                 mech,
@@ -270,14 +271,16 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                     parent,
                     channel,
                     inputOffset,
-                    drive);
+                    drive,
+                    true);
         }
         if (encoderClass == DutyCycleRotaryPositionSensor.class) {
             return new AS5048RotaryPositionSensor(
                     parent,
                     channel,
                     inputOffset,
-                    drive);
+                    drive,
+                    true);
         }
         throw new IllegalArgumentException("unknown encoder class: " + encoderClass.getName());
     }

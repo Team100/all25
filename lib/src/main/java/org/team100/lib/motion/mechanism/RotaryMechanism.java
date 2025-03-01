@@ -27,6 +27,7 @@ public interface RotaryMechanism {
     void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
+            double outputAccelRad_S2,
             double outputTorqueNm);
 
     /** Value should be updated in Robot.robotPeriodic(). */

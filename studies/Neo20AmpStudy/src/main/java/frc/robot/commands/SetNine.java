@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
+public class SetNine extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ExampleSubsystem m_subsystem;
 
@@ -20,7 +20,7 @@ public class ExampleCommand extends Command {
    */
 
   Timer timer = new Timer();
-  public ExampleCommand(ExampleSubsystem subsystem) {
+  public SetNine(ExampleSubsystem subsystem) {
     m_subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -35,22 +35,25 @@ public class ExampleCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(timer.get() < 0.75){
-      m_subsystem.set1(-0.5);
-      m_subsystem.set2(-0.5);
-    } else if(timer.get() < 0.85){
-      m_subsystem.set1(0.2);
-      m_subsystem.set2(0.2);
-    } else{
-      timer.restart();
-    }
+    // if(timer.get() < 5){
+    //   m_subsystem.set1(-0.5);
+    //   m_subsystem.set2(-0.5);
+    // } else if(timer.get() < 6){
+    //   m_subsystem.set1(0.5);
+    //   m_subsystem.set2(0.5);
+    // } else{
+    //   timer.restart();
+    // }
+    m_subsystem.set1(0);
+    m_subsystem.set2(0);
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_subsystem.set1(0);
-    m_subsystem.set2(0);
+    // m_subsystem.set1(0);
+    // m_subsystem.set2(0);
   }
 
   // Returns true when the command should end.

@@ -28,7 +28,7 @@ class CombinedEncoderTest {
         e2.position = 0;
 
         RotaryMechanism m = new SimpleRotaryMechanism(logger, motor, e2, 1.0);
-        CombinedEncoder c = new CombinedEncoder(logger, e1, m);
+        CombinedEncoder c = new CombinedEncoder(logger, e1, m, true);
         c.sync();
         // the combined encoder reads the correct value
         assertEquals(1.0, c.getPositionRad().getAsDouble(), kDelta);

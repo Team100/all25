@@ -37,7 +37,6 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         m_encoder = encoder;
         m_gearRatio = gearRatio;
 
-        m_encoder.reset();
         m_log_velocity = child.doubleLogger(Level.TRACE, "velocity (rad_s)");
         m_log_position = child.doubleLogger(Level.TRACE, "position (rad)");
     }
@@ -68,11 +67,12 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
     public void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
+            double outputAccelRad_S2,
             double outputTorqueNm) {
         m_motor.setPosition(
                 outputPositionRad * m_gearRatio,
                 outputVelocityRad_S * m_gearRatio,
-                0,
+                outputAccelRad_S2 * m_gearRatio,
                 outputTorqueNm / m_gearRatio);
     }
 
@@ -97,7 +97,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         OptionalDouble positionRad = m_encoder.getPositionRad();
         if (positionRad.isEmpty())
             return OptionalDouble.empty();
-        return OptionalDouble.of(positionRad.getAsDouble() / m_gearRatio);
+        return OptionalDouble.of(  (positionRad.getAsDouble() / m_gearRatio));
     }
 
     @Override

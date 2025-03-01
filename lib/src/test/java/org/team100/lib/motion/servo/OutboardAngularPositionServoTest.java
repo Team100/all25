@@ -30,7 +30,7 @@ public class OutboardAngularPositionServoTest {
                 new MockIncrementalBareEncoder(),
                 1);
         final MockRotaryPositionSensor externalEncoder = new MockRotaryPositionSensor();
-        final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech);
+        final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech, true);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
 
         final OutboardAngularPositionServo servo = new OutboardAngularPositionServo(

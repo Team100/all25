@@ -42,4 +42,8 @@ public interface OperatorControl extends Glassy {
         return false;
     }
 
+    default boolean setWrist() {
+        return false;
+    }
+
 }

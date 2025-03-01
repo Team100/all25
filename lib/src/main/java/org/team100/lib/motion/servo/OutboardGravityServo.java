@@ -43,7 +43,8 @@ public class OutboardGravityServo implements GravityServoInterface {
             return;
         }
         double mechanismPositionRad = optPos.getAsDouble();
-        final double gravityTorqueNm = m_gravityNm * Math.cos(mechanismPositionRad + m_offsetRad);
+        mechanismPositionRad = (mechanismPositionRad * 9) / 10.5;
+        final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
         m_servo.setPositionWithVelocity(goal.x(), goal.v(), gravityTorqueNm);
     }
 
