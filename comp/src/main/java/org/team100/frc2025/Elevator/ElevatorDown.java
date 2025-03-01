@@ -19,7 +19,8 @@ public class ElevatorDown extends Command {
 
     @Override
     public void execute() {
-        m_elevator.setDutyCycle(-0.05);
+        // m_elevator.setDutyCycle(-0.05);
+        m_elevator.setPosition(6); //16 for l3
     }
 
     @Override

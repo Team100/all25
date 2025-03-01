@@ -25,7 +25,7 @@ import edu.wpi.first.math.MathUtil;
  * 
  * Must be used with a combined encoder, to "zero" the motor encoder.
  * 
- * TODO: allow other zeroing strategies.
+ *  
  */
 public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kPositionTolerance = 0.05;
@@ -111,15 +111,22 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
                 goalVelocityRad_S);
 
+        // m_goal = new Model100(goalRad,
+        //         goalVelocityRad_S);
+
         // setpoint is [-inf,inf], near the measurement
         m_setpoint = new Control100(
                 MathUtil.angleModulus(m_setpoint.x() - measurement) + measurement,
                 m_setpoint.v());
 
+        // m_setpoint = new Control100(
+        //         m_setpoint.x(),
+        //         m_setpoint.v());
+
         // finally compute a new setpoint
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
 
-        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), feedForwardTorqueNm);
+        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);

@@ -43,7 +43,7 @@ public class CombinedEncoder implements RotaryPositionSensor {
     private final OptionalDoubleLogger m_log_combined;
     // for synchronization one-shot delayed task
     private final ScheduledExecutorService m_synchronizer;
-
+    private final boolean m_wrapped;
     /**
      * "Zeros" the incremental sensor.
      * 
@@ -53,7 +53,8 @@ public class CombinedEncoder implements RotaryPositionSensor {
     public CombinedEncoder(
             LoggerFactory parent,
             RotaryPositionSensor absolute,
-            RotaryMechanism incremental) {
+            RotaryMechanism incremental,
+            boolean wrapped) {
         LoggerFactory child = parent.child(this);
         m_absolute = absolute;
         m_incremental = incremental;
@@ -61,7 +62,7 @@ public class CombinedEncoder implements RotaryPositionSensor {
         m_log_incremental = child.optionalDoubleLogger(Level.TRACE, "incremental (rad)");
         m_log_incremental_wrapped = child.doubleLogger(Level.TRACE, "incremental wrapped (rad)");
         m_log_combined = child.optionalDoubleLogger(Level.DEBUG, "combined (rad)");
-
+        m_wrapped = wrapped;
         // the duty cycle encoder seems to produce slightly-wrong values immediately
         // upon startup, so wait a bit before doing the synchronization
         m_synchronizer = Executors.newSingleThreadScheduledExecutor();
@@ -79,15 +80,24 @@ public class CombinedEncoder implements RotaryPositionSensor {
         // remove a little bit of noise.
         double sin = 0;
         double cos = 0;
-        final int N = 10;
+        double posN = 0;
+        final int N = 10; //TODO CHANGE ALL THIS WONT WORK FOR SWERVE TURNING
         for (int i = 0; i < N; ++i) {
             double pos = m_absolute.getPositionRad().getAsDouble();
             cos += Math.cos(pos);
             sin += Math.sin(pos);
+            posN += pos;
         }
         sin /= N;
         cos /= N;
+        posN /= N;
+
         double absolutePosition = Math.atan2(sin, cos);
+
+        if(m_wrapped) {
+            absolutePosition = posN;
+        }
+        
         m_incremental.setEncoderPosition(absolutePosition);
     }
 

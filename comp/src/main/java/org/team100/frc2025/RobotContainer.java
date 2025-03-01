@@ -9,6 +9,7 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetWrist;
+import org.team100.frc2025.Elevator.SetWristSafe;
 import org.team100.frc2025.Intake.AlgaeIntake;
 import org.team100.frc2025.Intake.RunIntake;
 import org.team100.frc2025.Intake.RunOuttake;
@@ -17,6 +18,7 @@ import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
 
 import org.team100.frc2025.Swerve.FullCycle;
+import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
@@ -101,6 +103,7 @@ public class RobotContainer implements Glassy {
     final SwerveDriveSubsystem m_drive;
 
     final Elevator m_elevator;
+    final Wrist m_wrist;
 
     final Climber m_climber;
 
@@ -129,7 +132,8 @@ public class RobotContainer implements Glassy {
         final LoggerFactory comLog = logger.child("Commands");
         final LoggerFactory elevatorLog = logger.child("Elevator");
 
-        m_elevator = new Elevator(elevatorLog, 2, 1, 3);
+        m_elevator = new Elevator(elevatorLog, 2, 1);
+        m_wrist = new Wrist(elevatorLog, 3);
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
@@ -286,8 +290,11 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::elevate, new SetWrist(m_elevator));
+        whileTrue(operatorControl::elevate, new SetWristSafe(m_wrist)); //x
         whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
+        whileTrue(operatorControl::intake, new SetElevator(m_elevator));
+        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); //b
+
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));
         // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));
 

@@ -46,15 +46,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
-    private final GravityServoInterface wristServo;
 
     private final ElevatorVisualization m_viz;
 
     public Elevator(
             LoggerFactory parent,
             int starboardID,
-            int portID,
-            int wristID) {
+            int portID) {
 
         LoggerFactory child = parent.child(this);
 
@@ -73,7 +71,8 @@ public class Elevator extends SubsystemBase implements Glassy {
         PIDConstants elevatorPID = PIDConstants.makePositionPID(2);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
 
         int wristSupplyLimit = 60;
         int wristStatorLimit = 90;
@@ -85,7 +84,7 @@ public class Elevator extends SubsystemBase implements Glassy {
                 wristPID.getPositionD());
         wristPIDController.setTolerance(0.02);
         wristPIDController.setIntegratorRange(0, 1);
-        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(5, 5, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 20, 0.05); // TODO CHANGE THESE
 
         switch (Identity.instance) {
             case FRC_100_ea4 -> {
@@ -93,8 +92,7 @@ public class Elevator extends SubsystemBase implements Glassy {
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
-                Kraken6Motor wristMotor = new Kraken6Motor(wristMotorLogger, wristID, MotorPhase.REVERSE,
-                        wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
+
 
                 LinearMechanism starboardMech = new SimpleLinearMechanism(
                         starboardMotor,
@@ -112,23 +110,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
 
-                RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
-                        child,
-                        9,
-                        0.097446,
-                        EncoderDrive.DIRECT);
 
-                IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder,
-                        10.5);
+                
 
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
+               
 
-                AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServo(child, wristMech,
-                        combinedEncoder, wristProfile);
 
-                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 0, 0);
                 break;
             }
             default -> {
@@ -147,18 +135,6 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kElevatorWheelDiamater);
                 starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
                 portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
-
-                ////////////////////
-                // simulated wrist
-                //
-                SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor,
-                        new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
-                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech);
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
-                AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServo(child, wristMech,
-                        combinedEncoder, wristProfile);
-                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 0, 0);
             }
 
         }
@@ -170,7 +146,6 @@ public class Elevator extends SubsystemBase implements Glassy {
         // This method will be called once per scheduler run
         starboardServo.periodic();
         portServo.periodic();
-        wristServo.periodic();
         m_viz.viz();
     }
 
@@ -180,12 +155,11 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public void resetWristProfile() {
-        wristServo.reset();
     }
 
-    public void setPosition() {
-        starboardServo.setPosition(50, 1.3); // 54 max
-        portServo.setPosition(50, 1.3); // 54 max
+    public void setPosition(double x) {
+        starboardServo.setPosition(x, 1.3); //54 max
+        portServo.setPosition(x, 1.3); //54 max
     }
 
     public void setDutyCycle(double value) {
@@ -199,13 +173,6 @@ public class Elevator extends SubsystemBase implements Glassy {
         return starboardServo.getPosition().orElse(0);
     }
 
-    public double getAngle() {
-        return wristServo.getPositionRad().orElse(0);
-    }
-
-    public void setAngle() {
-        Control100 control = new Control100(0.5, 0, 0);
-        wristServo.setState(control);
-    }
+   
 
 }

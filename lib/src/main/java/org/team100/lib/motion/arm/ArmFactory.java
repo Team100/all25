@@ -60,7 +60,8 @@ public class ArmFactory {
                 lowerLogger,
                 1, // analog input 1
                 kLowerEncoderOffset,
-                EncoderDrive.INVERSE);
+                EncoderDrive.INVERSE,
+                true);
 
         LoggerFactory upperLogger = parent.child(kUpper);
         CANSparkMotor upperMotor = new NeoCANSparkMotor(
@@ -79,7 +80,8 @@ public class ArmFactory {
                 upperLogger,
                 0, // analog input 0
                 kUpperEncoderOffset,
-                EncoderDrive.DIRECT);
+                EncoderDrive.DIRECT,
+                true);
 
         return new ArmSubsystem(
                 parent.child(kArm),

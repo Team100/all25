@@ -19,31 +19,37 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ExampleSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
-  TalonFX starboard = new TalonFX(1);
-  TalonFX port = new TalonFX(2);
+  // TalonFX starboard = new TalonFX(1);
+  // TalonFX port = new TalonFX(2);
+  SparkMax number1Max ;
+  SparkMax number2Max ;
 
   public ExampleSubsystem() {
 
-    double supply = 60;
-    double stator = 60;
 
-    TalonFXConfigurator starboardConfig = starboard.getConfigurator();
-    TalonFXConfigurator portConfig = port.getConfigurator();
 
-    CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
-    currentConfigs.SupplyCurrentLimit = supply;
-    currentConfigs.SupplyCurrentLimitEnable = true;
-    currentConfigs.StatorCurrentLimit = stator;
-    currentConfigs.StatorCurrentLimitEnable = true;
+    number1Max = new SparkMax(27, MotorType.kBrushless);
+    SparkMaxConfig conf = new SparkMaxConfig();
+    conf.smartCurrentLimit(20, 20);
+    number1Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
-    starboardConfig.apply(currentConfigs);
-    portConfig.apply(currentConfigs);
+    number2Max = new SparkMax(5, MotorType.kBrushless);
+    number2Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
   }
 
-  public void setDuty(double value){
-    starboard.set(-value);
-    port.set(-value);
+  public void set1(double value){
+    // starboard.set(-value);
+    // port.set(-value);
 
+    number1Max.set(-value);
+  }
+
+  public void set2(double value){
+    // starboard.set(-value);
+    // port.set(-value);
+
+    number2Max.set(-value);
   }
 
   /**

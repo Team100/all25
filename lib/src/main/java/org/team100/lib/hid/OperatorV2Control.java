@@ -65,4 +65,9 @@ public class OperatorV2Control implements OperatorControl {
     public boolean outtake() {
         return m_controller.getBButton();
     }
+
+    @Override
+    public boolean setWrist() {
+        return m_controller.getLeftBumperButton();
+    }
 }

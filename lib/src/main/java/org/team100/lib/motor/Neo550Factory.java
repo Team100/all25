@@ -93,7 +93,8 @@ public class Neo550Factory {
                         new CombinedEncoder(
                                 moduleLogger,
                                 new SimulatedRotaryPositionSensor(moduleLogger, rotaryMechanism),
-                                rotaryMechanism),
+                                rotaryMechanism,
+                                true),
                         new TrapezoidProfile100(1, 1, 0.01)),
                 gravityNm,
                 offsetRad);
@@ -138,7 +139,8 @@ public class Neo550Factory {
                         new CombinedEncoder(
                                 parent,
                                 new SimulatedRotaryPositionSensor(parent, rotaryMechanism),
-                                rotaryMechanism),
+                                rotaryMechanism,
+                                true),
                         new TrapezoidProfile100(1, 1, 0.01)),
                 1,
                 1);

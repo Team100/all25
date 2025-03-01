@@ -22,10 +22,12 @@ public class TurretMechanism extends LimitedRotaryMechanism {
     public void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
+            double outputAccelRad_S2,
             double outputTorqueNm) {
         m_delegate.setPosition(
             MathUtil.inputModulus(outputPositionRad, m_minPositionRad, m_maxPositionRad),
             outputVelocityRad_S,
+            outputAccelRad_S2,
             outputTorqueNm);
     }
 }
