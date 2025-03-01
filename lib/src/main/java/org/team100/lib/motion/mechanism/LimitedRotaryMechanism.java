@@ -87,6 +87,7 @@ public class LimitedRotaryMechanism implements RotaryMechanism {
     public void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
+            double outputAccelRad_S2,
             double outputTorqueNm) {
         if (outputPositionRad < m_minPositionRad) {
             m_delegate.stop();
@@ -99,6 +100,7 @@ public class LimitedRotaryMechanism implements RotaryMechanism {
         m_delegate.setPosition(
                 outputPositionRad,
                 outputVelocityRad_S,
+                outputAccelRad_S2,
                 outputTorqueNm);
     }
 

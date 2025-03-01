@@ -4,28 +4,31 @@
 
 package org.team100.frc2025.Elevator;
 
+import org.team100.frc2025.Wrist.Wrist;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetWrist extends Command {
   /** Creates a new SetElevator. */
-  Elevator m_elevator;
-  public SetWrist(Elevator elevator) {
+  Wrist m_wrist;
+  public SetWrist(Wrist wrist) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_elevator = elevator;
-    addRequirements(m_elevator);
+    m_wrist = wrist;
+    addRequirements(m_wrist);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_elevator.resetWristProfile();
+    m_wrist.resetWristProfile();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevator.setAngle();
+    // System.out.println("I WANT TO RUNN");
+    m_wrist.setAngle();
   }
 
   // Called once the command ends or is interrupted.

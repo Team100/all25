@@ -116,7 +116,7 @@ public class OutboardAngularPositionServoWithoutAbsolute implements AngularPosit
         // finally compute a new setpoint
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
 
-        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), feedForwardTorqueNm);
+        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);

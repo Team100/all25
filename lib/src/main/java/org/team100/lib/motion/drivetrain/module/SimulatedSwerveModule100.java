@@ -127,7 +127,8 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
-                turningMech);
+                turningMech,
+                false);
         UnprofiledOutboardAngularPositionServo turningServo = new UnprofiledOutboardAngularPositionServo(
                 parent,
                 turningMech,
