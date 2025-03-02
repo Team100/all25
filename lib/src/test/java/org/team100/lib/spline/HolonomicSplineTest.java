@@ -343,12 +343,14 @@ class HolonomicSplineTest {
         }
 
         Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05));
-        Util.printf("path %s\n", path);
+        if (DEBUG)
+            Util.printf("path %s\n", path);
         List<TimingConstraint> constraints = new ArrayList<>();
         ScheduleGenerator scheduleGenerator = new ScheduleGenerator(constraints);
         Trajectory100 trajectory = scheduleGenerator.timeParameterizeTrajectory(path,
                 0.05, 0, 0);
-        Util.printf("trajectory %s\n", trajectory);
+        if (DEBUG)
+            Util.printf("trajectory %s\n", trajectory);
 
     }
 

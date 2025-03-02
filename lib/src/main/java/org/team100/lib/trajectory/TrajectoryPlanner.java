@@ -102,9 +102,7 @@ public class TrajectoryPlanner {
         Translation2d goalTranslation = endState.translation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        System.out.println(angleToGoal);
         Rotation2d startingAngle = currentSpeed.angle().orElse(angleToGoal);
-        System.out.println(startingAngle);
         try {
             return generateTrajectory(
                     List.of(
