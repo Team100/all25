@@ -21,7 +21,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
  * doesn't need to apply its own cache layer.
  */
 public class Memo {
-    // TODO: use weak references here
     private static final List<CotemporalCache<?>> resetters = new ArrayList<>();
     private static final List<CotemporalCache<?>> updaters = new ArrayList<>();
     private static final List<DoubleCache> doubleResetters = new ArrayList<>();

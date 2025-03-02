@@ -15,10 +15,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 class SwerveDriveDynamicsConstraintTest {
     private static final double kDelta = 0.001;
 
-    // the free speed of a module, which is also the free speed
-    // of the robot going in a straight line without rotating.
-    private static final double maxV = 4;
-
     @Test
     void testVelocity() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.get();

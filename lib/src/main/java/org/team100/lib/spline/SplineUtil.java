@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class SplineUtil {
     private static final boolean DEBUG = false;
     private static final double kEpsilon = 1e-5;
-    // TODO: find a good step size.
     private static final double kStepSize = 1.0;
     private static final double kMinDelta = 0.001;
     private static final int kMaxIterations = 100;

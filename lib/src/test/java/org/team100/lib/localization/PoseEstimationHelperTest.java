@@ -207,6 +207,7 @@ class PoseEstimationHelperTest {
         final int iterations = 10000000;
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < iterations; ++i) {
+            @SuppressWarnings("unused")
             Pose3d robotPoseInFieldCoords = helper.getRobotPoseInFieldCoords(
                     cameraInRobotCoords,
                     tagInFieldCoords,

@@ -4,16 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefAproach;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
-import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 

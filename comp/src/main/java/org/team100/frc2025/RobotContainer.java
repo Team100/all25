@@ -5,24 +5,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetWrist;
 import org.team100.frc2025.Elevator.SetWristSafe;
-import org.team100.frc2025.Intake.AlgaeIntake;
-import org.team100.frc2025.Intake.RunIntake;
-import org.team100.frc2025.Intake.RunOuttake;
-import org.team100.frc2025.Climber.Climber;
-import org.team100.frc2025.Climber.ClimberFactory;
-import org.team100.frc2025.Climber.ClimberRotate;
-
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;

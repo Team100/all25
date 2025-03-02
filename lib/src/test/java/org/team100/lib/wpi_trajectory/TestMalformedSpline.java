@@ -16,7 +16,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 class TestMalformedSpline {
     @Test
     void malformedSplineTest() throws IOException {
-        // TODO: NoSuchElementException here probably indicates a bug
         assertThrows(NoSuchElementException.class,
                 () -> TrajectoryGenerator.generateTrajectory(
                         new Pose2d(0, 0, GeometryUtil.kRotationZero),

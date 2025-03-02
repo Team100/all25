@@ -1,14 +1,10 @@
 package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;
