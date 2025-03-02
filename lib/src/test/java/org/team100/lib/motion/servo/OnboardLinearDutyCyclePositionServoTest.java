@@ -31,7 +31,7 @@ public class OnboardLinearDutyCyclePositionServoTest implements Timeless {
         final double k1 = 1.0;
         final double k2 = 0.01;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
-        ProfiledController c = new ProfiledController(p, f, x -> x);
+        ProfiledController c = new ProfiledController(p, f, x -> x, 0.05, 0.05);
 
         OnboardLinearDutyCyclePositionServo s = new OnboardLinearDutyCyclePositionServo(logger, mech, c, 0.1);
         s.reset();
