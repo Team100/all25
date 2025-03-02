@@ -45,10 +45,6 @@ public class ProfiledController {
 
     private Model100 m_setpoint;
 
-    /**
-     * TODO: include modulus some other way: the profile and feedback need to both
-     * also be rotary, if this controller is rotary.
-     */
     public ProfiledController(
             Profile100 profile,
             Feedback100 feedback,
