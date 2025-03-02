@@ -169,13 +169,7 @@ public abstract class SwerveModule100 implements Glassy {
     // Package private for SwerveModuleCollection
     //
 
-    /**
-     * FOR TESTING ONLY
-     * 
-     * TODO: remove this
-     * 
-     * @return current measurements
-     */
+    /** FOR TEST ONLY */
     public SwerveModuleState100 getState() {
         OptionalDouble driveVelocity = m_driveServo.getVelocity();
         OptionalDouble turningPosition = m_turningServo.getPosition();

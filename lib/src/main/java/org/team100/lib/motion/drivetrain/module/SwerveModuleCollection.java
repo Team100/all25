@@ -258,7 +258,7 @@ public class SwerveModuleCollection {
         };
     }
 
-    /** TODO: remove this */
+    /** FOR TEST ONLY */
     public SwerveModuleStates states() {
         return new SwerveModuleStates(
                 m_frontLeft.getState(),

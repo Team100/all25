@@ -97,7 +97,6 @@ class DriveMotionPlannerTest implements Timeless {
         }
 
         // this should be exactly right but it's not.
-        // TODO: it's because of the clock skew in the feedback, so fix that.
         assertEquals(195, pose.getTranslation().getX(), 1);
         assertEquals(13, pose.getTranslation().getY(), 0.4);
         assertEquals(0, pose.getRotation().getRadians(), 0.1);
