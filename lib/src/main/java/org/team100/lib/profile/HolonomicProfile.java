@@ -16,8 +16,6 @@ import edu.wpi.first.math.MathUtil;
  * 
  * Note that because acceleration is adjusted, but not cruise velocity, the
  * resulting paths will not be straight, for rest-to-rest profiles.
- * 
- * TODO: support other kinds of profiles, e.g. exponential
  */
 public class HolonomicProfile {
     /** For testing */

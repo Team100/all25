@@ -23,8 +23,6 @@ import edu.wpi.first.math.MathUtil;
  * delegated to the mechanism.
  * 
  * Must be used with a combined encoder, to "zero" the motor encoder.
- * 
- * TODO: allow other zeroing strategies.
  */
 public class OutboardAngularPositionServoWithoutAbsolute implements AngularPositionServo {
     private static final double kPositionTolerance = 0.05;
@@ -176,8 +174,6 @@ public class OutboardAngularPositionServoWithoutAbsolute implements AngularPosit
      * It really makes the most sense to call this *before* updating the setpoint,
      * because the measurement comes from the recent-past Takt and the updated
      * setpoint will be aiming at the next one.
-     * 
-     * TODO: clean this up.
      */
     @Override
     public boolean atGoal() {

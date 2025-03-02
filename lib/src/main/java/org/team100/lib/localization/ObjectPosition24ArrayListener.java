@@ -29,10 +29,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 /**
  * Listen for updates from the object-detector camera and remember them for
  * awhile.
- * 
- * TODO: as described below, use a buffer here, don't just remember the very
- * last thing the camera saw. Also use multiple sights to get a better idea of
- * where the target is.
  */
 public class ObjectPosition24ArrayListener {
     /** Ignore sights older than this. */
@@ -87,7 +83,6 @@ public class ObjectPosition24ArrayListener {
                 }
                 Transform3d cameraInRobotCoordinates = Camera.get(fields[1]).getOffset();
                 Pose2d robotPose = m_poseSupplier.get(v.getServerTime() / 1000000.0).pose();
-                // TODO: this should accumulate sights, not replace the list every time.
                 objects = TargetLocalizer.cameraRotsToFieldRelativeArray(
                         robotPose,
                         cameraInRobotCoordinates,

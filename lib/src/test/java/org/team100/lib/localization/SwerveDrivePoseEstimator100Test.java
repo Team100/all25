@@ -253,7 +253,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.305, poseEstimator.get(0.014));
         // but doesn't change this estimate since it's the same, and we're not moving,
         // we don't replay vision input
-        // TODO: this is wrong: two vision estimates should pull harder than one,
+        // it would be better if two vision estimates pulled harder than one,
         // even if they come in out-of-order.
         verify(0.305, poseEstimator.get(0.015));
         verify(0.305, poseEstimator.get(0.02));
@@ -364,7 +364,6 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.405, poseEstimator.get(0.08));
 
         // a little earlier than the previous estimate does nothing.
-        // TODO: this is wrong
         poseEstimator.put(0.014, visionRobotPoseMeters, stateStdDevs, visionMeasurementStdDevs);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.305, poseEstimator.get(0.02));

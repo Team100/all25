@@ -27,7 +27,6 @@ public class PathPlanner {
                     headings.get(i - 1), headings.get(i), mN.get(i)));
         }
         // does not force C1, theta responds too much
-        // TODO: find a way to make theta C1
         // SplineUtil.forceC1(splines);
         SplineUtil.optimizeSpline(splines);
         return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
@@ -46,7 +45,6 @@ public class PathPlanner {
                     headings.get(i - 1), headings.get(i)));
         }
         // does not force C1, theta responds too much
-        // TODO: find a way to make theta C1
         // SplineUtil.forceC1(splines);
         SplineUtil.optimizeSpline(splines);
         return new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));

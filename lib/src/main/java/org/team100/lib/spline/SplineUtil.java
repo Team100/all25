@@ -370,9 +370,6 @@ public class SplineUtil {
             splines.set(i + 1, splines.get(i + 1).addToSecondDerivatives(0, 0, kEpsilon, 0));
             controlPoints[i].ddy = (sumDCurvature2(splines) - original) / kEpsilon;
 
-            // TODO: ???
-            splines.set(i, splines.get(i));
-            splines.set(i + 1, splines.get(i + 1));
             magnitude += controlPoints[i].ddx * controlPoints[i].ddx + controlPoints[i].ddy * controlPoints[i].ddy;
         }
         return magnitude;
