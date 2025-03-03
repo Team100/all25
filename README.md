@@ -6,6 +6,7 @@
 What's here:
 
 * **comp**: RoboRIO competition code for 2025
+* **console**: Button board hardware and code
 * **doc**: Documentation: look here for instructions!
 * **lib**: Evergreen RoboRIO library code
 * **raspberry_pi** Coprocessor tasks: vision, logging, GTSAM
