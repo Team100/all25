@@ -71,6 +71,47 @@ public enum Camera {
                     new Rotation3d(0, Math.toRadians(-25), Math.toRadians(20)))),
                    
     
+    /**
+     * Right swerve 
+     */
+    SWERVE_RIGHT("getSwerveRight",
+            new Transform3d(
+                    new Translation3d(-0.273, 0.302, 0.215),
+                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(-60)))),
+
+    
+    /**
+     * Left swerve 
+     */
+    SWERVE_LEFT("getSwerveLeft",
+            new Transform3d(
+                    new Translation3d(-0.273, -0.302, 0.215),
+                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
+
+    /**
+     * Funnal 
+     */
+    FUNNEL("getFunnel",
+            new Transform3d(
+                    new Translation3d(-0.011, 0.202, 0.900),
+                    new Rotation3d(0, Math.toRadians(-25), Math.toRadians(170)))),
+
+    /**
+     * Coral reef left 
+     */
+    CORAL_LEFT("getCoralLeft",
+    new Transform3d(
+            new Translation3d(0.194, -0.294, 0.822),
+            new Rotation3d(0, Math.toRadians(40), Math.toRadians(-10)))),
+
+            /**
+     * Coral reef right 
+     */
+    CORAL_RIGHT("getCoralRight",
+    new Transform3d(
+            new Translation3d(0.194, 0.294, 0.822),
+            new Rotation3d(0, Math.toRadians(40), Math.toRadians(10)))),
+
     TEST1("test1",
             new Transform3d(
                     new Translation3d(),
