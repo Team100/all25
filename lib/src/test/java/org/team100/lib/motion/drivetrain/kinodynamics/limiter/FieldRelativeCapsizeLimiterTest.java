@@ -59,14 +59,14 @@ public class FieldRelativeCapsizeLimiterTest {
 
     @Test
     void testOverspeedCentripetal() {
-        SwerveKinodynamics l = SwerveKinodynamicsFactory.get();
-        assertEquals(24.5, l.getMaxCapsizeAccelM_S2(), kDelta);
+        SwerveKinodynamics l = SwerveKinodynamicsFactory.forRealisticTest();
+        assertEquals(8.166, l.getMaxCapsizeAccelM_S2(), kDelta);
         FieldRelativeCapsizeLimiter c = new FieldRelativeCapsizeLimiter(l);
         FieldRelativeVelocity result = c.limit(
                 new FieldRelativeVelocity(5, 0, 0),
                 new FieldRelativeVelocity(0, 5, 0));
-        assertEquals(4.653, result.x(), kDelta);
-        assertEquals(0.346, result.y(), kDelta);
+        assertEquals(4.884, result.x(), kDelta);
+        assertEquals(0.115, result.y(), kDelta);
         assertEquals(0, result.theta(), kDelta);
     }
 

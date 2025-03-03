@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.TimedPose;
@@ -24,7 +23,7 @@ class Trajectory100Test {
 
     @Test
     void testPreviewAndAdvance() {
-        SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
         Pose2d start = Pose2d.kZero;
         Pose2d end = start.plus(new Transform2d(1, 0, Rotation2d.kZero));
 

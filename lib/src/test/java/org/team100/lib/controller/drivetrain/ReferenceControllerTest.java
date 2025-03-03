@@ -30,7 +30,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class ReferenceControllerTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
     TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
@@ -74,21 +74,21 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // now aligned, so we drive normally, using the same setpoint as above
         stepTime();
         c.execute();
-        assertEquals(0.418, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.139, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // more normal driving
         stepTime();
         c.execute();
-        assertEquals(0.537, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.179, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // etc
         stepTime();
         c.execute();
-        assertEquals(0.661, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.221, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
     }
@@ -116,7 +116,7 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
 
         // the measurement never changes but that doesn't affect "done" as far as the
         // trajectory is concerned.
-        for (int i = 0; i < 48; ++i) {
+        for (int i = 0; i < 100; ++i) {
             stepTime();
             c.execute();
         }

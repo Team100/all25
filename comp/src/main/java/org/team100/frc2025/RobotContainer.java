@@ -114,21 +114,23 @@ public class RobotContainer implements Glassy {
         final FieldLogger.Log fieldLog = new FieldLogger.Log(fieldLogger);
 
         final LoggerFactory logger = logging.rootLogger;
-
-        final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
-        final DriverControl driverControl = new DriverControlProxy(logger, async);
-        final OperatorControl operatorControl = new OperatorControlProxy(async);
-        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
-
-        final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
-                        swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
         final LoggerFactory elevatorLog = logger.child("Elevator");
 
+        final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
+        final DriverControl driverControl = new DriverControlProxy(logger, async);
+        final OperatorControl operatorControl = new OperatorControlProxy(async);
+
         m_elevator = new Elevator(elevatorLog, 2, 1);
         m_wrist = new Wrist(elevatorLog, 3);
+
+        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
+                .get(() -> VCG.vcg(m_elevator.getPosition()));
+
+        final TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
+                        swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,

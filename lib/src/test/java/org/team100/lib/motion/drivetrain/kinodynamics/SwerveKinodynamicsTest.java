@@ -47,7 +47,7 @@ class SwerveKinodynamicsTest {
         double driveV = 1;
         SwerveKinodynamics k = new SwerveKinodynamics(
                 driveV, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2,
-                1);
+                () -> 1);
         assertEquals(1, k.getMaxDriveVelocityM_S(), kDelta);
 
         double r = Math.hypot(track / 2, wheelbase / 2);
@@ -65,7 +65,7 @@ class SwerveKinodynamicsTest {
         double driveV = 4;
         SwerveKinodynamics k = new SwerveKinodynamics(
                 driveV, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2,
-                1);
+                () -> 1);
         assertEquals(4, k.getMaxDriveVelocityM_S(), kDelta);
 
         double r = Math.hypot(track / 2, wheelbase / 2);
@@ -84,7 +84,7 @@ class SwerveKinodynamicsTest {
         SwerveKinodynamics k = new SwerveKinodynamics(
                 driveV, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase,
                 wheelbase / 2,
-                1);
+                () -> 1);
         assertEquals(4, k.getMaxDriveVelocityM_S(), kDelta);
 
         double r = Math.hypot(track / 2, wheelbase / 2);
@@ -102,7 +102,7 @@ class SwerveKinodynamicsTest {
         double driveA = 1;
         SwerveKinodynamics k = new SwerveKinodynamics(
                 1, 1, driveA, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2,
-                1);
+                () -> 1);
         assertEquals(1, k.getMaxDriveAccelerationM_S2(), kDelta);
 
         double r = Math.hypot(track / 2, wheelbase / 2);
@@ -121,7 +121,7 @@ class SwerveKinodynamicsTest {
         double driveA = 1;
         SwerveKinodynamics k = new SwerveKinodynamics(
                 1, 1, driveA, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2,
-                1);
+                () -> 1);
         assertEquals(1, k.getMaxDriveAccelerationM_S2(), kDelta);
 
         double r = Math.hypot(track / 2, wheelbase / 2);
@@ -140,7 +140,7 @@ class SwerveKinodynamicsTest {
         double wheelbase = 1;
         double vcg = 0.3;
         SwerveKinodynamics k = new SwerveKinodynamics(
-                1, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2, vcg);
+                1, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2, () -> vcg);
         assertEquals(1, k.getMaxDriveAccelerationM_S2(), kDelta);
 
         double fulcrum = Math.min(track / 2, wheelbase / 2);
@@ -152,12 +152,24 @@ class SwerveKinodynamicsTest {
         assertEquals(16.333, k.getMaxCapsizeAccelM_S2(), kDelta);
     }
 
-
-
+    double vcg = 0.3;
+    @Test
+    void testDynamicVCG() {
+        // elevator makes center of mass move a lot.
+        double track = 1;
+        double wheelbase = 1;
+        SwerveKinodynamics k = new SwerveKinodynamics(
+                1, 1, 1, 1, 1, 20 * Math.PI, track, track, wheelbase, wheelbase / 2, () -> vcg);
+        assertEquals(16.333, k.getMaxCapsizeAccelM_S2(), kDelta);
+        // change vcg ...
+        vcg = 0.5;
+        // ... capsize accel changes
+        assertEquals(9.8, k.getMaxCapsizeAccelM_S2(), kDelta);
+    }
 
     @Test
     void testAFewCases() {
-        SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
         double maxV = limits.getMaxDriveVelocityM_S();
         double maxOmega = limits.getMaxAngleSpeedRad_S();
         assertEquals(5, maxV, kDelta);
@@ -191,18 +203,11 @@ class SwerveKinodynamicsTest {
             assertEquals(-9.38, i.omegaRadiansPerSecond, kDelta);
         }
 
-
     }
-
-
-
-
-
-
 
     @Test
     void testDiscretizationNoEffect() {
-        SwerveKinodynamics l = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics l = SwerveKinodynamicsFactory.forRealisticTest();
         // for this test the gyro rate and the commanded omega are the same,
         // though this is definitely not true in general
         {
@@ -227,7 +232,7 @@ class SwerveKinodynamicsTest {
 
     @Test
     void testDiscretizationWithEffect() {
-        SwerveKinodynamics l = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics l = SwerveKinodynamicsFactory.forRealisticTest();
         // for this test the gyro rate and the commanded omega are the same,
         // though this is definitely not true in general
         {
