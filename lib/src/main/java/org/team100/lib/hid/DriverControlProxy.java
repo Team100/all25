@@ -120,6 +120,11 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
+    public boolean testTrajectory() {
+        return m_driverControl.testTrajectory();
+    }
+
+    @Override
     public Translation2d target() {
         return m_driverControl.target();
     }

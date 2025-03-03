@@ -121,7 +121,8 @@ public class RobotContainer implements Glassy {
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(), swerveKinodynamics.getMaxDriveAccelerationM_S2()*0.5)));
+                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
+                        swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
         final LoggerFactory elevatorLog = logger.child("Elevator");
@@ -241,25 +242,31 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::driveToObject,
 
                 // new DriveToPoseWithProfile(
-                //         fieldLog,
-                //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                //                 .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-                //         m_drive,
-                //         holonomicController,
-                //         profile));  
-                new DriveToPoseWithTrajectory(() -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))), m_drive,(start, end) -> planner.movingToRest(start, end),holonomicController,viz));
+                // fieldLog,
+                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                // 16).get().toPose2d()
+                // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                // m_drive,
+                // holonomicController,
+                // profile));
+                new DriveToPoseWithTrajectory(
+                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         whileTrue(driverControl::driveOneMeter,
                 // new DriveToPoseWithProfile(
-                //         fieldLog,
-                //         () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                //                 .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                //         m_drive,
-                //         holonomicController,
-                //         profile));
-                new DriveToPoseWithTrajectory(() -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))), m_drive,(start, end) -> planner.movingToRest(start, end),holonomicController,viz));
+                // fieldLog,
+                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                // 16).get().toPose2d()
+                // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                // m_drive,
+                // holonomicController,
+                // profile));
+                new DriveToPoseWithTrajectory(
+                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
@@ -279,15 +286,23 @@ public class RobotContainer implements Glassy {
         // test rotating in place
         whileTrue(driverControl::button5,
                 new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
+        // this is joel working on moving-entry trajectories.
+        whileTrue(driverControl::testTrajectory,
+                new DriveToPoseWithTrajectory(
+                        () -> new Pose2d(3, 3, Rotation2d.kZero),
+                        m_drive,
+                        (model, pose) -> planner.movingToRest(model, pose),
+                        holonomicController,
+                        viz));
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::elevate, new SetWristSafe(m_wrist)); //x
+        whileTrue(operatorControl::elevate, new SetWristSafe(m_wrist)); // x
         whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
         whileTrue(operatorControl::intake, new SetElevator(m_elevator));
-        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); //b
+        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // b
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));
         // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));

@@ -100,6 +100,10 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
+    default boolean testTrajectory() {
+        return false;
+    }
+
     default boolean trigger() {
         return false;
     }
