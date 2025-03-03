@@ -66,5 +66,10 @@ public enum Experiment {
      * starting motion.
      * TODO(2/24/25) I think this isn't worth the coupling between layers
      */
-    SteerAtRest
+    SteerAtRest,
+    /**
+     * Use pure outboard PID for steering control, rather than the usual profiled
+     * motion -- it's faster and less work for the RoboRIO.
+     */
+    UnprofiledSteering
 }
