@@ -5,13 +5,13 @@ import java.util.List;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -56,7 +56,7 @@ public class DrawSquare extends SequentialCommandGroup implements Glassy {
 
     private Command go(double x, double y) {
         return new DriveToPoseWithTrajectory(
-                () -> new Pose2d(x, y, GeometryUtil.kRotationZero),
+                () -> new Pose2d(x, y, Rotation2d.kZero),
                 m_drive,
                 (start, end) -> m_planner.movingToRest(start, end),
                 m_controller,

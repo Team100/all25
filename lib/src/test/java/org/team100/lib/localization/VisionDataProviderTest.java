@@ -43,7 +43,7 @@ class VisionDataProviderTest implements Timeless {
 
             @Override
             public SwerveModel get(double timestampSeconds) {
-                return new SwerveModel(GeometryUtil.kRotationZero);
+                return new SwerveModel(Rotation2d.kZero);
             }
         };
 

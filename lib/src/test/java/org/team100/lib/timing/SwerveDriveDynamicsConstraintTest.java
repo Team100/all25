@@ -22,7 +22,7 @@ class SwerveDriveDynamicsConstraintTest {
 
         // motionless
         double m = c.getMaxVelocity(new Pose2dWithMotion(
-                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0)).getValue();
+                Pose2d.kZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0)).getValue();
         assertEquals(5, m, kDelta);
 
         // moving in +x, no curvature, no rotation
@@ -48,7 +48,7 @@ class SwerveDriveDynamicsConstraintTest {
         SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l);
         // this is constant
         MinMaxAcceleration m = c.getMinMaxAcceleration(new Pose2dWithMotion(
-                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0);
+                Pose2d.kZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0);
         assertEquals(-20, m.getMinAccel(), kDelta);
         assertEquals(10, m.getMaxAccel(), kDelta);
     }

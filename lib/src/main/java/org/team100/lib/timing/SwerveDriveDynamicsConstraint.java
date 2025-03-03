@@ -4,7 +4,6 @@ import java.util.Optional;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveUtil;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 
@@ -37,7 +36,7 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
         // velocity.
         Optional<Rotation2d> course = state.getCourse();
         Rotation2d course_local = state.getHeading().unaryMinus()
-                .rotateBy(course.isPresent() ? course.get() : GeometryUtil.kRotationZero);
+                .rotateBy(course.isPresent() ? course.get() : Rotation2d.kZero);
         double vx = course_local.getCos();
         double vy = course_local.getSin();
         // rad/m

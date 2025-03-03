@@ -37,7 +37,6 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
@@ -145,7 +144,7 @@ public class RobotContainer implements Glassy {
                 driveLog,
                 gyro,
                 m_modules.positions(),
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 Takt.get());
 
         final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
@@ -282,7 +281,7 @@ public class RobotContainer implements Glassy {
                 new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
-        onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
+        onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         // OPERATOR BUTTONS
         whileTrue(operatorControl::elevate, new SetWristSafe(m_wrist)); //x

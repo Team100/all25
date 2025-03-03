@@ -74,10 +74,10 @@ public class PathPlannerTest {
     void testBackingUp() {
         List<Pose2d> waypoints = List.of(
                 new Pose2d(0, 0, new Rotation2d(Math.PI)),
-                new Pose2d(1, 0, GeometryUtil.kRotationZero));
+                new Pose2d(1, 0, Rotation2d.kZero));
         List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotationZero);
+                Rotation2d.kZero,
+                Rotation2d.kZero);
         Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
                 waypoints,
                 headings,

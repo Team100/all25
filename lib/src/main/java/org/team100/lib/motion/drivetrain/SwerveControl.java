@@ -2,7 +2,6 @@ package org.team100.lib.motion.drivetrain;
 
 import java.util.Optional;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -133,7 +132,7 @@ public class SwerveControl {
 
         double velocityM_s = timedPose.velocityM_S();
         Optional<Rotation2d> course = timedPose.state().getCourse();
-        Rotation2d motion_direction = course.isPresent() ? course.get() : GeometryUtil.kRotationZero;
+        Rotation2d motion_direction = course.isPresent() ? course.get() : Rotation2d.kZero;
         double xv = motion_direction.getCos() * velocityM_s;
         double yv = motion_direction.getSin() * velocityM_s;
         double thetav = timedPose.state().getHeadingRate() * velocityM_s;

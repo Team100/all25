@@ -58,12 +58,12 @@ class Path100Test {
 
             @Override
             public Rotation2d getHeading(double t) {
-                return GeometryUtil.kRotationZero;
+                return Rotation2d.kZero;
             }
 
             @Override
             public Optional<Rotation2d> getCourse(double t) {
-                return Optional.of(GeometryUtil.kRotationZero);
+                return Optional.of(Rotation2d.kZero);
             }
 
             @Override

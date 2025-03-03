@@ -94,7 +94,7 @@ class SwerveModelTest {
     @Test
     void testChassisSpeeds0() {
         SwerveModel state = new SwerveModel(
-                new Pose2d(new Translation2d(0, 0), GeometryUtil.kRotation180),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.kPi),
                 new FieldRelativeVelocity(1, 0, 0));
         ChassisSpeeds speeds = state.chassisSpeeds();
         assertEquals(-1, speeds.vxMetersPerSecond, kDelta);
@@ -105,7 +105,7 @@ class SwerveModelTest {
     @Test
     void testChassisSpeeds1() {
         SwerveModel state = new SwerveModel(
-                new Pose2d(new Translation2d(0, 0), GeometryUtil.kRotation90),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.kCCW_Pi_2),
                 new FieldRelativeVelocity(1, 0, 1));
         ChassisSpeeds speeds = state.chassisSpeeds();
         assertEquals(0, speeds.vxMetersPerSecond, kDelta);

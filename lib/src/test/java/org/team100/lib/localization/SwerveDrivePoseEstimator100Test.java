@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -43,12 +42,12 @@ class SwerveDrivePoseEstimator100Test {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final boolean DEBUG = false;
 
-    private final SwerveModulePosition100 p0 = new SwerveModulePosition100(0, Optional.of(GeometryUtil.kRotationZero));
+    private final SwerveModulePosition100 p0 = new SwerveModulePosition100(0, Optional.of(Rotation2d.kZero));
     private final SwerveModulePositions positionZero = new SwerveModulePositions(p0, p0, p0, p0);
     private final SwerveModulePosition100 p01 = new SwerveModulePosition100(0.1,
-            Optional.of(GeometryUtil.kRotationZero));
+            Optional.of(Rotation2d.kZero));
     private final SwerveModulePositions position01 = new SwerveModulePositions(p01, p01, p01, p01);
-    private final Pose2d visionRobotPoseMeters = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+    private final Pose2d visionRobotPoseMeters = new Pose2d(1, 0, Rotation2d.kZero);
 
     private static void verify(double x, SwerveModel state) {
         Pose2d estimate = state.pose();
@@ -76,13 +75,13 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
-        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // 0.1 m
-        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.02, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // velocity is the delta
@@ -109,13 +108,13 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
-        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // 0.1 m
-        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.02, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // velocity is the delta
@@ -144,13 +143,13 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
-        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // 0.1 m
-        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.02, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verifyVelocity(0.000, poseEstimator.get(0.00));
         // velocity is the delta
@@ -184,7 +183,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
 
         // initial pose = 0
@@ -193,7 +192,7 @@ class SwerveDrivePoseEstimator100Test {
         // pose stays zero when updated at time zero
         // if we try to update zero, there's nothing to compare it to,
         // so we should just ignore this update.
-        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.01));
         verify(0.000, poseEstimator.get(0.02));
@@ -211,7 +210,7 @@ class SwerveDrivePoseEstimator100Test {
         // wheels haven't moved, so the "odometry opinion" should be zero
         // but it's not, it's applied relative to the vision update, so there's no
         // change.
-        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.02, Rotation2d.kZero, 0, positionZero);
 
         verify(0.000, poseEstimator.get(0.00));
         verify(0.167, poseEstimator.get(0.01));
@@ -222,7 +221,7 @@ class SwerveDrivePoseEstimator100Test {
         // 0, but instead odometry is applied relative to the latest estimate, which
         // was based on vision. so the actual odometry stddev is like *zero*.
 
-        poseEstimator.put(0.04, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.04, Rotation2d.kZero, 0, position01);
 
         verify(0.000, poseEstimator.get(0.00));
         verify(0.167, poseEstimator.get(0.02));
@@ -239,7 +238,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.405, poseEstimator.get(0.04));
 
         // wheels are in the same position as the previous iteration,
-        poseEstimator.put(0.06, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.06, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.305, poseEstimator.get(0.02));
         verify(0.405, poseEstimator.get(0.04));
@@ -272,7 +271,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.521, poseEstimator.get(0.06));
 
         // wheels not moving -> no change,
-        poseEstimator.put(0.08, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.08, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.421, poseEstimator.get(0.02));
         verify(0.521, poseEstimator.get(0.04));
@@ -291,7 +290,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
 
         // initial pose = 0
@@ -304,7 +303,7 @@ class SwerveDrivePoseEstimator100Test {
         // pose stays zero when updated at time zero
         // if we try to update zero, there's nothing to compare it to,
         // so we should just ignore this update.
-        poseEstimator.put(0.0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
         verify(0.000, poseEstimator.get(0.04));
@@ -327,7 +326,7 @@ class SwerveDrivePoseEstimator100Test {
         // wheels haven't moved, so the "odometry opinion" should be zero
         // but it's not, it's applied relative to the vision update, so there's no
         // change.
-        poseEstimator.put(0.02, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0.02, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.167, poseEstimator.get(0.02));
         verify(0.167, poseEstimator.get(0.04));
@@ -339,7 +338,7 @@ class SwerveDrivePoseEstimator100Test {
         // 0, but instead odometry is applied relative to the latest estimate, which
         // was based on vision. so the actual odometry stddev is like *zero*.
 
-        poseEstimator.put(0.04, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.04, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.167, poseEstimator.get(0.02));
         verify(0.267, poseEstimator.get(0.04));
@@ -356,7 +355,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.405, poseEstimator.get(0.08));
 
         // wheels are in the same position as the previous iteration
-        poseEstimator.put(0.06, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.06, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.305, poseEstimator.get(0.02));
         verify(0.405, poseEstimator.get(0.04));
@@ -380,7 +379,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.521, poseEstimator.get(0.08));
 
         // wheels not moving -> no change
-        poseEstimator.put(0.08, GeometryUtil.kRotationZero, 0, position01);
+        poseEstimator.put(0.08, Rotation2d.kZero, 0, position01);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.421, poseEstimator.get(0.02));
         verify(0.521, poseEstimator.get(0.04));
@@ -399,7 +398,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
 
         verify(0.000, poseEstimator.get(0.00));
@@ -408,7 +407,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.000, poseEstimator.get(0.06));
         verify(0.000, poseEstimator.get(0.08));
 
-        poseEstimator.put(0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
         verify(0.000, poseEstimator.get(0.04));
@@ -448,7 +447,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
 
         verify(0.000, poseEstimator.get(0.00));
@@ -457,7 +456,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.000, poseEstimator.get(0.06));
         verify(0.000, poseEstimator.get(0.08));
 
-        poseEstimator.put(0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
         verify(0.000, poseEstimator.get(0.04));
@@ -497,7 +496,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
 
         verify(0.000, poseEstimator.get(0.00));
@@ -506,7 +505,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.000, poseEstimator.get(0.06));
         verify(0.000, poseEstimator.get(0.08));
 
-        poseEstimator.put(0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
         verify(0.000, poseEstimator.get(0.04));
@@ -548,7 +547,7 @@ class SwerveDrivePoseEstimator100Test {
                 logger,
                 new MockGyro(),
                 positionZero,
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // zero initial time
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
@@ -556,7 +555,7 @@ class SwerveDrivePoseEstimator100Test {
         verify(0.000, poseEstimator.get(0.06));
         verify(0.000, poseEstimator.get(0.08));
 
-        poseEstimator.put(0, GeometryUtil.kRotationZero, 0, positionZero);
+        poseEstimator.put(0, Rotation2d.kZero, 0, positionZero);
         verify(0.000, poseEstimator.get(0.00));
         verify(0.000, poseEstimator.get(0.02));
         verify(0.000, poseEstimator.get(0.04));

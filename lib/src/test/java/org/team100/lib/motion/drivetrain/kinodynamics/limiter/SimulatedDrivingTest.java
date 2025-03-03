@@ -50,7 +50,7 @@ public class SimulatedDrivingTest implements Timeless {
             logger,
             gyro,
             collection.positions(),
-            GeometryUtil.kPoseZero,
+            Pose2d.kZero,
             0);
     SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
     VisionData visionData = new VisionData() {

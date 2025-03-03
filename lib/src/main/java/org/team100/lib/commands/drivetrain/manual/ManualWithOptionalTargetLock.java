@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.TargetUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.FieldLogger;
@@ -118,7 +117,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
         }
 
         final Translation2d currentTranslation = state.pose().getTranslation();
-        Rotation2d bearing = TargetUtil.bearing(currentTranslation, target.get()).plus(GeometryUtil.kRotation180);
+        Rotation2d bearing = TargetUtil.bearing(currentTranslation, target.get()).plus(Rotation2d.kPi);
 
         final double yaw = state.theta().x();
 

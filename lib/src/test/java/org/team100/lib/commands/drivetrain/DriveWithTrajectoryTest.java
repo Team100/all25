@@ -11,7 +11,6 @@ import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -30,6 +29,7 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.001;
@@ -42,8 +42,8 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     @Test
     void testTrajectoryStart() {
         Trajectory100 t = planner.restToRest(
-                new Pose2d(0, 0, GeometryUtil.kRotationZero),
-                new Pose2d(1, 0, GeometryUtil.kRotationZero));
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         SwerveController controller = SwerveControllerFactory.test(logger);
@@ -98,8 +98,8 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
     @Test
     void testTrajectoryDone() {
         Trajectory100 t = planner.restToRest(
-                new Pose2d(0, 0, GeometryUtil.kRotationZero),
-                new Pose2d(1, 0, GeometryUtil.kRotationZero));
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero));
         // first state is motionless
         assertEquals(0, t.sample(0).velocityM_S(), kDelta);
         SwerveController controller = SwerveControllerFactory.test(logger);
@@ -132,8 +132,8 @@ public class DriveWithTrajectoryTest extends Fixtured implements Timeless {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
         // 1m along +x, no rotation.
         Trajectory100 trajectory = planner.restToRest(
-                new Pose2d(0, 0, GeometryUtil.kRotationZero),
-                new Pose2d(1, 0, GeometryUtil.kRotationZero));
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero));
         // first state is motionless
         assertEquals(0, trajectory.sample(0).velocityM_S(), kDelta);
         SwerveController controller = SwerveControllerFactory.test(logger);

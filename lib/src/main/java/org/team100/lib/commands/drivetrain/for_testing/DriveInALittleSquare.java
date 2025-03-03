@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
@@ -64,7 +63,7 @@ public class DriveInALittleSquare extends Command implements Glassy  {
     public void initialize() {
         // First get the wheels pointing the right way.
         m_state = DriveState.STEERING;
-        m_goal = GeometryUtil.kRotationZero;
+        m_goal = Rotation2d.kZero;
         m_setpoint = kStart;
         m_setpoint = m_driveProfile.calculate(0, m_setpoint.model(), kGoal);
     }
@@ -77,7 +76,7 @@ public class DriveInALittleSquare extends Command implements Glassy  {
                         && MathUtil.isNear(m_setpoint.v(), kGoal.v(), kVToleranceRad_S)) {
                     // we were driving, but the timer elapsed, so switch to steering
                     m_state = DriveState.STEERING;
-                    m_goal = m_goal.plus(GeometryUtil.kRotation90);
+                    m_goal = m_goal.plus(Rotation2d.kCCW_Pi_2);
                     m_setpoint = kStart;
                 } else {
                     // keep going

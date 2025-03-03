@@ -13,6 +13,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleDeltas;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
@@ -91,18 +92,18 @@ class DriveUtilTest {
     void testOneModule() {
         {
             SwerveModulePosition100 start = new SwerveModulePosition100(
-                    0, Optional.of(GeometryUtil.kRotationZero));
+                    0, Optional.of(Rotation2d.kZero));
             SwerveModulePosition100 end = new SwerveModulePosition100(
-                    0, Optional.of(GeometryUtil.kRotationZero));
+                    0, Optional.of(Rotation2d.kZero));
             SwerveModuleDelta delta = DriveUtil.delta(start, end);
             assertEquals(0, delta.distanceMeters, kDelta);
             assertEquals(0, delta.angle.get().getRadians(), kDelta);
         }
         {
             SwerveModulePosition100 start = new SwerveModulePosition100(
-                    0, Optional.of(GeometryUtil.kRotationZero));
+                    0, Optional.of(Rotation2d.kZero));
             SwerveModulePosition100 end = new SwerveModulePosition100(
-                    1, Optional.of(GeometryUtil.kRotationZero));
+                    1, Optional.of(Rotation2d.kZero));
             SwerveModuleDelta delta = DriveUtil.delta(start, end);
             assertEquals(1, delta.distanceMeters, kDelta);
             assertEquals(0, delta.angle.get().getRadians(), kDelta);
@@ -111,9 +112,9 @@ class DriveUtilTest {
             // this ignores the initial zero rotation, and acts as if
             // the path is at 90 degrees the whole time.
             SwerveModulePosition100 start = new SwerveModulePosition100(
-                    0, Optional.of(GeometryUtil.kRotationZero));
+                    0, Optional.of(Rotation2d.kZero));
             SwerveModulePosition100 end = new SwerveModulePosition100(
-                    1, Optional.of(GeometryUtil.kRotation90));
+                    1, Optional.of(Rotation2d.kCCW_Pi_2));
             SwerveModuleDelta delta = DriveUtil.delta(start, end);
             assertEquals(1, delta.distanceMeters, kDelta);
             assertEquals(1.571, delta.angle.get().getRadians(), kDelta);

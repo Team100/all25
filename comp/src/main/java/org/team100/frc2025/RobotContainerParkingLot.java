@@ -17,7 +17,6 @@ import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
@@ -41,6 +40,7 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -95,7 +95,7 @@ public class RobotContainerParkingLot implements Glassy {
                 driveLogger,
                 m_gyro,
                 m_modules.positions(),
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 Takt.get());
         final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
         final VisionDataProvider24 visionDataProvider = new VisionDataProvider24(

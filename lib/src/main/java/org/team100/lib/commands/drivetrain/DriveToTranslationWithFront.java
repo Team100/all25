@@ -9,7 +9,6 @@ import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
@@ -103,7 +102,7 @@ public class DriveToTranslationWithFront extends Command implements Glassy {
             switch (Identity.instance) {
                 case COMP_BOT:
                 case BLANK:
-                    return toGoal.plus(GeometryUtil.kRotation180);
+                    return toGoal.plus(Rotation2d.kPi);
                 default:
                     return toGoal;
             }

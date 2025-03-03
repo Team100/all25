@@ -70,26 +70,26 @@ class HolonomicSplineTest {
     void testBounds() {
         {
             // allow 0 degrees
-            Pose2d p0 = new Pose2d(0, 0, GeometryUtil.kRotationZero);
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p0 = new Pose2d(0, 0, Rotation2d.kZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // allow 90 degrees
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(Math.PI / 2));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // allow 135 degrees
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(3 * Math.PI / 4));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // disallow u-turn; these are never what you want.
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(Math.PI));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
     }

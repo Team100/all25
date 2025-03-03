@@ -3,7 +3,6 @@ package org.team100.lib.util.struct;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.util.OptionalRotation2d;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -55,7 +54,7 @@ public class OptionalRotation2dStruct implements Struct<OptionalRotation2d> {
             Rotation2d.struct.pack(bb, optional.get());
         } else {
             bb.put((byte) 0x00);
-            Rotation2d.struct.pack(bb, GeometryUtil.kRotationZero);
+            Rotation2d.struct.pack(bb, Rotation2d.kZero);
 
         }
     }
