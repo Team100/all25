@@ -1,6 +1,5 @@
 package org.team100.lib.sensors;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
@@ -45,12 +44,12 @@ public class SimulatedGyro implements Gyro {
 
     @Override
     public Rotation2d getPitchNWU() {
-        return GeometryUtil.kRotationZero;
+        return Rotation2d.kZero;
     }
 
     @Override
     public Rotation2d getRollNWU() {
-        return GeometryUtil.kRotationZero;
+        return Rotation2d.kZero;
     }
 
     @Override

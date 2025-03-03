@@ -9,8 +9,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motor.BareMotor;
 
-import edu.wpi.first.math.MathUtil;
-
 /**
  * Uses a motor and gears to produce rotational output, e.g. an arm joint.
  * 

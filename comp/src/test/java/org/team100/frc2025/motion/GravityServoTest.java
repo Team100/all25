@@ -45,7 +45,11 @@ class GravityServoTest implements Timeless2025 {
                 simMech);
 
         ProfiledController controller = new ProfiledController(
-                profile, pivotFeedback, MathUtil::angleModulus);
+                profile, 
+                pivotFeedback,
+                 MathUtil::angleModulus,
+                 0.05,
+                 0.05);
         AngularPositionServo servo = new OnboardAngularPositionServo(
                 logger,
                 simMech,

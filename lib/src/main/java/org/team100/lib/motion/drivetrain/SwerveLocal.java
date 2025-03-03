@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ChassisSpeedsLogger;
@@ -31,10 +30,10 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     private static final double kPositionToleranceRad = 0.05; // about 3 degrees
     private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
-            new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-            new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-            new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)),
-            new SwerveModuleState100(0, Optional.of(GeometryUtil.kRotationZero)));
+            new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)),
+            new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)),
+            new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)),
+            new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)));
     private static final SwerveModuleStates states90 = new SwerveModuleStates(
             new SwerveModuleState100(0, Optional.of(new Rotation2d(Math.PI / 2))),
             new SwerveModuleState100(0, Optional.of(new Rotation2d(Math.PI / 2))),

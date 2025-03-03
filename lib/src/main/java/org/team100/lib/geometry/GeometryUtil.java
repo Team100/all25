@@ -7,7 +7,6 @@ import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -23,16 +22,6 @@ import edu.wpi.first.math.spline.PoseWithCurvature;
  */
 public class GeometryUtil {
     private static final boolean DEBUG = false;
-
-    public static final Rotation2d kRotationZero = new Rotation2d();
-    public static final Rotation2d kRotation90 = new Rotation2d(Math.PI / 2);
-    public static final Rotation2d kRotation180 = new Rotation2d(Math.PI);
-    public static final Pose2d kPoseZero = new Pose2d();
-    public static final Pose3d kPose3dZero = new Pose3d();
-    public static final Translation2d kTranslation2dIdentity = new Translation2d();
-    public static final PoseWithCurvature kPose2dWithCurvatureIdentity = new PoseWithCurvature();
-    public static final Twist2d kTwist2dIdentity = new Twist2d(0.0, 0.0, 0.0);
-    public static final Rotation3d kRotation3Zero = new Rotation3d();
 
     private GeometryUtil() {
     }
@@ -91,11 +80,11 @@ public class GeometryUtil {
     }
 
     public static Twist2d slog(final Pose2d transform) {
-        return GeometryUtil.kPoseZero.log(transform);
+        return Pose2d.kZero.log(transform);
     }
 
     public static Pose2d sexp(final Twist2d delta) {
-        return GeometryUtil.kPoseZero.exp(delta);
+        return Pose2d.kZero.exp(delta);
     }
 
     public static Pose2d fromRotation(final Rotation2d rotation) {
@@ -103,7 +92,7 @@ public class GeometryUtil {
     }
 
     public static Pose2d fromTranslation(final Translation2d translation) {
-        return new Pose2d(translation, GeometryUtil.kRotationZero);
+        return new Pose2d(translation, Rotation2d.kZero);
     }
 
     public static Rotation2d fromRadians(double angle_radians) {

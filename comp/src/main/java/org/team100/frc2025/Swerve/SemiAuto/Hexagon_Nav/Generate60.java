@@ -81,7 +81,7 @@ public class Generate60 extends Navigator {
         double dotProduct = ((pointToAnchor.getX()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getX()/vectorToAnchorPoint.getNorm()))
                 + ((pointToAnchor.getY()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getY()/vectorToAnchorPoint.getNorm()));
 
-        System.out.println(dotProduct);
+        // System.out.println(dotProduct);
 
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);

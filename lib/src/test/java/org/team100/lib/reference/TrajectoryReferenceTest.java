@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -16,6 +15,7 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class TrajectoryReferenceTest implements Timeless {
     private static final double kDelta = 0.001;
@@ -26,8 +26,8 @@ public class TrajectoryReferenceTest implements Timeless {
     @Test
     void testSimple() {
         Trajectory100 t = planner.restToRest(
-                new Pose2d(0, 0, GeometryUtil.kRotationZero),
-                new Pose2d(1, 0, GeometryUtil.kRotationZero));
+                new Pose2d(0, 0, Rotation2d.kZero),
+                new Pose2d(1, 0, Rotation2d.kZero));
         TrajectoryReference r = new TrajectoryReference(t);
         // measurement is irrelevant
         r.initialize(new SwerveModel());

@@ -24,7 +24,6 @@ class YawRateConstraintTest {
                 new Pose2d(), new MotionDirection(0, 0, 1), 0, 0);
         // the limiter is in the scheduler which only thinks about the along-the-path
         // dimension.
-        // TODO: do a real holonomic scheduler
         assertEquals(Double.NEGATIVE_INFINITY,
                 c.getMinMaxAcceleration(p, 0).getMinAccel(), kDelta);
         assertEquals(Double.POSITIVE_INFINITY,

@@ -3,7 +3,6 @@ package org.team100.lib.trajectory;
 import java.util.List;
 import java.util.function.Function;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
@@ -38,9 +37,9 @@ public class TrajectoryPlanner {
 
     /** A square counterclockwise starting with +x. */
     public List<Trajectory100> square(Pose2d p0) {
-        Pose2d p1 = p0.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
-        Pose2d p2 = p0.plus(new Transform2d(1, 1, GeometryUtil.kRotationZero));
-        Pose2d p3 = p0.plus(new Transform2d(0, 1, GeometryUtil.kRotationZero));
+        Pose2d p1 = p0.plus(new Transform2d(1, 0, Rotation2d.kZero));
+        Pose2d p2 = p0.plus(new Transform2d(1, 1, Rotation2d.kZero));
+        Pose2d p3 = p0.plus(new Transform2d(0, 1, Rotation2d.kZero));
         return List.of(
                 restToRest(p0, p1),
                 restToRest(p1, p2),
@@ -51,17 +50,17 @@ public class TrajectoryPlanner {
     /** Make a square that gets a reset starting point at each corner. */
     public List<Function<Pose2d, Trajectory100>> permissiveSquare() {
         return List.of(
-                x -> restToRest(x, x.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(0, 1, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(-1, 0, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(0, -1, GeometryUtil.kRotationZero))));
+                x -> restToRest(x, x.plus(new Transform2d(1, 0, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(0, 1, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(-1, 0, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(0, -1, Rotation2d.kZero))));
     }
 
     /** From current to x+1 */
     public Trajectory100 line(Pose2d initial) {
         return restToRest(
                 initial,
-                initial.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero)));
+                initial.plus(new Transform2d(1, 0, Rotation2d.kZero)));
     }
 
     public Trajectory100 restToRest(
@@ -102,9 +101,7 @@ public class TrajectoryPlanner {
         Translation2d goalTranslation = endState.translation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        System.out.println(angleToGoal);
         Rotation2d startingAngle = currentSpeed.angle().orElse(angleToGoal);
-        System.out.println(startingAngle);
         try {
             return generateTrajectory(
                     List.of(

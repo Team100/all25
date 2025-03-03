@@ -236,9 +236,6 @@ public class SwerveKinodynamics implements Glassy {
      * instead of velocities, it is not needed.
      * 
      * It performs inverse discretization and an extra correction.
-     * 
-     * TODO: make sure the callers of this function are doing the right thing with
-     * the result.
      */
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
             SwerveModuleStates moduleStates,

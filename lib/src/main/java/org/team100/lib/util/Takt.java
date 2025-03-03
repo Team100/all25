@@ -37,7 +37,6 @@ public class Takt {
     /**
      * The current Takt time. Even though this is a double, it's ok to test
      * equality, because it is only incremented periodically.
-     * TODO: use different type.
      */
     public static double get() {
         return now;

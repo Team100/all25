@@ -70,26 +70,26 @@ class HolonomicSplineTest {
     void testBounds() {
         {
             // allow 0 degrees
-            Pose2d p0 = new Pose2d(0, 0, GeometryUtil.kRotationZero);
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p0 = new Pose2d(0, 0, Rotation2d.kZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // allow 90 degrees
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(Math.PI / 2));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // allow 135 degrees
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(3 * Math.PI / 4));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
         {
             // disallow u-turn; these are never what you want.
             Pose2d p0 = new Pose2d(0, 0, new Rotation2d(Math.PI));
-            Pose2d p1 = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+            Pose2d p1 = new Pose2d(1, 0, Rotation2d.kZero);
             assertDoesNotThrow(() -> HolonomicSpline.checkBounds(p0, p1));
         }
     }
@@ -343,12 +343,14 @@ class HolonomicSplineTest {
         }
 
         Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05));
-        Util.printf("path %s\n", path);
+        if (DEBUG)
+            Util.printf("path %s\n", path);
         List<TimingConstraint> constraints = new ArrayList<>();
         ScheduleGenerator scheduleGenerator = new ScheduleGenerator(constraints);
         Trajectory100 trajectory = scheduleGenerator.timeParameterizeTrajectory(path,
                 0.05, 0, 0);
-        Util.printf("trajectory %s\n", trajectory);
+        if (DEBUG)
+            Util.printf("trajectory %s\n", trajectory);
 
     }
 

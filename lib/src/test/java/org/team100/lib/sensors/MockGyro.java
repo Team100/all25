@@ -5,7 +5,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class MockGyro implements Gyro {
-    public Rotation2d rotation = GeometryUtil.kRotationZero;
+    public Rotation2d rotation = Rotation2d.kZero;
     public double rate = 0;
 
     @Override
@@ -20,12 +20,12 @@ public class MockGyro implements Gyro {
 
     @Override
     public Rotation2d getPitchNWU() {
-        return GeometryUtil.kRotationZero;
+        return Rotation2d.kZero;
     }
 
     @Override
     public Rotation2d getRollNWU() {
-        return GeometryUtil.kRotationZero;
+        return Rotation2d.kZero;
     }
 
     @Override

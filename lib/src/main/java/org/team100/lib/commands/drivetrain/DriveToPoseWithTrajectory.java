@@ -52,7 +52,6 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
     @Override
     public void initialize() {
         m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal.get());
-        System.out.println(m_drive.getState());
         if (m_trajectory.isEmpty()) {
             m_trajectory = null; 
             return;

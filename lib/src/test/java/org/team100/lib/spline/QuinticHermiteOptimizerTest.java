@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 class QuinticHermiteOptimizerTest {
-    private static final boolean DEBUG = false;
     private static double kEpsilon = 1e-12;
 
     @Test

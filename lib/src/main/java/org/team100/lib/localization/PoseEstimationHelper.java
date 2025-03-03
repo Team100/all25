@@ -249,6 +249,6 @@ public class PoseEstimationHelper implements Glassy {
     static Transform3d toTarget(Transform3d cameraInRobotCoordinates, Blip24 blip) {
         Translation3d t = PoseEstimationHelper.blipToTranslation(blip);
         return cameraInRobotCoordinates.plus(
-                new Transform3d(t, GeometryUtil.kRotation3Zero));
+                new Transform3d(t, Rotation3d.kZero));
     }
 }

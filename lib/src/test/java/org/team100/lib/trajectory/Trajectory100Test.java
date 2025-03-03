@@ -25,8 +25,8 @@ class Trajectory100Test {
     @Test
     void testPreviewAndAdvance() {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
-        Pose2d start = GeometryUtil.kPoseZero;
-        Pose2d end = start.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
+        Pose2d start = Pose2d.kZero;
+        Pose2d end = start.plus(new Transform2d(1, 0, Rotation2d.kZero));
 
         Translation2d currentTranslation = start.getTranslation();
         Translation2d goalTranslation = end.getTranslation();
@@ -61,8 +61,8 @@ class Trajectory100Test {
     @Test
     void testSample() {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
-        Pose2d start = GeometryUtil.kPoseZero;
-        Pose2d end = start.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
+        Pose2d start = Pose2d.kZero;
+        Pose2d end = start.plus(new Transform2d(1, 0, Rotation2d.kZero));
 
         Translation2d currentTranslation = start.getTranslation();
         Translation2d goalTranslation = end.getTranslation();
@@ -97,12 +97,12 @@ class Trajectory100Test {
     void testSampleThoroughly() {
 
         List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(1, 0), GeometryUtil.kRotationZero));
+                new Pose2d(new Translation2d(), Rotation2d.kZero),
+                new Pose2d(new Translation2d(1, 0), Rotation2d.kZero));
 
         List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotationZero);
+                Rotation2d.kZero,
+                Rotation2d.kZero);
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
@@ -133,12 +133,12 @@ class Trajectory100Test {
     void testSampleThoroughlyWithRotation() {
 
         List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(1, 0), GeometryUtil.kRotationZero));
+                new Pose2d(new Translation2d(), Rotation2d.kZero),
+                new Pose2d(new Translation2d(1, 0), Rotation2d.kZero));
 
         List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotation90);
+                Rotation2d.kZero,
+                Rotation2d.kCCW_Pi_2);
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
@@ -173,14 +173,14 @@ class Trajectory100Test {
     // @Test
     void testSamplePerformance() {
         List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(10, 0), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(10, 10), GeometryUtil.kRotationZero));
+                new Pose2d(new Translation2d(), Rotation2d.kZero),
+                new Pose2d(new Translation2d(10, 0), Rotation2d.kZero),
+                new Pose2d(new Translation2d(10, 10), Rotation2d.kZero));
 
         List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotation90,
-                GeometryUtil.kRotation180);
+                Rotation2d.kZero,
+                Rotation2d.kCCW_Pi_2,
+                Rotation2d.kPi);
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();

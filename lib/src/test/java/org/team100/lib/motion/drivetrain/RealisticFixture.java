@@ -2,7 +2,6 @@ package org.team100.lib.motion.drivetrain;
 
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionData;
 import org.team100.lib.logging.LoggerFactory;
@@ -15,6 +14,8 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.SimulatedGyro;
 import org.team100.lib.testing.Timeless;
+
+import edu.wpi.first.math.geometry.Pose2d;
 
 /**
  * A real swerve subsystem populated with simulated motors and encoders,
@@ -45,7 +46,7 @@ public class RealisticFixture {
                 logger,
                 gyro,
                 collection.positions(),
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0); // initial time is zero here for testing
         VisionData v = new VisionData() {
             @Override

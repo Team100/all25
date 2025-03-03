@@ -7,11 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.util.struct.StructSerializable;
 
-/**
- * The state of one swerve module.
- * 
- * TODO: This would be better as (dx, dy).
- */
+/** The state of one swerve module. */
 public class SwerveModuleState100 implements Comparable<SwerveModuleState100>, StructSerializable {
     private final double m_speedM_S;
     private final Optional<Rotation2d> m_angle;

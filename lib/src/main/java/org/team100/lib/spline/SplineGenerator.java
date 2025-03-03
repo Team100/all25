@@ -64,9 +64,9 @@ public class SplineGenerator {
         Pose2d p0 = s.getPose2d(t0);
         Pose2d phalf = s.getPose2d(t0 + (t1 - t0) * .5);
         Pose2d p1 = s.getPose2d(t1);
-        Twist2d twist_full = GeometryUtil.kPoseZero.log(GeometryUtil.transformBy(GeometryUtil.inverse(p0), p1));
+        Twist2d twist_full = Pose2d.kZero.log(GeometryUtil.transformBy(GeometryUtil.inverse(p0), p1));
         Pose2d phalf_predicted = GeometryUtil.transformBy(p0,
-                GeometryUtil.kPoseZero.exp(GeometryUtil.scale(twist_full, 0.5)));
+                Pose2d.kZero.exp(GeometryUtil.scale(twist_full, 0.5)));
         Pose2d error = GeometryUtil.transformBy(GeometryUtil.inverse(phalf), phalf_predicted);
         
         if (GeometryUtil.norm(twist_full) < 1e-6) {

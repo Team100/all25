@@ -139,8 +139,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
      * It really makes the most sense to call this *before* updating the setpoint,
      * because the measurement comes from the recent-past Takt and the updated
      * setpoint will be aiming at the next one.
-     * 
-     * TODO: clean this up.
      */
     @Override
     public boolean atGoal() {

@@ -30,7 +30,6 @@ public class ElevatorVisualization {
         m_elevator = elevator;
         m_mechanism = new Mechanism2d(100, 100);
         MechanismRoot2d root = m_mechanism.getRoot("root", 50, 5);
-        double position = m_elevator.getPosition();
         m_base = new MechanismLigament2d(
                 "height",
                 35,

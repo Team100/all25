@@ -98,9 +98,6 @@ public class TrapezoidProfile100 implements Profile100 {
      * returns s < 0.01.
      * 
      * It is very approximate, in order to not run too long. It's very primitive.
-     * 
-     * TODO: this appears to work differently for positive and negative initial
-     * velocities.
      */
     public static double solveForSlowerETA(
             double maxV,

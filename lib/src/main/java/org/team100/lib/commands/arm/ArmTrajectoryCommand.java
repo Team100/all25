@@ -159,7 +159,6 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         final double u1 = ff1 + u1_pos + u1_vel;
         final double u2 = ff2 + u2_pos + u2_vel;
 
-        // TODO: u is v so add kV here
         m_armSubsystem.set(u1, u2);
 
         m_log_Lower_FF.log(() -> ff1);

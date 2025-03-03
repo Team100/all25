@@ -22,7 +22,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * Feedforward and feedback control of a single module.
  */
 public abstract class SwerveModule100 implements Glassy {
-    private static final boolean DEBUG = false;
     private final LinearVelocityServo m_driveServo;
     private final AngularPositionServo m_turningServo;
     /**
@@ -169,13 +168,7 @@ public abstract class SwerveModule100 implements Glassy {
     // Package private for SwerveModuleCollection
     //
 
-    /**
-     * FOR TESTING ONLY
-     * 
-     * TODO: remove this
-     * 
-     * @return current measurements
-     */
+    /** FOR TEST ONLY */
     public SwerveModuleState100 getState() {
         OptionalDouble driveVelocity = m_driveServo.getVelocity();
         OptionalDouble turningPosition = m_turningServo.getPosition();

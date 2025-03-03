@@ -15,10 +15,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 class SwerveDriveDynamicsConstraintTest {
     private static final double kDelta = 0.001;
 
-    // the free speed of a module, which is also the free speed
-    // of the robot going in a straight line without rotating.
-    private static final double maxV = 4;
-
     @Test
     void testVelocity() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.get();
@@ -26,7 +22,7 @@ class SwerveDriveDynamicsConstraintTest {
 
         // motionless
         double m = c.getMaxVelocity(new Pose2dWithMotion(
-                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0)).getValue();
+                Pose2d.kZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0)).getValue();
         assertEquals(5, m, kDelta);
 
         // moving in +x, no curvature, no rotation
@@ -52,7 +48,7 @@ class SwerveDriveDynamicsConstraintTest {
         SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l);
         // this is constant
         MinMaxAcceleration m = c.getMinMaxAcceleration(new Pose2dWithMotion(
-                GeometryUtil.kPoseZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0);
+                Pose2d.kZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0);
         assertEquals(-20, m.getMinAccel(), kDelta);
         assertEquals(10, m.getMaxAccel(), kDelta);
     }

@@ -36,25 +36,26 @@ public class ProfiledController {
     }
 
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
-    // TODO: make these constructor args
-    private static final double kPositionTolerance = 0.05;
-    private static final double kVelocityTolerance = 0.05;
+
     private final Profile100 m_profile;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
+    private final double m_positionTolerance;
+    private final double m_velocityTolerance;
+
     private Model100 m_setpoint;
 
-    /**
-     * TODO: include modulus some other way: the profile and feedback need to both
-     * also be rotary, if this controller is rotary.
-     */
     public ProfiledController(
             Profile100 profile,
             Feedback100 feedback,
-            DoubleUnaryOperator modulus) {
+            DoubleUnaryOperator modulus,
+            double positionTolerance,
+            double velocityTolerance) {
         m_profile = profile;
         m_feedback = feedback;
         m_modulus = modulus;
+        m_positionTolerance = positionTolerance;
+        m_velocityTolerance = velocityTolerance;
     }
 
     /**
@@ -136,10 +137,10 @@ public class ProfiledController {
                 && MathUtil.isNear(
                         goal.x(),
                         setpoint.x(),
-                        kPositionTolerance)
+                        m_positionTolerance)
                 && MathUtil.isNear(
                         goal.v(),
                         setpoint.v(),
-                        kVelocityTolerance);
+                        m_velocityTolerance);
     }
 }

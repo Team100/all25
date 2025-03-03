@@ -4,8 +4,6 @@
 
 package org.team100.frc2025.Wrist;
 
-import java.lang.Thread.State;
-import java.util.ResourceBundle.Control;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -14,23 +12,18 @@ import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.IncrementalBareEncoder;
-import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardAngularPositionServoWithoutAbsolute;
 import org.team100.lib.motion.servo.OutboardAngularPositionServoWithoutWrap;
 import org.team100.lib.motion.servo.OutboardGravityServo;
-import org.team100.lib.motion.servo.OutboardLinearPositionServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;

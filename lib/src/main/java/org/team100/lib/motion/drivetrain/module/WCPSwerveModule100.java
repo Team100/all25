@@ -9,6 +9,8 @@ import org.team100.lib.encoder.DutyCycleRotaryPositionSensor;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
@@ -19,6 +21,7 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
+import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
@@ -221,8 +224,6 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 turningOffset,
                 drive);
 
-        Profile100 profile = kinodynamics.getSteeringProfile();
-
         Talon6Encoder builtInEncoder = new Talon6Encoder(
                 parent,
                 turningMotor);
@@ -233,31 +234,35 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 builtInEncoder,
                 gearRatio);
 
-        AngularPositionServo turningServo = getOutboard(
-                parent,
-                turningEncoder,
-                profile,
-                mech);
-        turningServo.reset();
-        return turningServo;
-    }
-
-    private static AngularPositionServo getOutboard(
-            LoggerFactory parent,
-            RotaryPositionSensor turningEncoder,
-            Profile100 profile,
-            RotaryMechanism mech) {
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
                 mech,
                 true);
-        AngularPositionServo servo = new OutboardAngularPositionServo(
+
+        AngularPositionServo turningServo = outboardTurningServo(
+                parent,
+                kinodynamics,
+                mech,
+                combinedEncoder);
+        turningServo.reset();
+        return turningServo;
+    }
+
+    private static AngularPositionServo outboardTurningServo(
+            LoggerFactory parent,
+            SwerveKinodynamics kinodynamics,
+            RotaryMechanism mech,
+            CombinedEncoder combinedEncoder) {
+        if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
+            return new UnprofiledOutboardAngularPositionServo(parent, mech, combinedEncoder);
+        }
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        return new OutboardAngularPositionServo(
                 parent,
                 mech,
                 combinedEncoder,
                 profile);
-        return servo;
     }
 
     private static RotaryPositionSensor turningEncoder(
