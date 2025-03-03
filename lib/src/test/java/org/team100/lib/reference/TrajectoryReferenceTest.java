@@ -19,7 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class TrajectoryReferenceTest implements Timeless {
     private static final double kDelta = 0.001;
-    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
     TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
@@ -36,7 +36,7 @@ public class TrajectoryReferenceTest implements Timeless {
             assertEquals(0, c.velocity().x(), kDelta);
             assertEquals(0, c.pose().getX(), kDelta);
             SwerveModel n = r.next();
-            assertEquals(0.098, n.velocity().x(), kDelta);
+            assertEquals(0.033, n.velocity().x(), kDelta);
             assertEquals(0, n.pose().getX(), kDelta);
         }
         // no time step, nothing changes
@@ -45,19 +45,19 @@ public class TrajectoryReferenceTest implements Timeless {
             assertEquals(0, c.velocity().x(), kDelta);
             assertEquals(0, c.pose().getX(), kDelta);
             SwerveModel n = r.next();
-            assertEquals(0.098, n.velocity().x(), kDelta);
+            assertEquals(0.033, n.velocity().x(), kDelta);
             // x is very small but not zero
-            assertEquals(0.00098, n.pose().getX(), 0.0000001);
+            assertEquals(0.0003266, n.pose().getX(), 0.0000001);
         }
         // stepping time gets the next references
         stepTime();
         {
             SwerveModel c = r.current();
-            assertEquals(0.098, c.velocity().x(), kDelta);
+            assertEquals(0.033, c.velocity().x(), kDelta);
             assertEquals(0, c.pose().getX(), kDelta);
             SwerveModel n = r.next();
-            assertEquals(0.196, n.velocity().x(), kDelta);
-            assertEquals(0.004, n.pose().getX(), kDelta);
+            assertEquals(0.065, n.velocity().x(), kDelta);
+            assertEquals(0.001, n.pose().getX(), kDelta);
         }
         // way in the future, we're at the end.
         for (int i = 0; i < 500; ++i) {

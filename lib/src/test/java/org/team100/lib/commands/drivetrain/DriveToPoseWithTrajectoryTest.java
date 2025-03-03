@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.Target;
@@ -40,7 +39,7 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final TrajectoryVisualization viz = new TrajectoryVisualization(logger);
 
-    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+    SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forRealisticTest();
     List<TimingConstraint> constraints = new TimingConstraintFactory(swerveKinodynamics).allGood();
     TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 

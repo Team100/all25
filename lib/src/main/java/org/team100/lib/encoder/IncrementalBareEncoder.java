@@ -32,9 +32,10 @@ public interface IncrementalBareEncoder extends Glassy {
     /** For checking calibration, very slow, do not use outside tests. */
     double getPositionBlockingRad();
 
-
     /**
-     * Resets position to zero
+     * Resets position to zero.
+     *
+     * Caches should also be flushed, so the new value is available immediately.
      */
     void reset();
 
@@ -43,7 +44,11 @@ public interface IncrementalBareEncoder extends Glassy {
      */
     void close();
 
-    /** This is very slow, only use it on startup. */
+    /**
+     * This is very slow, only use it on startup.
+     * 
+     * Caches should also be flushed, so the new value is available immediately.
+     */
     void setEncoderPositionRad(double motorPositionRad);
 
     /** For logging */
