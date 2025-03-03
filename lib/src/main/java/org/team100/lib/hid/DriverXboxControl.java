@@ -165,6 +165,11 @@ public class DriverXboxControl implements DriverControl {
     }
 
     @Override
+    public boolean testTrajectory() {
+        return m_controller.getBButton();
+    }
+
+    @Override
     public boolean test() {
         return false;
     }

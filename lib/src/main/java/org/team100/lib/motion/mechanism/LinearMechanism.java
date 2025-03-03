@@ -31,6 +31,9 @@ public interface LinearMechanism {
 
     void close();
 
+    /**
+     * Caches should also be flushed, so the new value is available immediately.
+     */
     void resetEncoderPosition();
 
     void periodic();

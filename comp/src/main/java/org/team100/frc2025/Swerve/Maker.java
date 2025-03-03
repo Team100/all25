@@ -10,7 +10,6 @@ import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
@@ -47,14 +46,13 @@ public class Maker {
     public Command embark() {
         final SwerveController holonomicController = SwerveControllerFactory.ridiculous(m_logger);
 
-        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
 
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S(),
-                swerveKinodynamics.getMaxDriveAccelerationM_S2(),
+                m_kinodynamics.getMaxDriveVelocityM_S(),
+                m_kinodynamics.getMaxDriveAccelerationM_S2(),
                 0.01, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S(),
-                swerveKinodynamics.getMaxAngleAccelRad_S2(),
+                m_kinodynamics.getMaxAngleSpeedRad_S(),
+                m_kinodynamics.getMaxAngleAccelRad_S2(),
                 0.1); // 5 degrees
         return new Embark(m_drive, holonomicController, profile);
     }

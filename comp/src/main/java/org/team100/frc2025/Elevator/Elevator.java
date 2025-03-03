@@ -137,7 +137,11 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void resetWristProfile() {
     }
 
+    /**
+     * TODO: calibrate this in meters
+     */
     public void setPosition(double x) {
+        // TODO: change gravity depending on position (it gets heavier)
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
     }
@@ -149,6 +153,9 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.setDutyCycle(value);
     }
 
+    /**
+     * TODO: calibrate this in meters
+     */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);
     }

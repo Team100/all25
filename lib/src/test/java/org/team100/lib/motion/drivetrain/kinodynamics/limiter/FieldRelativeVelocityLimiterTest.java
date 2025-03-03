@@ -13,7 +13,7 @@ public class FieldRelativeVelocityLimiterTest {
 
     @Test
     void testAnalyticDesaturation4() {
-        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
         {
@@ -29,7 +29,7 @@ public class FieldRelativeVelocityLimiterTest {
 
     @Test
     void testPreferRotation() {
-        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
         assertEquals(14.142, k.getMaxAngleSpeedRad_S(), kDelta);
@@ -45,7 +45,7 @@ public class FieldRelativeVelocityLimiterTest {
 
     @Test
     void testPreferRotation2() {
-        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
         {
@@ -77,7 +77,7 @@ public class FieldRelativeVelocityLimiterTest {
     /** shouldn't allow any movement at 6v. */
     @Test
     void testBrownout() {
-        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 6);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
         FieldRelativeVelocity target = new FieldRelativeVelocity(1, 0, 0);
@@ -90,7 +90,7 @@ public class FieldRelativeVelocityLimiterTest {
     /** desaturation should keep the same instantaneous course. */
     @Test
     void testDesaturationCourseInvariant() {
-        SwerveKinodynamics k = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(k, () -> 12);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(limit);
 
