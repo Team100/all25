@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 /**
  * Represents all the cameras. Some may be mounted on one robot, some on
  * another. Keep this up to date when you move cameras around.
+ * Counter-clockwise is positive
+ * x is forward, y is left, and z is up
  */
 public enum Camera {
 
@@ -76,7 +78,7 @@ public enum Camera {
      */
     SWERVE_RIGHT("getSwerveRight",
             new Transform3d(
-                    new Translation3d(-0.273, 0.302, 0.215),
+                    new Translation3d(-0.273, -0.302, 0.215),
                     new Rotation3d(0, Math.toRadians(-6), Math.toRadians(-60)))),
 
     
@@ -85,7 +87,7 @@ public enum Camera {
      */
     SWERVE_LEFT("getSwerveLeft",
             new Transform3d(
-                    new Translation3d(-0.273, -0.302, 0.215),
+                    new Translation3d(-0.273, 0.302, 0.215),
                     new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
 
     /**
@@ -93,7 +95,7 @@ public enum Camera {
      */
     FUNNEL("getFunnel",
             new Transform3d(
-                    new Translation3d(-0.011, 0.202, 0.900),
+                    new Translation3d(-0.011, -0.202, 0.900),
                     new Rotation3d(0, Math.toRadians(-25), Math.toRadians(170)))),
 
     /**
@@ -101,7 +103,7 @@ public enum Camera {
      */
     CORAL_LEFT("getCoralLeft",
     new Transform3d(
-            new Translation3d(0.194, -0.294, 0.822),
+            new Translation3d(0.194, 0.294, 0.822),
             new Rotation3d(0, Math.toRadians(40), Math.toRadians(-10)))),
 
             /**
@@ -109,7 +111,7 @@ public enum Camera {
      */
     CORAL_RIGHT("getCoralRight",
     new Transform3d(
-            new Translation3d(0.194, 0.294, 0.822),
+            new Translation3d(0.194, -0.294, 0.822),
             new Rotation3d(0, Math.toRadians(40), Math.toRadians(10)))),
 
     TEST1("test1",
