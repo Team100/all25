@@ -87,7 +87,8 @@ public:
     KNOBS = 9,
     MIDI = 10,
     MIDI_DUAL = 11,
-    FIELD_2025 = 12
+    KEY_ARRAY = 12,
+    BUTTONS_2025 = 13
   };
 
   /**
@@ -104,7 +105,8 @@ public:
       case SubConsole::KNOBS: return "Knobs";
       case SubConsole::MIDI: return "MIDI";
       case SubConsole::MIDI_DUAL: return "MIDI_DUAL";
-      case SubConsole::FIELD_2025: return "Field 2025";
+      case SubConsole::KEY_ARRAY: return "Key Array";
+      case SubConsole::BUTTONS_2025: return "Buttons 2025";
       default: return "Unassigned";
     }
   }
