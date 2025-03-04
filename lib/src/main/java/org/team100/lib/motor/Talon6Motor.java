@@ -1,13 +1,12 @@
 package org.team100.lib.motor;
 
-import java.util.function.DoubleSupplier;
-
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
+import org.team100.lib.util.Memo.DoubleCache;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -42,16 +41,16 @@ public abstract class Talon6Motor implements BareMotor {
     // Two levels of caching here: the cotemporal cache caches the value
     // and also the supplier
     /** position is latency-compensated. */
-    protected final DoubleSupplier m_position;
-    protected final DoubleSupplier m_velocity;
-    protected final DoubleSupplier m_acceleration;
-    protected final DoubleSupplier m_dutyCycle;
-    protected final DoubleSupplier m_error;
-    protected final DoubleSupplier m_supply;
-    protected final DoubleSupplier m_supplyVoltage;
-    protected final DoubleSupplier m_stator;
-    protected final DoubleSupplier m_temp;
-    protected final DoubleSupplier m_torque;
+    protected final DoubleCache m_position;
+    protected final DoubleCache m_velocity;
+    protected final DoubleCache m_acceleration;
+    protected final DoubleCache m_dutyCycle;
+    protected final DoubleCache m_error;
+    protected final DoubleCache m_supply;
+    protected final DoubleCache m_supplyVoltage;
+    protected final DoubleCache m_stator;
+    protected final DoubleCache m_temp;
+    protected final DoubleCache m_torque;
 
     // caching the control requests saves allocation
     private final VelocityVoltage m_velocityVoltage;
@@ -314,6 +313,8 @@ public abstract class Talon6Motor implements BareMotor {
     public void resetEncoderPosition() {
         Util.warn("Setting CTRE encoder position is very slow!");
         Phoenix100.warn(() -> m_motor.setPosition(0, 1));
+        m_position.reset();
+        m_velocity.reset();
     }
 
     /**
