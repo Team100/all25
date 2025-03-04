@@ -45,7 +45,7 @@ class Identity(Enum):
     CORAL_LEFT = "8ddb2ed6c49a9bce" #32
     CORAL_RIGHT = "364f07fb090a3bf7" #31
     SWERVE_LEFT = "8132c256f63bbb4e" #33
-    SWERVE_RIGHT = "06ece53b019a5c2e" *34
+    SWERVE_RIGHT = "06ece53b019a5c2e" #34
 
     # for testing
     DEV = "10000000a7c673d9"  # rpi4 used for development
