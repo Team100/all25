@@ -6,6 +6,7 @@ import java.util.List;
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -34,26 +35,19 @@ public class GoToCoralStationLeft extends Navigator {
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
 
-        List<Pose2d> waypointsM = new ArrayList<>();
-        List<Rotation2d> headings = new ArrayList<>();
-
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation = new Translation2d(1.2, 7.15);
 
-        Rotation2d spline = goalTranslation.minus(currTranslation).getAngle();
+        Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
+        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(bearingToGoal,
+                bearingToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
 
-        waypointsM.add(new Pose2d(currTranslation, newInitialSpline));
-        waypointsM.add(new Pose2d(goalTranslation, spline));
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
+        waypoints.add(new HolonomicPose2d(currTranslation, currentPose.getRotation(), newInitialSpline));
+        waypoints.add(new HolonomicPose2d(goalTranslation, Rotation2d.fromDegrees(-50), bearingToGoal));
 
-        headings.add(currentPose.getRotation());
-        headings.add(Rotation2d.fromDegrees(-50));
-
-
-
-        return m_planner.restToRest(waypointsM, headings);
-
+        return m_planner.restToRest(waypoints);
 
     }
 
