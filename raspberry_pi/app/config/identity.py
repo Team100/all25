@@ -39,19 +39,16 @@ class Identity(Enum):
 
     # camera-bot cameras
     GLOBAL_GAME_PIECE = "d44649628c20d4d4"
-    GLOBAL_RIGHT = "364f07fb090a3bf7"
-    GLOBAL_LEFT = "06ece53b019a5c2e"
 
     # comp bot
-    FUNNEL = "getFunnel"
-    CORAL_LEFT = "getCoralLeft"
-    CORAL_RIGHT = "getCoralRight"
-    SWERVE_LEFT = "getSwerveLeft"
-    SWERVE_RIGHT = "getSwerveRight"
+    FUNNEL = "1e5acbaa5a7f9d10" # 30
+    CORAL_LEFT = "8ddb2ed6c49a9bce" #32
+    CORAL_RIGHT = "364f07fb090a3bf7" #31
+    SWERVE_LEFT = "8132c256f63bbb4e" #33
+    SWERVE_RIGHT = "06ece53b019a5c2e" *34
 
     # for testing
     DEV = "10000000a7c673d9"  # rpi4 used for development
-    DEV2 = "8ddb2ed6c49a9bce"
     FLIPPED = "flipme"  # example for per-identity config
     UNKNOWN = "unknown"
 
