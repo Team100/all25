@@ -36,10 +36,12 @@ class CameraFactory:
                 | Identity.SHOOTER
                 | Identity.GAME_PIECE
                 | Identity.GLOBAL_GAME_PIECE
-                | Identity.GLOBAL_LEFT
-                | Identity.GLOBAL_RIGHT
+                | Identity.CORAL_RIGHT
+                | Identity.CORAL_LEFT
+                | Identity.SWERVE_RIGHT
+                | Identity.SWERVE_LEFT
+                | Identity.FUNNEL
                 | Identity.DEV # has one v2 camera at the moment
-                | Identity.DEV2
                 | Identity.DIST_TEST
             ):
                 return 1
