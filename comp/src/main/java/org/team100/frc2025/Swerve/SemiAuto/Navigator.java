@@ -7,12 +7,12 @@ import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.ReefAproach;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.timing.TimingConstraintFactory;
-import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -78,44 +78,34 @@ public abstract class Navigator extends Command implements Planner2025 {
         // return false;
     }
 
-    public static PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings) {
+    public static List<HolonomicPose2d> addRobotPose(Pose2d currPose, List<HolonomicPose2d> waypoints) {
         Translation2d currTranslation = currPose.getTranslation();
-        Translation2d firstWaypoint = waypoints.get(0).getTranslation();
+        Translation2d firstWaypoint = waypoints.get(0).translation();
         Rotation2d initialSpline = firstWaypoint.minus(currTranslation).getAngle();
-        Pose2d initialWaypoint = new Pose2d(currTranslation, initialSpline);
+
         Rotation2d initialHeading = currPose.getRotation();
+        HolonomicPose2d initialWaypoint = new HolonomicPose2d(currTranslation, initialHeading, initialSpline);
 
-        List<Pose2d> waypointsWithPose = new ArrayList<>();
-        List<Rotation2d> headingsWithPose = new ArrayList<>();
-
+        List<HolonomicPose2d> waypointsWithPose = new ArrayList<>();
+        waypointsWithPose.add(initialWaypoint);
         waypointsWithPose.addAll(waypoints);
-        headingsWithPose.addAll(headings);
-
-        waypointsWithPose.add(0, initialWaypoint);
-        headingsWithPose.add(0, initialHeading);
-
-        return new PoseSet(waypointsWithPose, headingsWithPose);
+        return waypointsWithPose;
     }
 
-    public static PoseSet addRobotPose(Pose2d currPose, List<Pose2d> waypoints, List<Rotation2d> headings,
+    public static List<HolonomicPose2d> addRobotPose(
+            Pose2d currPose,
+            List<HolonomicPose2d> waypoints,
             Rotation2d initialSpline) {
         Translation2d currTranslation = currPose.getTranslation();
-        Translation2d firstWaypoint = waypoints.get(0).getTranslation();
-        // Rotation2d initialSpline = firstWaypoint.minus(currTranslation).getAngle();
-        Pose2d initialWaypoint = new Pose2d(currTranslation, initialSpline);
         Rotation2d initialHeading = currPose.getRotation();
-
-        List<Pose2d> waypointsWithPose = new ArrayList<>();
-        List<Rotation2d> headingsWithPose = new ArrayList<>();
-        ;
-
+        HolonomicPose2d initialWaypoint = new HolonomicPose2d(
+                currTranslation,
+                initialHeading,
+                initialSpline);
+        List<HolonomicPose2d> waypointsWithPose = new ArrayList<>();
+        waypointsWithPose.add(initialWaypoint);
         waypointsWithPose.addAll(waypoints);
-        headingsWithPose.addAll(headings);
-
-        waypointsWithPose.add(0, initialWaypoint);
-        headingsWithPose.add(0, initialHeading);
-
-        return new PoseSet(waypointsWithPose, headingsWithPose);
+        return waypointsWithPose;
     }
 
     public Rotation2d calculateInitialSpline(Translation2d targetPoint, Translation2d currTranslation,

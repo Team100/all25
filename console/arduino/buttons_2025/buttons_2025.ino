@@ -17,5 +17,5 @@ void loop() {
   // The sensor has an issue triggered by state changes during I2C transmission:
   // https://github.com/adafruit/Adafruit-MCP23017-Arduino-Library/issues/96
   // To minimize the incidence of that bug, minimize the sample rate.
-  delay(100);
+  delay(50);
 }
