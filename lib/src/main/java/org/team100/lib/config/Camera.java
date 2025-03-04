@@ -86,7 +86,7 @@ public enum Camera {
      */
     CORAL_LEFT("8ddb2ed6c49a9bce",
     new Transform3d(
-            new Translation3d(0.194, 0.294, 0.822),
+            new Translation3d(0.192, 0.293, 0.821),
             new Rotation3d(0, Math.toRadians(45), Math.toRadians(-10)))),
 
             /**
@@ -94,7 +94,7 @@ public enum Camera {
      */
     CORAL_RIGHT("364f07fb090a3bf7",
     new Transform3d(
-            new Translation3d(0.194, -0.294, 0.822),
+            new Translation3d(0.192, -0.293, 0.821),
             new Rotation3d(0, Math.toRadians(45), Math.toRadians(10)))),
 
     TEST1("test1",
