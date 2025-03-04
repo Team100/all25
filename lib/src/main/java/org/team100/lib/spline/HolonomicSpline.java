@@ -3,12 +3,12 @@ package org.team100.lib.spline;
 import java.util.Optional;
 
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,8 +29,6 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class HolonomicSpline {
     private static final boolean DEBUG = false;
-    /** spline control points need to be not too close to a u-turn. */
-    private static final double MIN_ANGLE = 2 * Math.PI / 2;
     private static final int kSamples = 100;
 
     private final Spline1d m_x;
@@ -43,20 +41,14 @@ public class HolonomicSpline {
     private final Rotation2d m_r0;
 
     /**
-     * Note: the p0 direction needs to be within 90 degrees of p1-p0, and vice
-     * versa, to prevent "bad" trajectories, where the robot ends up accelerating
-     * away from the target. If you really want a u-turn, add a stopping point.
+     * The theta endpoint derivative is just the average theta rate, which is new,
+     * it used to be zero.
      * 
      * You'll probably want to call SplineUtil.forceC1() and
      * SplineUtil.optimizeSpline() after creating these segments.
-     * 
-     * @param p0       The starting point and direction of the spline
-     * @param p1       The ending point and direction of the spline
-     * @param heading0 The starting heading
-     * @param heading1 The ending heading
      */
-    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d heading0, Rotation2d heading1) {
-        this(p0, p1, heading0, heading1, 1.2);
+    public HolonomicSpline(HolonomicPose2d p0, HolonomicPose2d p1) {
+        this(p0, p1, 1.2);
     }
 
     /**
@@ -69,37 +61,25 @@ public class HolonomicSpline {
      * 
      * You'll probably want to call SplineUtil.forceC1() and
      * SplineUtil.optimizeSpline() after creating these segments.
-     * 
-     * @param p0       The starting point and direction of the spline
-     * @param p1       The ending point and direction of the spline
-     * @param heading0 The starting heading
-     * @param heading1 The ending heading
-     * @param mN
      */
-    public HolonomicSpline(Pose2d p0, Pose2d p1, Rotation2d heading0, Rotation2d heading1, double mN) {
-        checkBounds(p0, p1);
-        Translation2d t0 = p0.getTranslation();
-        Rotation2d course0 = p0.getRotation();
-        Translation2d t1 = p1.getTranslation();
-        Rotation2d course1 = p1.getRotation();
-
-        double scale = mN * GeometryUtil.distance(t0, t1);
+    public HolonomicSpline(HolonomicPose2d p0, HolonomicPose2d p1, double mN) {
+        double scale = mN * GeometryUtil.distance(p0.translation(), p1.translation());
         if (DEBUG)
             Util.printf("scale %f\n", scale);
-        double x0 = t0.getX();
-        double x1 = t1.getX();
+        double x0 = p0.translation().getX();
+        double x1 = p1.translation().getX();
         // first derivatives are just the course
-        double dx0 = course0.getCos() * scale;
-        double dx1 = course1.getCos() * scale;
+        double dx0 = p0.course().getCos() * scale;
+        double dx1 = p1.course().getCos() * scale;
         // second derivatives are zero at the ends
         double ddx0 = 0;
         double ddx1 = 0;
 
-        double y0 = t0.getY();
-        double y1 = t1.getY();
+        double y0 = p0.translation().getY();
+        double y1 = p1.translation().getY();
         // first derivatives are just the course
-        double dy0 = course0.getSin() * scale;
-        double dy1 = course1.getSin() * scale;
+        double dy0 = p0.course().getSin() * scale;
+        double dy1 = p1.course().getSin() * scale;
         // second derivatives are zero at the ends
         double ddy0 = 0;
         double ddy1 = 0;
@@ -107,8 +87,8 @@ public class HolonomicSpline {
         m_x = Spline1d.newSpline1d(x0, x1, dx0, dx1, ddx0, ddx1);
         m_y = Spline1d.newSpline1d(y0, y1, dy0, dy1, ddy0, ddy1);
 
-        m_r0 = heading0;
-        double delta = heading0.unaryMinus().rotateBy(heading1).getRadians();
+        m_r0 = p0.heading();
+        double delta = p0.heading().unaryMinus().rotateBy(p1.heading()).getRadians();
 
         // previously dtheta at the endpoints was zero, which is bad: it meant the omega
         // value varied all over the place, even for theta paths that should be
@@ -128,21 +108,6 @@ public class HolonomicSpline {
     @Override
     public String toString() {
         return "HolonomicSpline [m_x=" + m_x + ", m_y=" + m_y + ", m_theta=" + m_theta + ", m_r0=" + m_r0 + "]";
-    }
-
-    static void checkBounds(Pose2d p0, Pose2d p1) {
-        Translation2d toTarget = p1.getTranslation().minus(p0.getTranslation());
-        Rotation2d angle = toTarget.getAngle();
-        double p0Angle = Math.abs(MathUtil.angleModulus(p0.getRotation().minus(angle).getRadians()));
-        if (p0Angle > MIN_ANGLE)
-            throw new IllegalArgumentException(
-                    String.format("p0 direction, %.3f is too far from course to p1, %.3f -- P0 %s P1 %s",
-                            p0.getRotation().getRadians(), angle.getRadians(), p0, p1));
-        double p1Angle = Math.abs(MathUtil.angleModulus(p1.getRotation().minus(angle).getRadians()));
-        if (p1Angle > MIN_ANGLE)
-            throw new IllegalArgumentException(
-                    String.format("p1 direction, %.3f is too far from course from p0, %.3f -- P0 %s P1 %s",
-                            p1.getRotation().getRadians(), angle.getRadians(), p0, p1));
     }
 
     /** This is used by various optimization steps. */

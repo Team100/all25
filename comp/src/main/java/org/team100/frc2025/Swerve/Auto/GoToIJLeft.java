@@ -8,6 +8,7 @@ import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -41,26 +42,22 @@ public class GoToIJLeft extends Navigator {
 
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
-
-        List<Pose2d> waypointsM = new ArrayList<>();
-        List<Rotation2d> headings = new ArrayList<>();
-
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation = FieldConstants.getOrbitDestination(FieldSector.IJ, ReefDestination.RIGHT);
 
-        Rotation2d spline = goalTranslation.minus(currTranslation).getAngle();
+        Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-        waypointsM.add(new Pose2d(currTranslation, spline));
-        waypointsM.add(new Pose2d(goalTranslation, spline));
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
+        waypoints.add(new HolonomicPose2d(
+                currTranslation,
+                currentPose.getRotation(),
+                bearingToGoal));
+        waypoints.add(new HolonomicPose2d(
+                goalTranslation,
+                FieldConstants.getSectorAngle(FieldSector.IJ).rotateBy(Rotation2d.fromDegrees(180)),
+                bearingToGoal));
 
-        headings.add(currentPose.getRotation());
-        headings.add(FieldConstants.getSectorAngle(FieldSector.IJ).rotateBy(Rotation2d.fromDegrees(180)));
-
-
-
-        return m_planner.restToRest(waypointsM, headings);
-
-
+        return m_planner.restToRest(waypoints);
     }
 
 }

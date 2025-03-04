@@ -1,7 +1,5 @@
 package org.team100.lib.sensors;
 
-import org.team100.lib.geometry.GeometryUtil;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class MockGyro implements Gyro {

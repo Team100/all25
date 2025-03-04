@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.ScheduleGenerator.TimingException;
@@ -16,7 +16,6 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -34,8 +33,7 @@ public class PathPlannerTest {
                 new Rotation2d(),
                 new Rotation2d(),
                 new Rotation2d());
-        Path100 path = PathPlanner.withoutControlPoints(
-                waypoints, headings, 0.01, 0.01, 0.1);
+        Path100 path = PathPlanner.withoutControlPoints(waypoints, headings, 0.01, 0.01, 0.1);
         // sample the path so we can see it
         for (double t = 0; t <= path.getMaxDistance(); t += 0.1) {
             if (DEBUG)
@@ -72,15 +70,11 @@ public class PathPlannerTest {
 
     @Test
     void testBackingUp() {
-        List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, new Rotation2d(Math.PI)),
-                new Pose2d(1, 0, Rotation2d.kZero));
-        List<Rotation2d> headings = List.of(
-                Rotation2d.kZero,
-                Rotation2d.kZero);
-        Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(0, 0), Rotation2d.kZero, new Rotation2d(Math.PI)),
+                new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kZero));
+        Path100 path = PathPlanner.pathFromWaypoints(
                 waypoints,
-                headings,
                 0.0127,
                 0.0127,
                 Math.toRadians(1.0));
@@ -92,26 +86,21 @@ public class PathPlannerTest {
      */
     @Test
     void testRotation() {
-        List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d());
-        List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d(1));
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(1), new Rotation2d()));
         assertThrows(IllegalArgumentException.class,
-                () -> PathPlanner.pathFromWaypointsAndHeadings(
-                        waypoints, headings, 0.01, 0.01, 0.1));
+                () -> PathPlanner.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
     }
 
     /** Preserves the tangent at the corner and so makes a little "S" */
     @Test
     void testCorner() {
-        List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, new Rotation2d()),
-                new Pose2d(1, 0, new Rotation2d()),
-                new Pose2d(1, 1, new Rotation2d(Math.PI / 2)));
-        List<Rotation2d> headings = List.of(
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d());
-        Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
-                waypoints, headings, 0.01, 0.01, 0.1);
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(0, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 1), new Rotation2d(), new Rotation2d(Math.PI / 2)));
+        Path100 path = PathPlanner.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1);
 
         assertEquals(9, path.length());
         Pose2dWithMotion p = path.getPoint(0);
@@ -129,21 +118,20 @@ public class PathPlannerTest {
      */
     @Test
     void testStationary() {
-        List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d());
-        List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()));
         assertThrows(IllegalArgumentException.class,
-                () -> PathPlanner.pathFromWaypointsAndHeadings(
-                        waypoints, headings, 0.01, 0.01, 0.1));
-
+                () -> PathPlanner.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
     }
 
     @Test
     void testLinear() {
-        List<Pose2d> waypoints = List.of(new Pose2d(), new Pose2d(1, 0, new Rotation2d()));
-        List<Rotation2d> headings = List.of(new Rotation2d(), new Rotation2d());
-        Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
-                waypoints, headings, 0.01, 0.01, 0.1);
-
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(), new Rotation2d()));
+        Path100 path = PathPlanner.pathFromWaypoints(
+                waypoints, 0.01, 0.01, 0.1);
         assertEquals(2, path.length());
         Pose2dWithMotion p = path.getPoint(0);
         assertEquals(0, p.getPose().getX(), kDelta);
@@ -155,47 +143,25 @@ public class PathPlannerTest {
         assertEquals(0, p.getHeadingRate(), kDelta);
     }
 
-    /**
-     * This path has a corner with a 90 degree turn-in-place in it,
-     * that the scheduler doesn't know what to do with.
-     */
     @Test
     void testActualCorner() {
-        List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, new Rotation2d()),
-                new Pose2d(1, 0, new Rotation2d()),
-                new Pose2d(1, 0, new Rotation2d(Math.PI / 2)),
-                new Pose2d(1, 1, new Rotation2d(Math.PI / 2)));
-        List<Rotation2d> headings = List.of(
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d());
-
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(0, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(), new Rotation2d(Math.PI / 2)),
+                new HolonomicPose2d(new Translation2d(1, 1), new Rotation2d(), new Rotation2d(Math.PI / 2)));
         assertThrows(IllegalArgumentException.class,
-                () -> PathPlanner.pathFromWaypointsAndHeadings(
-                        waypoints, headings, 0.01, 0.01, 0.1));
-
+                () -> PathPlanner.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
     }
 
-    /**
-     * This path has a duplicate waypoint in the middle, which breaks
-     */
     @Test
     void testComposite() {
-        List<Pose2d> waypoints = List.of(
-                new Pose2d(0, 0, new Rotation2d()),
-                new Pose2d(1, 0, new Rotation2d()),
-                new Pose2d(1, 0, new Rotation2d()),
-                new Pose2d(2, 0, new Rotation2d()));
-        List<Rotation2d> headings = List.of(
-                new Rotation2d(),
-                new Rotation2d(),
-                new Rotation2d(1),
-                new Rotation2d(1));
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(0, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(1), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(2, 0), new Rotation2d(1), new Rotation2d()));
         assertThrows(IllegalArgumentException.class,
-                () -> PathPlanner.pathFromWaypointsAndHeadings(
-                        waypoints, headings, 0.01, 0.01, 0.1));
-
+                () -> PathPlanner.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
     }
 }
