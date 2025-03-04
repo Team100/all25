@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -36,5 +37,24 @@ class SplineGeneratorTest {
         assertEquals(10.0, cur_pose.getTranslation().getY(), 0.001);
         assertEquals(78.690, cur_pose.getCourse().get().getDegrees(), 0.001);
         assertEquals(20.416, arclength, 0.001);
+    }
+
+    @Test
+    void testDx() {
+        // HolonomicSpline s0 = new HolonomicSpline(
+        // new HolonomicPose2d(new Translation2d(0, 0), Rotation2d.kZero,
+        // Rotation2d.kZero),
+        // new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero,
+        // Rotation2d.kZero),
+        // 1.0);
+        HolonomicSpline s0 = new HolonomicSpline(
+                new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kZero, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
+                1.0);
+        List<HolonomicSpline> splines = List.of(s0);
+        List<Pose2dWithMotion> motion = SplineGenerator.parameterizeSplines(splines, 0.001, 0.001, 0.001);
+        for (Pose2dWithMotion p : motion) {
+            Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
+        }
     }
 }

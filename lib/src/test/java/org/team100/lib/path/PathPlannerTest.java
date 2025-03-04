@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.timing.ScheduleGenerator.TimingException;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
-import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,8 +46,12 @@ public class PathPlannerTest {
         // no constraints
         TimingConstraintFactory f = new TimingConstraintFactory(SwerveKinodynamicsFactory.forTest());
         List<TimingConstraint> constraints = f.forTest();
-        TrajectoryPlanner tPlan = new TrajectoryPlanner(constraints);
-        Trajectory100 trajectory = tPlan.generateTrajectory(path, 0.05, 0.05);
+        ScheduleGenerator scheduler = new ScheduleGenerator(constraints);
+        Trajectory100 trajectory = scheduler.timeParameterizeTrajectory(
+                path,
+                0.0127,
+                0.05,
+                0.05);
 
         for (double t = 0; t < trajectory.duration(); t += 0.1) {
             if (DEBUG)

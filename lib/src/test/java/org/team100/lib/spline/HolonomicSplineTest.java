@@ -9,7 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.path.Path100;
+import org.team100.lib.timing.CapsizeAccelerationConstraint;
 import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.trajectory.Trajectory100;
@@ -302,4 +305,42 @@ class HolonomicSplineTest {
 
     }
 
+    @Test
+    void testEntryVelocity() {
+
+        // radius is 1 m.
+        HolonomicSpline s0 = new HolonomicSpline(
+                new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kZero, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
+                1.2);
+        // for (double t = 0; t < 1; t += 0.03) {
+        // Util.printf("%5.3f %5.3f\n", s0.x(t), s0.y(t));
+        // }
+
+        List<HolonomicSpline> splines = List.of(s0);
+        List<Pose2dWithMotion> motion = SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05);
+        for (Pose2dWithMotion p : motion) {
+            Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
+        }
+        Path100 path = new Path100(motion);
+        // for (int i = 0; i < path.length(); ++i) {
+        // Util.printf("%5.3f %5.3f\n",
+        // path.getPoint(i).getTranslation().getX(),
+        // path.getPoint(i).getTranslation().getY());
+        // }
+
+        // if we enter a circle at the capsize velocity, we should continue at that same
+        // speed.
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
+        // centripetal accel is 8.166 m/s^2
+        assertEquals(8.166666, limits.getMaxCapsizeAccelM_S2(), 1e-6);
+        List<TimingConstraint> constraints = List.of(
+                new CapsizeAccelerationConstraint(limits, 1.0));
+        ScheduleGenerator scheduleGenerator = new ScheduleGenerator(constraints);
+        // speed
+        // a = v^2/r so v = sqrt(ar) = 2.858
+        Trajectory100 trajectory = scheduleGenerator.timeParameterizeTrajectory(path,
+                0.05, 2.858, 2.858);
+        // Util.printf("trajectory %s\n", trajectory);
+    }
 }

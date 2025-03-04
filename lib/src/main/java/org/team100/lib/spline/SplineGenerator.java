@@ -12,7 +12,13 @@ import edu.wpi.first.math.geometry.Twist2d;
 
 public class SplineGenerator {
     /**
-     * Converts a spline into a list of Twist2d's.
+     * Converts a spline into a list of Pose2dWithMotion.
+     * 
+     * The points are chosen so that the secant line between the points is within
+     * the specified tolerance (dx, dy, dtheta) of the actual spline.
+     * 
+     * The trajectory scheduler consumes these points, interpolating between them
+     * with straight lines.  It might be better to sample the spline directly.
      *
      * @param s  the spline to parametrize
      * @param t0 starting percentage of spline to parametrize
@@ -68,7 +74,7 @@ public class SplineGenerator {
         Pose2d phalf_predicted = GeometryUtil.transformBy(p0,
                 Pose2d.kZero.exp(GeometryUtil.scale(twist_full, 0.5)));
         Pose2d error = GeometryUtil.transformBy(GeometryUtil.inverse(phalf), phalf_predicted);
-        
+
         if (GeometryUtil.norm(twist_full) < 1e-6) {
             // the Rotation2d below will be garbage in this case so give up.
             return;

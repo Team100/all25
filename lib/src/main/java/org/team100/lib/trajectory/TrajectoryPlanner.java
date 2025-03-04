@@ -23,9 +23,11 @@ import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGeneratio
  * centripetal) so if you want those, supply them.
  */
 public class TrajectoryPlanner {
-    private static final double kMaxDx = 0.0127; // m
-    private static final double kMaxDy = 0.0127; // m
-    private static final double kMaxDTheta = Math.toRadians(1.0);
+    // the tolerances here control the approximation of the list of poses to the
+    // continuous spline.  previously they were 1.2 cm and 1 radian.
+    private static final double kMaxDx = 0.01; // m
+    private static final double kMaxDy = 0.01; // m
+    private static final double kMaxDTheta = Math.toRadians(0.1);
     // if we try to start a trajectory while respecting initial velocity, but the
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
@@ -77,32 +79,33 @@ public class TrajectoryPlanner {
     }
 
     public Trajectory100 movingToMoving(SwerveModel startState, SwerveModel endState) {
+        Translation2d startTranslation = startState.translation();
+        FieldRelativeVelocity startVelocity = startState.velocity();
 
-        if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON
-                && Math.abs(endState.velocity().norm()) < VELOCITY_EPSILON) {
+        Translation2d endTranslation = endState.translation();
+        FieldRelativeVelocity endVelocity = endState.velocity();
+
+        // should work with out this.
+        if (startVelocity.norm() < VELOCITY_EPSILON && endVelocity.norm() < VELOCITY_EPSILON) {
             return restToRest(startState.pose(), endState.pose());
         }
-        Translation2d currentTranslation = startState.translation();
-        FieldRelativeVelocity currentSpeed = startState.velocity();
-        FieldRelativeVelocity endSpeed = endState.velocity();
 
-        Translation2d goalTranslation = endState.translation();
-        Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
-        Rotation2d angleToGoal = translationToGoal.getAngle();
-        Rotation2d startingAngle = currentSpeed.angle().orElse(angleToGoal);
+        Rotation2d courseToGoal = endTranslation.minus(startTranslation).getAngle();
+        Rotation2d startingAngle = startVelocity.angle().orElse(courseToGoal);
+
         try {
             return generateTrajectory(
                     List.of(
                             new HolonomicPose2d(
-                                    currentTranslation,
+                                    startTranslation,
                                     startState.rotation(),
                                     startingAngle),
                             new HolonomicPose2d(
-                                    goalTranslation,
+                                    endTranslation,
                                     endState.rotation(),
-                                    angleToGoal)),
-                    Math.abs(currentSpeed.norm()),
-                    endSpeed.norm());
+                                    courseToGoal)),
+                    startVelocity.norm(),
+                    endVelocity.norm());
         } catch (TrajectoryGenerationException e) {
             Util.warn("Trajectory Generation Exception");
             return new Trajectory100();
@@ -112,25 +115,24 @@ public class TrajectoryPlanner {
     /**
      * Produces straight lines from start to end.
      */
-    public Trajectory100 restToRest(
-            Pose2d start,
-            Pose2d end) {
-        Translation2d currentTranslation = start.getTranslation();
-        Translation2d goalTranslation = end.getTranslation();
-        Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
-        Rotation2d angleToGoal = translationToGoal.getAngle();
+    public Trajectory100 restToRest(Pose2d start, Pose2d end) {
+        Translation2d startTranslation = start.getTranslation();
+        Translation2d endTranslation = end.getTranslation();
+
+        Rotation2d courseToGoal = endTranslation.minus(startTranslation).getAngle();
+
         try {
             return restToRest(
                     List.of(
-                            new HolonomicPose2d(currentTranslation, start.getRotation(), angleToGoal),
-                            new HolonomicPose2d(goalTranslation, end.getRotation(), angleToGoal)));
+                            new HolonomicPose2d(startTranslation, start.getRotation(), courseToGoal),
+                            new HolonomicPose2d(endTranslation, end.getRotation(), courseToGoal)));
         } catch (TrajectoryGenerationException e) {
             return null;
         }
     }
 
     /**
-     * If you want a max velocity or max accel constraint, use ConstantConstraint.
+     * The shape of the spline accommodates the start and end velocities.
      */
     public Trajectory100 generateTrajectory(
             List<HolonomicPose2d> waypoints,
@@ -140,27 +142,6 @@ public class TrajectoryPlanner {
             // Create a path from splines.
             Path100 path = PathPlanner.pathFromWaypoints(
                     waypoints, kMaxDx, kMaxDy, kMaxDTheta);
-            // Generate the timed trajectory.
-            return m_scheduleGenerator.timeParameterizeTrajectory(
-                    path,
-                    kMaxDx,
-                    start_vel,
-                    end_vel);
-        } catch (IllegalArgumentException e) {
-            // catches various kinds of malformed input, returns a no-op.
-            // this should never actually happen.
-            Util.warn("Bad trajectory input!!");
-            // print the stack trace if you want to know who is calling
-            // e.printStackTrace();
-            return new Trajectory100();
-        }
-    }
-
-    public Trajectory100 generateTrajectory(
-            Path100 path,
-            double start_vel,
-            double end_vel) {
-        try {
             // Generate the timed trajectory.
             return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,

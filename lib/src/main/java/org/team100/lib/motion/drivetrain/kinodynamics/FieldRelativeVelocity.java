@@ -36,6 +36,7 @@ public record FieldRelativeVelocity(double x, double y, double theta) {
         return new FieldRelativeVelocity(x, y, theta).times(1.0 / norm);
     }
 
+    /** Field-relative course, or empty if slower than 1 micron/sec. */
     public Optional<Rotation2d> angle() {
         if (Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6)
             return Optional.empty();
