@@ -18,7 +18,7 @@ import org.team100.lib.motion.drivetrain.MockDrive;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
-import org.team100.lib.path.PathPlanner;
+import org.team100.lib.path.PathFactory;
 import org.team100.lib.reference.TrajectoryReference;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.timing.ScheduleGenerator;
@@ -46,7 +46,7 @@ class DriveMotionPlannerTest implements Timeless {
         double start_vel = 0.0;
         double end_vel = 0.0;
 
-        Path100 path = PathPlanner.pathFromWaypoints(waypoints, 2, 0.25, 0.1);
+        Path100 path = PathFactory.pathFromWaypoints(waypoints, 2, 0.25, 0.1);
         assertFalse(path.isEmpty());
 
         double stepSize = 2;

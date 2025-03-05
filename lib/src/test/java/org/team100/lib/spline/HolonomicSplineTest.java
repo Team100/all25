@@ -12,6 +12,7 @@ import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.path.Path100;
+import org.team100.lib.path.PathFactory;
 import org.team100.lib.timing.CapsizeAccelerationConstraint;
 import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.timing.TimingConstraint;
@@ -293,7 +294,7 @@ class HolonomicSplineTest {
             }
         }
 
-        Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05));
+        Path100 path = new Path100(PathFactory.parameterizeSplines(splines, 0.05, 0.05, 0.05));
         if (DEBUG)
             Util.printf("path %s\n", path);
         List<TimingConstraint> constraints = new ArrayList<>();
@@ -318,7 +319,7 @@ class HolonomicSplineTest {
         // }
 
         List<HolonomicSpline> splines = List.of(s0);
-        List<Pose2dWithMotion> motion = SplineGenerator.parameterizeSplines(splines, 0.05, 0.05, 0.05);
+        List<Pose2dWithMotion> motion = PathFactory.parameterizeSplines(splines, 0.05, 0.05, 0.05);
         for (Pose2dWithMotion p : motion) {
             Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
         }

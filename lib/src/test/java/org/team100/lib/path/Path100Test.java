@@ -12,8 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.spline.HolonomicSpline;
-import org.team100.lib.spline.SplineGenerator;
+import org.team100.lib.timing.ScheduleGenerator.TimingException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,7 +41,7 @@ class Path100Test {
         double maxDx = 0.1;
         double maxDy = 0.1;
         double maxDTheta = 0.1;
-        Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+        Path100 path = new Path100(PathFactory.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
         assertEquals(0, path.length(), 0.001);
     }
 
@@ -93,29 +94,8 @@ class Path100Test {
         double maxDx = 0.1;
         double maxDy = 0.1;
         double maxDTheta = 0.1;
-        Path100 path = new Path100(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+        Path100 path = new Path100(PathFactory.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
         assertEquals(2, path.length(), 0.001);
-        {
-            Pose2dWithMotion pose = path.getInterpolated(0);
-            Pose2d pose2d = pose.getPose();
-            assertEquals(0, pose2d.getX(), 0.001);
-            assertEquals(0, pose2d.getY(), 0.001);
-            assertEquals(0, pose2d.getRotation().getRadians(), 0.001);
-        }
-        {
-            Pose2dWithMotion pose = path.getInterpolated(0.5);
-            Pose2d pose2d = pose.getPose();
-            assertEquals(0.5, pose2d.getX(), 0.001);
-            assertEquals(0, pose2d.getY(), 0.001);
-            assertEquals(0, pose2d.getRotation().getRadians(), 0.001);
-        }
-        {
-            Pose2dWithMotion pose = path.getInterpolated(1);
-            Pose2d pose2d = pose.getPose();
-            assertEquals(1.0, pose2d.getX(), 0.001);
-            assertEquals(0, pose2d.getY(), 0.001);
-            assertEquals(0, pose2d.getRotation().getRadians(), 0.001);
-        }
     }
 
     @Test
@@ -140,52 +120,92 @@ class Path100Test {
         assertEquals(kHeadings.get(3), traj.getPoint(3).getHeading());
     }
 
-    @Test
-    void testInterpolateExact() {
-        Path100 traj = new Path100(kWaypoints);
-
-        Pose2dWithMotion interpolated0 = traj.getInterpolated(0.0);
-        assertEquals(0, interpolated0.getPose().getX(), kDelta);
-        assertEquals(0, interpolated0.getPose().getY(), kDelta);
-        assertEquals(0, interpolated0.getHeading().getDegrees(), kDelta);
-
-        Pose2dWithMotion interpolated1 = traj.getInterpolated(1.0);
-        assertEquals(24, interpolated1.getPose().getX(), kDelta);
-        assertEquals(0, interpolated1.getPose().getY(), kDelta);
-        assertEquals(30, interpolated1.getHeading().getDegrees(), kDelta);
-
-        Pose2dWithMotion interpolated2 = traj.getInterpolated(2.0);
-        assertEquals(36, interpolated2.getPose().getX(), kDelta);
-        assertEquals(12, interpolated2.getPose().getY(), kDelta);
-        assertEquals(60, interpolated2.getHeading().getDegrees(), kDelta);
-
-        Pose2dWithMotion interpolated3 = traj.getInterpolated(3.0);
-        assertEquals(60, interpolated3.getPose().getX(), kDelta);
-        assertEquals(12, interpolated3.getPose().getY(), kDelta);
-        assertEquals(90, interpolated3.getHeading().getDegrees(), kDelta);
-    }
-
     /**
-     * The constant-twist arcs between states mean these samples don't quite match
-     * the straight-line paths.
+     * Note that many of the results here are "wrong" because the waypoints aren't
+     * correctly specified.
      */
     @Test
-    void testInterpolateBetween() {
-        Path100 traj = new Path100(kWaypoints);
+    void test() throws TimingException {
+        List<Pose2dWithMotion> waypoints = Arrays.asList(
+                new Pose2dWithMotion(
+                        new Pose2d(new Translation2d(0.0, 0.0), GeometryUtil.fromDegrees(0)),
+                        new MotionDirection(1, 0, 0.1), 0, 0),
+                new Pose2dWithMotion(
+                        new Pose2d(new Translation2d(24.0, 0.0), GeometryUtil.fromDegrees(30)),
+                        new MotionDirection(1, 0, 0.1), 0, 0),
+                new Pose2dWithMotion(
+                        new Pose2d(new Translation2d(36.0, 0.0), GeometryUtil.fromDegrees(60)),
+                        new MotionDirection(0, 1, 1e6), 0, 0),
+                new Pose2dWithMotion(
+                        new Pose2d(new Translation2d(36.0, 24.0), GeometryUtil.fromDegrees(60)),
+                        new MotionDirection(1, 0, 0.1), 0, 0),
+                new Pose2dWithMotion(
+                        new Pose2d(new Translation2d(60.0, 24.0), GeometryUtil.fromDegrees(180)),
+                        new MotionDirection(1, 0, 0.1), 0, 0));
 
-        Pose2dWithMotion interpolated025 = traj.getInterpolated(0.25);
-        assertEquals(5.948, interpolated025.getTranslation().getX(), kDelta);
-        assertEquals(-1.183, interpolated025.getTranslation().getY(), kDelta);
-        assertEquals(7.5, interpolated025.getHeading().getDegrees(), kDelta);
+        // Create the reference trajectory (straight line motion between waypoints).
+        Path100 path = new Path100(waypoints);
 
-        Pose2dWithMotion interpolated150 = traj.getInterpolated(1.5);
-        assertEquals(30.789, interpolated150.getTranslation().getX(), kDelta);
-        assertEquals(5.210, interpolated150.getTranslation().getY(), kDelta);
-        assertEquals(45, interpolated150.getHeading().getDegrees(), kDelta);
+        assertEquals(0.0, path.getMinDistance(), kDelta);
+        // the total path length is a bit more than the straight-line path because each
+        // path is a constant-twist arc.
+        assertEquals(89.435, path.getMaxDistance(), kDelta);
 
-        Pose2dWithMotion interpolated275 = traj.getInterpolated(2.75);
-        assertEquals(54.051, interpolated275.getTranslation().getX(), kDelta);
-        assertEquals(10.816, interpolated275.getTranslation().getY(), kDelta);
-        assertEquals(82.5, interpolated275.getHeading().getDegrees(), kDelta);
+        // initial sample is exactly at the start
+        Pose2dWithMotion sample0 = path.sample(0.0);
+        assertEquals(0, sample0.getPose().getX(), kDelta);
+        assertEquals(0, sample0.getPose().getY(), kDelta);
+
+        // course is +x
+        assertEquals(0, sample0.getCourse().get().getDegrees());
+
+        // heading is 0
+        assertEquals(0, sample0.getHeading().getDegrees());
+
+        // these are constant-twist paths, so they are little arcs.
+        // halfway between 0 and 1, the path sags a little, and it's a little longer,
+        // so this is not (12,0).
+        Pose2dWithMotion sample12 = path.sample(12.0);
+        assertEquals(11.862, sample12.getPose().getX(), kDelta);
+        assertEquals(-1.58, sample12.getPose().getY(), kDelta);
+
+        // course should be +x
+        assertEquals(0, sample12.getCourse().get().getDegrees(), kDelta);
+
+        // heading should be about 15 degrees, but since the path is a bit
+        // longer than the straight line, we're not quite to the middle of it yet
+        assertEquals(14.829, sample12.getHeading().getDegrees(), kDelta);
+
+        Pose2dWithMotion sample5 = path.sample(48);
+        assertEquals(36, sample5.getPose().getX(), kDelta);
+        assertEquals(11.585, sample5.getPose().getY(), kDelta);
+        assertEquals(46.978, sample5.getCourse().get().getDegrees(), kDelta);
+        assertEquals(60, sample5.getHeading().getDegrees(), kDelta);
+
+        Pose2dWithMotion sample6 = path.sample(60);
+        assertEquals(36, sample6.getPose().getX(), kDelta);
+        assertEquals(23.585, sample6.getPose().getY(), kDelta);
+        assertEquals(1.006, sample6.getCourse().get().getDegrees(), kDelta);
+        assertEquals(60, sample6.getHeading().getDegrees(), kDelta);
+
+        // halfway between the last two points, the path sags a little,
+        // and it's a little longer, so this is not (48,0)
+        Pose2dWithMotion sample72 = path.sample(72.0);
+        assertEquals(45.097, sample72.getPose().getX(), kDelta);
+        assertEquals(17.379, sample72.getPose().getY(), kDelta);
+
+        // course should be +x
+        assertEquals(0, sample72.getCourse().get().getDegrees(), kDelta);
+
+        // heading should be about 135 degrees, but because of the longer
+        // paths, we're not quite to the center of the arc yet
+        assertEquals(107.905, sample72.getHeading().getDegrees(), kDelta);
+
+        Pose2dWithMotion sample8 = path.sample(84);
+        assertEquals(56.440, sample8.getPose().getX(), kDelta);
+        assertEquals(19.939, sample8.getPose().getY(), kDelta);
+        assertEquals(0, sample8.getCourse().get().getDegrees(), kDelta);
+        assertEquals(157.525, sample8.getHeading().getDegrees(), kDelta);
+
     }
 }

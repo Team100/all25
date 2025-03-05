@@ -1,16 +1,82 @@
-package org.team100.lib.spline;
+package org.team100.lib.path;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.spline.HolonomicSpline;
+import org.team100.lib.spline.SplineUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 
-public class SplineGenerator {
+public class PathFactory {
+
+    public static Path100 pathFromWaypoints(
+            List<HolonomicPose2d> waypoints,
+            double maxDx,
+            double maxDy,
+            double maxDTheta,
+            final List<Double> mN) {
+        List<HolonomicSpline> splines = new ArrayList<>(waypoints.size() - 1);
+        for (int i = 1; i < waypoints.size(); ++i) {
+            splines.add(
+                    new HolonomicSpline(
+                            waypoints.get(i - 1),
+                            waypoints.get(i),
+                            mN.get(i)));
+        }
+        // does not force C1, theta responds too much
+        // SplineUtil.forceC1(splines);
+        SplineUtil.optimizeSpline(splines);
+        return new Path100(PathFactory.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+    }
+
+    public static Path100 pathFromWaypoints(
+            List<HolonomicPose2d> waypoints,
+            double maxDx,
+            double maxDy,
+            double maxDTheta) {
+        List<HolonomicSpline> splines = new ArrayList<>(waypoints.size() - 1);
+        for (int i = 1; i < waypoints.size(); ++i) {
+            splines.add(new HolonomicSpline(waypoints.get(i - 1), waypoints.get(i)));
+        }
+        // does not force C1, theta responds too much
+        // SplineUtil.forceC1(splines);
+        SplineUtil.optimizeSpline(splines);
+        return new Path100(PathFactory.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+    }
+
+    /**
+     * Make a spline from points without any control points -- the spline will go
+     * through the points, computing appropriate (maybe) control points to do so.
+     */
+    public static Path100 withoutControlPoints(
+            final List<Pose2d> waypoints,
+            double maxDx,
+            double maxDy,
+            double maxDTheta) {
+        List<HolonomicSpline> splines = new ArrayList<>(waypoints.size() - 1);
+        // first make a series of straight lines, with corners at the waypoints
+        for (int i = 1; i < waypoints.size(); ++i) {
+            Translation2d p0 = waypoints.get(i - 1).getTranslation();
+            Translation2d p1 = waypoints.get(i).getTranslation();
+            Rotation2d course = p1.minus(p0).getAngle();
+            splines.add(new HolonomicSpline(
+                    new HolonomicPose2d(p0, waypoints.get(i - 1).getRotation(), course),
+                    new HolonomicPose2d(p1, waypoints.get(i).getRotation(), course)));
+        }
+        // then adjust the control points to make it C1 smooth
+        SplineUtil.forceC1(splines);
+        // then try to make it C2 smooth
+        SplineUtil.optimizeSpline(splines);
+        return new Path100(PathFactory.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
+    }
+
     /**
      * Converts a spline into a list of Pose2dWithMotion.
      * 
@@ -18,14 +84,14 @@ public class SplineGenerator {
      * the specified tolerance (dx, dy, dtheta) of the actual spline.
      * 
      * The trajectory scheduler consumes these points, interpolating between them
-     * with straight lines.  It might be better to sample the spline directly.
+     * with straight lines. It might be better to sample the spline directly.
      *
      * @param s  the spline to parametrize
      * @param t0 starting percentage of spline to parametrize
      * @param t1 ending percentage of spline to parametrize
      * @return list of Pose2dWithCurvature that approximates the original spline
      */
-    public static List<Pose2dWithMotion> parameterizeSpline(
+    static List<Pose2dWithMotion> parameterizeSpline(
             HolonomicSpline s,
             double maxDx,
             double maxDy,
@@ -36,7 +102,7 @@ public class SplineGenerator {
         rv.add(s.getPose2dWithMotion(0.0));
         double dt = (t1 - t0);
         for (double t = 0; t < t1; t += dt) {
-            getSegmentArc(s, rv, t, t + dt, maxDx, maxDy, maxDTheta);
+            PathFactory.getSegmentArc(s, rv, t, t + dt, maxDx, maxDy, maxDTheta);
         }
         return rv;
     }
@@ -93,8 +159,5 @@ public class SplineGenerator {
         } else {
             rv.add(s.getPose2dWithMotion(t1));
         }
-    }
-
-    private SplineGenerator() {
     }
 }

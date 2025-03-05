@@ -7,7 +7,7 @@ import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
-import org.team100.lib.path.PathPlanner;
+import org.team100.lib.path.PathFactory;
 import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.ScheduleGenerator;
 import org.team100.lib.util.Util;
@@ -140,7 +140,7 @@ public class TrajectoryPlanner {
             double end_vel) {
         try {
             // Create a path from splines.
-            Path100 path = PathPlanner.pathFromWaypoints(
+            Path100 path = PathFactory.pathFromWaypoints(
                     waypoints, kMaxDx, kMaxDy, kMaxDTheta);
             // Generate the timed trajectory.
             return m_scheduleGenerator.timeParameterizeTrajectory(
@@ -165,7 +165,7 @@ public class TrajectoryPlanner {
             List<Double> mN) {
         try {
             // Create a path from splines.
-            Path100 path = PathPlanner.pathFromWaypoints(
+            Path100 path = PathFactory.pathFromWaypoints(
                     waypoints, kMaxDx, kMaxDy, kMaxDTheta, mN);
             // Generate the timed trajectory.
             return m_scheduleGenerator.timeParameterizeTrajectory(

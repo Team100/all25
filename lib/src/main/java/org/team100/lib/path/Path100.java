@@ -84,29 +84,6 @@ public class Path100 {
         throw new ScheduleGenerator.TimingException();
     }
 
-    public Pose2dWithMotion getInterpolated(final double index) {
-        if (isEmpty()) {
-            return null;
-        } else if (index <= 0.0) {
-            Pose2dWithMotion point = getPoint(0);
-            return point;
-        } else if (index >= length() - 1) {
-            Pose2dWithMotion point = getPoint(length() - 1);
-            return point;
-        }
-        final int i = (int) Math.floor(index);
-        final double frac = index - i;
-        if (frac <= Double.MIN_VALUE) {
-            Pose2dWithMotion point = getPoint(i);
-            return point;
-        } else if (frac >= 1.0 - Double.MIN_VALUE) {
-            Pose2dWithMotion point = getPoint(i + 1);
-            return point;
-        } else {
-            return getPoint(i).interpolate(getPoint(i + 1), frac);
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
