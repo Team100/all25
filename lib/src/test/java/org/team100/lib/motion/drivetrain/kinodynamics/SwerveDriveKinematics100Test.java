@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.util.DriveUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -67,7 +66,7 @@ class SwerveDriveKinematics100Test {
         assertEquals(0, twist.dtheta, kDelta);
 
         // it transforms the starting pose correctly
-        Pose2d pStart = new Pose2d(0.5, 0.5, GeometryUtil.kRotationZero);
+        Pose2d pStart = new Pose2d(0.5, 0.5, Rotation2d.kZero);
         Pose2d pEnd = pStart.exp(twist);
         assertEquals(-0.5, pEnd.getX(), kDelta);
         assertEquals(0.5, pEnd.getY(), kDelta);
@@ -83,8 +82,8 @@ class SwerveDriveKinematics100Test {
                 new Translation2d(-0.5, 0.5),
                 new Translation2d(-0.5, -0.5));
 
-        Pose2d pStart = new Pose2d(0.5, 0.5, GeometryUtil.kRotationZero);
-        Pose2d pEnd = new Pose2d(-0.5, 1.5, GeometryUtil.kRotationZero);
+        Pose2d pStart = new Pose2d(0.5, 0.5, Rotation2d.kZero);
+        Pose2d pEnd = new Pose2d(-0.5, 1.5, Rotation2d.kZero);
         Twist2d t = pStart.log(pEnd);
         assertEquals(-1, t.dx, kDelta);
         assertEquals(1, t.dy, kDelta);
@@ -210,7 +209,7 @@ class SwerveDriveKinematics100Test {
                 Math.PI / 2);
 
         // check that the exp is correct
-        Pose2d pStart = new Pose2d(0.5, 0.5, GeometryUtil.kRotationZero);
+        Pose2d pStart = new Pose2d(0.5, 0.5, Rotation2d.kZero);
         Pose2d pEnd = pStart.exp(t);
         assertEquals(-0.5, pEnd.getX(), kDelta);
         assertEquals(0.5, pEnd.getY(), kDelta);

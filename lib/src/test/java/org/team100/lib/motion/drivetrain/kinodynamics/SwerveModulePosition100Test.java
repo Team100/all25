@@ -7,15 +7,16 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.kinodynamics.struct.SwerveModulePosition100Struct;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 
 class SwerveModulePosition100Test {
     @Test
     void testStruct() {
         SwerveModulePosition100Struct s = SwerveModulePosition100.struct;
         ByteBuffer bb = ByteBuffer.allocate(s.getSize());
-        SwerveModulePosition100 p = new SwerveModulePosition100(1, Optional.of(GeometryUtil.kRotationZero));
+        SwerveModulePosition100 p = new SwerveModulePosition100(1, Optional.of(Rotation2d.kZero));
         s.pack(bb, p);
         assertEquals(0, bb.remaining());
         // distance = 8

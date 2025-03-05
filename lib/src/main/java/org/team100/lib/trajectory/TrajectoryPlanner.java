@@ -3,7 +3,7 @@ package org.team100.lib.trajectory;
 import java.util.List;
 import java.util.function.Function;
 
-import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
@@ -30,17 +30,17 @@ public class TrajectoryPlanner {
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
 
-    private final ScheduleGenerator u;
+    private final ScheduleGenerator m_scheduleGenerator;
 
     public TrajectoryPlanner(List<TimingConstraint> constraints) {
-        u = new ScheduleGenerator(constraints);
+        m_scheduleGenerator = new ScheduleGenerator(constraints);
     }
 
     /** A square counterclockwise starting with +x. */
     public List<Trajectory100> square(Pose2d p0) {
-        Pose2d p1 = p0.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
-        Pose2d p2 = p0.plus(new Transform2d(1, 1, GeometryUtil.kRotationZero));
-        Pose2d p3 = p0.plus(new Transform2d(0, 1, GeometryUtil.kRotationZero));
+        Pose2d p1 = p0.plus(new Transform2d(1, 0, Rotation2d.kZero));
+        Pose2d p2 = p0.plus(new Transform2d(1, 1, Rotation2d.kZero));
+        Pose2d p3 = p0.plus(new Transform2d(0, 1, Rotation2d.kZero));
         return List.of(
                 restToRest(p0, p1),
                 restToRest(p1, p2),
@@ -51,70 +51,58 @@ public class TrajectoryPlanner {
     /** Make a square that gets a reset starting point at each corner. */
     public List<Function<Pose2d, Trajectory100>> permissiveSquare() {
         return List.of(
-                x -> restToRest(x, x.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(0, 1, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(-1, 0, GeometryUtil.kRotationZero))),
-                x -> restToRest(x, x.plus(new Transform2d(0, -1, GeometryUtil.kRotationZero))));
+                x -> restToRest(x, x.plus(new Transform2d(1, 0, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(0, 1, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(-1, 0, Rotation2d.kZero))),
+                x -> restToRest(x, x.plus(new Transform2d(0, -1, Rotation2d.kZero))));
     }
 
     /** From current to x+1 */
     public Trajectory100 line(Pose2d initial) {
         return restToRest(
                 initial,
-                initial.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero)));
+                initial.plus(new Transform2d(1, 0, Rotation2d.kZero)));
     }
 
-    public Trajectory100 restToRest(
-            List<Pose2d> waypoints,
-            List<Rotation2d> headings) {
-        return generateTrajectory(
-                waypoints,
-                headings,
-                0.0,
-                0.0);
+    public Trajectory100 restToRest(List<HolonomicPose2d> waypoints) {
+        return generateTrajectory(waypoints, 0.0, 0.0);
     }
 
-    public Trajectory100 restToRest(
-            List<Pose2d> waypoints,
-            List<Rotation2d> headings,
-            List<Double> mN) {
-        return generateTrajectory(
-                waypoints,
-                headings,
-                0.0,
-                0.0,
-                mN);
+    public Trajectory100 restToRest(List<HolonomicPose2d> waypoints, List<Double> mN) {
+        return generateTrajectory(waypoints, 0.0, 0.0, mN);
     }
 
     public Trajectory100 movingToRest(SwerveModel startState, Pose2d end) {
-        if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON) {
-            return restToRest(startState.pose(), end);
-        }
+        return movingToMoving(startState, new SwerveModel(end));
+    }
 
+    public Trajectory100 movingToMoving(SwerveModel startState, SwerveModel endState) {
+
+        if (Math.abs(startState.velocity().norm()) < VELOCITY_EPSILON
+                && Math.abs(endState.velocity().norm()) < VELOCITY_EPSILON) {
+            return restToRest(startState.pose(), endState.pose());
+        }
         Translation2d currentTranslation = startState.translation();
         FieldRelativeVelocity currentSpeed = startState.velocity();
+        FieldRelativeVelocity endSpeed = endState.velocity();
 
-        Translation2d goalTranslation = end.getTranslation();
+        Translation2d goalTranslation = endState.translation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-
-        // if we don't have a valid course, then just use the angle to the goal
         Rotation2d startingAngle = currentSpeed.angle().orElse(angleToGoal);
-
         try {
             return generateTrajectory(
                     List.of(
-                            new Pose2d(
+                            new HolonomicPose2d(
                                     currentTranslation,
+                                    startState.rotation(),
                                     startingAngle),
-                            new Pose2d(
+                            new HolonomicPose2d(
                                     goalTranslation,
+                                    endState.rotation(),
                                     angleToGoal)),
-                    List.of(
-                            startState.pose().getRotation(),
-                            end.getRotation()),
-                    currentSpeed.norm(),
-                    0);
+                    Math.abs(currentSpeed.norm()),
+                    endSpeed.norm());
         } catch (TrajectoryGenerationException e) {
             Util.warn("Trajectory Generation Exception");
             return new Trajectory100();
@@ -134,9 +122,8 @@ public class TrajectoryPlanner {
         try {
             return restToRest(
                     List.of(
-                            new Pose2d(currentTranslation, angleToGoal),
-                            new Pose2d(goalTranslation, angleToGoal)),
-                    List.of(start.getRotation(), end.getRotation()));
+                            new HolonomicPose2d(currentTranslation, start.getRotation(), angleToGoal),
+                            new HolonomicPose2d(goalTranslation, end.getRotation(), angleToGoal)));
         } catch (TrajectoryGenerationException e) {
             return null;
         }
@@ -146,16 +133,15 @@ public class TrajectoryPlanner {
      * If you want a max velocity or max accel constraint, use ConstantConstraint.
      */
     public Trajectory100 generateTrajectory(
-            List<Pose2d> waypoints,
-            List<Rotation2d> headings,
+            List<HolonomicPose2d> waypoints,
             double start_vel,
             double end_vel) {
         try {
             // Create a path from splines.
-            Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
-                    waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta);
+            Path100 path = PathPlanner.pathFromWaypoints(
+                    waypoints, kMaxDx, kMaxDy, kMaxDTheta);
             // Generate the timed trajectory.
-            return u.timeParameterizeTrajectory(
+            return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
                     kMaxDx,
                     start_vel,
@@ -171,17 +157,37 @@ public class TrajectoryPlanner {
     }
 
     public Trajectory100 generateTrajectory(
-            List<Pose2d> waypoints,
-            List<Rotation2d> headings,
+            Path100 path,
+            double start_vel,
+            double end_vel) {
+        try {
+            // Generate the timed trajectory.
+            return m_scheduleGenerator.timeParameterizeTrajectory(
+                    path,
+                    kMaxDx,
+                    start_vel,
+                    end_vel);
+        } catch (IllegalArgumentException e) {
+            // catches various kinds of malformed input, returns a no-op.
+            // this should never actually happen.
+            Util.warn("Bad trajectory input!!");
+            // print the stack trace if you want to know who is calling
+            // e.printStackTrace();
+            return new Trajectory100();
+        }
+    }
+
+    public Trajectory100 generateTrajectory(
+            List<HolonomicPose2d> waypoints,
             double start_vel,
             double end_vel,
             List<Double> mN) {
         try {
             // Create a path from splines.
-            Path100 path = PathPlanner.pathFromWaypointsAndHeadings(
-                    waypoints, headings, kMaxDx, kMaxDy, kMaxDTheta, mN);
+            Path100 path = PathPlanner.pathFromWaypoints(
+                    waypoints, kMaxDx, kMaxDy, kMaxDTheta, mN);
             // Generate the timed trajectory.
-            return u.timeParameterizeTrajectory(
+            return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
                     kMaxDx,
                     start_vel,

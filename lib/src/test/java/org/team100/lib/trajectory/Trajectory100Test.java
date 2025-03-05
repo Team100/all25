@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.timing.TimedPose;
@@ -24,26 +24,22 @@ class Trajectory100Test {
 
     @Test
     void testPreviewAndAdvance() {
-        SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
-        Pose2d start = GeometryUtil.kPoseZero;
-        Pose2d end = start.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
+        Pose2d start = Pose2d.kZero;
+        Pose2d end = start.plus(new Transform2d(1, 0, Rotation2d.kZero));
 
         Translation2d currentTranslation = start.getTranslation();
         Translation2d goalTranslation = end.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(currentTranslation, angleToGoal),
-                new Pose2d(goalTranslation, angleToGoal));
-
-        List<Rotation2d> headings = List.of(
-                start.getRotation(),
-                end.getRotation());
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(currentTranslation, start.getRotation(), angleToGoal),
+                new HolonomicPose2d(goalTranslation,end.getRotation(), angleToGoal));
 
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
+        Trajectory100 trajectory = planner.restToRest(waypoints);
 
         TimedPose sample = trajectory.sample(0);
         assertEquals(0, sample.state().getPose().getX(), kDelta);
@@ -61,25 +57,21 @@ class Trajectory100Test {
     @Test
     void testSample() {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
-        Pose2d start = GeometryUtil.kPoseZero;
-        Pose2d end = start.plus(new Transform2d(1, 0, GeometryUtil.kRotationZero));
+        Pose2d start = Pose2d.kZero;
+        Pose2d end = start.plus(new Transform2d(1, 0, Rotation2d.kZero));
 
         Translation2d currentTranslation = start.getTranslation();
         Translation2d goalTranslation = end.getTranslation();
         Translation2d translationToGoal = goalTranslation.minus(currentTranslation);
         Rotation2d angleToGoal = translationToGoal.getAngle();
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(currentTranslation, angleToGoal),
-                new Pose2d(goalTranslation, angleToGoal));
-
-        List<Rotation2d> headings = List.of(
-                start.getRotation(),
-                end.getRotation());
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(currentTranslation, start.getRotation(), angleToGoal),
+                new HolonomicPose2d(goalTranslation, end.getRotation(), angleToGoal));
 
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
+        Trajectory100 trajectory = planner.restToRest(waypoints);
 
         assertEquals(1.415, trajectory.duration(), kDelta);
         TimedPose sample = trajectory.sample(0);
@@ -96,19 +88,15 @@ class Trajectory100Test {
     @Test
     void testSampleThoroughly() {
 
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(1, 0), GeometryUtil.kRotationZero));
-
-        List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotationZero);
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), Rotation2d.kZero, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kZero));
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
+        Trajectory100 trajectory = planner.restToRest(waypoints);
 
         assertEquals(1.415, trajectory.duration(), kDelta);
         assertEquals(0.000, trajectory.sample(0).state().getPose().getX(), kDelta);
@@ -131,38 +119,35 @@ class Trajectory100Test {
 
     @Test
     void testSampleThoroughlyWithRotation() {
-
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(1, 0), GeometryUtil.kRotationZero));
-
-        List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotation90);
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), Rotation2d.kZero, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kCCW_Pi_2, Rotation2d.kZero));
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
+        Trajectory100 trajectory = planner.restToRest(waypoints);
 
-        assertEquals(1.435, trajectory.duration(), kDelta);
+        assertEquals(1.621, trajectory.duration(), kDelta);
         assertEquals(0.000, trajectory.sample(0).state().getPose().getX(), kDelta);
         assertEquals(0.010, trajectory.sample(0.1).state().getPose().getX(), kDelta);
         assertEquals(0.040, trajectory.sample(0.2).state().getPose().getX(), kDelta);
         assertEquals(0.090, trajectory.sample(0.3).state().getPose().getX(), kDelta);
         assertEquals(0.160, trajectory.sample(0.4).state().getPose().getX(), kDelta);
-        assertEquals(0.249, trajectory.sample(0.5).state().getPose().getX(), kDelta);
-        assertEquals(0.357, trajectory.sample(0.6).state().getPose().getX(), kDelta);
-        assertEquals(0.480, trajectory.sample(0.7).state().getPose().getX(), kDelta);
-        assertEquals(0.599, trajectory.sample(0.8).state().getPose().getX(), kDelta);
-        assertEquals(0.716, trajectory.sample(0.9).state().getPose().getX(), kDelta);
-        assertEquals(0.812, trajectory.sample(1).state().getPose().getX(), kDelta);
-        assertEquals(0.889, trajectory.sample(1.1).state().getPose().getX(), kDelta);
-        assertEquals(0.946, trajectory.sample(1.2).state().getPose().getX(), kDelta);
-        assertEquals(0.982, trajectory.sample(1.3).state().getPose().getX(), kDelta);
-        assertEquals(0.998, trajectory.sample(1.4).state().getPose().getX(), kDelta);
-        assertEquals(1.000, trajectory.sample(1.5).state().getPose().getX(), kDelta);
+        assertEquals(0.247, trajectory.sample(0.5).state().getPose().getX(), kDelta);
+        assertEquals(0.334, trajectory.sample(0.6).state().getPose().getX(), kDelta);
+        assertEquals(0.416, trajectory.sample(0.7).state().getPose().getX(), kDelta);
+        assertEquals(0.492, trajectory.sample(0.8).state().getPose().getX(), kDelta);
+        assertEquals(0.568, trajectory.sample(0.9).state().getPose().getX(), kDelta);
+        assertEquals(0.649, trajectory.sample(1).state().getPose().getX(), kDelta);
+        assertEquals(0.734, trajectory.sample(1.1).state().getPose().getX(), kDelta);
+        assertEquals(0.824, trajectory.sample(1.2).state().getPose().getX(), kDelta);
+        assertEquals(0.898, trajectory.sample(1.3).state().getPose().getX(), kDelta);
+        assertEquals(0.952, trajectory.sample(1.4).state().getPose().getX(), kDelta);
+        assertEquals(0.986, trajectory.sample(1.5).state().getPose().getX(), kDelta);
+        assertEquals(1.000, trajectory.sample(1.6).state().getPose().getX(), kDelta);
+        assertEquals(1.000, trajectory.sample(1.7).state().getPose().getX(), kDelta);
 
     }
 
@@ -170,21 +155,16 @@ class Trajectory100Test {
     // There's no need to run this all the time
     // @Test
     void testSamplePerformance() {
-        List<Pose2d> waypointsM = List.of(
-                new Pose2d(new Translation2d(), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(10, 0), GeometryUtil.kRotationZero),
-                new Pose2d(new Translation2d(10, 10), GeometryUtil.kRotationZero));
-
-        List<Rotation2d> headings = List.of(
-                GeometryUtil.kRotationZero,
-                GeometryUtil.kRotation90,
-                GeometryUtil.kRotation180);
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), Rotation2d.kZero, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(10, 0), Rotation2d.kCCW_Pi_2, Rotation2d.kZero),
+                new HolonomicPose2d(new Translation2d(10, 10), Rotation2d.kPi, Rotation2d.kZero));
 
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forTest3();
         List<TimingConstraint> constraints = new TimingConstraintFactory(limits).fast();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
 
-        Trajectory100 trajectory = planner.restToRest(waypointsM, headings);
+        Trajectory100 trajectory = planner.restToRest(waypoints);
 
         assertEquals(1851, trajectory.length());
         int reps = 500000;

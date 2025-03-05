@@ -106,9 +106,12 @@ public class SimulatedBareMotor implements BareMotor {
         return m_positionCache.getAsDouble();
     }
 
+    /** resets the caches, so the new value is immediately available. */
     @Override
     public void setEncoderPositionRad(double positionRad) {
-        //
+        m_position = positionRad;
+        m_positionCache.reset();
+        m_velocityCache.reset();
     }
 
     @Override
@@ -121,8 +124,11 @@ public class SimulatedBareMotor implements BareMotor {
         //
     }
 
+    /** resets the caches, so the new value is immediately available. */
     public void reset() {
         m_position = 0;
         m_time = Takt.get();
+        m_positionCache.reset();
+        m_velocityCache.reset();
     }
 }

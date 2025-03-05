@@ -15,7 +15,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
  * For now, this is the simplest thing I could think of.
  */
 public class SwerveDeadband {
-    private static final boolean DEBUG = false;
     /** 1 cm/s */
     private final double m_translationLimit = 0.01;
     /** 0.01 rad/s */

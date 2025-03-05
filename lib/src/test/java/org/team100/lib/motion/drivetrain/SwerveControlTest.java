@@ -5,7 +5,6 @@ package org.team100.lib.motion.drivetrain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -95,7 +94,7 @@ class SwerveControlTest {
     @Test
     void testChassisSpeeds0() {
         SwerveControl state = new SwerveControl(
-                new Pose2d(new Translation2d(0, 0), GeometryUtil.kRotation180),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.kPi),
                 new FieldRelativeVelocity(1, 0, 0));
         ChassisSpeeds speeds = state.chassisSpeeds();
         assertEquals(-1, speeds.vxMetersPerSecond, kDelta);
@@ -106,7 +105,7 @@ class SwerveControlTest {
     @Test
     void testChassisSpeeds1() {
         SwerveControl state = new SwerveControl(
-                new Pose2d(new Translation2d(0, 0), GeometryUtil.kRotation90),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.kCCW_Pi_2),
                 new FieldRelativeVelocity(1, 0, 1));
         ChassisSpeeds speeds = state.chassisSpeeds();
         assertEquals(0, speeds.vxMetersPerSecond, kDelta);

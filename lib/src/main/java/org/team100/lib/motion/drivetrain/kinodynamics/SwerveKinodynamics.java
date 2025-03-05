@@ -1,5 +1,7 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
+import java.util.function.DoubleSupplier;
+
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
@@ -36,9 +38,9 @@ public class SwerveKinodynamics implements Glassy {
     private final double m_wheelbase;
     private final double m_frontoffset;
     private final double m_radius;
-    private final double m_vcg;
+    // VCG is supplied by the elevator subsystem
+    private final DoubleSupplier m_vcg;
     private final SwerveDriveKinematics100 m_kinematics;
-    private final double m_maxCapsizeAccelM_S2;
 
     // configured inputs
     private final double m_maxDriveVelocityM_S;
@@ -51,6 +53,8 @@ public class SwerveKinodynamics implements Glassy {
     private final double m_maxAngleSpeedRad_S;
     private final double m_maxAngleAccelRad_S2;
     private final Profile100 m_steeringProfile;
+    // fulcrum is the distance from the center to the nearest edge.
+    private final double m_fulcrum;
 
     /**
      * @param maxDriveVelocity        module drive speed m/s
@@ -79,7 +83,7 @@ public class SwerveKinodynamics implements Glassy {
             double backtrack,
             double wheelbase,
             double frontoffset,
-            double vcg) {
+            DoubleSupplier vcg) {
         if (fronttrack < 0.1 || backtrack < 0.1)
             throw new IllegalArgumentException();
         if (wheelbase < 0.1)
@@ -89,6 +93,8 @@ public class SwerveKinodynamics implements Glassy {
         m_backtrack = backtrack;
         m_wheelbase = wheelbase;
         m_frontoffset = frontoffset;
+        // fulcrum is the distance from the center to the nearest edge.
+        m_fulcrum = Math.min(Math.min(m_fronttrack, m_backtrack) / 2, m_wheelbase / 2);
         m_vcg = vcg;
         // distance from center to wheel
         m_radius = Math.hypot((fronttrack + backtrack) / 4, m_wheelbase / 2);
@@ -97,10 +103,6 @@ public class SwerveKinodynamics implements Glassy {
                 new Translation2d(m_frontoffset, -m_fronttrack / 2),
                 new Translation2d(m_frontoffset - m_wheelbase, m_backtrack / 2),
                 new Translation2d(m_frontoffset - m_wheelbase, -m_backtrack / 2));
-
-        // fulcrum is the distance from the center to the nearest edge.
-        double fulcrum = Math.min(Math.min(m_fronttrack, m_backtrack) / 2, m_wheelbase / 2);
-        m_maxCapsizeAccelM_S2 = 9.8 * (fulcrum / m_vcg);
 
         m_maxDriveVelocityM_S = maxDriveVelocity;
 
@@ -173,7 +175,7 @@ public class SwerveKinodynamics implements Glassy {
      * vertical center of gravity and frame size.
      */
     public double getMaxCapsizeAccelM_S2() {
-        return m_maxCapsizeAccelM_S2;
+        return 9.8 * (m_fulcrum / m_vcg.getAsDouble());
     }
 
     /**
@@ -236,9 +238,6 @@ public class SwerveKinodynamics implements Glassy {
      * instead of velocities, it is not needed.
      * 
      * It performs inverse discretization and an extra correction.
-     * 
-     * TODO: make sure the callers of this function are doing the right thing with
-     * the result.
      */
     public ChassisSpeeds toChassisSpeedsWithDiscretization(
             SwerveModuleStates moduleStates,

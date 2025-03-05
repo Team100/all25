@@ -5,6 +5,7 @@ import java.util.List;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -50,22 +51,19 @@ public class DriveToPoseWithTrajectoryAndExitVelocity extends Command implements
 
     @Override
     public void initialize() {
-        Translation2d toGoal = m_goal.getTranslation().minus(m_drive.getPose().getTranslation());
-        Pose2d startPose = new Pose2d(m_drive.getPose().getTranslation(), toGoal.getAngle());
+        Pose2d pose = m_drive.getPose();
+        Translation2d toGoal = m_goal.getTranslation().minus(pose.getTranslation());
         FieldRelativeVelocity startVelocity = m_drive.getVelocity();
-        Pose2d startWaypoint = new Pose2d(
-                startPose.getTranslation(),
+        HolonomicPose2d startWaypoint = new HolonomicPose2d(
+                pose.getTranslation(),
+                pose.getRotation(),
                 startVelocity.angle().orElse(toGoal.getAngle()));
-        Pose2d endWaypoint = new Pose2d(
+        HolonomicPose2d endWaypoint = new HolonomicPose2d(
                 m_goal.getTranslation(),
+                m_goal.getRotation(),
                 m_endVelocity.angle().orElse(toGoal.getAngle()));
         Trajectory100 trajectory = m_planner.generateTrajectory(
-                List.of(
-                        startWaypoint,
-                        endWaypoint),
-                List.of(
-                        m_drive.getPose().getRotation(),
-                        m_goal.getRotation()),
+                List.of(startWaypoint, endWaypoint),
                 startVelocity.norm(),
                 m_endVelocity.norm());
 

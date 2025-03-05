@@ -5,7 +5,6 @@
 package org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 
 /** Add your docs here. */
 public record LandingDestinationGroup(Rotation2d landingSpline, Rotation2d destinationSpline) {}

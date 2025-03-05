@@ -1,22 +1,21 @@
 package org.team100.lib.motor;
 
-import java.util.function.DoubleSupplier;
-
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
+import org.team100.lib.util.Memo.DoubleCache;
 import org.team100.lib.util.Util;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -26,12 +25,12 @@ public abstract class CANSparkMotor implements BareMotor {
     protected final RelativeEncoder m_encoder;
     protected final SparkClosedLoopController m_pidController;
     // CACHES
-    private final DoubleSupplier m_encoder_position;
-    private final DoubleSupplier m_encoder_velocity;
-    private final DoubleSupplier m_current;
-    private final DoubleSupplier m_supplyVoltage;
-    private final DoubleSupplier m_output;
-    private final DoubleSupplier m_temp;
+    private final DoubleCache m_encoder_position;
+    private final DoubleCache m_encoder_velocity;
+    private final DoubleCache m_current;
+    private final DoubleCache m_supplyVoltage;
+    private final DoubleCache m_output;
+    private final DoubleCache m_temp;
     // LOGGERS
     private final DoubleLogger m_log_desired_position;
     private final DoubleLogger m_log_desired_speed;
@@ -221,6 +220,8 @@ public abstract class CANSparkMotor implements BareMotor {
      */
     public void resetEncoderPosition() {
         Rev100.warn(() -> m_encoder.setPosition(0));
+        m_encoder_position.reset();
+        m_encoder_velocity.reset();
     }
 
     /**

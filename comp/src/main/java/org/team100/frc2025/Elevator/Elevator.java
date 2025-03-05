@@ -4,36 +4,20 @@
 
 package org.team100.frc2025.Elevator;
 
-import java.lang.Thread.State;
-import java.util.ResourceBundle.Control;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.encoder.AS5048RotaryPositionSensor;
-import org.team100.lib.encoder.CombinedEncoder;
-import org.team100.lib.encoder.EncoderDrive;
-import org.team100.lib.encoder.IncrementalBareEncoder;
-import org.team100.lib.encoder.ProxyRotaryPositionSensor;
-import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
-import org.team100.lib.motion.servo.AngularPositionServo;
-import org.team100.lib.motion.servo.GravityServoInterface;
-import org.team100.lib.motion.servo.OutboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardAngularPositionServoWithoutAbsolute;
-import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.OutboardLinearPositionServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
-import org.team100.lib.state.Control100;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -74,7 +58,8 @@ public class Elevator extends SubsystemBase implements Glassy {
         PIDConstants elevatorPID = PIDConstants.makePositionPID(2);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
+        // 0.05); // TODO CHANGE THESE
         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
 
         int wristSupplyLimit = 60;
@@ -96,7 +81,6 @@ public class Elevator extends SubsystemBase implements Glassy {
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
 
-
                 LinearMechanism starboardMech = new SimpleLinearMechanism(
                         starboardMotor,
                         new Talon6Encoder(starboardLogger, starboardMotor),
@@ -112,13 +96,6 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kElevatorWheelDiamater);
 
                 portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
-
-
-
-                
-
-               
-
 
                 break;
             }
@@ -160,9 +137,13 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void resetWristProfile() {
     }
 
+    /**
+     * TODO: calibrate this in meters
+     */
     public void setPosition(double x) {
-        starboardServo.setPosition(x, 1.3); //54 max
-        portServo.setPosition(x, 1.3); //54 max
+        // TODO: change gravity depending on position (it gets heavier)
+        starboardServo.setPosition(x, 1.3); // 54 max
+        portServo.setPosition(x, 1.3); // 54 max
     }
 
     public void setDutyCycle(double value) {
@@ -172,10 +153,11 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.setDutyCycle(value);
     }
 
+    /**
+     * TODO: calibrate this in meters
+     */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);
     }
-
-   
 
 }

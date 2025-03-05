@@ -18,7 +18,7 @@ from typing import Any, cast
 
 import numpy as np
 from numpy.typing import NDArray
-from picamera2 import CompletedRequest, Picamera2  # type: ignore
+from picamera2 import CompletedRequest, Picamera2, libcamera   # type: ignore
 from picamera2.request import _MappedBuffer  # type: ignore
 from typing_extensions import Buffer, override
 
@@ -163,9 +163,9 @@ class RealCamera(Camera):
         print(self.dist)
         print("SENSOR MODES AVAILABLE")
         pprint(self.cam.sensor_modes)  # type:ignore
-        if identity == Identity.FLIPPED:
+        if (identity == Identity.FLIPPED or identity == Identity.FUNNEL  or identity == Identity.SWERVE_LEFT or identity == Identity.SWERVE_RIGHT):
             # see libcamera/src/libcamera/transform.cpp
-            self.camera_config["transform"] = 3
+            self.camera_config["transform"] = libcamera.Transform(rotation = 0, hflip = True, vflip = True, transpose = False)
 
         print("\nREQUESTED CONFIG")
         print(self.camera_config)

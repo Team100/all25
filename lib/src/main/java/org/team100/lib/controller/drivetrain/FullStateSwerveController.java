@@ -1,6 +1,5 @@
 package org.team100.lib.controller.drivetrain;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeDeltaLogger;
@@ -10,6 +9,8 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.Util;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * Velocity feedforward, proportional feedback on position and velocity.
@@ -128,7 +129,7 @@ public class FullStateSwerveController implements SwerveController {
     FieldRelativeVelocity velocityFeedback(SwerveModel currentPose, SwerveModel currentReference) {
         final FieldRelativeVelocity velocityError = velocityError(currentPose, currentReference);
         m_atReference &= velocityError.norm() < m_xDotTolerance
-                && Math.abs(velocityError.angle().orElse(GeometryUtil.kRotationZero).getRadians()) < m_omegaTolerance;
+                && Math.abs(velocityError.angle().orElse(Rotation2d.kZero).getRadians()) < m_omegaTolerance;
 
         final FieldRelativeVelocity u_VFB = new FieldRelativeVelocity(
                 m_kPCartV * velocityError.x(),

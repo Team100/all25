@@ -1,6 +1,7 @@
 package org.team100.lib.commands.drivetrain;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -20,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * The trajectory is supplied; the supplier is free to ignore the current state.
  */
 public class DriveToPoseWithTrajectory extends Command implements Glassy {
-    private final Pose2d m_goal;
+    private final Supplier<Pose2d> m_goal;
     private final SwerveDriveSubsystem m_drive;
     private final BiFunction<SwerveModel, Pose2d, Trajectory100> m_trajectories;
     private final SwerveController m_controller;
@@ -35,7 +36,7 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
      *                     trajectory between them.
      */
     public DriveToPoseWithTrajectory(
-            Pose2d goal,
+            Supplier<Pose2d> goal,
             SwerveDriveSubsystem drive,
             BiFunction<SwerveModel, Pose2d, Trajectory100> trajectories,
             SwerveController controller,
@@ -50,7 +51,11 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal);
+        m_trajectory = m_trajectories.apply(m_drive.getState(), m_goal.get());
+        if (m_trajectory.isEmpty()) {
+            m_trajectory = null; 
+            return;
+        }
         m_referenceController = new ReferenceController(
                 m_drive,
                 m_controller,
@@ -61,12 +66,13 @@ public class DriveToPoseWithTrajectory extends Command implements Glassy {
 
     @Override
     public void execute() {
+        if (m_trajectory == null) return;
         m_referenceController.execute();
     }
 
     @Override
     public boolean isFinished() {
-        return m_referenceController.isFinished();
+        return m_trajectory == null || m_referenceController.isFinished();
     }
 
     @Override

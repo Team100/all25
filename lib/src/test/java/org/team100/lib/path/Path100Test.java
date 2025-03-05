@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.spline.HolonomicSpline;
 import org.team100.lib.spline.SplineGenerator;
@@ -47,9 +48,10 @@ class Path100Test {
     void testSimple() {
         // spline is in the x direction, no curvature.
         HolonomicSpline spline = new HolonomicSpline(
-                new Pose2d(),
-                new Pose2d(1, 0, new Rotation2d()),
-                new Rotation2d(), new Rotation2d()) {
+                new HolonomicPose2d(
+                        new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(
+                        new Translation2d(1, 0), new Rotation2d(), new Rotation2d())) {
 
             @Override
             public Translation2d getPoint(double t) {
@@ -58,12 +60,12 @@ class Path100Test {
 
             @Override
             public Rotation2d getHeading(double t) {
-                return GeometryUtil.kRotationZero;
+                return Rotation2d.kZero;
             }
 
             @Override
             public Optional<Rotation2d> getCourse(double t) {
-                return Optional.of(GeometryUtil.kRotationZero);
+                return Optional.of(Rotation2d.kZero);
             }
 
             @Override

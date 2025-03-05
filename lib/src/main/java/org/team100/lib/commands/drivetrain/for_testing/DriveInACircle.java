@@ -6,7 +6,6 @@ import java.util.List;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -20,6 +19,7 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -132,7 +132,7 @@ public class DriveInACircle extends Command implements Glassy {
     }
 
     static Translation2d getCenter(Pose2d currentPose, double radiusM) {
-        return currentPose.transformBy(new Transform2d(0, radiusM, GeometryUtil.kRotationZero)).getTranslation();
+        return currentPose.transformBy(new Transform2d(0, radiusM, Rotation2d.kZero)).getTranslation();
     }
 
     static SwerveControl getReference(

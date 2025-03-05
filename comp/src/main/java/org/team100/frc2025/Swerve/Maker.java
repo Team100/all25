@@ -3,18 +3,13 @@ package org.team100.frc2025.Swerve;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStationLeft;
-import org.team100.frc2025.Swerve.Auto.GoToIJLeft;
 import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
-import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate120;
-import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate180;
-import org.team100.frc2025.Swerve.SemiAuto.Hexagon_Nav.Generate60;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.Trajectory100;
@@ -48,69 +43,61 @@ public class Maker {
 
     }
 
-    public Command test() {
-        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
+    public Command embark() {
         final SwerveController holonomicController = SwerveControllerFactory.ridiculous(m_logger);
 
 
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S(),
-                swerveKinodynamics.getMaxDriveAccelerationM_S2(),
+                m_kinodynamics.getMaxDriveVelocityM_S(),
+                m_kinodynamics.getMaxDriveAccelerationM_S2(),
                 0.01, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S(),
-                swerveKinodynamics.getMaxAngleAccelRad_S2(),
+                m_kinodynamics.getMaxAngleSpeedRad_S(),
+                m_kinodynamics.getMaxAngleAccelRad_S2(),
                 0.1); // 5 degrees
+        return new Embark(m_drive, holonomicController, profile);
+    }
 
+    public Command test() {
 
         return new SequentialCommandGroup(
-            new GoToReefDestination(
-                m_logger,
-                m_drive,
-                SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                m_viz,
-                m_kinodynamics,
-                FieldSector.IJ,
-                ReefDestination.RIGHT),
-            new GoToCoralStationLeft(
-                    m_logger,
-                    m_drive,
-                    SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                    m_viz,
-                    m_kinodynamics,
-                    0.25),
-            new GoToReefDestination(
-                    m_logger,
-                    m_drive,
-                    SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                    m_viz,
-                    m_kinodynamics,
-                    FieldSector.KL,
-                    ReefDestination.LEFT),
-            new GoToCoralStationLeft(
-                    m_logger,
-                    m_drive,
-                    SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                    m_viz,
-                    m_kinodynamics,
-                    0),
-            new GoToReefDestination(
-                    m_logger,
-                    m_drive,
-                    SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                    m_viz,
-                    m_kinodynamics,
-                    FieldSector.KL,
-                    ReefDestination.RIGHT)
-        );
-
-        // return new GoToCoralStationLeft(
-        //     m_logger,
-        //     m_drive,
-        //     SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-        //     m_viz,
-        //     m_kinodynamics,
-        //     0.5);
-        // return new Embark(m_drive, holonomicController, profile);
+                new GoToReefDestination(
+                        m_logger,
+                        m_drive,
+                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.IJ,
+                        ReefDestination.RIGHT),
+                new GoToCoralStationLeft(
+                        m_logger,
+                        m_drive,
+                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz,
+                        m_kinodynamics,
+                        0.5),
+                new GoToReefDestination(
+                        m_logger,
+                        m_drive,
+                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.KL,
+                        ReefDestination.LEFT),
+                new GoToCoralStationLeft(
+                        m_logger,
+                        m_drive,
+                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz,
+                        m_kinodynamics,
+                        0),
+                new GoToReefDestination(
+                        m_logger,
+                        m_drive,
+                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.KL,
+                        ReefDestination.RIGHT));
 
     }
 

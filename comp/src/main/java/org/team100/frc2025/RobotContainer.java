@@ -1,10 +1,13 @@
 package org.team100.frc2025;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
-
+import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
@@ -16,7 +19,8 @@ import org.team100.frc2025.Intake.RunOuttake;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
-
+import org.team100.frc2025.Elevator.SetWrist;
+import org.team100.frc2025.Elevator.SetWristSafe;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.RunAlgaeManipulator;
 import org.team100.frc2025.Wrist.SetWrist;
@@ -25,7 +29,7 @@ import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
@@ -44,7 +48,6 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
@@ -67,6 +70,8 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
+import org.team100.lib.timing.ConstantConstraint;
+import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -88,8 +93,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer implements Glassy {
     // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
     // https://www.chiefdelphi.com/t/the-brushless-era-needs-sensible-default-current-limits/461056/51
-    private static final double kDriveCurrentLimit = 50;
-    private static final double kDriveStatorLimit = 100;
+    // https://docs.google.com/document/d/10uXdmu62AFxyolmwtDY8_9UNnci7eVcev4Y64ZS0Aqk
+    // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L195
+    // 2/26/25: Joel updated the supply limit to 90A, see 1678 code above. This is
+    // essentially unlimited, so you'll need to run some other kind of limiter (e.g.
+    // acceleration) to keep from browning out.
+    private static final double kDriveCurrentLimit = 90;
+    private static final double kDriveStatorLimit = 110;
 
     private final SwerveModuleCollection m_modules;
     // private final Command m_auton;
@@ -111,22 +121,26 @@ public class RobotContainer implements Glassy {
         final LevelPoller poller = new LevelPoller(async, logging::setLevel, Level.TRACE);
         Util.printf("Using log level %s\n", poller.getLevel().name());
         Util.println("Do not use TRACE in comp, with NT logging, it will overrun");
-
         final LoggerFactory fieldLogger = logging.fieldLogger;
         final FieldLogger.Log fieldLog = new FieldLogger.Log(fieldLogger);
 
         final LoggerFactory logger = logging.rootLogger;
-
-        final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
-        final DriverControl driverControl = new DriverControlProxy(logger, async);
-        final OperatorControl operatorControl = new OperatorControlProxy(async);
-        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.get();
-
         final LoggerFactory driveLog = logger.child("Drive");
         final LoggerFactory comLog = logger.child("Commands");
         final LoggerFactory elevatorLog = logger.child("Elevator");
 
+        final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
+        final DriverControl driverControl = new DriverControlProxy(logger, async);
+        final OperatorControl operatorControl = new OperatorControlProxy(async);
+
        
+
+        final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
+                .get(() -> VCG.vcg(m_elevator.getPosition()));
+
+        final TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
+                        swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
@@ -143,7 +157,7 @@ public class RobotContainer implements Glassy {
                 driveLog,
                 gyro,
                 m_modules.positions(),
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 Takt.get());
 
         final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
@@ -234,30 +248,41 @@ public class RobotContainer implements Glassy {
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S(),
+                swerveKinodynamics.getMaxDriveVelocityM_S() * 0.5,
                 swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
                 0.01, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S() * 0.5,
-                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.02,
+                swerveKinodynamics.getMaxAngleSpeedRad_S(),
+                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1); // 5 degrees
 
         whileTrue(driverControl::driveToObject,
-                new DriveToPoseWithProfile(
-                        fieldLog,
-                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -2, new Rotation2d(Math.PI / 2))))),
-                        m_drive,
-                        holonomicController,
-                        profile));  
+
+                // new DriveToPoseWithProfile(
+                // fieldLog,
+                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                // 16).get().toPose2d()
+                // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                // m_drive,
+                // holonomicController,
+                // profile));
+                new DriveToPoseWithTrajectory(
+                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         whileTrue(driverControl::driveOneMeter,
-                new DriveToPoseWithProfile(
-                        fieldLog,
-                        () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                        m_drive,
-                        holonomicController,
-                        profile));
+                // new DriveToPoseWithProfile(
+                // fieldLog,
+                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                // 16).get().toPose2d()
+                // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+                // m_drive,
+                // holonomicController,
+                // profile));
+                new DriveToPoseWithTrajectory(
+                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
@@ -277,15 +302,24 @@ public class RobotContainer implements Glassy {
         // test rotating in place
         whileTrue(driverControl::button5,
                 new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
+        // this is joel working on moving-entry trajectories.
+        whileTrue(driverControl::testTrajectory,
+                new DriveToPoseWithTrajectory(
+                        () -> new Pose2d(3, 3, Rotation2d.kZero),
+                        m_drive,
+                        (model, pose) -> planner.movingToRest(model, pose),
+                        holonomicController,
+                        viz));
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
-        onTrue(driverControl::resetRotation180, new SetRotation(m_drive, GeometryUtil.kRotation180));
+        onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         // OPERATOR BUTTONS
         whileTrue(operatorControl::elevate, new RunAlgaeManipulator(m_wrist)); //x
+
         whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
         whileTrue(operatorControl::intake, new SetElevator(m_elevator));
-        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); //b
+        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // b
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));
         // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));

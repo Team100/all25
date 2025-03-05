@@ -90,8 +90,6 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
 
         final Translation2d cartesian_measurement = m_kinematics.forward(measurement.get());
 
-        // TODO: there should be some sort of "kA" here rather than just consuming
-        // the accel value directly.
         final double u1 = MathUtil.clamp(
                 m_lowerFeedback.calculate(
                         new Model100(measurement.get().th1, 0),

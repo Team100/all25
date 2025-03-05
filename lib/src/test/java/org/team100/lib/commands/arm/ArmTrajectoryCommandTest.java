@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -16,6 +15,7 @@ import org.team100.lib.motion.arm.ArmSubsystem;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 
@@ -83,7 +83,7 @@ class ArmTrajectoryCommandTest implements Timeless {
                 armKinematicsM,
                 goal);
         Trajectory.State s = new Trajectory.State();
-        s.poseMeters = new Pose2d(1, 1, GeometryUtil.kRotationZero);
+        s.poseMeters = new Pose2d(1, 1, Rotation2d.kZero);
         ArmAngles r = command.getThetaPosReference(s);
         assertEquals(0, r.th1, kDelta);
         assertEquals(Math.PI / 2, r.th2, kDelta);
@@ -101,7 +101,7 @@ class ArmTrajectoryCommandTest implements Timeless {
                 goal);
         Trajectory.State s = new Trajectory.State();
         // zero rotation means path straight up
-        s.poseMeters = new Pose2d(1, 1, GeometryUtil.kRotationZero);
+        s.poseMeters = new Pose2d(1, 1, Rotation2d.kZero);
         s.velocityMetersPerSecond = 1;
         ArmAngles r = command.getThetaPosReference(s);
         // proximal straight up

@@ -115,7 +115,9 @@ public class ServoFactory {
         ProfiledController controller = new ProfiledController(
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
-                MathUtil::angleModulus);
+                MathUtil::angleModulus,
+                0.05,
+                0.05);
         return new OnboardAngularPositionServo(
                 parent,
                 mech,
@@ -148,7 +150,9 @@ public class ServoFactory {
         ProfiledController controller = new ProfiledController(
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
-                MathUtil::angleModulus);
+                MathUtil::angleModulus,
+                0.05,
+                0.05);
         return new OnboardAngularPositionServo(
                 parent,
                 mech,

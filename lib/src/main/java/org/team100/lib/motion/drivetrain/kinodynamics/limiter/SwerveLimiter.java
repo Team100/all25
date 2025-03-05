@@ -33,7 +33,8 @@ public class SwerveLimiter {
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(dynamics, voltage);
         m_velocityLimiter = new FieldRelativeVelocityLimiter(limit);
         m_capsizeLimiter = new FieldRelativeCapsizeLimiter(dynamics);
-        m_accelerationLimiter = new FieldRelativeAccelerationLimiter(dynamics);
+        // alpha is *really* low: rotating fast can be upsetting.
+        m_accelerationLimiter = new FieldRelativeAccelerationLimiter(dynamics, 0.2);
         m_deadband = new SwerveDeadband();
     }
 

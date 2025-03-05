@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -18,8 +17,8 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -32,7 +31,7 @@ class ManualWithFullStateHeadingTest {
     private static final double kDelta = 0.01;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
-    private Rotation2d desiredRotation = GeometryUtil.kRotationZero;
+    private Rotation2d desiredRotation = Rotation2d.kZero;
 
     @Test
     void testModeSwitching() {
@@ -90,7 +89,7 @@ class ManualWithFullStateHeadingTest {
 
         twist1_1 = new DriverControl.Velocity(1, 0, 0);
 
-        twistM_S = m_manualWithHeading.apply(new SwerveModel(GeometryUtil.kPoseZero, twistM_S), twist1_1);
+        twistM_S = m_manualWithHeading.apply(new SwerveModel(Pose2d.kZero, twistM_S), twist1_1);
         assertNull(m_manualWithHeading.m_goal);
         verify(1, 0, 0, twistM_S);
     }
@@ -113,7 +112,7 @@ class ManualWithFullStateHeadingTest {
         assertEquals(0, m_manualWithHeading.m_thetaSetpoint.v(), kDelta);
 
         // face towards +y
-        desiredRotation = GeometryUtil.kRotation90;
+        desiredRotation = Rotation2d.kCCW_Pi_2;
         // no user input
         final DriverControl.Velocity zeroVelocity = new DriverControl.Velocity(0, 0, 0);
 
@@ -180,11 +179,11 @@ class ManualWithFullStateHeadingTest {
                 new double[] { 1.0, 0.1 });
 
         // currently facing +x
-        Pose2d currentPose = GeometryUtil.kPoseZero;
+        Pose2d currentPose = Pose2d.kZero;
         m_manualWithHeading.reset(new SwerveModel());
 
         // want to face towards +y
-        desiredRotation = GeometryUtil.kRotation90;
+        desiredRotation = Rotation2d.kCCW_Pi_2;
         // no dtheta
 
         // no stick input
@@ -248,7 +247,7 @@ class ManualWithFullStateHeadingTest {
         DriverControl.Velocity twist1_1 = new DriverControl.Velocity(0, 0, 1);
 
         SwerveModel currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 0));
         // no POV
         desiredRotation = null;
@@ -261,7 +260,7 @@ class ManualWithFullStateHeadingTest {
 
         // already going full speed:
         currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
         // gyro indicates the correct speed
         gyro.rate = 2.828;
@@ -273,7 +272,7 @@ class ManualWithFullStateHeadingTest {
         // let go of the stick
         twist1_1 = new DriverControl.Velocity(0, 0, 0);
         currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
         // gyro rate is still full speed.
         gyro.rate = 2.828;
@@ -304,7 +303,7 @@ class ManualWithFullStateHeadingTest {
         DriverControl.Velocity twist1_1 = new DriverControl.Velocity(0, 0, 1);
 
         SwerveModel currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 0));
         // no POV
         desiredRotation = null;
@@ -317,7 +316,7 @@ class ManualWithFullStateHeadingTest {
 
         // already going full speed:
         currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
         // gyro indicates the correct speed
         gyro.rate = 2.828;
@@ -329,7 +328,7 @@ class ManualWithFullStateHeadingTest {
         // let go of the stick
         twist1_1 = new DriverControl.Velocity(0, 0, 0);
         currentState = new SwerveModel(
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 new FieldRelativeVelocity(0, 0, 2.828));
         // gyro rate is still full speed.
         gyro.rate = 2.828;

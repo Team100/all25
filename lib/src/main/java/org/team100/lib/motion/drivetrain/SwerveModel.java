@@ -131,7 +131,6 @@ public class SwerveModel {
 
         // no course means no velocity.
         // this is one of the reasons that pure rotations don't work.
-        // TODO: make pure rotation work
         return new SwerveModel(
                 new Model100(xx, 0),
                 new Model100(yx, 0),

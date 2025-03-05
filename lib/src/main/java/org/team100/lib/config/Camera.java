@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 /**
  * Represents all the cameras. Some may be mounted on one robot, some on
  * another. Keep this up to date when you move cameras around.
+ * Counter-clockwise is positive
+ * x is forward, y is left, and z is up
  */
 public enum Camera {
 
@@ -54,23 +56,47 @@ public enum Camera {
                     new Translation3d(0.2, -0.08, 0.381),
                     new Rotation3d(Math.toRadians(-2), Math.toRadians(11), 0))),
                    
-     /**
-     * Camera bot right april tag detector
+    /**
+     * Right swerve 
      */
-    GLOBAL_RIGHT("364f07fb090a3bf7",
+    SWERVE_RIGHT("06ece53b019a5c2e",
             new Transform3d(
-                    new Translation3d(0.15, -0.095, 0.381),
-                    new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-30)))),
-                   
-     /**
-     * Camera bot left april tag detector
-     */
-    GLOBAL_LEFT("06ece53b019a5c2e",
-            new Transform3d(
-                    new Translation3d(0.15, 0.095, 0.381),
-                    new Rotation3d(0, Math.toRadians(-25), Math.toRadians(20)))),
-                   
+                    new Translation3d(-0.273, -0.302, 0.215),
+                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(-60)))),
+
     
+    /**
+     * Left swerve 
+     */
+    SWERVE_LEFT("8132c256f63bbb4e",
+            new Transform3d(
+                    new Translation3d(-0.273, 0.302, 0.215),
+                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
+
+    /**
+     * Funnal 
+     */
+    FUNNEL("1e5acbaa5a7f9d10",
+            new Transform3d(
+                    new Translation3d(-0.011, -0.202, 0.900),
+                    new Rotation3d(0, Math.toRadians(-25), Math.toRadians(170)))),
+
+    /**
+     * Coral reef left 
+     */
+    CORAL_LEFT("8ddb2ed6c49a9bce",
+    new Transform3d(
+            new Translation3d(0.192, 0.293, 0.821),
+            new Rotation3d(0, Math.toRadians(45), Math.toRadians(-10)))),
+
+            /**
+     * Coral reef right 
+     */
+    CORAL_RIGHT("364f07fb090a3bf7",
+    new Transform3d(
+            new Translation3d(0.192, -0.293, 0.821),
+            new Rotation3d(0, Math.toRadians(45), Math.toRadians(10)))),
+
     TEST1("test1",
             new Transform3d(
                     new Translation3d(),

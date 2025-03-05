@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Optional;
 
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -16,16 +15,17 @@ import org.team100.lib.sensors.MockGyro;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class SwerveDrivePoseEstimator100PerformanceTest {
     private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
-    private final Pose2d visionRobotPoseMeters = new Pose2d(1, 0, GeometryUtil.kRotationZero);
+    private final Pose2d visionRobotPoseMeters = new Pose2d(1, 0, Rotation2d.kZero);
 
     static SwerveModulePositions p(double x) {
-        SwerveModulePosition100 m = new SwerveModulePosition100(x, Optional.of(GeometryUtil.kRotationZero));
+        SwerveModulePosition100 m = new SwerveModulePosition100(x, Optional.of(Rotation2d.kZero));
         return new SwerveModulePositions(m, m, m, m);
     }
 
@@ -61,14 +61,14 @@ public class SwerveDrivePoseEstimator100PerformanceTest {
                 logger,
                 new MockGyro(),
                 p(0),
-                GeometryUtil.kPoseZero,
+                Pose2d.kZero,
                 0);
 
         // fill the buffer with odometry
         double t = 0.0;
         double duration = SwerveDrivePoseEstimator100.kBufferDuration;
         while (t < duration) {
-            poseEstimator.put(t, GeometryUtil.kRotationZero, 0, p(t));
+            poseEstimator.put(t, Rotation2d.kZero, 0, p(t));
             t += 0.02;
         }
         assertEquals(11, poseEstimator.size());

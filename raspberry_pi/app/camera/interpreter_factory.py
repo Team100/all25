@@ -48,10 +48,12 @@ class InterpreterFactory:
                 | Identity.LEFTAMP
                 | Identity.SHOOTER
                 | Identity.GLOBAL_GAME_PIECE 
-                | Identity.GLOBAL_LEFT
-                | Identity.GLOBAL_RIGHT
+                | Identity.CORAL_RIGHT
+                | Identity.CORAL_LEFT
+                | Identity.SWERVE_RIGHT
+                | Identity.SWERVE_LEFT
+                | Identity.FUNNEL
                 | Identity.DEV
-                | Identity.DEV2
                 | Identity.DIST_TEST
             ):
                 display = RealDisplay(

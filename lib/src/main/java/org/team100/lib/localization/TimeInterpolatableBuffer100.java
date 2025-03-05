@@ -42,6 +42,8 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
      * Remove stale entries and add the new one.
      */
     public void put(double timeS, T value) {
+        if (DEBUG)
+            Util.printf("put %f %s\n", timeS, value);
         try {
             // wait for in-progress double-reads
             m_lock.readLock().lock();
@@ -64,6 +66,8 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
      * Remove all entries and add the new one.
      */
     public void reset(double timeS, T value) {
+        if (DEBUG)
+            Util.printf("reset %f %s\n", timeS, value);
         try {
             // wait for in-progress double-reads
             m_lock.readLock().lock();
@@ -111,6 +115,8 @@ public final class TimeInterpolatableBuffer100<T extends Interpolatable<T>> impl
         double timeSinceBottom = timeSeconds - bottomBound.getKey();
         double timeSpan = topBound.getKey() - bottomBound.getKey();
         double timeFraction = timeSinceBottom / timeSpan;
+        if (DEBUG)
+            Util.printf("interpolate %f\n", timeFraction);
         return bottomBound.getValue().interpolate(topBound.getValue(), timeFraction);
 
     }

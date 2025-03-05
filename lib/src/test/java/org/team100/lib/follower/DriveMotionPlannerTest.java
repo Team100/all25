@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -34,19 +35,18 @@ class DriveMotionPlannerTest implements Timeless {
 
     @Test
     void testFieldRelativeTrajectory() {
-        List<Pose2d> waypoints = new ArrayList<>();
-        List<Rotation2d> headings = new ArrayList<>();
-        waypoints.add(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(0)));
-        headings.add(Rotation2d.fromDegrees(180));
-        waypoints.add(new Pose2d(100, 4, Rotation2d.fromDegrees(0)));
-        headings.add(Rotation2d.fromDegrees(180));
-        waypoints.add(new Pose2d(196, 13, Rotation2d.fromDegrees(0)));
-        headings.add(Rotation2d.fromDegrees(0));
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
+        waypoints.add(new HolonomicPose2d(
+                new Translation2d(), Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(0)));
+        waypoints.add(new HolonomicPose2d(
+                new Translation2d(100, 4), Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(0)));
+        waypoints.add(new HolonomicPose2d(
+                new Translation2d(196, 13), Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)));
 
         double start_vel = 0.0;
         double end_vel = 0.0;
 
-        Path100 path = PathPlanner.pathFromWaypointsAndHeadings(waypoints, headings, 2, 0.25, 0.1);
+        Path100 path = PathPlanner.pathFromWaypoints(waypoints, 2, 0.25, 0.1);
         assertFalse(path.isEmpty());
 
         double stepSize = 2;
@@ -97,7 +97,6 @@ class DriveMotionPlannerTest implements Timeless {
         }
 
         // this should be exactly right but it's not.
-        // TODO: it's because of the clock skew in the feedback, so fix that.
         assertEquals(195, pose.getTranslation().getX(), 1);
         assertEquals(13, pose.getTranslation().getY(), 0.4);
         assertEquals(0, pose.getRotation().getRadians(), 0.1);

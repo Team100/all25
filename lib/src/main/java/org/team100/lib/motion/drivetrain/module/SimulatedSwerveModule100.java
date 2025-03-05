@@ -96,7 +96,8 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         Profile100 profile = kinodynamics.getSteeringProfile();
 
         ProfiledController controller = new ProfiledController(
-                profile, turningPositionFeedback, MathUtil::angleModulus);
+                profile, turningPositionFeedback, MathUtil::angleModulus,
+                0.05,0.05);
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,
                 turningMech,

@@ -10,10 +10,10 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -56,38 +56,28 @@ public class Generate60 extends Navigator {
         ReefPath path = FieldConstants.findShortestPath(start.getValue(), end.getValue());
         ReefAproach approach = path.approach();
 
-
-        List<Pose2d> waypointsM = new ArrayList<>();
-        List<Rotation2d> headings = new ArrayList<>();
-
-
         Rotation2d initialSpline = destination.minus(currTranslation).getAngle();
 
         Rotation2d endSpline = new Rotation2d(0);
-
-    
 
         Rotation2d anchorPointRotation = FieldConstants.calculateAnchorPointDelta(FieldConstants.getSectorAngle(start),
                 approach);
         Translation2d anchorWaypoint = FieldConstants.getOrbitWaypoint(anchorPointRotation, 2.4);
 
         Translation2d pointToAnchor = anchorWaypoint.minus(FieldConstants.getReefCenter());
-       
 
         Translation2d vectorToAnchorPoint = anchorWaypoint.minus(currTranslation);
 
+        double dotProduct = ((pointToAnchor.getX() / pointToAnchor.getNorm())
+                * (vectorToAnchorPoint.getX() / vectorToAnchorPoint.getNorm()))
+                + ((pointToAnchor.getY() / pointToAnchor.getNorm())
+                        * (vectorToAnchorPoint.getY() / vectorToAnchorPoint.getNorm()));
 
-
-        double dotProduct = ((pointToAnchor.getX()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getX()/vectorToAnchorPoint.getNorm()))
-                + ((pointToAnchor.getY()/pointToAnchor.getNorm()) * (vectorToAnchorPoint.getY()/vectorToAnchorPoint.getNorm()));
-
-        System.out.println(dotProduct);
-
+        // System.out.println(dotProduct);
 
         double distanceToReef = FieldConstants.getDistanceToReefCenter(currTranslation);
 
-
-        if (dotProduct <= 1 && dotProduct >= Math.cos(65 * 180/Math.PI)) {
+        if (dotProduct <= 1 && dotProduct >= Math.cos(65 * 180 / Math.PI)) {
 
             endSpline = FieldConstants.calculateDeltaSplineEnd(FieldConstants.getLandingAngle(end, approach),
                     FieldConstants.getSectorAngle(end), approach, 0.25);
@@ -104,18 +94,19 @@ public class Generate60 extends Navigator {
         double newY = currTranslation.getY() + (distance * initialSpline.getSin());
 
         Translation2d newTranslation = new Translation2d(newX, newY);
-        Pose2d newPose = new Pose2d(newTranslation, initialSpline);
-        Rotation2d rotationToReef = FieldConstants.angleToReefCenter(newPose);
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
+        waypoints.add(new HolonomicPose2d(
+                newTranslation,
+                FieldConstants.angleToReefCenter(newTranslation),
+                initialSpline));
+        waypoints.add(new HolonomicPose2d(
+                destination,
+                FieldConstants.getSectorAngle(end).rotateBy(Rotation2d.k180deg),
+                endSpline));
 
-        waypointsM.add(newPose);
-        waypointsM.add(new Pose2d(destination, endSpline));
+        List<HolonomicPose2d> poseSet = addRobotPose(currentPose, waypoints, initialSpline);
 
-        headings.add(rotationToReef);
-        headings.add(FieldConstants.getSectorAngle(end).rotateBy(Rotation2d.k180deg));
-
-        PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
-
-        return m_planner.restToRest(poseSet.poses(), poseSet.headings());
+        return m_planner.restToRest(poseSet);
 
     }
 

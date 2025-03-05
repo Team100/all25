@@ -3,20 +3,20 @@ package org.team100.lib.reference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ProfileReferenceTest implements Timeless {
     private static final double kDelta = 0.001;
 
     @Test
     void testSimple() {
-        SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, GeometryUtil.kRotationZero));
-        SwerveModel goal = new SwerveModel(new Pose2d(1, 0, GeometryUtil.kRotationZero));
+        SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, Rotation2d.kZero));
+        SwerveModel goal = new SwerveModel(new Pose2d(1, 0, Rotation2d.kZero));
         HolonomicProfile hp = new HolonomicProfile(1, 1, 0.01, 1, 1, 0.01);
         ProfileReference r = new ProfileReference(hp);
         r.setGoal(goal);

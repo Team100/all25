@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -16,10 +16,9 @@ import edu.wpi.first.math.geometry.Twist2d;
 class SplineGeneratorTest {
     @Test
     void test() {
-        Pose2d p1 = new Pose2d(new Translation2d(0, 0), GeometryUtil.kRotationZero);
-        Pose2d p2 = new Pose2d(new Translation2d(15, 10), new Rotation2d(1, 5));
-        HolonomicSpline s = new HolonomicSpline(
-                p1, p2, new Rotation2d(), new Rotation2d());
+        HolonomicPose2d p1 = new HolonomicPose2d(new Translation2d(0, 0), Rotation2d.kZero, Rotation2d.kZero);
+        HolonomicPose2d p2 = new HolonomicPose2d(new Translation2d(15, 10), Rotation2d.kZero, new Rotation2d(1, 5));
+        HolonomicSpline s = new HolonomicSpline(p1, p2);
 
         List<Pose2dWithMotion> samples = SplineGenerator.parameterizeSpline(s, 0.05, 0.05, 0.1, 0.0, 1.0);
 

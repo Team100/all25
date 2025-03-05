@@ -41,7 +41,9 @@ public class OnboardAngularPositionServoTest {
         ProfiledController controller = new ProfiledController(
                 profile,
                 turningFeedback2,
-                MathUtil::angleModulus);
+                MathUtil::angleModulus,
+                0.05,
+                0.05);
         final AngularPositionServo servo = new OnboardAngularPositionServo(
                 logger,
                 mech,

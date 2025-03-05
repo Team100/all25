@@ -28,10 +28,10 @@ public class ScheduleGeneratorTest {
     public static final double kTestEpsilon = 1e-12;
 
     public static final List<Pose2dWithMotion> kWaypoints = Arrays.asList(
-            new Pose2dWithMotion(new Pose2d(new Translation2d(0.0, 0.0), GeometryUtil.kRotationZero)),
-            new Pose2dWithMotion(new Pose2d(new Translation2d(24.0, 0.0), GeometryUtil.kRotationZero)),
-            new Pose2dWithMotion(new Pose2d(new Translation2d(36.0, 12.0), GeometryUtil.kRotationZero)),
-            new Pose2dWithMotion(new Pose2d(new Translation2d(60.0, 12.0), GeometryUtil.kRotationZero)));
+            new Pose2dWithMotion(new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.kZero)),
+            new Pose2dWithMotion(new Pose2d(new Translation2d(24.0, 0.0), Rotation2d.kZero)),
+            new Pose2dWithMotion(new Pose2d(new Translation2d(36.0, 12.0), Rotation2d.kZero)),
+            new Pose2dWithMotion(new Pose2d(new Translation2d(60.0, 12.0), Rotation2d.kZero)));
 
     public static final List<Rotation2d> kHeadings = List.of(
             GeometryUtil.fromDegrees(0),
@@ -100,12 +100,12 @@ public class ScheduleGeneratorTest {
                 new Pose2dWithMotion(
                         new Pose2d(
                                 new Translation2d(0.0, 0.0),
-                                GeometryUtil.kRotationZero),
+                                Rotation2d.kZero),
                         new MotionDirection(0, 0, 1), 0, 0),
                 new Pose2dWithMotion(
                         new Pose2d(
                                 new Translation2d(0.0, 0.0),
-                                GeometryUtil.kRotation180),
+                                Rotation2d.kPi),
                         new MotionDirection(0, 0, 1), 0, 0)));
 
         // Triangle profile.
@@ -162,7 +162,7 @@ public class ScheduleGeneratorTest {
     @Test
     void testCentripetalConstraint() {
         Path100 path = new Path100(kWaypoints);
-        SwerveKinodynamics limits = SwerveKinodynamicsFactory.get();
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
 
         // Triangle profile.
         Trajectory100 timed_traj = buildAndCheckTrajectory(path,

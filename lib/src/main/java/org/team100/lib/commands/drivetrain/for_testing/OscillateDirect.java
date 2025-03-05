@@ -3,7 +3,6 @@ package org.team100.lib.commands.drivetrain.for_testing;
 import java.util.Optional;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -108,37 +107,37 @@ public class OscillateDirect extends Command implements Glassy {
 
     void straight(double speedM_S) {
         m_drive.setRawModuleStates(new SwerveModuleStates (
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FL
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FR
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // RL
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)) // RR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)), // FL
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)), // FR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)), // RL
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)) // RR
         ));
     }
 
     void sideways(double speedM_S) {
         m_drive.setRawModuleStates(new SwerveModuleStates (
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // FL
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // FR
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)), // RL
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotation90)) // RR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kCCW_Pi_2)), // FL
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kCCW_Pi_2)), // FR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kCCW_Pi_2)), // RL
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kCCW_Pi_2)) // RR
         ));
     }
 
     void back(double speedM_S) {
         m_drive.setRawModuleStates(new SwerveModuleStates (
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FL
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FR
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // RL
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)) // RR
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)), // FL
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)), // FR
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)), // RL
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)) // RR
         ));
     }
 
     void skew(double speedM_S) {
         m_drive.setRawModuleStates(new SwerveModuleStates (
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // FL
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)), // FR
-                new SwerveModuleState100(speedM_S, Optional.of(GeometryUtil.kRotationZero)), // RL
-                new SwerveModuleState100(-speedM_S, Optional.of(GeometryUtil.kRotation180)) // RR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)), // FL
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)), // FR
+                new SwerveModuleState100(speedM_S, Optional.of(Rotation2d.kZero)), // RL
+                new SwerveModuleState100(-speedM_S, Optional.of(Rotation2d.kPi)) // RR
         ));
     }
 

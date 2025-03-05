@@ -3,7 +3,6 @@ package org.team100.lib.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.TargetUtil;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -119,7 +118,7 @@ class TargetUtilTest {
     void testTargetMotionYReversed() {
         // in front of the origin, facing back to it, moving 1m/s +y,
         SwerveModel state = new SwerveModel(
-                new Pose2d(1, 0, GeometryUtil.kRotation180),
+                new Pose2d(1, 0, Rotation2d.kPi),
                 new FieldRelativeVelocity(0, 1, 0));
         // target is dead ahead
         Translation2d target = new Translation2d(0, 0);

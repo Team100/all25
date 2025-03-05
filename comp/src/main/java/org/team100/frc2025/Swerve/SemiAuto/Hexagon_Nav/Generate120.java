@@ -10,10 +10,10 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
-import org.team100.lib.trajectory.PoseSet;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
@@ -65,9 +65,6 @@ public class Generate120 extends Navigator {
 
         Translation2d landingZone = FieldConstants.getOrbitLandingZone(end, approach);
 
-        List<Pose2d> waypointsM = new ArrayList<>();
-        List<Rotation2d> headings = new ArrayList<>();
-
         LandingDestinationGroup rotationGroup = FieldConstants.getRotationGroup(approach, end, kEntranceCurveFactor);
 
         Rotation2d initialSpline = calculateInitialSpline(
@@ -82,20 +79,25 @@ public class Generate120 extends Navigator {
         double newY = currTranslation.getY() + (distance * initialSpline.getSin());
 
         Translation2d newTranslation = new Translation2d(newX, newY);
-        Pose2d newPose = new Pose2d(newTranslation, initialSpline);
-        Rotation2d rotationToReef = FieldConstants.angleToReefCenter(newPose);
 
-        waypointsM.add(newPose);
-        waypointsM.add(new Pose2d(landingZone, rotationGroup.landingSpline()));
-        waypointsM.add(new Pose2d(destination, rotationGroup.destinationSpline()));
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
 
-        headings.add(rotationToReef);
-        headings.add(FieldConstants.angleToReefCenter(new Pose2d(landingZone, rotationGroup.landingSpline())));
-        headings.add(FieldConstants.angleToReefCenter(new Pose2d(destination, rotationGroup.destinationSpline())));
+        waypoints.add(new HolonomicPose2d(
+                newTranslation,
+                FieldConstants.angleToReefCenter(newTranslation),
+                initialSpline));
+        waypoints.add(new HolonomicPose2d(
+                landingZone,
+                FieldConstants.angleToReefCenter(landingZone),
+                rotationGroup.landingSpline()));
+        waypoints.add(new HolonomicPose2d(
+                destination,
+                FieldConstants.angleToReefCenter(destination),
+                rotationGroup.destinationSpline()));
 
-        PoseSet poseSet = addRobotPose(currentPose, waypointsM, headings, initialSpline);
+        List<HolonomicPose2d> poseSet = addRobotPose(currentPose, waypoints, initialSpline);
 
-        return m_planner.restToRest(poseSet.poses(), poseSet.headings());
+        return m_planner.restToRest(poseSet);
     }
 
 }

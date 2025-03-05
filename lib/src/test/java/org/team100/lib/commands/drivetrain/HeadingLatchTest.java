@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.state.Model100;
 
@@ -31,7 +30,7 @@ class HeadingLatchTest {
         Experiments.instance.testOverride(Experiment.StickyHeading, false);
         HeadingLatch l = new HeadingLatch();
         Model100 s = new Model100();
-        Rotation2d pov = GeometryUtil.kRotation90;
+        Rotation2d pov = Rotation2d.kCCW_Pi_2;
         DriverControl.Velocity input = new DriverControl.Velocity(0, 0, 0);
         Rotation2d desiredRotation = l.latchedRotation(10, s, pov, input.theta());
         assertEquals(Math.PI / 2, desiredRotation.getRadians(), kDelta);
@@ -45,7 +44,7 @@ class HeadingLatchTest {
         Experiments.instance.testOverride(Experiment.StickyHeading, false);
         HeadingLatch l = new HeadingLatch();
         Model100 s = new Model100();
-        Rotation2d pov = GeometryUtil.kRotation90;
+        Rotation2d pov = Rotation2d.kCCW_Pi_2;
         DriverControl.Velocity input = new DriverControl.Velocity(0, 0, 0);
         Rotation2d desiredRotation = l.latchedRotation(10, s, pov, input.theta());
         assertEquals(Math.PI / 2, desiredRotation.getRadians(), kDelta);
@@ -62,7 +61,7 @@ class HeadingLatchTest {
         Experiments.instance.testOverride(Experiment.StickyHeading, false);
         HeadingLatch l = new HeadingLatch();
         Model100 s = new Model100();
-        Rotation2d pov = GeometryUtil.kRotation90;
+        Rotation2d pov = Rotation2d.kCCW_Pi_2;
         DriverControl.Velocity input = new DriverControl.Velocity(0, 0, 0);
         Rotation2d desiredRotation = l.latchedRotation(10, s, pov, input.theta());
         assertEquals(Math.PI / 2, desiredRotation.getRadians(), kDelta);

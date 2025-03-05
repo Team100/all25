@@ -9,6 +9,8 @@ import org.team100.lib.encoder.DutyCycleRotaryPositionSensor;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
@@ -19,14 +21,19 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
+import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.Profile100;
 
 public class WCPSwerveModule100 extends SwerveModule100 {
-    private static final double kSteeringSupplyLimit = 10;
-    private static final double kSteeringStatorLimit = 20;
+    // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L212
+    // 2/26/25 Joel increased the steering limits *a lot*, they were 10/20, now
+    // 60/80, which may mean it's more imporant now to avoid twitching and
+    // oscillating.
+    private static final double kSteeringSupplyLimit = 60;
+    private static final double kSteeringStatorLimit = 80;
     /**
      * WCP calls this "rotation ratio" here, we use the "flipped belt" which is the
      * fastest steering ratio.
@@ -217,8 +224,6 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 turningOffset,
                 drive);
 
-        Profile100 profile = kinodynamics.getSteeringProfile();
-
         Talon6Encoder builtInEncoder = new Talon6Encoder(
                 parent,
                 turningMotor);
@@ -229,31 +234,35 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 builtInEncoder,
                 gearRatio);
 
-        AngularPositionServo turningServo = getOutboard(
-                parent,
-                turningEncoder,
-                profile,
-                mech);
-        turningServo.reset();
-        return turningServo;
-    }
-
-    private static AngularPositionServo getOutboard(
-            LoggerFactory parent,
-            RotaryPositionSensor turningEncoder,
-            Profile100 profile,
-            RotaryMechanism mech) {
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
                 mech,
                 true);
-        AngularPositionServo servo = new OutboardAngularPositionServo(
+
+        AngularPositionServo turningServo = outboardTurningServo(
+                parent,
+                kinodynamics,
+                mech,
+                combinedEncoder);
+        turningServo.reset();
+        return turningServo;
+    }
+
+    private static AngularPositionServo outboardTurningServo(
+            LoggerFactory parent,
+            SwerveKinodynamics kinodynamics,
+            RotaryMechanism mech,
+            CombinedEncoder combinedEncoder) {
+        if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
+            return new UnprofiledOutboardAngularPositionServo(parent, mech, combinedEncoder);
+        }
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        return new OutboardAngularPositionServo(
                 parent,
                 mech,
                 combinedEncoder,
                 profile);
-        return servo;
     }
 
     private static RotaryPositionSensor turningEncoder(

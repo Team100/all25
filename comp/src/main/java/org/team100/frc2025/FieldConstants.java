@@ -157,8 +157,8 @@ public class FieldConstants {
     return target.getNorm();
   }
 
-  public static Rotation2d angleToReefCenter(Pose2d pose) {
-    Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
+  public static Rotation2d angleToReefCenter(Translation2d t) {
+    Translation2d target = FieldConstants.getReefCenter().minus(t);
     Rotation2d targetAngle = target.getAngle();
     return targetAngle;
   }

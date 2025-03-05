@@ -1,6 +1,8 @@
 package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -53,7 +55,11 @@ public class ReferenceController implements Glassy {
     }
 
     public void execute() {
-        m_aligned = true;
+        if (!Experiments.instance.enabled(Experiment.SteerAtRest)) {
+            // If the experiment is off, override the aligned flag.
+            // TODO: decide whether to keep the "steer at rest" idea. for now, it's off.
+            m_aligned = true;
+        }
         SwerveModel measurement = m_drive.getState();
         if (!m_aligned) {
             // Haven't started the trajectory yet, so use the references from zero.

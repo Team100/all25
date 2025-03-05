@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.logging.LoggerFactory;
@@ -251,12 +250,12 @@ class FullStateSwerveControllerTest implements Timeless {
     void testErrorSideways() {
         FullStateSwerveController controller = new FullStateSwerveController(logger, 2.4, 2.4, 0.0, 0.0, 0.01, 0.02, 0.01, 0.02);
         // measurement is at the origin, facing down y
-        SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, GeometryUtil.kRotation90));
+        SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, Rotation2d.kCCW_Pi_2));
         // motion is in a straight line, down the x axis
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // setpoint is +x, facing down y
         Pose2dWithMotion state = new Pose2dWithMotion(
-                new Pose2d(1, 0, GeometryUtil.kRotation90),
+                new Pose2d(1, 0, Rotation2d.kCCW_Pi_2),
                 motionDirection,
                 0, // no curvature
                 0); // no change in curvature
@@ -362,7 +361,7 @@ class FullStateSwerveControllerTest implements Timeless {
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // setpoint is the same
         Pose2dWithMotion state = new Pose2dWithMotion(
-                new Pose2d(0, 0, GeometryUtil.kRotation90),
+                new Pose2d(0, 0, Rotation2d.kCCW_Pi_2),
                 motionDirection,
                 0, // no curvature
                 0); // no change in curvature
@@ -443,7 +442,7 @@ class FullStateSwerveControllerTest implements Timeless {
     void testFeedbackAheadPlusY() {
         FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is plus-Y, facing ahead
-        Pose2d currentState = new Pose2d(0, 1, GeometryUtil.kRotationZero);
+        Pose2d currentState = new Pose2d(0, 1, Rotation2d.kZero);
         // setpoint is at the origin
         Pose2d setpointPose = new Pose2d();
         // motion is in a straight line, down the x axis
@@ -516,9 +515,9 @@ class FullStateSwerveControllerTest implements Timeless {
         FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
 
         // measurement is at the origin, facing down the y axis
-        Pose2d currentState = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d currentState = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // setpoint is the same
-        Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d setpointPose = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // motion is in a straight line, down the x axis
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
@@ -550,9 +549,9 @@ class FullStateSwerveControllerTest implements Timeless {
     void testFeedbackSidewaysPlusY() {
         FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 0, 0, 0.01, 0.02, 0.01, 0.02);
         // measurement is plus-y, facing down the y axis
-        Pose2d currentState = new Pose2d(0, 1, GeometryUtil.kRotation90);
+        Pose2d currentState = new Pose2d(0, 1, Rotation2d.kCCW_Pi_2);
         // setpoint is parallel at the origin
-        Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d setpointPose = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // motion is in a straight line, down the x axis
         MotionDirection motionDirection = new MotionDirection(1, 0, 0);
         // no curvature
@@ -620,9 +619,9 @@ class FullStateSwerveControllerTest implements Timeless {
         FullStateSwerveController controller = new FullStateSwerveController(logger, 1, 1, 1, 1, 0.01, 0.02, 0.01, 0.02);
 
         // measurement is at the origin, facing +y
-        Pose2d currentPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d currentPose = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // setpoint postion is the same
-        Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d setpointPose = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // motion is in a straight line, down the x axis
         MotionDirection fieldRelativeMotionDirection = new MotionDirection(1, 0, 0);
         // no curvature
@@ -659,11 +658,11 @@ class FullStateSwerveControllerTest implements Timeless {
         // measurement is too slow
         SwerveModel measurement = new SwerveModel(
                 new Pose2d(0.1, 0.1,
-                        GeometryUtil.kRotation90.plus(new Rotation2d(0.1))),
+                        Rotation2d.kCCW_Pi_2.plus(new Rotation2d(0.1))),
                 new FieldRelativeVelocity(0.5, 0, 0));
 
         // setpoint postion is ahead in x and y and theta
-        Pose2d setpointPose = new Pose2d(0, 0, GeometryUtil.kRotation90);
+        Pose2d setpointPose = new Pose2d(0, 0, Rotation2d.kCCW_Pi_2);
         // motion is in a straight line, down the x axis
         MotionDirection fieldRelativeMotionDirection = new MotionDirection(1, 0, 0);
         // no curvature
