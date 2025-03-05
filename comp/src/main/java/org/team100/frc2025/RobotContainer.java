@@ -285,7 +285,7 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));
         whileTrue(driverControl::fullCycle,
-                new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
+                new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile));
 
         whileTrue(driverControl::test,
                 new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));

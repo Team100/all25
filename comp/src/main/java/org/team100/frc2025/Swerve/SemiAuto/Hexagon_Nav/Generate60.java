@@ -79,8 +79,8 @@ public class Generate60 extends Navigator {
 
         if (dotProduct <= 1 && dotProduct >= Math.cos(65 * 180 / Math.PI)) {
 
-            endSpline = FieldConstants.calculateDeltaSplineEnd(FieldConstants.getLandingAngle(end, approach),
-                    FieldConstants.getSectorAngle(end), approach, 0.25);
+            endSpline = FieldConstants.calculateDeltaSpline(FieldConstants.getLandingAngle(end, approach),
+                    FieldConstants.getSectorAngle(end), approach, -0.25);
 
             initialSpline = FieldConstants.calculateDeltaSpline(initialSpline, FieldConstants.getSectorAngle(start),
                     approach, (1 / (distanceToReef)));
