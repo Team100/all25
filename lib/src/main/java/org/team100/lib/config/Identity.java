@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.RobotController;
 public enum Identity {
     TEST_BOARD_B0("030628b0"),
     TEST_BOARD_8D("03063c8d"),
-    // FRC_100_ea4("0306cea4"),
+    FRC_100_ea4("0306cea4"),
     TEST_BOARD_6B("030d286b"),
     DEMO_BOT("03126d76"),
     TEAM100_2018("0313baf3"),
@@ -29,14 +29,14 @@ public enum Identity {
     SQUAREBOT("031e31e3"),
     SWERVE_TWO("0317f285"),
 
-    // COMP_BOT("03238232"), 
+    COMP_BOT("03238232"), 
     SWERVE_ONE("032363AC"), 
 
     DISABLED("disabled"), // for mechanisms which don't exist
     BLANK(""), // e.g. test default or simulation
-    UNKNOWN(null),
-    FRC_100_ea4("03238232"),
-    COMP_BOT("0306cea4");
+    UNKNOWN(null);
+    // FRC_100_ea4("03238232"),
+    // COMP_BOT("0306cea4");
     
     private static final Map<String, Identity> identities = new HashMap<>();
 

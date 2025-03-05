@@ -38,6 +38,10 @@ public class GoToCoralStationLeft extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation = new Translation2d(1.2, 7.15);
 
+
+        Rotation2d newEndingSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, -kScale);
+
+
         Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
 
         Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(bearingToGoal,

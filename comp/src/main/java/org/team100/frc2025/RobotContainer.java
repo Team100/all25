@@ -11,9 +11,20 @@ import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Funnel.RunFunnel;
+import org.team100.frc2025.Intake.AlgaeIntake;
+import org.team100.frc2025.Intake.RunIntake;
+import org.team100.frc2025.Intake.RunOuttake;
+import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.SetWrist;
 import org.team100.frc2025.Elevator.SetWristSafe;
 import org.team100.frc2025.Swerve.FullCycle;
+import org.team100.frc2025.Wrist.RunAlgaeManipulator;
+import org.team100.frc2025.Wrist.SetWrist;
+import org.team100.frc2025.Wrist.SetWristSafe;
 import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
@@ -98,8 +109,8 @@ public class RobotContainer implements Glassy {
 
     final Elevator m_elevator;
     final Wrist m_wrist;
-
     final Climber m_climber;
+    final Funnel m_funnel;
 
     // final AlgaeIntake m_intake;
 
@@ -122,8 +133,7 @@ public class RobotContainer implements Glassy {
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
 
-        m_elevator = new Elevator(elevatorLog, 2, 1);
-        m_wrist = new Wrist(elevatorLog, 3);
+       
 
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
                 .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -162,6 +172,7 @@ public class RobotContainer implements Glassy {
                 m_modules);
 
         SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
+        
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 driveLog,
@@ -172,7 +183,10 @@ public class RobotContainer implements Glassy {
                 limiter);
 
         m_climber = ClimberFactory.get(logger);
+        m_elevator = new Elevator(elevatorLog, 2, 1);
+        m_wrist = new Wrist(elevatorLog, 9, 3, 25);
 
+        m_funnel = new Funnel(logger, 23, 14);
         // m_intake = new AlgaeIntake(logger, 8);
 
         ///////////////////////////
@@ -224,10 +238,10 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        if (m_climber != null) {
-            m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-                    operatorControl::ramp));
-        }
+        // if (m_climber != null) {
+        //     m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+        //             operatorControl::ramp));
+        // }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
         // ObjectPosition24ArrayListener(poseEstimator);
@@ -301,7 +315,8 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::elevate, new SetWristSafe(m_wrist)); // x
+        whileTrue(operatorControl::elevate, new RunAlgaeManipulator(m_wrist)); //x
+
         whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
         whileTrue(operatorControl::intake, new SetElevator(m_elevator));
         whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // b
