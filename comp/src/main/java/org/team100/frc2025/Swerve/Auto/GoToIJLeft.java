@@ -45,17 +45,17 @@ public class GoToIJLeft extends Navigator {
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation = FieldConstants.getOrbitDestination(FieldSector.IJ, ReefDestination.RIGHT);
 
-        Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
+        Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
         waypoints.add(new HolonomicPose2d(
                 currTranslation,
                 currentPose.getRotation(),
-                bearingToGoal));
+                courseToGoal));
         waypoints.add(new HolonomicPose2d(
                 goalTranslation,
                 FieldConstants.getSectorAngle(FieldSector.IJ).rotateBy(Rotation2d.fromDegrees(180)),
-                bearingToGoal));
+                courseToGoal));
 
         return m_planner.restToRest(waypoints);
     }

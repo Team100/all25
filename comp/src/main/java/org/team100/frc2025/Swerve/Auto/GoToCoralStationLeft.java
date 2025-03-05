@@ -42,14 +42,14 @@ public class GoToCoralStationLeft extends Navigator {
         // Rotation2d newEndingSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, -kScale);
 
 
-        Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
+        Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(bearingToGoal,
-                bearingToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
+        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(courseToGoal,
+                courseToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
         waypoints.add(new HolonomicPose2d(currTranslation, currentPose.getRotation(), newInitialSpline));
-        waypoints.add(new HolonomicPose2d(goalTranslation, Rotation2d.fromDegrees(-50), bearingToGoal));
+        waypoints.add(new HolonomicPose2d(goalTranslation, Rotation2d.fromDegrees(-50), courseToGoal));
 
         return m_planner.restToRest(waypoints);
 

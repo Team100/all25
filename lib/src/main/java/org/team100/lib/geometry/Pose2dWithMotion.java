@@ -1,6 +1,5 @@
 package org.team100.lib.geometry;
 
-import java.text.DecimalFormat;
 import java.util.Optional;
 
 import org.team100.lib.util.Math100;
@@ -87,7 +86,9 @@ public class Pose2dWithMotion {
 
         @Override
         public String toString() {
-            return "MotionDirection [norm()=" + norm() + ", course()=" + course() + "]";
+            Optional<Rotation2d> course = course();
+            String courseStr = course.map((x) -> String.format("%5.3f", x.getRadians())).orElse("empty");
+            return String.format("norm: %5.3f, course: %s", norm(), courseStr);
         }
 
     }
@@ -190,11 +191,15 @@ public class Pose2dWithMotion {
     }
 
     public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "pose: " + getPose().toString()
-                + ", direction: " + m_fieldRelativeMotionDirection
-                + ", curvature: " + fmt.format(getCurvature())
-                + ", dcurvature_ds: " + fmt.format(getDCurvatureDs());
+        Pose2d pose = getPose();
+        return String.format(
+                "x %5.3f, y %5.3f, theta %5.3f, direction %s, curvature %5.3f, dcurvature_ds %5.3f",
+                pose.getX(),
+                pose.getY(),
+                pose.getRotation().getRadians(),
+                m_fieldRelativeMotionDirection,
+                getCurvature(),
+                getDCurvatureDs());
     }
 
     /**
