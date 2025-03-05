@@ -77,7 +77,7 @@ public class Maker {
                     SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
                     m_viz,
                     m_kinodynamics,
-                    0.5),
+                    0.25),
             new GoToReefDestination(
                     m_logger,
                     m_drive,
@@ -103,7 +103,13 @@ public class Maker {
                     ReefDestination.RIGHT)
         );
 
-
+        // return new GoToCoralStationLeft(
+        //     m_logger,
+        //     m_drive,
+        //     SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+        //     m_viz,
+        //     m_kinodynamics,
+        //     0.5);
         // return new Embark(m_drive, holonomicController, profile);
 
     }

@@ -7,7 +7,7 @@ public class ClimberFactory {
     
     public static Climber get(LoggerFactory logger) {
         switch (Identity.instance) {
-            case TEST_BOARD_B0:
+            case COMP_BOT:
                 return new Climber(logger,18);
             default:
                 return null;

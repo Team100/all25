@@ -48,9 +48,10 @@ public class GoToCoralStationLeft extends Navigator {
         Rotation2d spline = goalTranslation.minus(currTranslation).getAngle();
 
         Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
+        Rotation2d newEndingSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, -kScale);
 
         waypointsM.add(new Pose2d(currTranslation, newInitialSpline));
-        waypointsM.add(new Pose2d(goalTranslation, spline));
+        waypointsM.add(new Pose2d(goalTranslation, newEndingSpline));
 
         headings.add(currentPose.getRotation());
         headings.add(Rotation2d.fromDegrees(-50));

@@ -33,6 +33,7 @@ import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.OutboardLinearPositionServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
+import org.team100.lib.motor.Neo550Factory;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
@@ -43,42 +44,40 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Wrist extends SubsystemBase implements Glassy {
     /** Creates a new Elevator. */
 
-    private static final double kElevatorReduction = 2; // TODO CHANGE THIS
-    private static final double kElevatorWheelDiamater = 1; // TODO CHANGE THIS
 
-    private static final double kWristReduction = 1; // TODO CHANGE THIS
-    private static final double kWristWheelDiameter = 1; // TODO CHANGE THIS
 
     private final GravityServoInterface wristServo;
+    private final LinearMechanism m_algaeMech;
+    private final LinearMechanism m_coralMech;
 
 
     public Wrist(
             LoggerFactory parent,
-            int wristID) {
+            int wristID,
+            int algaeID,
+            int coralID) {
 
         LoggerFactory child = parent.child(this);
 
         LoggerFactory wristLogger = child.child("Wrist");
 
-
         LoggerFactory wristMotorLogger = child.child("Wrist Motor");
-
 
 
         int wristSupplyLimit = 60;
         int wristStatorLimit = 90;
 
-        PIDConstants wristPID = PIDConstants.makePositionPID(10);
+        int algaeCurrentLimit = 20;
+        int coralCurrentLimit = 20;
+
+        PIDConstants wristPID = PIDConstants.makePositionPID(31 );
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
-        PIDController wristPIDController = new PIDController(wristPID.getPositionP(), wristPID.getPositionI(),
-                wristPID.getPositionD());
-        wristPIDController.setTolerance(0.02);
-        wristPIDController.setIntegratorRange(0, 1);
-        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 20, 0.05); // TODO CHANGE THESE
+
+        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(50, 50, 0.05); // TODO CHANGE THESE
 
         switch (Identity.instance) {
-            case FRC_100_ea4 -> {
+            case COMP_BOT -> {
                 
                 Kraken6Motor wristMotor = new Kraken6Motor(wristMotorLogger, wristID, MotorPhase.REVERSE, 
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
@@ -88,7 +87,7 @@ public class Wrist extends SubsystemBase implements Glassy {
              
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
-                        9,
+                        5,
                         0.139409,
                         EncoderDrive.DIRECT,
                         false);
@@ -104,6 +103,10 @@ public class Wrist extends SubsystemBase implements Glassy {
 
 
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 4, 0);
+
+                m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.REVERSE, 1);
+                m_coralMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, coralCurrentLimit, coralID, 1, MotorPhase.REVERSE, 1);
+
                 break;
             }
             default -> {
@@ -118,6 +121,9 @@ public class Wrist extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServo(child, wristMech,
                         combinedEncoder, wristProfile);
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 0, 0);
+
+                m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
+                m_coralMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, coralCurrentLimit, coralID, 1, MotorPhase.FORWARD, 1);
             }
 
         }
@@ -142,7 +148,7 @@ public class Wrist extends SubsystemBase implements Glassy {
     }
 
     public void setAngle(){
-        Control100 control = new Control100(3.985623, 0, 0); //1.17 for l3
+        Control100 control = new Control100(1.36, 0, 0); //1.17 for l3
         wristServo.setState(control);
     }
 
@@ -150,5 +156,13 @@ public class Wrist extends SubsystemBase implements Glassy {
     public void setAngleSafe(){
         Control100 control = new Control100(0.551210, 0, 0); //1.17 for l3
         wristServo.setState(control);
+    }
+
+    public void setAlgaeMotor(double value){
+        m_algaeMech.setDutyCycle(value);
+    }
+
+    public void setCoralMotor(double value){
+        m_coralMech.setDutyCycle(value);
     }
 }
