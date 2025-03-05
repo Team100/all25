@@ -16,11 +16,6 @@ import org.team100.frc2025.Funnel.RunFunnel;
 import org.team100.frc2025.Intake.AlgaeIntake;
 import org.team100.frc2025.Intake.RunIntake;
 import org.team100.frc2025.Intake.RunOuttake;
-import org.team100.frc2025.Climber.Climber;
-import org.team100.frc2025.Climber.ClimberFactory;
-import org.team100.frc2025.Climber.ClimberRotate;
-import org.team100.frc2025.Elevator.SetWrist;
-import org.team100.frc2025.Elevator.SetWristSafe;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.RunAlgaeManipulator;
 import org.team100.frc2025.Wrist.SetWrist;
@@ -133,7 +128,10 @@ public class RobotContainer implements Glassy {
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
 
-       
+        m_climber = ClimberFactory.get(logger);
+        m_elevator = new Elevator(elevatorLog, 2, 1);
+        m_wrist = new Wrist(elevatorLog, 9, 3, 25);
+        m_funnel = new Funnel(logger, 23, 14);
 
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
                 .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -182,11 +180,7 @@ public class RobotContainer implements Glassy {
                 visionDataProvider,
                 limiter);
 
-        m_climber = ClimberFactory.get(logger);
-        m_elevator = new Elevator(elevatorLog, 2, 1);
-        m_wrist = new Wrist(elevatorLog, 9, 3, 25);
-
-        m_funnel = new Funnel(logger, 23, 14);
+        
         // m_intake = new AlgaeIntake(logger, 8);
 
         ///////////////////////////
