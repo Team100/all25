@@ -17,10 +17,12 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 public class ProfileWPI implements Profile100 {
     private final Constraints m_constraints;
     private final TrapezoidProfile m_profile;
+    private final double m_maxVel;
 
     public ProfileWPI(double maxVel, double maxAccel) {
         m_constraints = new Constraints(maxVel, maxAccel);
         m_profile = new TrapezoidProfile(m_constraints);
+        m_maxVel = maxVel;
     }
 
     @Override
@@ -39,5 +41,10 @@ public class ProfileWPI implements Profile100 {
     @Override
     public ProfileWPI scale(double s) {
         return new ProfileWPI(m_constraints.maxVelocity, s * m_constraints.maxAcceleration);
+    }
+
+    @Override
+    public double getMaxVelocity() {
+        return m_maxVel;
     }
 }

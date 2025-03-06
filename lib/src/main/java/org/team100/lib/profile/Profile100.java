@@ -32,4 +32,6 @@ public interface Profile100 {
      */
     Profile100 scale(double s);
 
+    double getMaxVelocity();
+
 }
