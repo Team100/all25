@@ -24,6 +24,7 @@ import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
@@ -251,18 +252,18 @@ public class RobotContainer implements Glassy {
 
         whileTrue(driverControl::driveToObject,
 
-                // new DriveToPoseWithProfile(
-                // fieldLog,
-                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-                // 16).get().toPose2d()
-                // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-                // m_drive,
-                // holonomicController,
-                // profile));
-                new DriveToPoseWithTrajectory(
-                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
-                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+                new DriveToPoseWithProfile(
+                fieldLog,
+                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                16).get().toPose2d()
+                .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                m_drive,
+                holonomicController,
+                profile));
+                // new DriveToPoseWithTrajectory(
+                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+//                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         whileTrue(driverControl::driveOneMeter,
                 // new DriveToPoseWithProfile(
