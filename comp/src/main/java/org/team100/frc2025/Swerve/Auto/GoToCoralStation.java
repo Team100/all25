@@ -45,29 +45,25 @@ public class GoToCoralStation extends Navigator {
 
         double scaleAdjust = kScale;
 
-        if(m_station == CoralStation.Left){
+        if (m_station == CoralStation.Left) {
             goalTranslation = new Translation2d(1.2, 7.15);
             goalRotation = Rotation2d.fromDegrees(-50);
             scaleAdjust *= 1;
-        
+
         } else {
             goalTranslation = new Translation2d(1.2, 0.7);
             goalRotation = Rotation2d.fromDegrees(50);
             scaleAdjust *= -1;
         }
 
-
-
         Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-
         Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(courseToGoal,
-                bearingToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, scaleAdjust);
+                courseToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, scaleAdjust);
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
         waypoints.add(new HolonomicPose2d(currTranslation, currentPose.getRotation(), newInitialSpline));
-        waypoints.add(new HolonomicPose2d(goalTranslation, goalRotation, bearingToGoal));
-
+        waypoints.add(new HolonomicPose2d(goalTranslation, goalRotation, courseToGoal));
 
         return m_planner.restToRest(waypoints);
 
