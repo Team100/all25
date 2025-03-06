@@ -660,6 +660,7 @@ public class TrapezoidProfile100 implements Profile100 {
         return 0;
     }
 
+    @Override
     public double getMaxVelocity() {
         return m_maxVelocity;
     }
