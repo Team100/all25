@@ -3,6 +3,7 @@ package org.team100.lib.motion.components;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
@@ -33,7 +34,7 @@ class AnglePositionServoProfileTest {
     double previousMotorSpeed = 0;
 
     public AnglePositionServoProfileTest() {
-        motor = new MockBareMotor();
+        motor = new MockBareMotor(Feedforward100.makeSimple());
         final RotaryMechanism mech = new SimpleRotaryMechanism(
                 logger,
                 motor,
