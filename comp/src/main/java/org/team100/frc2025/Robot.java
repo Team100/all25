@@ -142,7 +142,7 @@ public class Robot extends TimedRobot100 {
         Logging.instance().periodic();
 
         if (Experiments.instance.enabled(Experiment.FlushOften)) {
-            Util.warn("FLUSHING EVERY LOOP, DO NOT USE IN COMP");
+            // Util.warn("FLUSHING EVERY LOOP, DO NOT USE IN COMP");
             NetworkTableInstance.getDefault().flush();
         }
     }

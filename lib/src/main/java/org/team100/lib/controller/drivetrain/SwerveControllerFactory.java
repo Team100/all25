@@ -39,7 +39,7 @@ public class SwerveControllerFactory {
     }
 
     public static FullStateSwerveController autoFieldRelativePIDF(LoggerFactory log) {
-        return new FullStateSwerveController(log, 1, 1.3, 0.1, 0.1, 0.01, 0.02, 0.01, 0.02);
+        return new FullStateSwerveController(log, 1.5, 1.3, 0, 0, 0.1, 0.1, 0.1, 0.1);
     }
 
     ////////////////

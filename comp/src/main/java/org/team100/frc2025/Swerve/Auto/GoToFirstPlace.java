@@ -19,7 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class GoToIJLeft extends Navigator {
+public class GoToFirstPlace extends Navigator {
 
     private final double kTangentScale = 1;
     private final double kEntranceCurveFactor = 0.25;
@@ -27,7 +27,7 @@ public class GoToIJLeft extends Navigator {
     private final FieldSector m_end;
     private final ReefDestination m_reefDestination;
 
-    public GoToIJLeft(
+    public GoToFirstPlace(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController hcontroller,
@@ -42,22 +42,38 @@ public class GoToIJLeft extends Navigator {
 
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
-        Translation2d currTranslation = currentPose.getTranslation();
-        Translation2d goalTranslation = FieldConstants.getOrbitDestination(FieldSector.IJ, ReefDestination.RIGHT);
 
-        Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
+        Translation2d currTranslation = currentPose.getTranslation();
+        Translation2d goalTranslation = FieldConstants.getOrbitDestination(m_end, m_reefDestination, 1.3);
+        Translation2d midPointTranslation = new Translation2d(5.62, 2.22);
+
+        Rotation2d bearingToMid = midPointTranslation.minus(currTranslation).getAngle();
+        Rotation2d bearingToGoal = goalTranslation.minus(midPointTranslation).getAngle();
+
+        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(bearingToMid,
+                bearingToMid.rotateBy(Rotation2d.fromDegrees(-90)), null, -0.5);
+
+        Rotation2d newMidSpline = FieldConstants.calculateDeltaSpline(bearingToGoal,
+                bearingToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, 0.1);
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
         waypoints.add(new HolonomicPose2d(
                 currTranslation,
                 currentPose.getRotation(),
-                courseToGoal));
+                newInitialSpline));
+
+        waypoints.add(new HolonomicPose2d(
+                midPointTranslation,
+                FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
+                newMidSpline));
+
         waypoints.add(new HolonomicPose2d(
                 goalTranslation,
-                FieldConstants.getSectorAngle(FieldSector.IJ).rotateBy(Rotation2d.fromDegrees(180)),
-                courseToGoal));
+                FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
+                newMidSpline));
 
         return m_planner.restToRest(waypoints);
+
     }
 
 }

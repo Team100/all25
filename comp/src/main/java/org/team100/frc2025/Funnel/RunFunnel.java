@@ -30,7 +30,7 @@ public class RunFunnel extends Command {
   @Override
   public void execute() {
     if(timer.get() < 0.75){
-        m_funnel.setFunnel(0.5);
+        m_funnel.setFunnel(0.70);
       } else if(timer.get() < 0.85){
         m_funnel.setFunnel(-0.2);
       } else{

@@ -57,6 +57,11 @@ public class FieldConstants {
     CW
   }
 
+  public enum CoralStation {
+    Left,
+    Right
+  }
+
   public static FieldConstants.FieldSector getSector(Pose2d pose) {
     Translation2d target = FieldConstants.getReefCenter().minus(pose.getTranslation());
     Rotation2d targetAngle = target.getAngle();
@@ -206,17 +211,6 @@ public class FieldConstants {
     return newTranslation.getAngle();
   }
 
-  public static Rotation2d calculateDeltaSplineEnd(Rotation2d originalRotation, Rotation2d deltaRotation, ReefAproach approach, double scale) {
-    // if(approach == ReefAproach.CW){
-        scale *= -1;
-    // }
-    Translation2d originalTranslation = new Translation2d(1, originalRotation);
-    Translation2d deltaTranslation = new Translation2d(scale, deltaRotation);
-    Translation2d newTranslation = originalTranslation.plus(deltaTranslation);
-
-    return newTranslation.getAngle();
-  }
-
 
   public static LandingDestinationGroup getRotationGroup(ReefAproach approach, FieldSector end, double kScaleFactor) {
     Translation2d parallelLandingVector = new Translation2d(1, FieldConstants.getLandingAngle(end, approach));
@@ -272,6 +266,34 @@ public class FieldConstants {
 
     double x = reefCenter.getX() + getOrbitDestinationRadius() * sectorAngle.getCos();
     double y = reefCenter.getY() + getOrbitDestinationRadius() * sectorAngle.getSin();
+
+    double dx = 0;
+    double dy = 0;
+
+    Rotation2d newRotation = Rotation2d.fromDegrees(sectorAngle.getDegrees() + 90);
+    dy = (getReefOffset() * Math.sin(newRotation.getRadians()));
+    dx = (getReefOffset() * Math.cos(newRotation.getRadians()));
+
+    switch (destinationPoint) {
+      case RIGHT:
+        return new Translation2d(x += dx, y += dy);
+      case LEFT:
+        return new Translation2d(x -= dx, y -= dy);
+      case CENTER:
+        return new Translation2d(x, y);
+
+    }
+
+    return new Translation2d(x, y);
+
+  }
+
+  public static Translation2d getOrbitDestination(FieldSector destinationSector, ReefDestination destinationPoint, double radius) {
+    Translation2d reefCenter = getReefCenter();
+    Rotation2d sectorAngle = getSectorAngle(destinationSector);
+
+    double x = reefCenter.getX() + radius * sectorAngle.getCos();
+    double y = reefCenter.getY() + radius * sectorAngle.getSin();
 
     double dx = 0;
     double dy = 0;

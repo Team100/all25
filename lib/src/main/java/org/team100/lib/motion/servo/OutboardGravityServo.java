@@ -67,4 +67,9 @@ public class OutboardGravityServo implements GravityServoInterface {
     public void periodic() {
         m_servo.periodic();
     }
+
+    @Override
+    public boolean atSetpoint() {
+        return m_servo.atSetpoint();
+    }
 }
