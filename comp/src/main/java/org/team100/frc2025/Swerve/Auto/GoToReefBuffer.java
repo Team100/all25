@@ -56,7 +56,7 @@ public class GoToReefBuffer extends Navigator {
         waypoints.add(new HolonomicPose2d(
                 goalTranslation,
                 FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
-                bearingToGoal));
+                courseToGoal));
 
         return m_planner.restToRest(waypoints);
 
