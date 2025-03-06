@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.team100.frc2025.FieldConstants;
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.geometry.HolonomicPose2d;
@@ -17,39 +19,44 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class GoToCoralStationLeft extends Navigator {
+public class GoToReefBuffer extends Navigator {
 
-    private final double kScale;
+    private final double kTangentScale = 1;
+    private final double kEntranceCurveFactor = 0.25;
 
-    public GoToCoralStationLeft(
+    private final FieldSector m_end;
+    private final ReefDestination m_reefDestination;
+
+    public GoToReefBuffer(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController hcontroller,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
-            double scale) {
+            FieldSector endSector,
+            ReefDestination reefDest) {
         super(parent, drive, hcontroller, viz, kinodynamics);
-        kScale = scale;
+        m_end = endSector;
+        m_reefDestination = reefDest;
     }
 
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
 
         Translation2d currTranslation = currentPose.getTranslation();
-        Translation2d goalTranslation = new Translation2d(1.2, 7.15);
-
-
-        // Rotation2d newEndingSpline = FieldConstants.calculateDeltaSpline(spline, spline.rotateBy(Rotation2d.fromDegrees(-90)), null, -kScale);
-
+        Translation2d goalTranslation = FieldConstants.getOrbitDestination(m_end, m_reefDestination);
 
         Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(courseToGoal,
-                courseToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, kScale);
-
         List<HolonomicPose2d> waypoints = new ArrayList<>();
-        waypoints.add(new HolonomicPose2d(currTranslation, currentPose.getRotation(), newInitialSpline));
-        waypoints.add(new HolonomicPose2d(goalTranslation, Rotation2d.fromDegrees(-50), courseToGoal));
+        waypoints.add(new HolonomicPose2d(
+                currTranslation,
+                currentPose.getRotation(),
+                courseToGoal));
+        waypoints.add(new HolonomicPose2d(
+                goalTranslation,
+                FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
+                bearingToGoal));
 
         return m_planner.restToRest(waypoints);
 

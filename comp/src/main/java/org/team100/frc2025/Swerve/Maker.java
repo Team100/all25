@@ -1,8 +1,12 @@
 package org.team100.frc2025.Swerve;
 
+import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Swerve.Auto.GoToCoralStationLeft;
+import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
+import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
+import org.team100.frc2025.Swerve.Auto.GoToFirstPlace;
+import org.team100.frc2025.Swerve.Auto.GoToReefBuffer;
 import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -59,46 +63,153 @@ public class Maker {
 
     public Command test() {
 
-        return new SequentialCommandGroup(
-                new GoToReefDestination(
+        final HolonomicProfile profile = new HolonomicProfile(
+                m_kinodynamics.getMaxDriveVelocityM_S() * 0.25,
+                m_kinodynamics.getMaxDriveAccelerationM_S2() * 0.2,
+                0.1, // 1 cm
+                m_kinodynamics.getMaxAngleSpeedRad_S() * 0.25,
+                m_kinodynamics.getMaxAngleAccelRad_S2() * 0.25,
+                0.1); // 5 degrees
+
+    
+
+    // return new SequentialCommandGroup(
+    //             new GoToReefDestination(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.EF,
+    //                     ReefDestination.RIGHT,
+    //                     profile),
+    //             new GoToCoralStation(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     CoralStation.Right,
+    //                     0.5),
+    //             new GoToReefDestination(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.CD,
+    //                     ReefDestination.RIGHT,
+    //                     profile),
+    //             new GoToCoralStation(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     CoralStation.Right,
+    //                     0),
+    //             new GoToReefDestination(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.CD,
+    //                     ReefDestination.LEFT,
+    //                     profile));
+
+    // }
+
+    // return new SequentialCommandGroup(
+    //             new GoToDestinationDirectly(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.EF,
+    //                     ReefDestination.RIGHT),
+    //             new GoToCoralStation(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     CoralStation.Right,
+    //                     0.5),
+    //             new GoToDestinationDirectly(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.CD,
+    //                     ReefDestination.RIGHT),
+    //             new GoToCoralStation(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     CoralStation.Right,
+    //                     0),
+    //             new GoToDestinationDirectly(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.CD,
+    //                     ReefDestination.LEFT));
+
+    // }
+
+    return new SequentialCommandGroup(
+                new GoToFirstPlace(
                         m_logger,
                         m_drive,
-                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
+                        SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
                         m_viz,
                         m_kinodynamics,
-                        FieldSector.IJ,
-                        ReefDestination.RIGHT),
-                new GoToCoralStationLeft(
-                        m_logger,
-                        m_drive,
-                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                        m_viz,
-                        m_kinodynamics,
-                        0.5),
-                new GoToReefDestination(
-                        m_logger,
-                        m_drive,
-                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.KL,
-                        ReefDestination.LEFT),
-                new GoToCoralStationLeft(
-                        m_logger,
-                        m_drive,
-                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                        m_viz,
-                        m_kinodynamics,
-                        0),
-                new GoToReefDestination(
-                        m_logger,
-                        m_drive,
-                        SwerveControllerFactory.fieldRelativeGoodPIDF(m_logger),
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.KL,
+                        FieldSector.EF,
                         ReefDestination.RIGHT));
+                //         ,
+                // new GoToCoralStation(
+                //         m_logger,
+                //         m_drive,
+                //         SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+                //         m_viz,
+                //         m_kinodynamics,
+                //         CoralStation.Right,
+                //         0.5),
+                // new GoToDestinationDirectly(
+                //         m_logger,
+                //         m_drive,
+                //         SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+                //         m_viz,
+                //         m_kinodynamics,
+                //         FieldSector.CD,
+                //         ReefDestination.RIGHT),
+                // new GoToCoralStation(
+                //         m_logger,
+                //         m_drive,
+                //         SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+                //         m_viz,
+                //         m_kinodynamics,
+                //         CoralStation.Right,
+                //         0),
+                // new GoToDestinationDirectly(
+                //         m_logger,
+                //         m_drive,
+                //         SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+                //         m_viz,
+                //         m_kinodynamics,
+                //         FieldSector.CD,
+                //         ReefDestination.LEFT));
 
     }
 
+
+
 }
+
