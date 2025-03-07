@@ -48,7 +48,7 @@ public class HolonomicSpline {
      * SplineUtil.optimizeSpline() after creating these segments.
      */
     public HolonomicSpline(HolonomicPose2d p0, HolonomicPose2d p1) {
-        this(p0, p1, 1.2);
+        this(p0, p1, 1.2, 1.2);
     }
 
     /**
@@ -62,15 +62,16 @@ public class HolonomicSpline {
      * You'll probably want to call SplineUtil.forceC1() and
      * SplineUtil.optimizeSpline() after creating these segments.
      */
-    public HolonomicSpline(HolonomicPose2d p0, HolonomicPose2d p1, double mN) {
-        double scale = mN * GeometryUtil.distance(p0.translation(), p1.translation());
+    public HolonomicSpline(HolonomicPose2d p0, HolonomicPose2d p1, double mN0, double mN1) {
+        double scale0 = mN0 * GeometryUtil.distance(p0.translation(), p1.translation());
+        double scale1 = mN1 * GeometryUtil.distance(p0.translation(), p1.translation());
         if (DEBUG)
-            Util.printf("scale %f\n", scale);
+            Util.printf("scale %f %f\n", scale0, scale1);
         double x0 = p0.translation().getX();
         double x1 = p1.translation().getX();
         // first derivatives are just the course
-        double dx0 = p0.course().getCos() * scale;
-        double dx1 = p1.course().getCos() * scale;
+        double dx0 = p0.course().getCos() * scale0;
+        double dx1 = p1.course().getCos() * scale1;
         // second derivatives are zero at the ends
         double ddx0 = 0;
         double ddx1 = 0;
@@ -78,8 +79,8 @@ public class HolonomicSpline {
         double y0 = p0.translation().getY();
         double y1 = p1.translation().getY();
         // first derivatives are just the course
-        double dy0 = p0.course().getSin() * scale;
-        double dy1 = p1.course().getSin() * scale;
+        double dy0 = p0.course().getSin() * scale0;
+        double dy1 = p1.course().getSin() * scale1;
         // second derivatives are zero at the ends
         double ddy0 = 0;
         double ddy1 = 0;

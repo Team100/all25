@@ -204,7 +204,7 @@ public class PathFactoryTest {
         HolonomicSpline s0 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kZero, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
-                1.0);
+                1.0, 1.0);
         List<HolonomicSpline> splines = List.of(s0);
         List<Pose2dWithMotion> motion = PathFactory.parameterizeSplines(splines, 0.001, 0.001, 0.001);
         for (Pose2dWithMotion p : motion) {
