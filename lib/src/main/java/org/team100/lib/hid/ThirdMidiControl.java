@@ -20,7 +20,6 @@ public class ThirdMidiControl implements ThirdControl {
         return m_controller.getName();
     }
 
-    @Override
     public double shooterSpeed() {
         // speed is controlled by the lowest five notes on the keyboard
         // which are buttons 1 through 5.
