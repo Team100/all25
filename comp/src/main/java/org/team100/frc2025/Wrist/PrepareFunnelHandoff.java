@@ -6,22 +6,29 @@ package org.team100.frc2025.Wrist;
 
 import java.util.Set;
 
+import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.SetElevator;
+
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SetFunnelHandoff extends SequentialCommandGroup {
+public class PrepareFunnelHandoff extends SequentialCommandGroup {
   /** Creates a new SetFunnelHandoff. */
   Wrist2 m_wrist;
-  public SetFunnelHandoff(Wrist2 wrist) {
+  Elevator m_elevator;
+
+  public PrepareFunnelHandoff(Wrist2 wrist, Elevator elevator) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     m_wrist = wrist;
     addCommands(
-        new SetWrist(m_wrist),
-        // new SetWristSafe(m_wrist)
-        new SetWristDutyCycle(wrist)
+        new SetWrist(wrist, 0.1, false),
+        new SetWristDutyCycle(wrist, -0.11)
+
     );
   }
 }

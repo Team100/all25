@@ -10,6 +10,8 @@ import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
+import org.team100.frc2025.Elevator.ScoreAlgae;
+import org.team100.frc2025.Elevator.ScoreCoral;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.RunFunnel;
@@ -17,13 +19,13 @@ import org.team100.frc2025.Intake.AlgaeIntake;
 import org.team100.frc2025.Intake.RunIntake;
 import org.team100.frc2025.Intake.RunOuttake;
 import org.team100.frc2025.Swerve.FullCycle;
-import org.team100.frc2025.Wrist.RunAlgaeManipulator;
-import org.team100.frc2025.Wrist.SetFunnelHandoff;
+import org.team100.frc2025.Wrist.CoralTunnel;
+import org.team100.frc2025.Wrist.RunCoralTunnel;
+import org.team100.frc2025.Wrist.RunFunnelHandoff;
+import org.team100.frc2025.Wrist.PrepareFunnelHandoff;
 import org.team100.frc2025.Wrist.SetWrist;
-import org.team100.frc2025.Wrist.SetWristSafe;
-import org.team100.frc2025.Wrist.SetWristValue;
 import org.team100.frc2025.Wrist.Wrist2;
-import org.team100.frc2025.Wrist.Wrist;
+// import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
@@ -109,6 +111,7 @@ public class RobotContainer implements Glassy {
     final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
+    final CoralTunnel m_tunnel;
 
     // final AlgaeIntake m_intake;
 
@@ -133,7 +136,8 @@ public class RobotContainer implements Glassy {
 
         m_climber = ClimberFactory.get(logger);
         m_elevator = new Elevator(elevatorLog, 2, 1);
-        m_wrist = new Wrist2(elevatorLog, 9, 3, 25);
+        m_wrist = new Wrist2(elevatorLog, 9);
+        m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
         m_funnel = new Funnel(logger, 23, 14);
 
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
@@ -313,12 +317,14 @@ public class RobotContainer implements Glassy {
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::elevate, new Handoff(m_funnel, m_wrist));
-        whileTrue(operatorControl::elevate, new SetFunnelHandoff(m_wrist)); //x
+        // whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel)); //x
+        // whileTrue(operatorControl::elevate, new RunCoralTunnel(m_tunnel, 0.8)); //a
+        whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator)); //x
 
-        whileTrue(operatorControl::intake, new Handoff(m_funnel, m_wrist)); //a
+        // whileTrue(operatorControl::intake, new SetWrist(m_wrist, 0.8)); //a
 
-        whileTrue(operatorControl::downavate, new SetWristValue(m_wrist)); //y
-        // whileTrue(operatorControl::intake, new SetElevator(m_elevator));
+        // whileTrue(operatorControl::elevator, new SetWristValue(m_wris)); //y
+        // whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
         // whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // 
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));

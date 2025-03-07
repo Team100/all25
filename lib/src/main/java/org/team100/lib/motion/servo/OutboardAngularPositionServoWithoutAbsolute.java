@@ -205,4 +205,9 @@ public class OutboardAngularPositionServoWithoutAbsolute implements AngularPosit
         m_mechanism.periodic();
         // m_encoder.periodic();
     }
+
+    @Override
+    public void setStaticTorque(double feedForwardTorqueNm){
+
+    }
 }

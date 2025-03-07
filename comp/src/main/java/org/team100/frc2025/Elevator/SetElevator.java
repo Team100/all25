@@ -10,31 +10,52 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class SetElevator extends Command {
   /** Creates a new SetElevator. */
   Elevator m_elevator;
-  public SetElevator(Elevator elevator) {
+  double m_value;
+  boolean finished = false;
+  boolean m_perpetual;
+  public SetElevator(Elevator elevator, double value, boolean perpetual) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_elevator = elevator;
+    m_value = value;
+    finished = false;
+    m_perpetual = perpetual;
     addRequirements(m_elevator);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    finished = false;
     m_elevator.resetElevatorProfile();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevator.setPosition(11.2); //24.5 for l3
+    m_elevator.setPosition(m_value); //24.5 for l3
+
+    double error = Math.abs(m_elevator.getPosition() - m_value);
+    if(error < 0.5){
+        finished = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_elevator.stop();
+    finished = false;
+    
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    if(m_perpetual){
+        return false;
+    }else{
+        return finished;
+
+    }
   }
 }

@@ -106,9 +106,9 @@ public class ProfiledController {
         Control100 u_FF = result.state();
         m_setpoint = u_FF.model();
 
-        if(atSetpoint()){
-            return new Result(new Control100(0, 0), 0);
-        }
+        // if(atSetpoint()){
+        //     return new Result(new Control100(0, 0), 0);
+        // }
 
         return new Result(u_FF, u_FB);
     }

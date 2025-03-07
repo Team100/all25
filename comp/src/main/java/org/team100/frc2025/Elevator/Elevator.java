@@ -60,7 +60,7 @@ public class Elevator extends SubsystemBase implements Glassy {
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
 
         int wristSupplyLimit = 60;
         int wristStatorLimit = 90;
@@ -75,7 +75,7 @@ public class Elevator extends SubsystemBase implements Glassy {
         TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 20, 0.05); // TODO CHANGE THESE
 
         switch (Identity.instance) {
-            case FRC_100_ea4 -> {
+            case COMP_BOT -> {
                 Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.FORWARD,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
@@ -158,6 +158,11 @@ public class Elevator extends SubsystemBase implements Glassy {
      */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);
+    }
+
+    public void stop() {
+        starboardServo.stop();
+        portServo.stop();
     }
 
 }
