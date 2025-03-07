@@ -41,7 +41,11 @@ public class ReduxGyro implements Gyro {
         settings.setAngularPositionFramePeriod(0.01);
         settings.setAngularVelocityFramePeriod(0.01);
         if (!m_gyro.setSettings(settings, 0.1)) {
-            Util.warn("!!!!!!!!!!!! GYRO SETTING FAILED! !!!!!!!!!!!!");
+            Util.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Util.warn("!!                                          !!");
+            Util.warn("!!           GYRO SETTING FAILED!           !!");
+            Util.warn("!!                                          !!");
+            Util.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         }
         m_gyro.clearStickyFaults();
         m_gyro.setYaw(0);
@@ -59,15 +63,16 @@ public class ReduxGyro implements Gyro {
         final double t = q.getTimestamp();
         final double yaw = q.getYaw();
         final double rate = m_gyro.getAngularVelocityYaw();
-        double dt = Takt.get() - t;
+        double now = Takt.get();
+        double dt = now - t;
         // it's ok if takt is slightly behind the gyro, in case a CAN packet came in
         // before we got here.
         if (dt < -0.1) {
-            Util.warn("Gyro data is from the distant future!");
+            Util.warnf("Gyro timestamp: %f is much newer than now: %f.", t, now);
             dt = 0;
         }
         if (dt > 0.1) {
-            Util.warn("Gyro data is very old!");
+            Util.warnf("Gyro timestamp: %f is much older than now: %f", t, now);
             dt = 0;
         }
         final double correctedYaw = yaw + rate * dt;
