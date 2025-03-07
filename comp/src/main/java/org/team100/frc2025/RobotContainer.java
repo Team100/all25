@@ -51,6 +51,7 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
 import org.team100.lib.hid.OperatorControlProxy;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -110,7 +111,7 @@ public class RobotContainer implements Glassy {
     final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
-
+    final LEDIndicator m_leds;
     // final AlgaeIntake m_intake;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
@@ -133,12 +134,16 @@ public class RobotContainer implements Glassy {
         final OperatorControl operatorControl = new OperatorControlProxy(async);
 
         m_climber = ClimberFactory.get(logger);
+        m_leds = new LEDIndicator(0);
+        m_leds.setFront(LEDIndicator.State.ORANGE);
+        m_leds.setBack(LEDIndicator.State.RED);
+        m_leds.setFlashing(true);
         m_elevator = new Elevator(elevatorLog, 2, 1);
         m_wrist = new Wrist2(elevatorLog, 9, 3, 25);
         m_funnel = new Funnel(logger, 23, 14);
 
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
-                .get(() -> VCG.vcg(m_elevator.getPosition()));
+        .get(() -> VCG.vcg(m_elevator.getPosition()));
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
@@ -363,7 +368,7 @@ public class RobotContainer implements Glassy {
     }
 
     public void periodic() {
-        //
+        m_leds.periodic();
     }
 
     public void cancelAuton() {
