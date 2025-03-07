@@ -28,7 +28,7 @@ import edu.wpi.first.math.MathUtil;
  *  
  */
 public class OutboardAngularPositionServoWithoutWrap implements AngularPositionServo {
-    private static final double kPositionTolerance = 0.05;
+    private static final double kPositionTolerance = 0.006;
     private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
@@ -164,7 +164,8 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
         OptionalDouble velocityRad_S = getVelocity();
         if (velocityRad_S.isEmpty())
             return false;
-        double positionError = MathUtil.angleModulus(m_setpoint.x() - positionRad.getAsDouble());
+            
+        double positionError = m_setpoint.x() - positionRad.getAsDouble();
         double velocityError = m_setpoint.v() - velocityRad_S.getAsDouble();
         return Math.abs(positionError) < kPositionTolerance
                 && Math.abs(velocityError) < kVelocityTolerance;

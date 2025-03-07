@@ -74,7 +74,7 @@ public enum Camera {
                     new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
 
     /**
-     * Funnal 
+     * Funnel 
      */
     FUNNEL("1e5acbaa5a7f9d10",
             new Transform3d(

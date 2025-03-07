@@ -3,12 +3,13 @@ package org.team100.lib.encoder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
-import org.team100.lib.motor.MockBareMotor;
+import org.team100.lib.config.Feedforward100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
+import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
+import org.team100.lib.motor.MockBareMotor;
 
 class CombinedEncoderTest {
     private static final double kDelta = 0.001;
@@ -16,7 +17,7 @@ class CombinedEncoderTest {
 
     @Test
     void testZeroing() {
-        MockBareMotor motor = new MockBareMotor();
+        MockBareMotor motor = new MockBareMotor(Feedforward100.makeSimple());
 
         // this is the "correct" value
         MockRotaryPositionSensor e1 = new MockRotaryPositionSensor();

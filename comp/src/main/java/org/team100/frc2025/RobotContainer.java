@@ -18,12 +18,16 @@ import org.team100.frc2025.Intake.RunIntake;
 import org.team100.frc2025.Intake.RunOuttake;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.RunAlgaeManipulator;
+import org.team100.frc2025.Wrist.SetFunnelHandoff;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.SetWristSafe;
+import org.team100.frc2025.Wrist.SetWristValue;
+import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
@@ -103,7 +107,7 @@ public class RobotContainer implements Glassy {
     final SwerveDriveSubsystem m_drive;
 
     final Elevator m_elevator;
-    final Wrist m_wrist;
+    final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
 
@@ -130,7 +134,7 @@ public class RobotContainer implements Glassy {
 
         m_climber = ClimberFactory.get(logger);
         m_elevator = new Elevator(elevatorLog, 2, 1);
-        m_wrist = new Wrist(elevatorLog, 9, 3, 25);
+        m_wrist = new Wrist2(elevatorLog, 9, 3, 25);
         m_funnel = new Funnel(logger, 23, 14);
 
         final SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory
@@ -251,18 +255,18 @@ public class RobotContainer implements Glassy {
 
         whileTrue(driverControl::driveToObject,
 
-                // new DriveToPoseWithProfile(
-                // fieldLog,
-                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-                // 16).get().toPose2d()
-                // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-                // m_drive,
-                // holonomicController,
-                // profile));
-                new DriveToPoseWithTrajectory(
-                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
-                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+                new DriveToPoseWithProfile(
+                fieldLog,
+                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                16).get().toPose2d()
+                .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                m_drive,
+                holonomicController,
+                profile));
+                // new DriveToPoseWithTrajectory(
+                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+//                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         whileTrue(driverControl::driveOneMeter,
                 // new DriveToPoseWithProfile(
@@ -285,7 +289,7 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));
         whileTrue(driverControl::fullCycle,
-                new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
+                new FullCycle(manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile));
 
         whileTrue(driverControl::test,
                 new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
@@ -309,11 +313,14 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         // OPERATOR BUTTONS
-        whileTrue(operatorControl::elevate, new RunAlgaeManipulator(m_wrist)); //x
+        // whileTrue(operatorControl::elevate, new Handoff(m_funnel, m_wrist));
+        whileTrue(operatorControl::elevate, new SetFunnelHandoff(m_wrist)); //x
 
-        whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
-        whileTrue(operatorControl::intake, new SetElevator(m_elevator));
-        whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // b
+        whileTrue(operatorControl::intake, new Handoff(m_funnel, m_wrist)); //a
+
+        whileTrue(operatorControl::downavate, new SetWristValue(m_wrist)); //y
+        // whileTrue(operatorControl::intake, new SetElevator(m_elevator));
+        // whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // 
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));
         // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));

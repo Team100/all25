@@ -8,6 +8,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
+import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -32,7 +33,8 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
             SwerveDriveSubsystem drivetrain,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
-            SwerveController controller) {
+            SwerveController controller,
+            HolonomicProfile profile) {
         TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 

@@ -24,4 +24,9 @@ public class MockProfile100 implements Profile100 {
         return this;
     }
 
+    @Override
+    public double getMaxVelocity() {
+        return 0;
+    }
+
 }

@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetWristSafe extends Command {
   /** Creates a new SetElevator. */
-  Wrist m_wrist;
-  public SetWristSafe(Wrist wrist) {
+  Wrist2 m_wrist;
+  public SetWristSafe(Wrist2 wrist) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_wrist = wrist;
     addRequirements(m_wrist);
@@ -36,6 +36,6 @@ public class SetWristSafe extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_wrist.atSetpoint();
   }
 }

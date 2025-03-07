@@ -7,6 +7,9 @@ package org.team100.frc2025.Wrist;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.PIDFeedback;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.CombinedEncoder;
@@ -22,6 +25,7 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
+import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServoWithoutWrap;
 import org.team100.lib.motion.servo.OutboardGravityServo;
@@ -35,7 +39,7 @@ import org.team100.lib.state.Control100;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Wrist extends SubsystemBase implements Glassy {
+public class Wrist2 extends SubsystemBase implements Glassy {
     /** Creates a new Elevator. */
 
 
@@ -45,7 +49,7 @@ public class Wrist extends SubsystemBase implements Glassy {
     private final LinearMechanism m_coralMech;
     private final RotaryMechanism m_wristMech;
 
-    public Wrist(
+    public Wrist2(
             LoggerFactory parent,
             int wristID,
             int algaeID,
@@ -94,8 +98,11 @@ public class Wrist extends SubsystemBase implements Glassy {
 
                 CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech, false);
 
+                Feedback100 wristFeedback = new PIDFeedback(parent, 1, 0, 0, false, 0.1, 0.1); 
 
-                AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServoWithoutWrap(child, wristMech, combinedEncoder, wristProfile);
+                ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, 0.1, 0.1);
+
+                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech, encoder, controller);
 
 
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2, 0); //2
