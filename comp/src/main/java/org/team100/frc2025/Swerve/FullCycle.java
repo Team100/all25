@@ -5,6 +5,7 @@ import java.util.List;
 import org.team100.frc2025.FieldConstants;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -28,7 +29,9 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
     private static final Pose2d waypoint0 = new Pose2d(6, 2, Rotation2d.kZero);
     private static final Pose2d waypoint1 = new Pose2d(2, 2, Rotation2d.kZero);
 
-    public FullCycle(
+    public 
+    FullCycle(
+        FieldLogger.Log fieldLogger,
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
             TrajectoryVisualization viz,
@@ -47,7 +50,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
                 // new ResetPose(drivetrain, 6.305274, 5.979709, 0),
 
                 // new RepeatCommand(
-                makerTrajec.test()
+                makerTrajec.test(fieldLogger,controller,profile)
         // )
 
         // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)

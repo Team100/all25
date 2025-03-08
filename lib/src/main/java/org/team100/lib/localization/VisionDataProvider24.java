@@ -149,7 +149,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 if (!alliance.isPresent())
                     return;
 
-                double blipTimeSec = (v.getServerTime() / 1000000.0) -.03;
+                double blipTimeSec = (v.getServerTime() / 1000000.0  - .027);
                 estimateRobotPose(
                         cameraSerialNumber,
                         blips,
@@ -204,7 +204,8 @@ public class VisionDataProvider24 implements VisionData, Glassy {
             if (!tagInFieldCoordsOptional.isPresent())
                 continue;
 
-            if (blip.getPose().getTranslation().getNorm() > 5) {
+            int distanceTillIgnoreM = 5;
+            if (blip.getPose().getTranslation().getNorm() > distanceTillIgnoreM) {
                 return;
             }
 
