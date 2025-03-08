@@ -34,7 +34,7 @@ public class LEDIndicator {
         GREEN(Color.kLime),
         PURPLE(Color.kFuchsia),
         YELLOW(Color.kYellow),
-        ORANGE(Color.kOrange),
+        ORANGE(new Color(1.0f, 0.1f, 0.0f)),
         WHITE(Color.kBlack); // turn off white to save battery
 
         /**
@@ -61,7 +61,7 @@ public class LEDIndicator {
     /**
      * Fast flashing, 15hz.
      */
-    private static final double kFlashDurationSec = 0.03;
+    private static final double kFlashDurationSec = 0.2;
 
     private final AddressableLED led;
     private final AddressableLEDBuffer buffer;
@@ -76,12 +76,8 @@ public class LEDIndicator {
         m_frontStrips = new ArrayList<>();
         m_backStrips = new ArrayList<>();
 
-        m_frontStrips.add(new LEDStrip(0, 8));
-        m_backStrips.add(new LEDStrip(8, 18));
-        m_frontStrips.add(new LEDStrip(18, 27));
-        m_backStrips.add(new LEDStrip(27, 37));
-        m_frontStrips.add(new LEDStrip(37, 46));
-        m_backStrips.add(new LEDStrip(46, 55));
+        m_frontStrips.add(new LEDStrip(0, 6));
+        m_backStrips.add(new LEDStrip(6, 12));
 
         int length = Math.max(
                 m_frontStrips.stream().map(LEDStrip::end).reduce(0, Integer::max),
@@ -113,30 +109,29 @@ public class LEDIndicator {
      */
     public void periodic() {
         // back always shows the same
-        for (LEDStrip strip : m_backStrips) {
-            strip.solid(buffer, m_back.color);
-        }
-
-        if (kFlash) {
-            // front depends on flashing state
-            if (m_flashing) {
-                if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
-                    for (LEDStrip strip : m_frontStrips) {
-                        strip.solid(buffer, Color.kBlack);
-                    }
-                } else {
-                    for (LEDStrip strip : m_frontStrips) {
-                        strip.solid(buffer, m_front.color);
-                    }
+        // front depends on flashing state
+        if (m_flashing) {
+            if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
+                for (LEDStrip strip : m_frontStrips) {
+                    strip.solid(buffer, Color.kBlack);
                 }
-            } else {
+                for (LEDStrip strip : m_backStrips) {
+                    strip.solid(buffer, Color.kBlack);
+                }
+            } else if ((int)(Takt.get() / kFlashDurationSec) % 2 == 1){
                 for (LEDStrip strip : m_frontStrips) {
                     strip.solid(buffer, m_front.color);
+                }
+                for (LEDStrip strip : m_backStrips) {
+                    strip.solid(buffer, m_back.color);
                 }
             }
         } else {
             for (LEDStrip strip : m_frontStrips) {
                 strip.solid(buffer, m_front.color);
+            }
+            for (LEDStrip strip : m_backStrips) {
+                strip.solid(buffer, m_back.color);
             }
         }
 
