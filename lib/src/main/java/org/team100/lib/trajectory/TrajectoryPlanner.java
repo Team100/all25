@@ -8,8 +8,8 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.path.Path100;
 import org.team100.lib.path.PathFactory;
-import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.timing.ScheduleGenerator;
+import org.team100.lib.timing.TimingConstraint;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,7 +24,7 @@ import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGeneratio
  */
 public class TrajectoryPlanner {
     // the tolerances here control the approximation of the list of poses to the
-    // continuous spline.  previously they were 1.2 cm and 1 radian.
+    // continuous spline. previously they were 1.2 cm and 1 radian.
     private static final double kMaxDx = 0.01; // m
     private static final double kMaxDy = 0.01; // m
     private static final double kMaxDTheta = Math.toRadians(0.1);
@@ -90,8 +90,14 @@ public class TrajectoryPlanner {
             return restToRest(startState.pose(), endState.pose());
         }
 
-        Rotation2d courseToGoal = endTranslation.minus(startTranslation).getAngle();
+        Translation2d full = endTranslation.minus(startTranslation);
+        Rotation2d courseToGoal = full.getAngle();
         Rotation2d startingAngle = startVelocity.angle().orElse(courseToGoal);
+
+        // use the start velocity to adjust the first magic number.
+        // divide by the distance because the spline multiplies by it
+        double e1 = 2.0 * startVelocity.norm() / full.getNorm();
+        List<Double> magicNumbers = List.of(e1, 1.2);
 
         try {
             return generateTrajectory(
@@ -105,7 +111,8 @@ public class TrajectoryPlanner {
                                     endState.rotation(),
                                     courseToGoal)),
                     startVelocity.norm(),
-                    endVelocity.norm());
+                    endVelocity.norm(),
+                    magicNumbers);
         } catch (TrajectoryGenerationException e) {
             Util.warn("Trajectory Generation Exception");
             return new Trajectory100();

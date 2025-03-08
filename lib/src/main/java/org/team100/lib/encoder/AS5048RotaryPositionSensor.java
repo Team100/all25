@@ -1,5 +1,7 @@
 package org.team100.lib.encoder;
 
+import java.io.IOError;
+
 import org.team100.lib.logging.LoggerFactory;
 
 /**
@@ -38,5 +40,7 @@ public class AS5048RotaryPositionSensor extends DutyCycleRotaryPositionSensor {
     protected double m_sensorMax() {
         return 0.998058;
     }
+
+    
 
 }

@@ -19,7 +19,6 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
@@ -52,10 +51,14 @@ public class Elevator extends SubsystemBase implements Glassy {
         PIDConstants elevatorPID = PIDConstants.makePositionPID(2);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
+        // 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(50, 50, 0.05); // TODO CHANGE THESE
+
 
         switch (Identity.instance) {
-            case FRC_100_ea4 -> {
+            case COMP_BOT -> {
                 Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.FORWARD,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
@@ -145,6 +148,11 @@ public class Elevator extends SubsystemBase implements Glassy {
      */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);
+    }
+
+    public void stop() {
+        starboardServo.stop();
+        portServo.stop();
     }
 
 }

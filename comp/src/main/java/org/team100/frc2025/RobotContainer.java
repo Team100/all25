@@ -8,13 +8,16 @@ import java.util.function.BooleanSupplier;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
-import org.team100.frc2025.Wrist.SetFunnelHandoff;
-import org.team100.frc2025.Wrist.SetWristValue;
+import org.team100.frc2025.Wrist.AlgaeGrip;
+import org.team100.frc2025.Wrist.CoralTunnel;
+import org.team100.frc2025.Wrist.RunFunnelHandoff;
 import org.team100.frc2025.Wrist.Wrist2;
+// import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
@@ -44,9 +47,9 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
 import org.team100.lib.hid.OperatorControlProxy;
-import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.hid.ThirdControl;
 import org.team100.lib.hid.ThirdControlProxy;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -78,7 +81,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -108,6 +110,10 @@ public class RobotContainer implements Glassy {
     final Climber m_climber;
     final Funnel m_funnel;
     final LEDIndicator m_leds;
+
+    final CoralTunnel m_tunnel;
+    final AlgaeGrip m_grip;
+
     // final AlgaeIntake m_intake;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
@@ -141,8 +147,10 @@ public class RobotContainer implements Glassy {
             m_leds = null;
 
             m_elevator = new Elevator(elevatorLog, 2, 1);
-            m_wrist = new Wrist2(elevatorLog, 9, 3, 25);
+            m_wrist = new Wrist2(elevatorLog, 9);
+            m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
+            m_grip = new AlgaeGrip(logger, 3);
 
             swerveKinodynamics = SwerveKinodynamicsFactory
             .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -150,7 +158,8 @@ public class RobotContainer implements Glassy {
         } else {
             swerveKinodynamics = SwerveKinodynamicsFactory
             .get(() -> 1);
-            
+            m_grip= null;
+            m_tunnel = null;
             m_elevator = null;
             m_wrist = null;
             m_funnel = null;
@@ -254,10 +263,10 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        // if (m_climber != null) {
-        //     m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-        //             operatorControl::ramp));
-        // }
+        if (m_climber != null) {
+            m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+                    operatorControl::ramp));
+        }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
         // ObjectPosition24ArrayListener(poseEstimator);
@@ -332,12 +341,16 @@ public class RobotContainer implements Glassy {
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::elevate, new Handoff(m_funnel, m_wrist));
-        whileTrue(operatorControl::elevate, new SetFunnelHandoff(m_wrist)); //x
+        // whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel)); //x
+        // whileTrue(operatorControl::elevate, new RunCoralTunnel(m_tunnel, 0.8)); //a
+        // whileTrue(operatorControl::elevate, new ScoreCoral(m_wrist, m_elevator, m_tunnel)); //x
+        // whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator, m_grip)); //x
+        // whileTrue(operatorControl::intake, new ScoreAlgae2(m_wrist, m_elevator, m_grip)); //x
+        whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
+        // whileTrue(operatorControl::intake, new RunAlgaeGrip(m_grip, -1)); //a
 
-        whileTrue(operatorControl::intake, new Handoff(m_funnel, m_wrist)); //a
-
-        whileTrue(operatorControl::downavate, new SetWristValue(m_wrist)); //y
-        // whileTrue(operatorControl::intake, new SetElevator(m_elevator));
+        // whileTrue(operatorControl::elevator, new SetWristValue(m_wris)); //y
+        // whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
         // whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // 
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));

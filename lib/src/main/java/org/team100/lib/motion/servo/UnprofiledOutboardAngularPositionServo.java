@@ -171,4 +171,9 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_mechanism.periodic();
         m_encoder.periodic();
     }
+
+    @Override
+    public void setStaticTorque(double feedForwardTorqueNm){
+    }
+    
 }
