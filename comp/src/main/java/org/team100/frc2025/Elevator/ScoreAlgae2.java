@@ -4,7 +4,6 @@
 
 package org.team100.frc2025.Elevator;
 
-import org.team100.frc2025.Elevator.ElevatorUtil.ScoringPosition;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;

@@ -28,6 +28,7 @@ public class PathFactory {
                     new HolonomicSpline(
                             waypoints.get(i - 1),
                             waypoints.get(i),
+                            mN.get(i-1),
                             mN.get(i)));
         }
         // does not force C1, theta responds too much

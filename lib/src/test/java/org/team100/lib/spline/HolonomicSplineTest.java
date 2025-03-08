@@ -125,19 +125,19 @@ class HolonomicSplineTest {
         HolonomicSpline s0 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.k180deg, Rotation2d.kCCW_90deg),
                 new HolonomicPose2d(new Translation2d(0, 1), Rotation2d.kCW_90deg, Rotation2d.k180deg),
-                magicNumber);
+                magicNumber, magicNumber);
         HolonomicSpline s1 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, 1), Rotation2d.kCW_90deg, Rotation2d.k180deg),
                 new HolonomicPose2d(new Translation2d(-1, 0), Rotation2d.kZero, Rotation2d.kCW_90deg),
-                magicNumber);
+                magicNumber, magicNumber);
         HolonomicSpline s2 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(-1, 0), Rotation2d.kZero, Rotation2d.kCW_90deg),
                 new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kCCW_90deg, Rotation2d.kZero),
-                magicNumber);
+                magicNumber, magicNumber);
         HolonomicSpline s3 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kCCW_90deg, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.k180deg, Rotation2d.kCCW_90deg),
-                magicNumber);
+                magicNumber, magicNumber);
         List<HolonomicSpline> splines = new ArrayList<>();
         splines.add(s0);
         splines.add(s1);
@@ -195,12 +195,12 @@ class HolonomicSplineTest {
         HolonomicSpline s0 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, 0), Rotation2d.kZero, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(1), Rotation2d.kZero),
-                magicNumber);
+                magicNumber, magicNumber);
         // turn much more to the left
         HolonomicSpline s1 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(1, 0), new Rotation2d(1), Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(2, 0), Rotation2d.k180deg, Rotation2d.kZero),
-                magicNumber);
+                magicNumber, magicNumber);
         List<HolonomicSpline> splines = new ArrayList<>();
         splines.add(s0);
         splines.add(s1);
@@ -247,13 +247,13 @@ class HolonomicSplineTest {
         HolonomicSpline s0 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, 0), Rotation2d.kZero, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kZero),
-                magicNumber);
+                magicNumber, magicNumber);
         // this is a sharp turn to the left
         // derivatives point to the left
         HolonomicSpline s1 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
                 new HolonomicPose2d(new Translation2d(1, 1), Rotation2d.kZero, Rotation2d.kCCW_90deg),
-                magicNumber);
+                magicNumber, magicNumber);
         List<HolonomicSpline> splines = new ArrayList<>();
         splines.add(s0);
         splines.add(s1);
@@ -313,7 +313,7 @@ class HolonomicSplineTest {
         HolonomicSpline s0 = new HolonomicSpline(
                 new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kZero, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
-                1.2);
+                1.2, 1.2);
         // for (double t = 0; t < 1; t += 0.03) {
         // Util.printf("%5.3f %5.3f\n", s0.x(t), s0.y(t));
         // }

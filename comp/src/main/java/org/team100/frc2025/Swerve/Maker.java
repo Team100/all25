@@ -1,13 +1,8 @@
 package org.team100.frc2025.Swerve;
 
-import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
-import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
 import org.team100.frc2025.Swerve.Auto.GoToFirstPlace;
-import org.team100.frc2025.Swerve.Auto.GoToReefBuffer;
-import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
