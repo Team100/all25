@@ -4,19 +4,13 @@
 
 package org.team100.frc2025.Wrist;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetWristSoft extends Command {
-  /** Creates a new SetWristSoft. */
-  Wrist2 m_wrist;
-  double goal = 0;
-  PIDController controller = new PIDController(0.1, 0, 0);
-  public SetWristSoft(Wrist2 wrist) {
+public class IntakeAlgaeGrip extends Command {
+  /** Creates a new IntakeAlgaeGrip. */
+  public IntakeAlgaeGrip() {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_wrist = wrist;
-    addRequirements(m_wrist);
   }
 
   // Called when the command is initially scheduled.

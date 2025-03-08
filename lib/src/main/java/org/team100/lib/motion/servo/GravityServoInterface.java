@@ -36,4 +36,7 @@ public interface GravityServoInterface extends Glassy {
     void periodic();
 
     boolean atSetpoint();
+
+    void setStaticTorque(double torqueNm);
+
 }

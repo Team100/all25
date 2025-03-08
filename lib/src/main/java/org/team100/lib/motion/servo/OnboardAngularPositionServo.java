@@ -43,6 +43,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
+    private final DoubleLogger m_encoderValue;
+
     private final BooleanLogger m_log_at_setpoint;
 
     /**
@@ -58,13 +60,16 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism = mech;
         m_positionSensor = positionSensor;
         m_controller = controller;
-
+                
+        
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.model100Logger(Level.TRACE, "measurement (rad)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
         m_log_u_FB = child.doubleLogger(Level.TRACE, "u_FB (rad_s)");
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (rad_s)");
+        m_encoderValue = child.doubleLogger(Level.TRACE, "Encoder Value");
+
         m_log_u_TOTAL = child.doubleLogger(Level.TRACE, "u_TOTAL (rad_s)");
         m_log_error = child.doubleLogger(Level.TRACE, "Controller Position Error (rad)");
         m_log_velocity_error = child.doubleLogger(Level.TRACE, "Controller Velocity Error (rad_s)");
@@ -85,12 +90,16 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             Util.warn("OnboardAngularPositionServo: Broken sensor!");
             return;
         }
-        m_controller.init(new Model100(position.getAsDouble(), velocity.getAsDouble()));
+        m_controller.init(new Model100(position.getAsDouble(), 0)); //TODO CHANGE THIS
     }
 
     @Override
     public void setTorqueLimit(double torqueNm) {
         m_mechanism.setTorqueLimit(torqueNm);
+    }
+
+    public void setStaticTorque(double feedForwardTorqueNm) {
+        m_mechanism.setVelocity(0, 0, feedForwardTorqueNm);
     }
 
     /**
@@ -119,6 +128,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         // Util.printf("servo measurement %s\n", measurement);
+
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpointRad = result.feedforward();
         if (DEBUG)
@@ -163,7 +173,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         OptionalDouble position = m_positionSensor.getPositionRad();
         if (position.isEmpty())
             return OptionalDouble.empty();
-        return OptionalDouble.of(MathUtil.angleModulus(position.getAsDouble()));
+        return OptionalDouble.of(position.getAsDouble());
     }
 
     /**
@@ -227,8 +237,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void periodic() {
+        // m_positionSensor.periodic();
         m_mechanism.periodic();
         m_log_setpoint.log(() -> m_controller.getSetpoint().control());
         m_log_goal.log(() -> m_goal);
+
+        m_encoderValue.log(() -> getPosition().getAsDouble());
+
     }
 }

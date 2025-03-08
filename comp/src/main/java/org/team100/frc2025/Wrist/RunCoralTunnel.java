@@ -7,13 +7,15 @@ package org.team100.frc2025.Wrist;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RunAlgaeManipulator extends Command {
+public class RunCoralTunnel extends Command {
   /** Creates a new RunAlgaeManipulator. */
-  Wrist2 m_wrist;
-  public RunAlgaeManipulator(Wrist2 wrist) {
+  double m_value;
+  CoralTunnel m_tunnel;
+  public RunCoralTunnel(CoralTunnel tunnel, double value) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_wrist = wrist;
-    // addRequirements(m_wrist);
+    m_tunnel = tunnel;
+    m_value = value;
+    addRequirements(m_tunnel);
   }
 
   // Called when the command is initially scheduled.
@@ -24,13 +26,18 @@ public class RunAlgaeManipulator extends Command {
   @Override
   public void execute() {
     // m_wrist.setAlgaeMotor(0.5);
-    m_wrist.setCoralMotor(0.5);
+    m_tunnel.setCoralMotor(m_value);
+
+    // System.out.println("Coral Tunnel Motor MOOOVING");
+    
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_wrist.setCoralMotor(0);
+    // m_wrist.setCoralMotor(0);
+    m_tunnel.setCoralMotor(0);
+
 
   }
 

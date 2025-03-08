@@ -36,6 +36,9 @@ public class RunFunnel extends Command {
       } else{
         timer.restart();
       }
+
+    //   m_funnel.setFunnel(1);
+
   }
 
   // Called once the command ends or is interrupted.

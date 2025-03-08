@@ -42,6 +42,7 @@ public class Funnel extends SubsystemBase implements Glassy {
 
     switch (Identity.instance) {
             case COMP_BOT -> {
+                
                 m_starboardMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, funnelSupplyLimit, starboardID, 1, MotorPhase.REVERSE, 1);
                 m_portMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, funnelSupplyLimit, portID, 1, MotorPhase.FORWARD, 1);
                 

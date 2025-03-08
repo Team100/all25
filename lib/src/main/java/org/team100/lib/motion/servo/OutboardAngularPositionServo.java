@@ -218,4 +218,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.periodic();
         m_encoder.periodic();
     }
+
+    @Override
+    public void setStaticTorque(double feedForwardTorqueNm){
+
+    }
+
 }
