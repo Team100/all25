@@ -151,21 +151,22 @@ public class RobotContainer implements Glassy {
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
             m_grip = new AlgaeGrip(logger, 3);
+            // TODO: calibrate the elevator and use it here.
+            // swerveKinodynamics = SwerveKinodynamicsFactory
+            // .get(() -> VCG.vcg(m_elevator.getPosition()));
+            swerveKinodynamics = SwerveKinodynamicsFactory.get(() -> 0.5);
 
-            swerveKinodynamics = SwerveKinodynamicsFactory
-            .get(() -> VCG.vcg(m_elevator.getPosition()));
-    
         } else {
             swerveKinodynamics = SwerveKinodynamicsFactory
-            .get(() -> 1);
-            m_grip= null;
+                    .get(() -> 1);
+            m_grip = null;
             m_tunnel = null;
             m_elevator = null;
             m_wrist = null;
             m_funnel = null;
             m_leds = null;
         }
-        
+
         m_climber = ClimberFactory.get(logger);
         final TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
@@ -201,7 +202,7 @@ public class RobotContainer implements Glassy {
                 m_modules);
 
         SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
-        
+
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 driveLog,
@@ -211,7 +212,6 @@ public class RobotContainer implements Glassy {
                 visionDataProvider,
                 limiter);
 
-        
         // m_intake = new AlgaeIntake(logger, 8);
 
         ///////////////////////////
@@ -283,29 +283,33 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::driveToObject,
 
                 new DriveToPoseWithProfile(
-                fieldLog,
-                () -> (Optional.of(new Pose2d(1,1, new Rotation2d(Math.PI)))),
-                m_drive,
-                holonomicController,
-                profile));
-                // new DriveToPoseWithTrajectory(
-                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
-//                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+                        fieldLog,
+                        () -> (Optional.of(new Pose2d(1, 1, new Rotation2d(Math.PI)))),
+                        m_drive,
+                        holonomicController,
+                        profile));
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
 
         // whileTrue(driverControl::driveOneMeter,
-        //         // new Embark(m_drive, holonomicController, profile));
-        //         new DriveToPoseWithProfile(
-        //         fieldLog,
-        //         () -> (Optional.of(new Pose2d(5,6.5, new Rotation2d()))),
-        //         m_drive,
-        //         holonomicController,
-        //         profile));
-                
-                // new DriveToPoseWithTrajectory(
-                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                //                 .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
-                //         m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+        // // new Embark(m_drive, holonomicController, profile));
+        // new DriveToPoseWithProfile(
+        // fieldLog,
+        // () -> (Optional.of(new Pose2d(5,6.5, new Rotation2d()))),
+        // m_drive,
+        // holonomicController,
+        // profile));
+
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
@@ -314,7 +318,7 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));
         whileTrue(driverControl::fullCycle,
-                new FullCycle(fieldLog,manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile));
+                new FullCycle(fieldLog, manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile));
 
         m_auton = new FullCycle(fieldLog, manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile);
 
@@ -341,17 +345,21 @@ public class RobotContainer implements Glassy {
 
         // OPERATOR BUTTONS
         // whileTrue(operatorControl::elevate, new Handoff(m_funnel, m_wrist));
-        // whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel)); //x
+        // whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist,
+        // m_funnel, m_tunnel)); //x
         // whileTrue(operatorControl::elevate, new RunCoralTunnel(m_tunnel, 0.8)); //a
-        // whileTrue(operatorControl::elevate, new ScoreCoral(m_wrist, m_elevator, m_tunnel)); //x
-        // whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator, m_grip)); //x
-        // whileTrue(operatorControl::intake, new ScoreAlgae2(m_wrist, m_elevator, m_grip)); //x
+        // whileTrue(operatorControl::elevate, new ScoreCoral(m_wrist, m_elevator,
+        // m_tunnel)); //x
+        // whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator,
+        // m_grip)); //x
+        // whileTrue(operatorControl::intake, new ScoreAlgae2(m_wrist, m_elevator,
+        // m_grip)); //x
         whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
         // whileTrue(operatorControl::intake, new RunAlgaeGrip(m_grip, -1)); //a
 
         // whileTrue(operatorControl::elevator, new SetWristValue(m_wris)); //y
         // whileTrue(operatorControl::elevate, new SetElevator(m_elevator));
-        // whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); // 
+        // whileTrue(operatorControl::outtake, new SetWrist(m_wrist)); //
 
         // whileTrue(operatorControl::intake, new RunIntake(m_intake));
         // whileTrue(operatorControl::outtake, new RunOuttake(m_intake));
@@ -389,7 +397,7 @@ public class RobotContainer implements Glassy {
 
     public void scheduleAuton() {
         if (m_auton == null)
-        return;
+            return;
         m_auton.schedule();
     }
 

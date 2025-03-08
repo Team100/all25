@@ -28,6 +28,10 @@ public class SwerveKinodynamicsFactory {
      * 
      * Tests should try to avoid calling get(). Use one of the test-specific methods
      * below instead.
+     * 
+     * NOTE: VCG supplier is not used.
+     * 
+     * TODO: actually use the VCG supplier.
      */
     public static SwerveKinodynamics get(DoubleSupplier vcg) {
         switch (Identity.instance) {
