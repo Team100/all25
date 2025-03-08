@@ -61,7 +61,7 @@ public enum Camera {
      */
     SWERVE_RIGHT("06ece53b019a5c2e",
             new Transform3d(
-                    new Translation3d(-0.273, -0.302, 0.215),
+                    new Translation3d(-0.271, -0.307, 0.217),
                     new Rotation3d(0, Math.toRadians(-6), Math.toRadians(-60)))),
 
     
@@ -70,7 +70,7 @@ public enum Camera {
      */
     SWERVE_LEFT("8132c256f63bbb4e",
             new Transform3d(
-                    new Translation3d(-0.273, 0.302, 0.215),
+                    new Translation3d(-0.271, 0.307, 0.217),
                     new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
 
     /**
@@ -78,7 +78,7 @@ public enum Camera {
      */
     FUNNEL("1e5acbaa5a7f9d10",
             new Transform3d(
-                    new Translation3d(-0.011, -0.202, 0.900),
+                    new Translation3d(-0.023, -0.233, 0.902),
                     new Rotation3d(0, Math.toRadians(-25), Math.toRadians(170)))),
 
     /**
@@ -86,7 +86,7 @@ public enum Camera {
      */
     CORAL_LEFT("8ddb2ed6c49a9bce",
     new Transform3d(
-            new Translation3d(0.194, 0.294, 0.822),
+            new Translation3d(0.198, 0.294, 0.821),
             new Rotation3d(0, Math.toRadians(40), Math.toRadians(-10)))),
 
             /**
@@ -94,7 +94,7 @@ public enum Camera {
      */
     CORAL_RIGHT("364f07fb090a3bf7",
     new Transform3d(
-            new Translation3d(0.192, -0.293, 0.821),
+            new Translation3d(0.195, -0.293, 0.819),
             new Rotation3d(0, Math.toRadians(45), Math.toRadians(10)))),
 
     TEST1("test1",
