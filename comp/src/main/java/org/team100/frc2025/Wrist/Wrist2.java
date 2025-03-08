@@ -103,7 +103,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, 0.1, 0.1);
 
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech, encoder, controller);
-
+                wristServoWithoutGravity.reset();
 
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2, 0); //2
 
