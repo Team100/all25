@@ -4,19 +4,22 @@
 
 package org.team100.frc2025.Elevator;
 
+import org.team100.frc2025.Elevator.ElevatorUtil.ScoringPosition;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetElevator extends Command {
+public class SetElevatorSmart extends Command {
   /** Creates a new SetElevator. */
   Elevator m_elevator;
   double m_value;
   boolean finished = false;
   boolean m_perpetual;
-  public SetElevator(Elevator elevator, double value, boolean perpetual) {
+  ScoringPosition m_height;
+  public SetElevatorSmart(Elevator elevator, ScoringPosition height, boolean perpetual) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_elevator = elevator;
-    m_value = value;
+    m_height = height;
     finished = false;
     m_perpetual = perpetual;
     addRequirements(m_elevator);
@@ -32,10 +35,10 @@ public class SetElevator extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevator.setPosition(m_value); //24.5 for l3
+    m_elevator.setPosition(m_height.getValue()); //24.5 for l3
 
     double error = Math.abs(m_elevator.getPosition() - m_value);
-    if(error < 2){
+    if(error < 0.5){
         finished = true;
     }
   }

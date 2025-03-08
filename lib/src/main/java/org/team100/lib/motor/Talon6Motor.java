@@ -218,6 +218,7 @@ public abstract class Talon6Motor implements BareMotor {
         final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
         final double kFFVolts = frictionFFVolts + velocityFFVolts + accelFFVolts + torqueFFVolts;
+        // final double kFFVolts = torqueFFVolts;
 
         // VelocityVoltage has an acceleration field for kA feedforward but we use
         // arbitrary feedforward for that.

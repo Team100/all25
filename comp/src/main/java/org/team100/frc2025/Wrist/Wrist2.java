@@ -36,30 +36,30 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
 
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
     /** Creates a new Elevator. */
 
+    private LaserCan lc;
 
-
+    private final double kPositionTolerance = 0.1;
     private final GravityServoInterface wristServo;
-    // private final LinearMechanism m_algaeMech;
-    private final LinearMechanism m_coralMech;
+
     private final RotaryMechanism m_wristMech;
 
     public Wrist2(
             LoggerFactory parent,
-            int wristID,
-            int algaeID,
-            int coralID) {
+            int wristID) {
 
         LoggerFactory child = parent.child(this);
 
-        LoggerFactory wristLogger = child.child("Wrist");
+        LoggerFactory wristLogger = child.child("Wrist 2");
 
-        LoggerFactory wristMotorLogger = child.child("Wrist Motor");
+        LoggerFactory wristMotorLogger = child.child("Wrist 2 Motor");
+        
 
 
         int wristSupplyLimit = 60;
@@ -68,11 +68,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makePositionPID(57); //31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.15); //31
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
-        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(50, 30, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 8, kPositionTolerance); // TODO CHANGE THESE
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -86,29 +86,26 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.228270,
+                        0.224588,
                         EncoderDrive.DIRECT,
                         false);
-
+ 
                 IncrementalBareEncoder internalWristEncoder  = new Talon6Encoder(wristLogger, wristMotor);
 
                 RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder, 9);
 
                 m_wristMech = wristMech;
 
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech, false);
+                Feedback100 wristFeedback = new PIDFeedback(parent, 40, 0.15, 0.05, false, kPositionTolerance, kPositionTolerance); 
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 1, 0, 0, false, 0.1, 0.1); 
-
-                ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, 0.1, 0.1);
+                ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, kPositionTolerance, kPositionTolerance);
 
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech, encoder, controller);
+                wristServoWithoutGravity.reset();
 
+                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2.5, 0); //2
 
-                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2, 0); //2
-
-                // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.REVERSE, 1);
-                m_coralMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, coralCurrentLimit, coralID, 1, MotorPhase.FORWARD, 1);
+                
 
                 break;
             }
@@ -124,9 +121,9 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServo(child, wristMech,
                         combinedEncoder, wristProfile);
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 0, 0);
-                
-                m_coralMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, coralCurrentLimit, coralID, 1, MotorPhase.REVERSE, 1);
-                m_wristMech = null;
+                m_wristMech = wristMech;
+
+               
                 // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
 
@@ -135,8 +132,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     @Override
     public void periodic() {
-        // This method will be called on    ce per scheduler run
-
         wristServo.periodic();
     }
 
@@ -152,15 +147,16 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         m_wristMech.setDutyCycle(value);
     }
 
-
-
+    public void setStatic(){
+        wristServo.setStaticTorque(2.1);
+    }
 
     public double getAngle() {
         return wristServo.getPositionRad().orElse(0);
     }
 
     public void setAngle(){
-        Control100 control = new Control100(0.1, 0, 0); //1.17 for l3
+        Control100 control = new Control100(0.2, 0, 0); //1.17 for l3
         wristServo.setState(control);
     }
 
@@ -175,11 +171,4 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         wristServo.setState(control);
     }
 
-    public void setAlgaeMotor(double value){
-        // m_algaeMech.setDutyCycle(value);
-    }
-
-    public void setCoralMotor(double value){
-        m_coralMech.setDutyCycle(value);
-    }
 }

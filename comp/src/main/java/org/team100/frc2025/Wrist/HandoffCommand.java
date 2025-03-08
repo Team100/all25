@@ -4,7 +4,6 @@
 
 package org.team100.frc2025.Wrist;
 
-import org.team100.frc2025.Handoff;
 import org.team100.frc2025.Funnel.Funnel;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -18,8 +17,8 @@ public class HandoffCommand extends ParallelCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new SetFunnelHandoff(wrist),
-        new Handoff(funnel, wrist)
+        // new SetFunnelHandoff(wrist),
+        // new Handoff(funnel, wrist)
     );
   }
 }

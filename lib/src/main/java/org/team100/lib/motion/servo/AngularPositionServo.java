@@ -50,6 +50,9 @@ public interface AngularPositionServo extends Glassy {
      */
     void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm);
 
+
+    void setStaticTorque(double feedForwardTorqueNm);
+
     /**
      * Value should be updated in Robot.robotPeriodic().
      * 

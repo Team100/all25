@@ -43,7 +43,7 @@ public class OutboardGravityServo implements GravityServoInterface {
             return;
         }
         double mechanismPositionRad = optPos.getAsDouble();
-        mechanismPositionRad = (mechanismPositionRad * 9) / 10.5;
+        mechanismPositionRad = (mechanismPositionRad * 1.16666666667); //CHANGE THIS IF YOU WANT TO CHANGE BACK TO WRIST 1 PLEASE
         final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
         m_servo.setPositionWithVelocity(goal.x(), goal.v(), gravityTorqueNm);
     }
@@ -71,5 +71,18 @@ public class OutboardGravityServo implements GravityServoInterface {
     @Override
     public boolean atSetpoint() {
         return m_servo.atSetpoint();
+    }
+
+    @Override
+    public void setStaticTorque(double value) {
+        OptionalDouble optPos = getPositionRad();
+        if (optPos.isEmpty()) {
+            Util.warn("GravityServo: Broken sensor!");
+            return;
+        }
+        double mechanismPositionRad = optPos.getAsDouble();
+        mechanismPositionRad = (mechanismPositionRad * 1.16666666667); //CHANGE THIS IF YOU WANT TO CHANGE BACK TO WRIST 1 PLEASE
+        final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
+        m_servo.setStaticTorque(gravityTorqueNm);
     }
 }
