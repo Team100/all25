@@ -54,6 +54,7 @@ public class AnalogTurningEncoder extends RoboRioRotaryPositionSensor {
         m_input.close();
     }
 
+
     /** Cached, almost. */
     @Override
     protected OptionalDouble getRatio() {

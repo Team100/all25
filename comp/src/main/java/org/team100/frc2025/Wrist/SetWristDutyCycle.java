@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class SetWristDutyCycle extends Command {
   /** Creates a new SetWristDutyCycle. */
   Wrist2 m_wrist;
-  public SetWristDutyCycle(Wrist2 wrist) {
+  double m_duty;
+  public SetWristDutyCycle(Wrist2 wrist, double duty) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_wrist = wrist;
+    m_duty = duty;
     addRequirements(m_wrist);
   }
 
@@ -23,8 +25,7 @@ public class SetWristDutyCycle extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // System.out.println("FHHFH");
-    m_wrist.setWristDutyCycle(-0.07);
+    m_wrist.setWristDutyCycle(m_duty);
   }
 
   // Called once the command ends or is interrupted.

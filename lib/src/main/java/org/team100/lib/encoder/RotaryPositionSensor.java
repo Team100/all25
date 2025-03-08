@@ -37,4 +37,6 @@ public interface RotaryPositionSensor extends Glassy {
      * Releases the encoder resource, if necessary (e.g. HAL ports).
      */
     void close();
+
+
 }
