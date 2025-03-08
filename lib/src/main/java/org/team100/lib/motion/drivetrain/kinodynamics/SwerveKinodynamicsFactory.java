@@ -28,6 +28,10 @@ public class SwerveKinodynamicsFactory {
      * 
      * Tests should try to avoid calling get(). Use one of the test-specific methods
      * below instead.
+     * 
+     * NOTE: VCG supplier is not used.
+     * 
+     * TODO: actually use the VCG supplier.
      */
     public static SwerveKinodynamics get(DoubleSupplier vcg) {
         switch (Identity.instance) {
@@ -48,7 +52,7 @@ public class SwerveKinodynamicsFactory {
                         0.43, // back track m
                         0.46, // wheelbase m
                         0.31, // front offset m
-                        () -> 0.1); // vcg m
+                        () -> 0.5); // vcg m NOTE VERY HIGH
             case SWERVE_TWO:
                 return new SwerveKinodynamics(
                         4, // vel m/s
@@ -61,7 +65,7 @@ public class SwerveKinodynamicsFactory {
                         0.380, // track m
                         0.445, // wheelbase m
                         0.2225, // front offset m
-                        () -> 0.3); // vcg m
+                        () -> 0.5); // vcg m HIGH LIKE COMP
             case SWERVE_ONE:
                 return new SwerveKinodynamics(
                         5, // vel m/s
@@ -74,7 +78,7 @@ public class SwerveKinodynamicsFactory {
                         0.44, // back track m
                         0.462, // wheelbase m
                         0.31, // front offset m
-                        () -> 0.07); // vcg m
+                        () -> 0.5); // vcg m HIGH LIKE COMP
             case BLANK:
                 // this is used for tests and simulation; the limits should be kept in sync
                 // with the comp config, so that the simulator provides realistic
@@ -117,7 +121,7 @@ public class SwerveKinodynamicsFactory {
                         0.44, // back track m
                         0.491, // wheelbase m
                         0.29, // front offset m
-                        () -> 0.1); // vcg m
+                        () -> 0.5); // vcg m HIGH LIKE COMP
             default:
                 Util.warn("***");
                 Util.warn("*** Using default kinodynamics, this should never happen.");
