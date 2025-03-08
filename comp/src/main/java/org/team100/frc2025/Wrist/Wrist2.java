@@ -100,7 +100,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 wristServoWithoutGravity.reset();
 
                 wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2.5, 0); //2
-
                 
 
                 break;

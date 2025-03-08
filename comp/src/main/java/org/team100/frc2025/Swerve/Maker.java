@@ -1,11 +1,16 @@
 package org.team100.frc2025.Swerve;
 
+import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.Auto.GoToFirstPlace;
+import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
+import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
+import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -56,62 +61,54 @@ public class Maker {
         return new Embark(m_drive, holonomicController, profile);
     }
 
-    public Command test() {
-
-        final HolonomicProfile profile = new HolonomicProfile(
-                m_kinodynamics.getMaxDriveVelocityM_S() * 0.25,
-                m_kinodynamics.getMaxDriveAccelerationM_S2() * 0.2,
-                0.1, // 1 cm
-                m_kinodynamics.getMaxAngleSpeedRad_S() * 0.25,
-                m_kinodynamics.getMaxAngleAccelRad_S2() * 0.25,
-                0.1); // 5 degrees
-
+    public Command test(FieldLogger.Log fieldLog,SwerveController controller, HolonomicProfile profile) {
     
 
-    // return new SequentialCommandGroup(
-    //             new GoToReefDestination(
-    //                     m_logger,
-    //                     m_drive,
-    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-    //                     m_viz,
-    //                     m_kinodynamics,
-    //                     FieldSector.EF,
-    //                     ReefDestination.RIGHT,
-    //                     profile),
-    //             new GoToCoralStation(
-    //                     m_logger,
-    //                     m_drive,
-    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-    //                     m_viz,
-    //                     m_kinodynamics,
-    //                     CoralStation.Right,
-    //                     0.5),
-    //             new GoToReefDestination(
-    //                     m_logger,
-    //                     m_drive,
-    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-    //                     m_viz,
-    //                     m_kinodynamics,
-    //                     FieldSector.CD,
-    //                     ReefDestination.RIGHT,
-    //                     profile),
-    //             new GoToCoralStation(
-    //                     m_logger,
-    //                     m_drive,
-    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-    //                     m_viz,
-    //                     m_kinodynamics,
-    //                     CoralStation.Right,
-    //                     0),
-    //             new GoToReefDestination(
-    //                     m_logger,
-    //                     m_drive,
-    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-    //                     m_viz,
-    //                     m_kinodynamics,
-    //                     FieldSector.CD,
-    //                     ReefDestination.LEFT,
-    //                     profile));
+    return new SequentialCommandGroup(
+                new GoToReefDestination(
+                    fieldLog,
+                        m_logger,
+                        m_drive,
+                        controller,
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.IJ,
+                        ReefDestination.RIGHT,
+                        profile),
+                new GoToCoralStation(
+                        m_logger,
+                        m_drive,
+                        controller,
+                        m_viz,
+                        m_kinodynamics,
+                        CoralStation.Left,
+                        0.5),
+                new GoToReefDestination(fieldLog,
+                        m_logger,
+                        m_drive,
+                        controller,
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.KL,
+                        ReefDestination.RIGHT,
+                        profile),
+                new GoToCoralStation(
+                        m_logger,
+                        m_drive,
+                        controller,
+                        m_viz,
+                        m_kinodynamics,
+                        CoralStation.Left,
+                        0),
+                new GoToReefDestination(fieldLog,
+                        m_logger,
+                        m_drive,
+                        controller,
+                        m_viz,
+                        m_kinodynamics,
+                        FieldSector.KL,
+                        ReefDestination.LEFT,
+                        profile));
 
     // }
 
@@ -157,17 +154,17 @@ public class Maker {
     //                     FieldSector.CD,
     //                     ReefDestination.LEFT));
 
-    // }
+    }
 
-    return new SequentialCommandGroup(
-                new GoToFirstPlace(
-                        m_logger,
-                        m_drive,
-                        SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.EF,
-                        ReefDestination.RIGHT));
+    // return new SequentialCommandGroup(
+    //             new GoToFirstPlace(
+    //                     m_logger,
+    //                     m_drive,
+    //                     SwerveControllerFactory.autoFieldRelativePIDF(m_logger),
+    //                     m_viz,
+    //                     m_kinodynamics,
+    //                     FieldSector.EF,
+    //                     ReefDestination.RIGHT));
                 //         ,
                 // new GoToCoralStation(
                 //         m_logger,
@@ -203,8 +200,3 @@ public class Maker {
                 //         ReefDestination.LEFT));
 
     }
-
-
-
-}
-

@@ -62,7 +62,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
     }
 
     // WCP 4 inch wheel
-    private static final double kWheelDiameterM = 0.093; // 0.1015
+    private static final double kWheelDiameterM = 0.094; // 0.1015
 
     /**
      * MAKE SURE THAT THE BEVELS ON THE WHEELS FOR ZEROING GO TO THE RIGHT
@@ -142,7 +142,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             double statorLimit,
             int driveMotorCanId,
             DriveRatio ratio) {
-        Feedforward100 ff = Feedforward100.makeWCPSwerveDriveFalcon6();
+        Feedforward100 ff = Feedforward100.makeWCPSwerveDriveKraken6();
         // note (10/2/24) 0.4 produces oscillation, on carpet.
         PIDConstants pid = PIDConstants.makeVelocityPID(0.3);
         Kraken6Motor driveMotor = new Kraken6Motor(

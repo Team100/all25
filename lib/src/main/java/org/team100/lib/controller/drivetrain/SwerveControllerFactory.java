@@ -14,7 +14,6 @@ public class SwerveControllerFactory {
             case COMP_BOT -> {
                 // return new FullStateSwerveController(log, 0.5, 3.5, 0, 0, 0.01, 0.01, 0.01, 0.01);
                 return new FullStateSwerveController(log, 0, 0, 0, 0, 0, 0, 0, 0);
-
             }
             case SWERVE_ONE -> {
                 return new FullStateSwerveController(log, 3, 3.5, 0.05, 0, 0.01, 0.01, 1, 1);

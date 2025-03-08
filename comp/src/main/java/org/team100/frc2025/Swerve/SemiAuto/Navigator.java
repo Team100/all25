@@ -74,8 +74,8 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     @Override
     public final boolean isFinished() {
-        // return m_referenceController.isDone();
-        return false;
+        return m_referenceController.isFinished();
+        // return false;
     }
 
     public static List<HolonomicPose2d> addRobotPose(Pose2d currPose, List<HolonomicPose2d> waypoints) {
