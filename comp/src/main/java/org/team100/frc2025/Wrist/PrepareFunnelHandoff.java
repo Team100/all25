@@ -26,7 +26,7 @@ public class PrepareFunnelHandoff extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     m_wrist = wrist;
     addCommands(
-        new SetWrist(wrist, 0.1, false),
+        new SetWristHandoff(wrist, 0.1),
         new SetWristDutyCycle(wrist, -0.11)
 
     );

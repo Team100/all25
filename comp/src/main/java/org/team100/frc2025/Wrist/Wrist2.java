@@ -68,7 +68,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makePositionPID(60); //31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.15); //31
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
@@ -86,7 +86,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.228270,
+                        0.224588,
                         EncoderDrive.DIRECT,
                         false);
  
@@ -96,7 +96,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_wristMech = wristMech;
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 28, 0.15, 0.05, false, kPositionTolerance, kPositionTolerance); 
+                Feedback100 wristFeedback = new PIDFeedback(parent, 40, 0.15, 0.05, false, kPositionTolerance, kPositionTolerance); 
 
                 ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, kPositionTolerance, kPositionTolerance);
 
