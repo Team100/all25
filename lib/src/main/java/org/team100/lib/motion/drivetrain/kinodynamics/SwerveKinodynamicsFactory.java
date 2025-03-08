@@ -158,7 +158,6 @@ public class SwerveKinodynamicsFactory {
                 () -> 0.3); // vcg m
     }
 
-    /** Faster maximum speed/accel, for tests that want to go 1 m/s. */
     public static SwerveKinodynamics forRealisticTest() {
         return new SwerveKinodynamics(
                 5, // vel m/s

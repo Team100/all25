@@ -151,7 +151,7 @@ public class HolonomicSpline {
         return Optional.of(new Rotation2d(dx, dy));
     }
 
-    Pose2d getPose2d(double p) {
+    public Pose2d getPose2d(double p) {
         return new Pose2d(getPoint(p), getHeading(p));
     }
 

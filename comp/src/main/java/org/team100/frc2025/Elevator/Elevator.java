@@ -25,11 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase implements Glassy {
     /** Creates a new Elevator. */
 
-    private static final double kElevatorReduction = 2; // TODO CHANGE THIS
-    private static final double kElevatorWheelDiamater = 1; // TODO CHANGE THIS
-
-    private static final double kWristReduction = 1; // TODO CHANGE THIS
-    private static final double kWristWheelDiameter = 1; // TODO CHANGE THIS
+    private static final double kElevatorReduction = 2; 
+    private static final double kElevatorWheelDiamater = 0.0381; 
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
@@ -45,16 +42,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
         LoggerFactory starboardLogger = child.child("Starboard");
         LoggerFactory portLogger = child.child("Port");
-        LoggerFactory wristLogger = child.child("Wrist");
 
         LoggerFactory starboardMotorLogger = child.child("Starboard Motor");
         LoggerFactory portMotorLogger = child.child("Port Motor");
-        LoggerFactory wristMotorLogger = child.child("Wrist Motor");
 
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-        // PIDConstants elevatorPID = new PIDConstants(2, 0, 0);
         PIDConstants elevatorPID = PIDConstants.makePositionPID(2);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
@@ -63,17 +57,6 @@ public class Elevator extends SubsystemBase implements Glassy {
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(50, 50, 0.05); // TODO CHANGE THESE
 
-        int wristSupplyLimit = 60;
-        int wristStatorLimit = 90;
-
-        PIDConstants wristPID = PIDConstants.makePositionPID(10);
-
-        Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
-        PIDController wristPIDController = new PIDController(wristPID.getPositionP(), wristPID.getPositionI(),
-                wristPID.getPositionD());
-        wristPIDController.setTolerance(0.02);
-        wristPIDController.setIntegratorRange(0, 1);
-        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 20, 0.05); // TODO CHANGE THESE
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -139,12 +122,20 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     /**
-     * TODO: calibrate this in meters
      */
     public void setPosition(double x) {
-        // TODO: change gravity depending on position (it gets heavier)
+        if (getPosition() < .9) {
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
+        } else if (getPosition() > 1.8) {
+            //TODO get these constants
+            starboardServo.setPosition(x, 1.7); // 54 max
+            portServo.setPosition(x, 1.7); // 54 max
+        } else {
+            //TODO get these constants
+            starboardServo.setPosition(x, 1.5); // 54 max
+            portServo.setPosition(x, 1.5); // 54 max
+        }
     }
 
     public void setDutyCycle(double value) {
@@ -155,7 +146,6 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     /**
-     * TODO: calibrate this in meters
      */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);

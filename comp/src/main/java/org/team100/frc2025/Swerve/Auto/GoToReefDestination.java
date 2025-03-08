@@ -32,9 +32,6 @@ public class GoToReefDestination extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
 
-    
-
-
     addCommands(
         new GoToReefBuffer(parent, drive, hcontroller, viz, kinodynamics, endSector, reefDest),
         new ProfileToDestination(drive, hcontroller, profile, endSector, reefDest)

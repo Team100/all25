@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
@@ -28,7 +29,7 @@ public class OnboardAngularPositionServoTest {
 
     @Test
     void testOnboard() {
-        final MockBareMotor turningMotor = new MockBareMotor();
+        final MockBareMotor turningMotor = new MockBareMotor(Feedforward100.makeSimple());
         final RotaryMechanism mech = new SimpleRotaryMechanism(
                 logger,
                 turningMotor,

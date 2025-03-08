@@ -106,6 +106,10 @@ public class ProfiledController {
         Control100 u_FF = result.state();
         m_setpoint = u_FF.model();
 
+        // 3/5/25 Sanjan added this, but I think it's not correct:
+        // you can be "at the setpoint" during the middle of the profile
+        // ... i think maybe he was looking for "at goal" but even so,
+        // that should be handled by the caller, not by this class.
         // if(atSetpoint()){
         //     return new Result(new Control100(0, 0), 0);
         // }

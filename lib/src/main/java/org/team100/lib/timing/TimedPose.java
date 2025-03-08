@@ -1,10 +1,8 @@
 package org.team100.lib.timing;
 
-import edu.wpi.first.math.MathUtil;
-
-import java.text.DecimalFormat;
-
 import org.team100.lib.geometry.Pose2dWithMotion;
+
+import edu.wpi.first.math.MathUtil;
 
 /**
  * Represents a state within a 2d holonomic trajectory, i.e. with heading
@@ -53,11 +51,11 @@ public class TimedPose {
 
     @Override
     public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "state: " + state().toString()
-                + ", time: " + fmt.format(getTimeS())
-                + ", vel: " + fmt.format(velocityM_S())
-                + ", acc: " + fmt.format(acceleration());
+        return String.format("state %s, time %5.3f, vel %5.3f, acc %5.3f",
+                state(),
+                getTimeS(),
+                velocityM_S(),
+                acceleration());
     }
 
     public TimedPose interpolate2(TimedPose other, double x) {

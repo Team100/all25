@@ -14,6 +14,7 @@ public:
   void initialize() {
     mcp0.begin_I2C(0x20);
     mcp1.begin_I2C(0x21);
+
     // These are the "A" pins.
     mcp0.pinMode(0, INPUT_PULLUP);
     mcp0.pinMode(1, INPUT_PULLUP);
@@ -22,7 +23,7 @@ public:
     mcp0.pinMode(4, INPUT_PULLUP);
     mcp0.pinMode(5, INPUT_PULLUP);
     mcp0.pinMode(6, INPUT_PULLUP);
-    mcp0.pinMode(7, INPUT_PULLUP);
+    mcp0.pinMode(7, OUTPUT);
     // These are the "B" pins.
     mcp0.pinMode(8, INPUT_PULLUP);
     mcp0.pinMode(9, INPUT_PULLUP);
@@ -31,7 +32,7 @@ public:
     mcp0.pinMode(12, INPUT_PULLUP);
     mcp0.pinMode(13, INPUT_PULLUP);
     mcp0.pinMode(14, INPUT_PULLUP);
-    mcp0.pinMode(15, INPUT_PULLUP);
+    mcp0.pinMode(15, OUTPUT);
     // These are the "A" pins.
     mcp1.pinMode(0, INPUT_PULLUP);
     mcp1.pinMode(1, INPUT_PULLUP);
@@ -40,7 +41,7 @@ public:
     mcp1.pinMode(4, INPUT_PULLUP);
     mcp1.pinMode(5, INPUT_PULLUP);
     mcp1.pinMode(6, INPUT_PULLUP);
-    mcp1.pinMode(7, INPUT_PULLUP);
+    mcp1.pinMode(7, OUTPUT);
     // These are the "B" pins.
     mcp1.pinMode(8, INPUT_PULLUP);
     mcp1.pinMode(9, INPUT_PULLUP);
@@ -49,7 +50,7 @@ public:
     mcp1.pinMode(12, INPUT_PULLUP);
     mcp1.pinMode(13, INPUT_PULLUP);
     mcp1.pinMode(14, INPUT_PULLUP);
-    mcp1.pinMode(15, INPUT_PULLUP);
+    mcp1.pinMode(15, OUTPUT);
   }
 
   /**
@@ -67,7 +68,8 @@ public:
     reportTx.b5 = !(gpio0 & 0b0000000000010000);
     reportTx.b6 = !(gpio0 & 0b0000000000100000);
     reportTx.b7 = !(gpio0 & 0b0000000001000000);
-    reportTx.b8 = !(gpio0 & 0b0000000010000000);
+    reportTx.b8 = false;
+    // reportTx.b8 = !(gpio0 & 0b0000000010000000);
     reportTx.b9 = !(gpio0 & 0b0000000100000000);
     reportTx.b10 = !(gpio0 & 0b0000001000000000);
     reportTx.b11 = !(gpio0 & 0b0000010000000000);
@@ -75,7 +77,8 @@ public:
     reportTx.b13 = !(gpio0 & 0b0001000000000000);
     reportTx.b14 = !(gpio0 & 0b0010000000000000);
     reportTx.b15 = !(gpio0 & 0b0100000000000000);
-    reportTx.b16 = !(gpio0 & 0b1000000000000000);
+    reportTx.b16 = false;
+    // reportTx.b16 = !(gpio0 & 0b1000000000000000);
     reportTx.b17 = !(gpio1 & 0b0000000000000001);
     reportTx.b18 = !(gpio1 & 0b0000000000000010);
     reportTx.b19 = !(gpio1 & 0b0000000000000100);
@@ -83,7 +86,8 @@ public:
     reportTx.b21 = !(gpio1 & 0b0000000000010000);
     reportTx.b22 = !(gpio1 & 0b0000000000100000);
     reportTx.b23 = !(gpio1 & 0b0000000001000000);
-    reportTx.b24 = !(gpio1 & 0b0000000010000000);
+    reportTx.b24 = false;
+    // reportTx.b24 = !(gpio1 & 0b0000000010000000);
     reportTx.b25 = !(gpio1 & 0b0000000100000000);
     reportTx.b26 = !(gpio1 & 0b0000001000000000);
     reportTx.b27 = !(gpio1 & 0b0000010000000000);
@@ -91,7 +95,8 @@ public:
     reportTx.b29 = !(gpio1 & 0b0001000000000000);
     reportTx.b30 = !(gpio1 & 0b0010000000000000);
     reportTx.b31 = !(gpio1 & 0b0100000000000000);
-    reportTx.b32 = !(gpio1 & 0b1000000000000000);
+    reportTx.b32 = false;
+    // reportTx.b32 = !(gpio1 & 0b1000000000000000);
   }
 
 private:

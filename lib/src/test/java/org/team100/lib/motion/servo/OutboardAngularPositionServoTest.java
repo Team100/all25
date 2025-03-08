@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.config.Feedforward100;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
@@ -23,7 +24,7 @@ public class OutboardAngularPositionServoTest {
 
     @Test
     void testOutboard() {
-        final MockBareMotor motor = new MockBareMotor();
+        final MockBareMotor motor = new MockBareMotor(Feedforward100.makeSimple());
         final RotaryMechanism mech = new SimpleRotaryMechanism(
                 logger,
                 motor,

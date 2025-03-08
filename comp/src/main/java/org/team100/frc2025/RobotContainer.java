@@ -7,18 +7,14 @@ import java.util.function.BooleanSupplier;
 
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
-import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.ScoreAlgae;
 import org.team100.frc2025.Elevator.ScoreAlgae2;
 import org.team100.frc2025.Elevator.ScoreCoral;
 import org.team100.frc2025.Elevator.SetElevator;
+
 import org.team100.frc2025.Funnel.Funnel;
-import org.team100.frc2025.Funnel.RunFunnel;
-import org.team100.frc2025.Intake.AlgaeIntake;
-import org.team100.frc2025.Intake.RunIntake;
-import org.team100.frc2025.Intake.RunOuttake;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
@@ -29,9 +25,12 @@ import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 // import org.team100.frc2025.Wrist.Wrist;
+
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
+import org.team100.lib.commands.Buttons2025Demo;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
+import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
@@ -55,6 +54,8 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
 import org.team100.lib.hid.OperatorControlProxy;
+import org.team100.lib.hid.ThirdControl;
+import org.team100.lib.hid.ThirdControlProxy;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -86,6 +87,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -137,6 +139,10 @@ public class RobotContainer implements Glassy {
         final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
+
+        final ThirdControl buttons = new ThirdControlProxy(async);
+        Buttons2025Demo demo = new Buttons2025Demo(buttons);
+        demo.setup();
 
         m_climber = ClimberFactory.get(logger);
         m_elevator = new Elevator(elevatorLog, 2, 1);
@@ -263,18 +269,18 @@ public class RobotContainer implements Glassy {
 
         whileTrue(driverControl::driveToObject,
 
-                // new DriveToPoseWithProfile(
-                // fieldLog,
-                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-                // 16).get().toPose2d()
-                // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-                // m_drive,
-                // holonomicController,
-                // profile));
-                new DriveToPoseWithTrajectory(
-                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
-                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+                new DriveToPoseWithProfile(
+                fieldLog,
+                () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+                16).get().toPose2d()
+                .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+                m_drive,
+                holonomicController,
+                profile));
+                // new DriveToPoseWithTrajectory(
+                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+                //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+//                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         whileTrue(driverControl::driveOneMeter,
                 // new DriveToPoseWithProfile(
