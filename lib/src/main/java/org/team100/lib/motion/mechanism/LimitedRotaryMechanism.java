@@ -12,8 +12,8 @@ import java.util.OptionalDouble;
  */
 public class LimitedRotaryMechanism implements RotaryMechanism {
     final RotaryMechanism m_delegate;
-    final double m_minPositionRad;
-    final double m_maxPositionRad;
+    double m_minPositionRad;
+    double m_maxPositionRad;
 
     public LimitedRotaryMechanism(
             RotaryMechanism delegate,
@@ -22,6 +22,14 @@ public class LimitedRotaryMechanism implements RotaryMechanism {
         m_delegate = delegate;
         m_minPositionRad = minPositionRad;
         m_maxPositionRad = maxPositionRad;
+    }
+
+    public void setMinPositionRad(double x) {
+        m_minPositionRad = x;
+    }
+
+    public void setMaxPositionRad(double x) {
+        m_maxPositionRad = x;
     }
 
     /** Use for homing. */
