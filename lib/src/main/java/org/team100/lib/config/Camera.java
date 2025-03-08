@@ -86,8 +86,8 @@ public enum Camera {
      */
     CORAL_LEFT("8ddb2ed6c49a9bce",
     new Transform3d(
-            new Translation3d(0.192, 0.293, 0.821),
-            new Rotation3d(0, Math.toRadians(45), Math.toRadians(-10)))),
+            new Translation3d(0.194, 0.294, 0.822),
+            new Rotation3d(0, Math.toRadians(40), Math.toRadians(-10)))),
 
             /**
      * Coral reef right 
