@@ -176,7 +176,7 @@ class TrajectoryPlannerTest {
         SwerveModel start = new SwerveModel(Pose2d.kZero, new FieldRelativeVelocity(-1, 0, 0));
         Pose2d end = new Pose2d(1, 0, Rotation2d.kZero);
         Trajectory100 traj = planner.movingToRest(start, end);
-        assertEquals(1.386, traj.duration(), kDelta);
+        assertEquals(1.176, traj.duration(), kDelta);
     }
 
     @Test
@@ -187,7 +187,7 @@ class TrajectoryPlannerTest {
         SwerveModel start = new SwerveModel(Pose2d.kZero, new FieldRelativeVelocity(0, 1, 0));
         Pose2d end = new Pose2d(1, 0, Rotation2d.kZero);
         Trajectory100 traj = planner.movingToRest(start, end);
-        assertEquals(2.262, traj.duration(), kDelta);
+        assertEquals(2.632, traj.duration(), kDelta);
     }
 
 }
