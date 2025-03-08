@@ -9,8 +9,16 @@ import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.ElevatorDown;
+import org.team100.frc2025.Elevator.ScoreAlgae;
+import org.team100.frc2025.Elevator.ScoreAlgae2;
+import org.team100.frc2025.Elevator.ScoreCoral;
+import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
+import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.RunFunnelHandoff;
@@ -246,10 +254,10 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        if (m_climber != null) {
-            m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-                    operatorControl::ramp));
-        }
+        // if (m_climber != null) {
+        //     m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+        //             operatorControl::ramp));
+        // }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
         // ObjectPosition24ArrayListener(poseEstimator);
@@ -278,19 +286,22 @@ public class RobotContainer implements Glassy {
                 //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
 //                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
-        whileTrue(driverControl::driveOneMeter,
-                // new DriveToPoseWithProfile(
-                // fieldLog,
-                // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-                // 16).get().toPose2d()
-                // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-                // m_drive,
-                // holonomicController,
-                // profile));
-                new DriveToPoseWithTrajectory(
-                        () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                                .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
-                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+        // whileTrue(driverControl::driveOneMeter,
+        //         // new DriveToPoseWithProfile(
+        //         // fieldLog,
+        //         // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+        //         // 16).get().toPose2d()
+        //         // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+        //         // m_drive,
+        //         // holonomicController,
+        //         // profile));
+        //         new DriveToPoseWithTrajectory(
+        //                 () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+        //                         .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+        //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+
+        whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
+
         whileTrue(driverControl::never,
                 new DriveToTranslationWithFront(
                         fieldLog,
