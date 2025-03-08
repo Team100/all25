@@ -354,7 +354,7 @@ class RealCamera(Camera):
             case Model.GS:
                 # if identity == Identity.DIST_TEST:
 # this is for the 3.2 mm lens from 2/1/25 testing
-                return np.array([[-0.306, 0.107, 0, 0]])
+                return np.array([[-0.374, 0.1, 0, 0]])
 # this is for the 6 mm lens from 2/1/25 testing
                 #     return np.array([[-0.510, 0.335, 0, 0]])
                 # else:
