@@ -43,8 +43,25 @@ public class GoToDestinationDirectly extends Navigator {
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
 
+        // Translation2d currTranslation = currentPose.getTranslation();
+        // Translation2d goalTranslation = FieldConstants.getOrbitDestination(m_end, m_reefDestination, 1.3);
+
+        // Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
+
+        // List<HolonomicPose2d> waypoints = new ArrayList<>();
+        // waypoints.add(new HolonomicPose2d(
+        //         currTranslation,
+        //         currentPose.getRotation(),
+        //         bearingToGoal));
+        // waypoints.add(new HolonomicPose2d(
+        //         goalTranslation,
+        //         FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
+        //         bearingToGoal));
+
+        // return m_planner.restToRest(waypoints);
+
         Translation2d currTranslation = currentPose.getTranslation();
-        Translation2d goalTranslation = FieldConstants.getOrbitDestination(m_end, m_reefDestination, 1.3);
+        Translation2d goalTranslation = new Translation2d(1, 1);
 
         Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
 
@@ -55,7 +72,7 @@ public class GoToDestinationDirectly extends Navigator {
                 bearingToGoal));
         waypoints.add(new HolonomicPose2d(
                 goalTranslation,
-                FieldConstants.getSectorAngle(m_end).rotateBy(Rotation2d.fromDegrees(180)),
+                currentPose.getRotation(),
                 bearingToGoal));
 
         return m_planner.restToRest(waypoints);
