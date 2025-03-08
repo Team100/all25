@@ -7,25 +7,15 @@ import java.util.function.BooleanSupplier;
 
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.ScoreAlgae;
-import org.team100.frc2025.Elevator.ScoreAlgae2;
-import org.team100.frc2025.Elevator.ScoreCoral;
-import org.team100.frc2025.Elevator.SetElevator;
-
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.RunCoralTunnel;
 import org.team100.frc2025.Wrist.RunFunnelHandoff;
-import org.team100.frc2025.Wrist.PrepareFunnelHandoff;
-import org.team100.frc2025.Wrist.RunAlgaeGrip;
-import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 // import org.team100.frc2025.Wrist.Wrist;
-
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
@@ -54,9 +44,9 @@ import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
 import org.team100.lib.hid.OperatorControlProxy;
-import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.hid.ThirdControl;
 import org.team100.lib.hid.ThirdControlProxy;
+import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -88,7 +78,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
