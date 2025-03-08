@@ -177,7 +177,7 @@ public class FieldConstants {
   }
 
   public static double getOrbitDestinationRadius() {
-    return 1.8;
+    return 1.7;
   }
 
   public static double getReefOffset() {
@@ -266,7 +266,6 @@ public class FieldConstants {
 
     double x = reefCenter.getX() + getOrbitDestinationRadius() * sectorAngle.getCos();
     double y = reefCenter.getY() + getOrbitDestinationRadius() * sectorAngle.getSin();
-
     double dx = 0;
     double dy = 0;
 
