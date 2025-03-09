@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import org.opencv.ml.EM;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
@@ -283,8 +284,8 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
                 swerveKinodynamics.getMaxDriveVelocityM_S(),
-                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
-                0.05, // 1 cm
+                swerveKinodynamics.getMaxDriveAccelerationM_S2(),
+                0.02, // 1 cm
                 swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1); // 5 degrees
@@ -318,7 +319,8 @@ public class RobotContainer implements Glassy {
         //                         .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
         //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
-        whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
+        // whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
+        whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile)); //A
 
         // new DriveToPoseWithTrajectory(
         // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
@@ -382,11 +384,10 @@ public class RobotContainer implements Glassy {
         // whileTrue(operatorControl::elevate, new RunCoralTunnel(m_tunnel, 0.8)); //a
         // whileTrue(operatorControl::elevate, new ScoreCoral(m_wrist, m_elevator,
         // m_tunnel)); //x
-        // whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator,
+        whileTrue(operatorControl::elevate, new ScoreAlgae(m_wrist, m_elevator,m_grip)); //x
+        whileTrue(operatorControl::intake, new ScoreAlgae2(m_wrist, m_elevator, m_grip));
         // m_grip)); //x
-        // whileTrue(operatorControl::intake, new ScoreAlgae2(m_wrist, m_elevator,
-        // m_grip)); //x
-        whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
+        // whileTrue(operatorControl::elevate, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
         // whileTrue(operatorControl::intake, new RunAlgaeGrip(m_grip, -1)); //a
 
         // whileTrue(operatorControl::elevator, new SetWristValue(m_wris)); //y

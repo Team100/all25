@@ -108,7 +108,7 @@ public class Feedforward100 {
     }
 
     public static Feedforward100 makeWCPSwerveDriveKraken6() {
-        return new Feedforward100(0.12, 0.027, 0.007, 0.26, 0.26, 0.06);
+        return new Feedforward100(0.115, 0.022, 0.007, 0.26, 0.26, 0.06);
     }
 
     public static Feedforward100 makeAMSwerveDriveFalcon6() {

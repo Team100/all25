@@ -45,9 +45,15 @@ public class Embark extends Command implements Glassy {
         // Pose2d currentPose = m_drive.getPose();
         // FieldSector currentSector = FieldConstants.getSector(currentPose);
         FieldSector currentSector = FieldSector.CD;
-        Translation2d destination = FieldConstants.getOrbitDestination(currentSector, FieldConstants.ReefDestination.RIGHT);
-        Rotation2d heading = FieldConstants.getSectorAngle(currentSector).rotateBy(Rotation2d.fromDegrees(180));
-        m_goal = new Pose2d(destination, heading);
+
+
+        // Translation2d destination = FieldConstants.getOrbitDestination(currentSector, FieldConstants.ReefDestination.RIGHT);
+        // Rotation2d heading = FieldConstants.getSectorAngle(currentSector).rotateBy(Rotation2d.fromDegrees(180));
+
+
+        // m_goal = new Pose2d(destination, heading);
+
+        m_goal = new Pose2d( new Translation2d(5, 0), new Rotation2d());
 
 
         // if (m_goal == null)

@@ -26,7 +26,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     LoggerFactory child = parent.child(this);
     int currLim = 20;
 
-    m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, currLim, 3, 1,
+    m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, currLim, 25, 1,
         MotorPhase.FORWARD, 1);
 
     // m_motor = new SparkMax(25, MotorType.kBrushless);

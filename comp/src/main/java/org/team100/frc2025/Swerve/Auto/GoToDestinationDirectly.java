@@ -61,7 +61,7 @@ public class GoToDestinationDirectly extends Navigator {
         // return m_planner.restToRest(waypoints);
 
         Translation2d currTranslation = currentPose.getTranslation();
-        Translation2d goalTranslation = new Translation2d(1, 1);
+        Translation2d goalTranslation = new Translation2d(5, 0);
 
         Rotation2d bearingToGoal = goalTranslation.minus(currTranslation).getAngle();
 

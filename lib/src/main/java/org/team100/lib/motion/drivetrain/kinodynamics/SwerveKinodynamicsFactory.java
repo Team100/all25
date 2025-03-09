@@ -42,16 +42,16 @@ public class SwerveKinodynamicsFactory {
                 // note these measurements were updated jun 24.
                 // 9/24/04, raised steering rate from 20 to 40, accel from 60 to 120.
                 return new SwerveKinodynamics(
-                        5, // max vel m/s
+                        3, // max vel m/s
                         10, // stall m/s/s
-                        10, // max accel m/s/s
-                        20, // max decel m/s/s
+                        5, // max accel m/s/s
+                        25, // max decel m/s/s
                         40, // max module steering rate rad/s
                         120, // max module steering accel rad/s/s
-                        0.48, // front track m
-                        0.43, // back track m
-                        0.46, // wheelbase m
-                        0.31, // front offset m
+                        0.590, // front track m
+                        0.590, // back track m
+                        0.590, // wheelbase m
+                        0.295275, // front offset m
                         () -> 0.5); // vcg m NOTE VERY HIGH
             case SWERVE_TWO:
                 return new SwerveKinodynamics(
