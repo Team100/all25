@@ -65,7 +65,7 @@ class RotateTest extends Fixtured implements Timeless {
             print();
         }
         // going pretty fast
-        verify(-0.417, -Math.PI / 4);
+        verify(-0.385, -Math.PI / 4);
 
         for (int i = 0; i < 25; ++i) {
             stepTime();
@@ -76,7 +76,7 @@ class RotateTest extends Fixtured implements Timeless {
         // still going
         verify(-0.512, -Math.PI / 4);
 
-        for (int i = 0; i < 35; ++i) {
+        for (int i = 0; i < 36; ++i) {
             stepTime();
             fixture.drive.periodic();
             rotate.execute();

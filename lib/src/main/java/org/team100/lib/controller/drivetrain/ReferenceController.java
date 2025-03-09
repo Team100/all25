@@ -28,6 +28,8 @@ public class ReferenceController implements Glassy {
 
     private boolean m_aligned;
 
+    private boolean m_initialized;
+
     /**
      * Initializes the reference with the current measurement, so you should call
      * this at runtime, not in advance.
@@ -50,11 +52,20 @@ public class ReferenceController implements Glassy {
         } else {
             m_aligned = false;
         }
+        m_initialized = false;
+        // initialize here so that the "done" state knows about the clock
         m_reference.initialize(m_drive.getState());
         m_drive.resetLimiter();
     }
 
     public void execute() {
+        if (!m_initialized) {
+            // this initialization here so that the clock is reset on the first
+            // execute(). (sometimes the trajectory initialization can take a long time)
+            m_initialized = true;
+            m_reference.initialize(m_drive.getState());
+            m_drive.resetLimiter();
+        }
         if (!Experiments.instance.enabled(Experiment.SteerAtRest)) {
             // If the experiment is off, override the aligned flag.
             // TODO: decide whether to keep the "steer at rest" idea. for now, it's off.
