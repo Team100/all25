@@ -165,11 +165,11 @@ public class RobotContainer implements Glassy {
         } else {
             m_swerveKinodynamics = SwerveKinodynamicsFactory
                     .get(() -> 1);
-            m_grip = null;
-            m_tunnel = null;
-            m_elevator = null;
-            m_wrist = null;
-            m_funnel = null;
+            m_grip = new AlgaeGrip(logger, 3);
+            m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
+            m_elevator = new Elevator(elevatorLog, 2, 1);
+            m_wrist = new Wrist2(elevatorLog, 9);
+            m_funnel = new Funnel(logger, 23, 14);
             m_leds = null;
         }
 
