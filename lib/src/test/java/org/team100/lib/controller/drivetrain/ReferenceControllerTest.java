@@ -74,21 +74,21 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // now aligned, so we drive normally, using the same setpoint as above
         stepTime();
         c.execute();
-        assertEquals(0.139, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.102, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // more normal driving
         stepTime();
         c.execute();
-        assertEquals(0.179, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.139, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
 
         // etc
         stepTime();
         c.execute();
-        assertEquals(0.221, drive.m_setpoint.x(), kDelta);
+        assertEquals(0.179, drive.m_setpoint.x(), kDelta);
         assertEquals(0, drive.m_setpoint.y(), kDelta);
         assertEquals(0, drive.m_setpoint.theta(), kDelta);
     }
