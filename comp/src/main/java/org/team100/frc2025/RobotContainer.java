@@ -1,27 +1,22 @@
 package org.team100.frc2025;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-import org.team100.frc2025.Climber.Climber;
-import org.team100.frc2025.Climber.ClimberFactory;
-import org.team100.frc2025.Climber.ClimberRotate;
-import org.team100.frc2025.Climber.ClimberRotate;
-import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.ScoreAlgae;
-import org.team100.frc2025.Elevator.ScoreAlgae2;
-import org.team100.frc2025.Elevator.ScoreCoral;
-import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberFactory;
+import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
-
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.RunFunnelHandoff;
@@ -31,7 +26,6 @@ import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
 import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
 import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
 import org.team100.lib.commands.drivetrain.FullCycle2;
@@ -52,6 +46,7 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.hid.DriverControlProxy;
 import org.team100.lib.hid.OperatorControl;
@@ -70,6 +65,7 @@ import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveLimiter;
@@ -78,6 +74,7 @@ import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
 import org.team100.lib.timing.ConstantConstraint;
+import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -85,9 +82,7 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -122,6 +117,9 @@ public class RobotContainer implements Glassy {
 
     final CoralTunnel m_tunnel;
     final AlgaeGrip m_grip;
+    final SwerveKinodynamics m_swerveKinodynamics;
+
+    private final ScheduledExecutorService m_initializer;
 
     // final AlgaeIntake m_intake;
 
@@ -147,7 +145,6 @@ public class RobotContainer implements Glassy {
         final ThirdControl buttons = new ThirdControlProxy(async);
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         demo.setup();
-        final SwerveKinodynamics swerveKinodynamics;
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
             // m_leds.setFront(LEDIndicator.State.ORANGE);
@@ -163,10 +160,10 @@ public class RobotContainer implements Glassy {
             // TODO: calibrate the elevator and use it here.
             // swerveKinodynamics = SwerveKinodynamicsFactory
             // .get(() -> VCG.vcg(m_elevator.getPosition()));
-            swerveKinodynamics = SwerveKinodynamicsFactory.get(() -> 0.5);
+            m_swerveKinodynamics = SwerveKinodynamicsFactory.get(() -> 0.5);
 
         } else {
-            swerveKinodynamics = SwerveKinodynamicsFactory
+            m_swerveKinodynamics = SwerveKinodynamicsFactory
                     .get(() -> 1);
             m_grip = null;
             m_tunnel = null;
@@ -178,21 +175,21 @@ public class RobotContainer implements Glassy {
 
         m_climber = ClimberFactory.get(logger);
         final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(swerveKinodynamics.getMaxDriveVelocityM_S(),
-                        swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
+                List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
+                        m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
 
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,
                 kDriveStatorLimit,
-                swerveKinodynamics);
+                m_swerveKinodynamics);
         final Gyro gyro = GyroFactory.get(
                 driveLog,
-                swerveKinodynamics,
+                m_swerveKinodynamics,
                 m_modules);
 
         // ignores the rotation derived from vision.
-        final SwerveDrivePoseEstimator100 poseEstimator = swerveKinodynamics.newPoseEstimator(
+        final SwerveDrivePoseEstimator100 poseEstimator = m_swerveKinodynamics.newPoseEstimator(
                 driveLog,
                 gyro,
                 m_modules.positions(),
@@ -207,10 +204,10 @@ public class RobotContainer implements Glassy {
 
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
-                swerveKinodynamics,
+                m_swerveKinodynamics,
                 m_modules);
 
-        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, RobotController::getBatteryVoltage);
+        SwerveLimiter limiter = new SwerveLimiter(m_swerveKinodynamics, RobotController::getBatteryVoltage);
 
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,
@@ -237,25 +234,25 @@ public class RobotContainer implements Glassy {
                 manLog, 3.0, 0, 0, true, 0.05, 1);
 
         driveManually.register("MODULE_STATE", false,
-                new SimpleManualModuleStates(manLog, swerveKinodynamics));
+                new SimpleManualModuleStates(manLog, m_swerveKinodynamics));
 
         driveManually.register("ROBOT_RELATIVE_CHASSIS_SPEED", false,
-                new ManualChassisSpeeds(manLog, swerveKinodynamics));
+                new ManualChassisSpeeds(manLog, m_swerveKinodynamics));
 
         driveManually.register("FIELD_RELATIVE_TWIST", false,
-                new ManualFieldRelativeSpeeds(manLog, swerveKinodynamics));
+                new ManualFieldRelativeSpeeds(manLog, m_swerveKinodynamics));
 
         driveManually.register("SNAPS_PROFILED", true,
                 new ManualWithProfiledHeading(
                         manLog,
-                        swerveKinodynamics,
+                        m_swerveKinodynamics,
                         driverControl::desiredRotation,
                         thetaFeedback));
 
         driveManually.register("SNAPS_FULL_STATE", true,
                 new ManualWithFullStateHeading(
                         manLog,
-                        swerveKinodynamics,
+                        m_swerveKinodynamics,
                         driverControl::desiredRotation,
                         new double[] {
                                 5,
@@ -266,15 +263,15 @@ public class RobotContainer implements Glassy {
                 new ManualWithTargetLock(
                         fieldLog,
                         manLog,
-                        swerveKinodynamics,
+                        m_swerveKinodynamics,
                         driverControl::target,
                         thetaFeedback));
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
         // if (m_climber != null) {
-        //     m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
-        //             operatorControl::ramp));
+        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2,
+        // operatorControl::ramp));
         // }
 
         // ObjectPosition24ArrayListener objectPosition24ArrayListener = new
@@ -282,43 +279,48 @@ public class RobotContainer implements Glassy {
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
-                swerveKinodynamics.getMaxDriveVelocityM_S(),
-                swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
+                m_swerveKinodynamics.getMaxDriveVelocityM_S(),
+                m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
                 0.05, // 1 cm
-                swerveKinodynamics.getMaxAngleSpeedRad_S(),
-                swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
+                m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
+                m_swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1); // 5 degrees
 
-//         whileTrue(driverControl::driveToObject,
+        // whileTrue(driverControl::driveToObject,
 
-//                 new DriveToPoseWithProfile(
-//                 fieldLog,
-//                 () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-//                 16).get().toPose2d()
-//                 .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
-//                 m_drive,
-//                 holonomicController,
-//                 profile));
-                // new DriveToPoseWithTrajectory(
-                //         () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-                //                 .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
-//                        m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+        // new DriveToPoseWithProfile(
+        // fieldLog,
+        // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+        // m_drive,
+        // holonomicController,
+        // profile));
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
 
         // whileTrue(driverControl::driveOneMeter,
-        //         // new DriveToPoseWithProfile(
-        //         // fieldLog,
-        //         // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
-        //         // 16).get().toPose2d()
-        //         // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
-        //         // m_drive,
-        //         // holonomicController,
-        //         // profile));
-        //         new DriveToPoseWithTrajectory(
-        //                 () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
-        //                         .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
-        //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+        // // new DriveToPoseWithProfile(
+        // // fieldLog,
+        // // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // // 16).get().toPose2d()
+        // // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+        // // m_drive,
+        // // holonomicController,
+        // // profile));
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
 
-        whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
+        whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz,
+                m_swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); // A
 
         // new DriveToPoseWithTrajectory(
         // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
@@ -350,19 +352,19 @@ public class RobotContainer implements Glassy {
                         holonomicController,
                         profile));
         whileTrue(driverControl::fullCycle,
-                new FullCycle(fieldLog, manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile));
+                new FullCycle(fieldLog, manLog, m_drive, viz, m_swerveKinodynamics, holonomicController, profile));
 
-        m_auton = new FullCycle(fieldLog, manLog, m_drive, viz, swerveKinodynamics, holonomicController, profile);
+        m_auton = new FullCycle(fieldLog, manLog, m_drive, viz, m_swerveKinodynamics, holonomicController, profile);
 
         whileTrue(driverControl::test,
-                new FullCycle2(manLog, m_drive, viz, swerveKinodynamics, holonomicController));
+                new FullCycle2(manLog, m_drive, viz, m_swerveKinodynamics, holonomicController));
 
         // test driving without profiling
         whileTrue(driverControl::button4,
                 new DriveToPoseSimple(SwerveControllerFactory.ridiculous(manLog), m_drive, new SwerveModel()));
         // test rotating in place
         whileTrue(driverControl::button5,
-                new Rotate(m_drive, holonomicController, swerveKinodynamics, Math.PI / 2));
+                new Rotate(m_drive, holonomicController, m_swerveKinodynamics, Math.PI / 2));
         // this is joel working on moving-entry trajectories.
         whileTrue(driverControl::testTrajectory,
                 new DriveToPoseWithTrajectory(
@@ -398,6 +400,33 @@ public class RobotContainer implements Glassy {
 
         // whileTrue(operatorControl::downavate, new ElevatorDown(m_elevator));
 
+        m_initializer = Executors.newSingleThreadScheduledExecutor();
+        m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);
+        // This really only does anything when we're sitting idle; when actually
+        // running, the gc runs frequently without prodding.
+        m_initializer.schedule(System::gc, 3, TimeUnit.SECONDS);
+    }
+
+    public void initStuff() {
+        Util.println("******** Pre-initializing some expensive things ... ");
+        double startS = Takt.actual();
+
+        List<HolonomicPose2d> waypoints = new ArrayList<>();
+        waypoints.add(new HolonomicPose2d(
+                new Translation2d(),
+                Rotation2d.kZero,
+                Rotation2d.kZero));
+        waypoints.add(new HolonomicPose2d(
+                new Translation2d(1, 0),
+                Rotation2d.kZero,
+                Rotation2d.kZero));
+        TrajectoryPlanner m_planner = new TrajectoryPlanner(new TimingConstraintFactory(m_swerveKinodynamics).medium());
+        m_planner.restToRest(waypoints);
+        m_drive.driveInFieldCoords(new FieldRelativeVelocity(0, 0, 0));
+        System.gc();
+
+        double endS = Takt.actual();
+        Util.printf("... Initialization ET: %f\n", endS - startS);
     }
 
     public void beforeCommandCycle() {
