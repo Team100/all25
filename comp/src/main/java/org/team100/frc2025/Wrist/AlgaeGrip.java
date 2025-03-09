@@ -4,44 +4,55 @@
 
 package org.team100.frc2025.Wrist;
 
+import org.team100.lib.config.Identity;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.LinearMechanism;
+import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.Neo550Factory;
+import org.team100.lib.motor.SimulatedBareMotor;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrip extends SubsystemBase implements Glassy {
-  /** Creates a new CoralTunnel. */
-  // private final LinearMechanism m_coralMech;
-  private LaserCan laserCAN;
+    /** Creates a new CoralTunnel. */
+    // private final LinearMechanism m_coralMech;
+    private LaserCan laserCAN;
 
-  // private final SparkMax m_motor;
-  private final LinearMechanism m_algaeMech;
+    // private final SparkMax m_motor;
+    private final LinearMechanism m_algaeMech;
 
-  public AlgaeGrip(LoggerFactory parent, int algaeID) {
+    public AlgaeGrip(LoggerFactory parent, int algaeID) {
 
-    LoggerFactory child = parent.child(this);
-    int currLim = 20;
+        LoggerFactory child = parent.child(this);
+        int currLim = 20;
 
-    m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, currLim, 3, 1,
-        MotorPhase.FORWARD, 1);
+        switch (Identity.instance) {
+            case COMP_BOT -> {
+                m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, currLim, 3, 1,
+                        MotorPhase.FORWARD, 1);
+                // m_motor = new SparkMax(25, MotorType.kBrushless);
+            }
+            default -> {
+                SimulatedBareMotor motor = new SimulatedBareMotor(child, 100);
+                SimulatedBareEncoder encoder = new SimulatedBareEncoder(child, motor);
+                m_algaeMech = new SimpleLinearMechanism(motor, encoder, 1, 1);
+            }
+        }
 
-    // m_motor = new SparkMax(25, MotorType.kBrushless);
+    }
 
-  }
+    @Override
+    public void periodic() {
+        // This method will be called once per scheduler run
+    }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    public void setAlgaeMotor(double value) {
+        // m_coralMech.setDutyCycle(value);
 
-
-  public void setAlgaeMotor(double value) {
-    // m_coralMech.setDutyCycle(value);
-
-    m_algaeMech.setDutyCycle(value);
-  }
+        m_algaeMech.setDutyCycle(value);
+    }
 }

@@ -51,9 +51,9 @@ class TrajectoryPlannerTest {
         List<TimingConstraint> constraints = new ArrayList<>();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         Trajectory100 t = planner.restToRest(waypoints);
-        assertEquals(102, t.length());
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.4, p.state().getPose().getX(), kDelta);
+        assertEquals(12, t.length());
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.6, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
@@ -76,8 +76,8 @@ class TrajectoryPlannerTest {
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         Trajectory100 t = planner.generateTrajectory(
                 waypoints, start_vel, end_vel);
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.073, p.state().getPose().getX(), kDelta);
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.272, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
 
     }
@@ -109,9 +109,9 @@ class TrajectoryPlannerTest {
             Util.printf("total duration ms: %5.3f\n", totalDurationMs);
             Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }
-        assertEquals(166, t.length());
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.397, p.state().getPose().getX(), kDelta);
+        assertEquals(18, t.length());
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.575, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
@@ -187,7 +187,7 @@ class TrajectoryPlannerTest {
         SwerveModel start = new SwerveModel(Pose2d.kZero, new FieldRelativeVelocity(0, 1, 0));
         Pose2d end = new Pose2d(1, 0, Rotation2d.kZero);
         Trajectory100 traj = planner.movingToRest(start, end);
-        assertEquals(2.632, traj.duration(), kDelta);
+        assertEquals(2.525, traj.duration(), kDelta);
     }
 
 }
