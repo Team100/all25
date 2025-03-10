@@ -149,7 +149,10 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 if (!alliance.isPresent())
                     return;
 
-                double blipTimeSec = (v.getServerTime() / 1000000.0  - .027);
+                // Vasili added this extra delay after some experimentation that he should
+                // describe here.
+                final double IMPORTANT_MAGIC_NUMBER = 0.027;
+                double blipTimeSec = (v.getServerTime() / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
                 estimateRobotPose(
                         cameraSerialNumber,
                         blips,
@@ -229,7 +232,11 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 continue;
 
             if (lastRobotInFieldCoords != null) {
-                double distanceM = GeometryUtil.distance(lastRobotInFieldCoords, currentRobotinFieldCoords);
+                // the translation distance is a little quicker to calculate and we don't care
+                // about the "twist" curve measurement
+                double distanceM = GeometryUtil.distance(
+                        lastRobotInFieldCoords.getTranslation(),
+                        currentRobotinFieldCoords.getTranslation());
                 if (distanceM <= kVisionChangeToleranceMeters) {
                     // this hard limit excludes false positives, which were a bigger problem in 2023
                     // due to the coarse tag family used. in 2024 this might not be an issue.
@@ -273,7 +280,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
          * matters for us.
          */
         return new double[] {
-                .1  * distanceM,
+                .1 * distanceM,
                 .1 * distanceM,
                 Double.MAX_VALUE };
     }

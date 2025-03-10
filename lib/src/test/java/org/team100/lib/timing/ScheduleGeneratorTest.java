@@ -12,20 +12,25 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
+import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.geometry.Pose2dWithMotion.MotionDirection;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.path.Path100;
+import org.team100.lib.path.PathFactory;
 import org.team100.lib.timing.TimingConstraint.MinMaxAcceleration;
 import org.team100.lib.trajectory.Trajectory100;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class ScheduleGeneratorTest {
+    private static final boolean DEBUG = false;
     public static final double kTestEpsilon = 1e-12;
+    private static final double kDelta = 0.01;
 
     public static final List<Pose2dWithMotion> kWaypoints = Arrays.asList(
             new Pose2dWithMotion(new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.kZero)),
@@ -257,6 +262,49 @@ public class ScheduleGeneratorTest {
         assertEquals(0.0, ScheduleGenerator.v1(1.0, 0.5, -1.0));
         // backwards with negative accel
         assertEquals(1.0, ScheduleGenerator.v1(0.0, -0.5, -1.0));
+    }
+
+    /**
+     * 0.16 ms on my machine.
+     * 
+     * See PathFactoryTest::testPerformance()
+     */
+    @Test
+    void testPerformance() {
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 1), new Rotation2d(), new Rotation2d(Math.PI / 2)));
+        long startTimeNs = System.nanoTime();
+        final int iterations = 100;
+        final double kSplineSampleToleranceM = 0.05;
+        final double kSplineSampleToleranceRad = 0.2;
+        final double kTrajectoryStepM = 0.1;
+
+        Path100 path = PathFactory.pathFromWaypoints(
+                waypoints,
+                kSplineSampleToleranceM,
+                kSplineSampleToleranceM,
+                kSplineSampleToleranceRad);
+        Trajectory100 t = new Trajectory100();
+        ScheduleGenerator m_scheduleGenerator = new ScheduleGenerator(new ArrayList<>());
+        for (int i = 0; i < iterations; ++i) {
+            t = m_scheduleGenerator.timeParameterizeTrajectory(
+                    path,
+                    kTrajectoryStepM,
+                    0,
+                    0);
+        }
+        long endTimeNs = System.nanoTime();
+        double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
+        if (DEBUG) {
+            Util.printf("total duration ms: %5.3f\n", totalDurationMs);
+            Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
+        }
+        assertEquals(18, t.length());
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.575, p.state().getPose().getX(), kDelta);
+        assertEquals(0, p.state().getHeadingRate(), kDelta);
+
     }
 
 }
