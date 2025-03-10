@@ -105,7 +105,7 @@ class HolonomicSplineTest {
         assertEquals(1, p.getPose().getRotation().getRadians(), kDelta);
         // yay, heading rate is now not zero :-)
         assertEquals(1, p.getHeadingRate(), kDelta);
-        p = s.getPose2dWithMotion(0.5);zz
+        p = s.getPose2dWithMotion(0.5);
         assertEquals(0, p.getPose().getX(), kDelta);
         assertEquals(0.5, p.getPose().getRotation().getRadians(), kDelta);
         // this used to be 1.875 in the middle
