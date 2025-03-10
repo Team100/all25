@@ -105,7 +105,7 @@ class HolonomicSplineTest {
         assertEquals(1, p.getPose().getRotation().getRadians(), kDelta);
         // yay, heading rate is now not zero :-)
         assertEquals(1, p.getHeadingRate(), kDelta);
-        p = s.getPose2dWithMotion(0.5);
+        p = s.getPose2dWithMotion(0.5);zz
         assertEquals(0, p.getPose().getX(), kDelta);
         assertEquals(0.5, p.getPose().getRotation().getRadians(), kDelta);
         // this used to be 1.875 in the middle
@@ -177,7 +177,8 @@ class HolonomicSplineTest {
                 Rotation2d error = angleFromOrigin.minus(p.getRotation());
                 // there's about 2 degrees of error here because the spline is not quite a
                 // circle.
-                assertEquals(0, error.getRadians(), 0.04);
+                // 3/10/25 i made generation coarser so it's less accurate.
+                assertEquals(0, error.getRadians(), 0.05);
                 if (DEBUG)
                     Util.printf("%.1f, %.2f, %.2f, %.2f\n",
                             i + j, p.getX(), p.getY(), p.getRotation().getRadians());

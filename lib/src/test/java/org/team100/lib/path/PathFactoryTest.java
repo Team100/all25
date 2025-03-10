@@ -94,8 +94,8 @@ public class PathFactoryTest {
         List<HolonomicPose2d> waypoints = List.of(
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(1), new Rotation2d()));
-        assertThrows(IllegalArgumentException.class,
-                () -> PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
+        Path100 path = PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1);
+        assertEquals(1, path.length());
     }
 
     /** Preserves the tangent at the corner and so makes a little "S" */
@@ -126,8 +126,8 @@ public class PathFactoryTest {
         List<HolonomicPose2d> waypoints = List.of(
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()));
-        assertThrows(IllegalArgumentException.class,
-                () -> PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
+        Path100 path = PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1);
+        assertEquals(1, path.length());
     }
 
     @Test
