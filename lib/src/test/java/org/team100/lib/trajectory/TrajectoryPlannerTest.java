@@ -83,12 +83,9 @@ class TrajectoryPlannerTest {
     }
 
     /**
-     * Is trajectory planning fast enough to run every loop?
-     * This computes a single spline, and makes a schedule along it.
+     * 0.23 ms on my machine.
      * 
-     * On my desktop machine, that takes about 0.5 ms, or 3% of the budget. On the
-     * RIO it's probably several times slower, but still maybe 10% of the budget.
-     * so, yeah, you can do a spline every loop.
+     * See PathFactoryTest::testPerformance().
      */
     @Test
     void testPerformance() {
@@ -99,8 +96,10 @@ class TrajectoryPlannerTest {
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         long startTimeNs = System.nanoTime();
         Trajectory100 t = new Trajectory100();
-        final int iterations = 100;
-        for (int i = 0; i < iterations; ++i) {
+        // for profiling
+        // final long iterations = 10000000000l;
+        final long iterations = 100l;
+        for (long i = 0; i < iterations; ++i) {
             t = planner.restToRest(waypoints);
         }
         long endTimeNs = System.nanoTime();
