@@ -15,8 +15,6 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.MathUtil;
-
 /**
  * Because the 2025 angular encoder classes do not wind up, this is a version of
  * the position servo that understands that; it's almost a copy of

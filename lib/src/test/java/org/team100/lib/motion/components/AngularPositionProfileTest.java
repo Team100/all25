@@ -62,7 +62,7 @@ class AngularPositionProfileTest implements Timeless {
                 MathUtil::angleModulus,
                 0.05,
                 0.05);
-        servo = new (
+        servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
                 encoder,

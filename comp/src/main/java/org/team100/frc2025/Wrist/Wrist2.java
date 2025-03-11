@@ -75,6 +75,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15, kPositionTolerance); // TODO CHANGE THESE
 
+        safeLogger = parent.booleanLogger(Level.TRACE, "Wrist Safe Condition");
+
         switch (Identity.instance) {
             case COMP_BOT -> {
                 
@@ -82,7 +84,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
                 
-                safeLogger = parent.booleanLogger(Level.TRACE, "Wrist Safe Condition");
              
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
@@ -125,7 +126,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0);
                 m_wristMech = wristMech;
 
-                safeLogger = null;
                 // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
 

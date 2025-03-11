@@ -1,7 +1,5 @@
 package org.team100.lib.encoder;
 
-import java.io.IOError;
-
 import org.team100.lib.logging.LoggerFactory;
 
 /**
