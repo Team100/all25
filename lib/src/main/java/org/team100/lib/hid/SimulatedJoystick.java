@@ -61,7 +61,7 @@ public class SimulatedJoystick implements DriverControl {
     }
 
     @Override
-    public boolean driveOneMeter() {
+    public boolean driveToTag() {
         return button(6);
     }
 

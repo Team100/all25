@@ -108,7 +108,7 @@ public class VKBJoystick implements DriverControl {
     }
 
     @Override
-    public boolean driveOneMeter() {
+    public boolean driveToTag() {
         return button(8);
     }
 

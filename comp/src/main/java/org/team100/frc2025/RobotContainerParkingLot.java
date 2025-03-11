@@ -2,6 +2,7 @@ package org.team100.frc2025;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import org.team100.lib.async.Async;
@@ -41,6 +42,8 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -153,6 +156,93 @@ public class RobotContainerParkingLot implements Glassy {
         whileTrue(driverControl::never,
                 new PermissiveTrajectoryListCommand(m_drive, controller,
                         planner.permissiveSquare(), viz));
+
+    // whileTrue(driverControl::driveToObject,
+
+        // new DriveToPoseWithProfile(
+        // fieldLog,
+        // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -0.75, new Rotation2d(Math.PI / 2))))),
+        // m_drive,
+        // holonomicController,
+        // profile));
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
+
+        // whileTrue(driverControl::driveOneMeter,
+        //         // new DriveToPoseWithProfile(
+        //         // fieldLog,
+        //         // () -> (Optional.of(m_layout.getTagPose(DriverStation.getAlliance().get(),
+        //         // 16).get().toPose2d()
+        //         // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))))),
+        //         // m_drive,
+        //         // holonomicController,
+        //         // profile));
+        //         new DriveToPoseWithTrajectory(
+        //                 () -> m_layout.getTagPose(DriverStation.getAlliance().get(), 16).get().toPose2d()
+        //                         .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+        //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
+        // whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
+        // whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER)); //A
+
+
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -1, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
+
+        // whileTrue(driverControl::driveOneMeter,
+        // // new Embark(m_drive, holonomicController, profile));
+        // new DriveToPoseWithProfile(
+        // fieldLog,
+        // () -> (Optional.of(new Pose2d(5,6.5, new Rotation2d()))),
+        // m_drive,
+        // holonomicController,
+        // profile));
+
+        // new DriveToPoseWithTrajectory(
+        // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
+        // 16).get().toPose2d()
+        // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
+        // m_drive, (start, end) -> planner.movingToRest(start, end),
+        // holonomicController, viz));
+        
+        //                 whileTrue(driverControl::never,
+        //         new DriveToTranslationWithFront(
+        //                 fieldLog,
+        //                 () -> Optional.of(new Translation2d(1, 4)),
+        //                 m_drive,
+        //                 holonomicController,
+        //                 profile));
+        // whileTrue(driverControl::fullCycle,
+        //         new FullCycle(fieldLog, manLog, m_drive, viz, m_swerveKinodynamics, holonomicController, profile));
+
+        // m_auton = new FullCycle(fieldLog, manLog, m_drive, viz, m_swerveKinodynamics, holonomicController, profile);
+
+        // whileTrue(driverControl::test,
+        //         new FullCycle2(manLog, m_drive, viz, m_swerveKinodynamics, holonomicController));
+
+        // // test driving without profiling
+        // whileTrue(driverControl::button4,
+        //         new DriveToPoseSimple(SwerveControllerFactory.ridiculous(manLog), m_drive, new SwerveModel()));
+        // // test rotating in place
+        // whileTrue(driverControl::button5,
+        //         new Rotate(m_drive, holonomicController, m_swerveKinodynamics, Math.PI / 2));
+        // // this is joel working on moving-entry trajectories.
+        // whileTrue(driverControl::testTrajectory,
+        //         new DriveToPoseWithTrajectory(
+        //                 () -> new Pose2d(3, 3, Rotation2d.kZero),
+        //                 m_drive,
+        //                 (model, pose) -> planner.movingToRest(model, pose),
+        //                 holonomicController,
+        //                 viz));
 
         // this should be a field.
         final DrawSquare m_drawCircle = new DrawSquare(m_drive, controller, viz);
