@@ -150,7 +150,7 @@ public class TimedRobot100 extends IterativeRobotBase implements Glassy {
             double slackS = endWaitingS - startWaitingS;
             // this is the main loop slack, don't let it go to zero!
             if (slackS < 0.001) {
-                Util.warnf("Slack time %f is too low!", slackS);
+                Util.warnf("Slack time %f is too low!\n", slackS);
             }
             m_log_slack.log(() -> slackS);
 

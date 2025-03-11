@@ -26,9 +26,6 @@ import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot100 {
-    private static final String kOrange = "\033[38:5:214m";
-    private static final String kReset = "\033[0m";
-
     private final DoubleLogger m_log_ds_MatchTime;
     private final BooleanLogger m_log_ds_AutonomousEnabled;
     private final BooleanLogger m_log_ds_TeleopEnabled;
@@ -247,17 +244,15 @@ public class Robot extends TimedRobot100 {
 
     private void banner() {
         StringBuilder b = new StringBuilder();
-        b.append(kOrange);
         b.append("\n");
-        b.append("######## ########    ###    ##     ##       ##     #####     #####  \n");
-        b.append("   ##    ##         ## ##   ###   ###     ####    ##   ##   ##   ## \n");
-        b.append("   ##    ##        ##   ##  #### ####       ##   ##     ## ##     ##\n");
-        b.append("   ##    ######   ##     ## ## ### ##       ##   ##     ## ##     ##\n");
-        b.append("   ##    ##       ######### ##     ##       ##   ##     ## ##     ##\n");
-        b.append("   ##    ##       ##     ## ##     ##       ##    ##   ##   ##   ## \n");
-        b.append("   ##    ######## ##     ## ##     ##     ######   #####     #####  \n");
+        b.append("..########.########....###....##.....##.......##.....#####.....#####....\n");
+        b.append(".....##....##.........##.##...###...###.....####....##...##...##...##...\n");
+        b.append(".....##....##........##...##..####.####.......##...##.....##.##.....##..\n");
+        b.append(".....##....######...##.....##.##.###.##.......##...##.....##.##.....##..\n");
+        b.append(".....##....##.......#########.##.....##.......##...##.....##.##.....##..\n");
+        b.append(".....##....##.......##.....##.##.....##.......##....##...##...##...##...\n");
+        b.append(".....##....########.##.....##.##.....##.....######...#####.....#####....\n");
         b.append("\n");
-        b.append(kReset);
         Util.println(b.toString());
 
     }

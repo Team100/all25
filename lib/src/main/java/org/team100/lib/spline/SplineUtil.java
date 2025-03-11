@@ -174,6 +174,11 @@ public class SplineUtil {
      * @return the final sumDCurvature2
      */
     public static double optimizeSpline(List<HolonomicSpline> splines) {
+        // can't optimize anything with less than 2 splines
+        if (splines.size() <= 1) {
+            // we don't care about measuring the curvature in this case.
+            return 0;
+        }
         int count = 0;
         double prev = sumDCurvature2(splines);
         while (count < kMaxIterations) {
@@ -207,7 +212,6 @@ public class SplineUtil {
     static void runOptimizationIteration(List<HolonomicSpline> splines) {
         // can't optimize anything with less than 2 splines
         if (splines.size() <= 1) {
-            // Util.warn("runOptimizationIteration: nothing to optimize");
             return;
         }
 

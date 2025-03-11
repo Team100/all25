@@ -50,6 +50,7 @@ public class ReferenceController implements Glassy {
         } else {
             m_aligned = false;
         }
+        // initialize here so that the "done" state knows about the clock
         m_reference.initialize(m_drive.getState());
         m_drive.resetLimiter();
     }

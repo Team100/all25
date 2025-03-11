@@ -51,9 +51,9 @@ class TrajectoryPlannerTest {
         List<TimingConstraint> constraints = new ArrayList<>();
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         Trajectory100 t = planner.restToRest(waypoints);
-        assertEquals(102, t.length());
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.4, p.state().getPose().getX(), kDelta);
+        assertEquals(12, t.length());
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.6, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
@@ -76,19 +76,16 @@ class TrajectoryPlannerTest {
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         Trajectory100 t = planner.generateTrajectory(
                 waypoints, start_vel, end_vel);
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.073, p.state().getPose().getX(), kDelta);
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.272, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
 
     }
 
     /**
-     * Is trajectory planning fast enough to run every loop?
-     * This computes a single spline, and makes a schedule along it.
+     * 0.23 ms on my machine.
      * 
-     * On my desktop machine, that takes about 0.5 ms, or 3% of the budget. On the
-     * RIO it's probably several times slower, but still maybe 10% of the budget.
-     * so, yeah, you can do a spline every loop.
+     * See PathFactoryTest::testPerformance().
      */
     @Test
     void testPerformance() {
@@ -99,8 +96,10 @@ class TrajectoryPlannerTest {
         TrajectoryPlanner planner = new TrajectoryPlanner(constraints);
         long startTimeNs = System.nanoTime();
         Trajectory100 t = new Trajectory100();
-        final int iterations = 100;
-        for (int i = 0; i < iterations; ++i) {
+        // for profiling
+        // final long iterations = 10000000000l;
+        final long iterations = 100l;
+        for (long i = 0; i < iterations; ++i) {
             t = planner.restToRest(waypoints);
         }
         long endTimeNs = System.nanoTime();
@@ -109,9 +108,9 @@ class TrajectoryPlannerTest {
             Util.printf("total duration ms: %5.3f\n", totalDurationMs);
             Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
         }
-        assertEquals(166, t.length());
-        TimedPose p = t.getPoint(40);
-        assertEquals(0.397, p.state().getPose().getX(), kDelta);
+        assertEquals(18, t.length());
+        TimedPose p = t.getPoint(6);
+        assertEquals(0.575, p.state().getPose().getX(), kDelta);
         assertEquals(0, p.state().getHeadingRate(), kDelta);
     }
 
@@ -187,7 +186,7 @@ class TrajectoryPlannerTest {
         SwerveModel start = new SwerveModel(Pose2d.kZero, new FieldRelativeVelocity(0, 1, 0));
         Pose2d end = new Pose2d(1, 0, Rotation2d.kZero);
         Trajectory100 traj = planner.movingToRest(start, end);
-        assertEquals(2.632, traj.duration(), kDelta);
+        assertEquals(2.525, traj.duration(), kDelta);
     }
 
 }

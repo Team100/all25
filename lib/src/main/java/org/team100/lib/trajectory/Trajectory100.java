@@ -82,7 +82,7 @@ public class Trajectory100 {
         return m_points;
     }
 
-    TimedPose getPoint(int index) {
+    public TimedPose getPoint(int index) {
         return m_points.get(index);
     }
 

@@ -29,7 +29,9 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class HolonomicSpline {
     private static final boolean DEBUG = false;
-    private static final int kSamples = 100;
+    // curvature measurement performance scales with sample count so make it kinda
+    // low. most splines go between 0.5 and 5 meters so this is steps of 2 to 20 cm.
+    private static final int kSamples = 25;
 
     private final Spline1d m_x;
     private final Spline1d m_y;
@@ -332,8 +334,11 @@ public class HolonomicSpline {
      * but the argument to this function *is* the parameter, p. :-)
      */
     protected double getCurvature(double t) {
-        return (dx(t) * ddy(t) - ddx(t) * dy(t))
-                / ((dx(t) * dx(t) + dy(t) * dy(t)) * Math.sqrt((dx(t) * dx(t) + dy(t) * dy(t))));
+        double dx = dx(t);
+        double dy = dy(t);
+        double ddx = ddx(t);
+        double ddy = ddy(t);
+        return (dx * ddy - ddx * dy) / ((dx * dx + dy * dy) * Math.sqrt((dx * dx + dy * dy)));
     }
 
     /**
@@ -342,18 +347,30 @@ public class HolonomicSpline {
      * If you want change in curvature per meter, use getDCurvatureDs.
      */
     protected double getDCurvature(double t) {
-        double dx2dy2 = (dx(t) * dx(t) + dy(t) * dy(t));
-        double num = (dx(t) * dddy(t) - dddx(t) * dy(t)) * dx2dy2
-                - 3 * (dx(t) * ddy(t) - ddx(t) * dy(t)) * (dx(t) * ddx(t) + dy(t) * ddy(t));
+        double dx = dx(t);
+        double dy = dy(t);
+        double dx2dy2 = (dx * dx + dy * dy);
+        double ddx = ddx(t);
+        double ddy = ddy(t);
+        double dddx = dddx(t);
+        double dddy = dddy(t);
+        double num = (dx * dddy - dddx * dy) * dx2dy2
+                - 3 * (dx * ddy - ddx * dy) * (dx * ddx + dy * ddy);
         return num / (dx2dy2 * dx2dy2 * Math.sqrt(dx2dy2));
     }
 
-    private double dCurvature2(double t) {
-        double dx2dy2 = (dx(t) * dx(t) + dy(t) * dy(t));
+    double dCurvature2(double t) {
+        double dx = dx(t);
+        double dy = dy(t);
+        double dx2dy2 = (dx * dx + dy * dy);
         if (dx2dy2 == 0)
             throw new IllegalArgumentException();
-        double num = (dx(t) * dddy(t) - dddx(t) * dy(t)) * dx2dy2
-                - 3 * (dx(t) * ddy(t) - ddx(t) * dy(t)) * (dx(t) * ddx(t) + dy(t) * ddy(t));
+        double ddx = ddx(t);
+        double ddy = ddy(t);
+        double dddx = dddx(t);
+        double dddy = dddy(t);
+        double num = (dx * dddy - dddx * dy) * dx2dy2
+                - 3 * (dx * ddy - ddx * dy) * (dx * ddx + dy * ddy);
         return num * num / (dx2dy2 * dx2dy2 * dx2dy2 * dx2dy2 * dx2dy2);
     }
 

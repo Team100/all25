@@ -25,9 +25,9 @@ import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGeneratio
 public class TrajectoryPlanner {
     // the tolerances here control the approximation of the list of poses to the
     // continuous spline. previously they were 1.2 cm and 1 radian.
-    private static final double kMaxDx = 0.01; // m
-    private static final double kMaxDy = 0.01; // m
-    private static final double kMaxDTheta = Math.toRadians(0.1);
+    private static final double kSplineSampleToleranceM = 0.05;
+    private static final double kSplineSampleToleranceRad = 0.2;
+    private static final double kTrajectoryStepM = 0.1;
     // if we try to start a trajectory while respecting initial velocity, but the
     // initial velocity is less than 0.01 m/s, just treat it as rest-to-rest.
     private static final double VELOCITY_EPSILON = 1e-2;
@@ -148,11 +148,14 @@ public class TrajectoryPlanner {
         try {
             // Create a path from splines.
             Path100 path = PathFactory.pathFromWaypoints(
-                    waypoints, kMaxDx, kMaxDy, kMaxDTheta);
+                    waypoints,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceRad);
             // Generate the timed trajectory.
             return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
-                    kMaxDx,
+                    kTrajectoryStepM,
                     start_vel,
                     end_vel);
         } catch (IllegalArgumentException e) {
@@ -173,11 +176,14 @@ public class TrajectoryPlanner {
         try {
             // Create a path from splines.
             Path100 path = PathFactory.pathFromWaypoints(
-                    waypoints, kMaxDx, kMaxDy, kMaxDTheta, mN);
+                    waypoints,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceRad, mN);
             // Generate the timed trajectory.
             return m_scheduleGenerator.timeParameterizeTrajectory(
                     path,
-                    kMaxDx,
+                    kTrajectoryStepM,
                     start_vel,
                     end_vel);
         } catch (IllegalArgumentException e) {
