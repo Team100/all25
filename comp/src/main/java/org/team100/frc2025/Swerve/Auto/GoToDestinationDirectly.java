@@ -3,7 +3,6 @@ package org.team100.frc2025.Swerve.Auto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
