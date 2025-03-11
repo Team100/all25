@@ -10,7 +10,6 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 
 /**
  * One of the kinds of absolute rotary position sensors directly connected to

@@ -6,10 +6,8 @@ package org.team100.frc2025.Elevator;
 
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.RunAlgaeGrip;
-import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -21,7 +19,7 @@ public class ScoreAlgae extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new RunAlgaeGrip(grip, -1)
+        new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE)
         // new SetWrist(wrist, 0.5, false),
         // new SetElevator(elevator, 55, false),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 3.0, true), new SetElevatorPerpetually(elevator, 57), new RunAlgaeGrip(grip, -1) ),

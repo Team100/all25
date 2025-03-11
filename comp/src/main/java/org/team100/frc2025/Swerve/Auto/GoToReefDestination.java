@@ -12,7 +12,6 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;

@@ -1,13 +1,12 @@
 package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
-import java.util.logging.Logger;
 
-import org.team100.lib.state.Control100;
-import org.team100.lib.util.Util;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.state.Control100;
+import org.team100.lib.util.Util;
 
 /**
  * Wraps an angular position servo, supplying it with the correct feed forward

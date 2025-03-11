@@ -9,34 +9,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Elevator.Elevator;
-
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
-import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.ScoreAlgae;
 import org.team100.frc2025.Elevator.ScoreAlgae2;
-import org.team100.frc2025.Elevator.ScoreCoral;
-import org.team100.frc2025.Elevator.SetElevator;
-import org.team100.frc2025.Elevator.SetElevatorPerpetually;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
-import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
+import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.RunFunnelHandoff;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
-import org.team100.frc2025.Wrist.SetWrist;
-
 // import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
