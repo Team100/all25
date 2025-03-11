@@ -1,18 +1,14 @@
 package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 
-import java.lang.reflect.Field;
-
-import javax.naming.ReferralException;
-
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReference;
 
 import edu.wpi.first.math.geometry.Pose2d;
