@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import org.opencv.ml.EM;
+
+import org.team100.frc2025.CommandGroups.ScoreAlgae2;
+
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Climber.ClimberRotate;
@@ -13,9 +16,6 @@ import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.ScoreAlgae;
-import org.team100.frc2025.Elevator.ScoreAlgae2;
-import org.team100.frc2025.Elevator.ScoreCoral;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.FieldConstants.FieldSector;
@@ -27,7 +27,6 @@ import org.team100.frc2025.Swerve.Auto.GoToDestinationDirectly;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.RunFunnelHandoff;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.frc2025.Wrist.SetWrist;
@@ -149,10 +148,11 @@ public class RobotContainer implements Glassy {
         final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
-
         final ThirdControl buttons = new ThirdControlProxy(async);
+        
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         demo.setup();
+
         final SwerveKinodynamics swerveKinodynamics;
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
@@ -327,7 +327,7 @@ public class RobotContainer implements Glassy {
         //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
 
         // whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
-        whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile)); //A
+        whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER)); //A
 
         // new DriveToPoseWithTrajectory(
         // () -> m_layout.getTagPose(DriverStation.getAlliance().get(),
