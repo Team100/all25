@@ -3,6 +3,7 @@ package org.team100.lib.path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -93,8 +94,8 @@ public class PathFactoryTest {
         List<HolonomicPose2d> waypoints = List.of(
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(1), new Rotation2d()));
-        assertThrows(IllegalArgumentException.class,
-                () -> PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
+        Path100 path = PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1);
+        assertEquals(1, path.length());
     }
 
     /** Preserves the tangent at the corner and so makes a little "S" */
@@ -125,8 +126,8 @@ public class PathFactoryTest {
         List<HolonomicPose2d> waypoints = List.of(
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
                 new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()));
-        assertThrows(IllegalArgumentException.class,
-                () -> PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1));
+        Path100 path = PathFactory.pathFromWaypoints(waypoints, 0.01, 0.01, 0.1);
+        assertEquals(1, path.length());
     }
 
     @Test
@@ -210,6 +211,40 @@ public class PathFactoryTest {
         for (Pose2dWithMotion p : motion) {
             Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
         }
+    }
+
+    /**
+     * 0.15 ms on my machine.
+     * 
+     * See TrajectoryPlannerTest::testPerformance().
+     */
+    @Test
+    void testPerformance() {
+        List<HolonomicPose2d> waypoints = List.of(
+                new HolonomicPose2d(new Translation2d(), new Rotation2d(), new Rotation2d()),
+                new HolonomicPose2d(new Translation2d(1, 1), new Rotation2d(), new Rotation2d(Math.PI / 2)));
+        long startTimeNs = System.nanoTime();
+        Path100 t = new Path100(new ArrayList<>());
+        final int iterations = 100;
+        final double kSplineSampleToleranceM = 0.05;
+        final double kSplineSampleToleranceRad = 0.2;
+        for (int i = 0; i < iterations; ++i) {
+            t = PathFactory.pathFromWaypoints(
+                    waypoints,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceM,
+                    kSplineSampleToleranceRad);
+        }
+        long endTimeNs = System.nanoTime();
+        double totalDurationMs = (endTimeNs - startTimeNs) / 1000000.0;
+        if (DEBUG) {
+            Util.printf("total duration ms: %5.3f\n", totalDurationMs);
+            Util.printf("duration per iteration ms: %5.3f\n", totalDurationMs / iterations);
+        }
+        assertEquals(5, t.length());
+        Pose2dWithMotion p = t.getPoint(1);
+        assertEquals(0.417, p.getPose().getX(), kDelta);
+        assertEquals(0, p.getHeadingRate(), kDelta);
     }
 
 }

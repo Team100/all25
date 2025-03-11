@@ -9,39 +9,43 @@ import edu.wpi.first.wpilibj2.command.Command;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RunAlgaeGrip extends Command {
   /** Creates a new RunAlgaeManipulator. */
-  double m_value;
+  GripState m_gripState;
   AlgaeGrip m_grip;
-  public RunAlgaeGrip(AlgaeGrip tunnel, double value) {
-    // Use addRequirements() here to declare subsystem dependencies.
+
+  public enum GripState {
+    INTAKE,
+    OUTAKE,
+    STOP
+  }
+
+  public RunAlgaeGrip(AlgaeGrip tunnel, GripState gripState) {
     m_grip = tunnel;
-    m_value = value;
+    m_gripState = gripState;
     addRequirements(m_grip);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // m_wrist.setAlgaeMotor(0.5);
-    m_grip.setAlgaeMotor(m_value);
-
-    // System.out.println("Coral Tunnel Motor MOOOVING");
-    
+    switch (m_gripState) {
+        case INTAKE:
+            m_grip.intake();
+            break;
+        case OUTAKE:
+            m_grip.outtake();
+            break;
+        case STOP:
+            m_grip.stop();
+            break;
+    }    
   }
 
-  // Called once the command ends or is interrupted.
-  @Override
   public void end(boolean interrupted) {
-    // m_wrist.setCoralMotor(0);
-    m_grip.setAlgaeMotor(0);
-
-
+    m_grip.stop();
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;

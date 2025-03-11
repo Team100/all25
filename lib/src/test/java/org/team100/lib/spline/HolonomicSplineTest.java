@@ -177,7 +177,8 @@ class HolonomicSplineTest {
                 Rotation2d error = angleFromOrigin.minus(p.getRotation());
                 // there's about 2 degrees of error here because the spline is not quite a
                 // circle.
-                assertEquals(0, error.getRadians(), 0.04);
+                // 3/10/25 i made generation coarser so it's less accurate.
+                assertEquals(0, error.getRadians(), 0.05);
                 if (DEBUG)
                     Util.printf("%.1f, %.2f, %.2f, %.2f\n",
                             i + j, p.getX(), p.getY(), p.getRotation().getRadians());
