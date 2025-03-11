@@ -57,7 +57,7 @@ class GravityServoTest implements Timeless2025 {
                 controller);
         servo.reset();
 
-        GravityServoInterface g = new OutboardGravityServo(
+        GravityServoInterface g = new OutboardGravityServo(logger,
                 servo, 5.0, 0.0);
         // start at zero
         assertEquals(0, g.getPositionRad().getAsDouble(), kDelta);

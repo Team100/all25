@@ -37,7 +37,6 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
                 // m_coralMech = Neo550Factory.getNEO550LinearMechanism(getName(), child,
                 // coralCurrentLimit, coralID, 1,
                 // MotorPhase.FORWARD, 1);
-
                 // m_motor = new SparkMax(25, MotorType.kBrushless);
                 m_motor = new Neo550CANSparkMotor(
                         child,
@@ -46,7 +45,6 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
                         coralCurrentLimit,
                         Feedforward100.makeNeo550(),
                         new PIDConstants());
-
             }
             default -> {
                 m_motor = new SimulatedBareMotor(child, 100);

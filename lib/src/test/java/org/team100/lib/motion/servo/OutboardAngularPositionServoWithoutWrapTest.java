@@ -44,7 +44,7 @@ public class OutboardAngularPositionServoWithoutWrapTest {
         AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServoWithoutWrap(log, wristMech,
                 combinedEncoder, wristProfile);
 
-        OutboardGravityServo wristServo = new OutboardGravityServo(wristServoWithoutGravity, 4, 0);
+        OutboardGravityServo wristServo = new OutboardGravityServo(log, wristServoWithoutGravity, 4, 0);
 
         Control100 control = new Control100(1.36, 0, 0);
 

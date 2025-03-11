@@ -34,35 +34,37 @@ public class SetWrist extends Command {
   @Override
   public void execute() {
 
-    if(!m_perpetual){
-        if( Math.abs(m_wrist.getAngle() - m_angle) < 0.05){
-            count++;
-            m_wrist.setAngleValue(m_angle);
-        } else{{
-            m_wrist.setAngleValue(m_angle);
-            count = 0;
-        }}
+    // if(!m_perpetual){
+    //     if( Math.abs(m_wrist.getAngle() - m_angle) < 0.05){
+    //         count++;
+    //         m_wrist.setAngleValue(m_angle);
+    //     } else{{
+    //         m_wrist.setAngleValue(m_angle);
+    //         count = 0;
+    //     }}
 
-        if(count >= 20){
-            finished = true;
-        }
-    } else{
-        if( Math.abs(m_wrist.getAngle() - m_angle) < 0.05){
-            count++;
-            m_wrist.setAngleValue(m_angle);
+    //     if(count >= 20){
+    //         finished = true;
+    //     }
+    // } else{
+    //     if( Math.abs(m_wrist.getAngle() - m_angle) < 0.05){
+    //         count++;
+    //         m_wrist.setAngleValue(m_angle);
 
-        } else {
-            m_wrist.setAngleValue(m_angle);
-            count = 0;
-        } 
+    //     } else {
+    //         m_wrist.setAngleValue(m_angle);
+    //         count = 0;
+    //     } 
 
-        if(count >= 20){
-            m_wrist.setStatic();
-        }
-    }
+    //     if(count >= 20){
+    //         m_wrist.setStatic();
+    //     }
+    // }
 
 
     // m_wrist.setStatic();
+
+    m_wrist.setAngleValue(m_angle);
 
    
 
@@ -72,7 +74,7 @@ public class SetWrist extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // System.out.println("**************************************I FINISHED*******************************************");
+    System.out.println("**************************************I FINISHED*******************************************");
     m_wrist.setWristDutyCycle(0);
     finished = false;
     count = 0;
