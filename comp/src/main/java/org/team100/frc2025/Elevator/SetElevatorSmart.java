@@ -4,7 +4,8 @@
 
 package org.team100.frc2025.Elevator;
 
-import org.team100.frc2025.Elevator.ElevatorUtil.ScoringPosition;
+
+import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 
 import edu.wpi.first.wpilibj2.command.Command;
 

@@ -9,11 +9,23 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
+
+import org.team100.frc2025.CommandGroups.ScoreAlgae2;
+
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
+
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberFactory;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Elevator.ScoreAlgae2;
+import org.team100.frc2025.Elevator.ElevatorDown;
+import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.Elevator.SetElevatorPerpetually;
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
+
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
@@ -21,6 +33,9 @@ import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
+import org.team100.frc2025.Wrist.SetWrist;
+import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
+
 // import org.team100.frc2025.Wrist.Wrist;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
@@ -141,10 +156,12 @@ public class RobotContainer implements Glassy {
         final TrajectoryVisualization viz = new TrajectoryVisualization(fieldLogger);
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
-
         final ThirdControl buttons = new ThirdControlProxy(async);
+        
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         demo.setup();
+
+        final SwerveKinodynamics swerveKinodynamics;
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
             // m_leds.setFront(LEDIndicator.State.ORANGE);
@@ -319,7 +336,7 @@ public class RobotContainer implements Glassy {
         //                         .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
         //                 m_drive, (start, end) -> planner.movingToRest(start, end), holonomicController, viz));
         // whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz, swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); //A
-        whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile)); //A
+        whileTrue(driverControl::driveOneMeter, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER)); //A
 
 
         // new DriveToPoseWithTrajectory(
