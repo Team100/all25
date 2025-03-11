@@ -156,7 +156,7 @@ public class RobotContainer implements Glassy {
             m_wrist = new Wrist2(elevatorLog, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
-            m_grip = new AlgaeGrip(logger, 3);
+            m_grip = new AlgaeGrip(logger);
             // TODO: calibrate the elevator and use it here.
             // swerveKinodynamics = SwerveKinodynamicsFactory
             // .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -165,7 +165,7 @@ public class RobotContainer implements Glassy {
         } else {
             m_swerveKinodynamics = SwerveKinodynamicsFactory
                     .get(() -> 1);
-            m_grip = new AlgaeGrip(logger, 3);
+            m_grip = new AlgaeGrip(logger);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_elevator = new Elevator(elevatorLog, 2, 1);
             m_wrist = new Wrist2(elevatorLog, 9);
@@ -318,7 +318,6 @@ public class RobotContainer implements Glassy {
         // .plus(new Transform2d(0, -3.5, new Rotation2d(Math.PI / 2))),
         // m_drive, (start, end) -> planner.movingToRest(start, end),
         // holonomicController, viz));
-
         whileTrue(driverControl::driveOneMeter, new GoToDestinationDirectly(manLog, m_drive, holonomicController, viz,
                 m_swerveKinodynamics, FieldSector.AB, ReefDestination.CENTER)); // A
 
