@@ -1,13 +1,18 @@
 package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 
+import java.lang.reflect.Field;
+
+import javax.naming.ReferralException;
+
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReference;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,34 +35,35 @@ public class Embark extends Command implements Glassy {
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
 
+    private FieldSector m_targetSector;
+    private ReefDestination m_destination;
+
     public Embark(
             SwerveDriveSubsystem drive,
             SwerveController controller,
-            HolonomicProfile profile) {
+            HolonomicProfile profile,
+            FieldSector targetSector,
+            ReefDestination destination) {
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
+
+        m_targetSector = targetSector;
+        m_destination = destination;
         addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
-        // Pose2d currentPose = m_drive.getPose();
-        // FieldSector currentSector = FieldConstants.getSector(currentPose);
-        FieldSector currentSector = FieldSector.CD;
+        Pose2d currentPose = m_drive.getPose();
+        FieldSector currentSector = FieldConstants.getSector(currentPose);
+
+        Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination);
+        Rotation2d heading = FieldConstants.getSectorAngle(m_targetSector).rotateBy(Rotation2d.fromDegrees(180));
 
 
-        // Translation2d destination = FieldConstants.getOrbitDestination(currentSector, FieldConstants.ReefDestination.RIGHT);
-        // Rotation2d heading = FieldConstants.getSectorAngle(currentSector).rotateBy(Rotation2d.fromDegrees(180));
+        m_goal = new Pose2d(destination, heading);
 
-
-        // m_goal = new Pose2d(destination, heading);
-
-        m_goal = new Pose2d( new Translation2d(5, 0), new Rotation2d());
-
-
-        // if (m_goal == null)
-        //     return;
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
@@ -74,6 +80,7 @@ public class Embark extends Command implements Glassy {
         //         m_goal.getX(),
         //         m_goal.getY(),
         //         m_goal.getRotation().getRadians() });
+         
     }
 
     @Override

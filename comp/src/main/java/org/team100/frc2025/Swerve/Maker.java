@@ -58,7 +58,7 @@ public class Maker {
                 m_kinodynamics.getMaxAngleSpeedRad_S(),
                 m_kinodynamics.getMaxAngleAccelRad_S2(),
                 0.1); // 5 degrees
-        return new Embark(m_drive, holonomicController, profile);
+        return new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER);
     }
 
     public Command test(FieldLogger.Log fieldLog,SwerveController controller, HolonomicProfile profile) {
