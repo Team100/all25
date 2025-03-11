@@ -25,7 +25,7 @@ public class ScoreAlgae2 extends SequentialCommandGroup {
         // new SetWrist(wrist, 0.5, false),
         // new SetElevator(elevator, 10, false),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10) ),
-        new ParallelDeadlineGroup(new RunAlgaeGrip(grip, -1), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10))
+        new ParallelDeadlineGroup(new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10))
         // new SetElevator(elevator, 30, false),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 1.2, false), new SetElevatorPerpetually(elevator, 57.2), new RunAlgaeGrip(grip, 1)),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 2.3, false), new SetElevatorPerpetually(elevator, 57.2))
