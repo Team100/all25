@@ -38,17 +38,17 @@ public class ScoreCoral extends SequentialCommandGroup {
 
     // );
 
-    // addCommands(
-    //     new SetWrist(wrist, 0.5, false),
-    //     new ParallelDeadlineGroup(new SetElevator(elevator, 23, false), new SetWrist(wrist, 0.5, true)), //45
-    //     new ParallelDeadlineGroup(new SetWrist(wrist, 1.25, false), new SetElevatorPerpetually(elevator, 23)),
-    //     new ParallelDeadlineGroup(new SetElevator(elevator, 12, false), new SetWrist(wrist, 1.25, true)),
-    //     new ParallelDeadlineGroup(new SetWrist(wrist, 0.5, false), new SetElevatorPerpetually(elevator, 12)),
-    //     new ParallelDeadlineGroup(new SetElevator(elevator, 2, false), new SetWrist(wrist, 0.5, true))
-    //     // new ParallelDeadlineGroup(new WaitCommand(10), new SetWristDutyCycle(wrist, -1), new SetElevatorPerpetually(elevator, 35))
+    addCommands(
+        new SetWrist(wrist, 0.5, false),
+        new ParallelDeadlineGroup(new SetElevator(elevator, 23, false), new SetWrist(wrist, 0.5, true)), //45
+        new ParallelDeadlineGroup(new SetWrist(wrist, 1.25, false), new SetElevatorPerpetually(elevator, 23)),
+        new ParallelDeadlineGroup(new SetElevator(elevator, 12, false), new SetWrist(wrist, 1.25, true)),
+        new ParallelDeadlineGroup(new SetWrist(wrist, 0.5, false), new SetElevatorPerpetually(elevator, 12)),
+        new ParallelDeadlineGroup(new SetElevator(elevator, 2, false), new SetWrist(wrist, 0.5, true))
+        // new ParallelDeadlineGroup(new WaitCommand(10), new SetWristDutyCycle(wrist, -1), new SetElevatorPerpetually(elevator, 35))
         
 
-    // );
+    );
 
     // addCommands(
         // new SetWrist(wrist, 0.5, false),

@@ -19,7 +19,9 @@ import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
+import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
@@ -41,10 +43,13 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     private LaserCan lc;
 
-    private final double kPositionTolerance = 0.1;
+    private boolean m_isSafe = false;
+
+    private final double kPositionTolerance = 0.02;
     private final GravityServoInterface wristServo;
 
     private final RotaryMechanism m_wristMech;
+    private final BooleanLogger safeLogger;
 
     public Wrist2(
             LoggerFactory parent,
@@ -64,11 +69,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.15); //31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); //31
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
-        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(20, 8, kPositionTolerance); // TODO CHANGE THESE
+        TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15, kPositionTolerance); // TODO CHANGE THESE
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -77,12 +82,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
                 
-
+                safeLogger = parent.booleanLogger(Level.TRACE, "Wrist Safe Condition");
              
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0,
+                        0.250021,
                         EncoderDrive.DIRECT,
                         false);
  
@@ -92,14 +97,16 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_wristMech = wristMech;
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 40, 0.15, 0.05, false, kPositionTolerance, kPositionTolerance); 
+                Feedback100 wristFeedback = new PIDFeedback(parent, 7.5, 0.00, 0.000 , false, kPositionTolerance, kPositionTolerance); 
+                // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false, kPositionTolerance, kPositionTolerance); 
 
                 ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, kPositionTolerance, kPositionTolerance);
 
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech, encoder, controller);
                 wristServoWithoutGravity.reset();
 
-                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 2.5, 0); //2
+                wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0); //
+                
                 
 
                 break;
@@ -115,10 +122,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech, false);
                 AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServo(child, wristMech,
                         combinedEncoder, wristProfile);
-                wristServo = new OutboardGravityServo(wristServoWithoutGravity, 0, 0);
+                wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0);
                 m_wristMech = wristMech;
 
-               
+                safeLogger = null;
                 // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
 
@@ -128,6 +135,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     @Override
     public void periodic() {
         wristServo.periodic();
+        safeLogger.log(() -> m_isSafe);
+        
     }
 
     public void resetWristProfile() {
@@ -164,6 +173,14 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     public void setAngleSafe(){
         Control100 control = new Control100(-0.1, 0, 0); //1.17 for l3
         wristServo.setState(control);
+    }
+
+    public boolean getSafeCondition(){
+        return m_isSafe;
+    }
+
+    public void setSafeCondition(boolean isSafe){
+        m_isSafe = isSafe;
     }
 
 }

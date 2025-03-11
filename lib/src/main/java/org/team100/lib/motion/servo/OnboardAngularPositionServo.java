@@ -24,8 +24,8 @@ import edu.wpi.first.math.MathUtil;
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final boolean DEBUG = false;
-    private static final double kXTolerance = 0.05;
-    private static final double kVTolerance = 0.05;
+    private static final double kXTolerance = 0.02;
+    private static final double kVTolerance = 0.02;
 
     private final RotaryMechanism m_mechanism;
     private final RotaryPositionSensor m_positionSensor;
@@ -138,7 +138,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
         final double u_FB = result.feedback();
 
-        final double u_TOTAL = u_FB + u_FF;
+        final double u_TOTAL = (u_FB) + u_FF;
 
         // Util.printf("u_TOTAL %f\n", u_TOTAL);
 

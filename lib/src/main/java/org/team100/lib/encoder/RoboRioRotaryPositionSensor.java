@@ -10,6 +10,7 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 
 /**
  * One of the kinds of absolute rotary position sensors directly connected to
@@ -22,6 +23,7 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
     private final EncoderDrive m_drive;
     // LOGGERS
     private final OptionalDoubleLogger m_log_position;
+
     private final DoubleLogger m_log_position_turns;
     private final DoubleLogger m_log_position_turns_offset;
     private final DoubleLogger m_log_rate;
@@ -89,6 +91,7 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
 
         double turnsMinusOffset = posTurns - m_positionOffset;
         m_log_position_turns_offset.log(() -> turnsMinusOffset);
+
 
         if(m_wrapped){
             switch (m_drive) {

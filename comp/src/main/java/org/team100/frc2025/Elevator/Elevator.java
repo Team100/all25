@@ -25,12 +25,13 @@ public class Elevator extends SubsystemBase implements Glassy {
     /** Creates a new Elevator. */
 
     private static final double kElevatorReduction = 2; 
-    private static final double kElevatorWheelDiamater = 0.0381; 
+    private static final double kElevatorWheelDiamater = 1; 
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
 
     private final ElevatorVisualization m_viz;
+    private boolean m_isSafe = false;
 
     public Elevator(
             LoggerFactory parent,
@@ -48,20 +49,21 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(2);
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(2.2);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(50, 50, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
 
 
         switch (Identity.instance) {
             case COMP_BOT -> {
-                Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.FORWARD,
+                Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.REVERSE,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
-                Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.REVERSE,
+                Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.FORWARD,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
 
                 LinearMechanism starboardMech = new SimpleLinearMechanism(
@@ -123,18 +125,33 @@ public class Elevator extends SubsystemBase implements Glassy {
     /**
      */
     public void setPosition(double x) {
-        if (getPosition() < .9) {
+        // if (getPosition() < .9) {
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
-        } else if (getPosition() > 1.8) {
-            //TODO get these constants
-            starboardServo.setPosition(x, 1.7); // 54 max
-            portServo.setPosition(x, 1.7); // 54 max
-        } else {
-            //TODO get these constants
-            starboardServo.setPosition(x, 1.5); // 54 max
-            portServo.setPosition(x, 1.5); // 54 max
-        }
+        // } else if (getPosition() > 1.8) {
+        //     //TODO get these constants
+        //     starboardServo.setPosition(x, 1.7); // 54 max
+        //     portServo.setPosition(x, 1.7); // 54 max
+        // } else {
+        //     //TODO get these constants
+        //     starboardServo.setPosition(x, 1.5); // 54 max
+        //     portServo.setPosition(x, 1.5); // 54 max
+        // }
+    }
+
+    public void setStatic() {
+        // if (getPosition() < .9) {
+        starboardServo.setPosition(starboardServo.getPosition().getAsDouble(), 1.3); // 54 max
+        portServo.setPosition(portServo.getPosition().getAsDouble(), 1.3); // 54 max
+        // } else if (getPosition() > 1.8) {
+        //     //TODO get these constants
+        //     starboardServo.setPosition(x, 1.7); // 54 max
+        //     portServo.setPosition(x, 1.7); // 54 max
+        // } else {
+        //     //TODO get these constants
+        //     starboardServo.setPosition(x, 1.5); // 54 max
+        //     portServo.setPosition(x, 1.5); // 54 max
+        // }
     }
 
     public void setDutyCycle(double value) {
@@ -153,6 +170,14 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void stop() {
         starboardServo.stop();
         portServo.stop();
+    }
+
+    public boolean getSafeCondition(){
+        return m_isSafe;
+    }
+
+    public void setSafeCondition(boolean isSafe){
+        m_isSafe = isSafe;
     }
 
 }
