@@ -27,7 +27,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     public AlgaeGrip(LoggerFactory parent) {
 
         LoggerFactory child = parent.child(this);
-        int currLim = 1;
+        int currLim = 20;
 
         switch (Identity.instance) {
             case COMP_BOT -> {
