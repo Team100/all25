@@ -15,13 +15,16 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.RobotController;
 
-public abstract class CANSparkMotor implements BareMotor {
+public abstract class  CANSparkMotor implements BareMotor {
     protected final Feedforward100 m_ff;
     protected final SparkBase m_motor;
+    protected final SparkLimitSwitch m_forLimitSwitch;
+    protected final SparkLimitSwitch m_revLimitSwitch;
     protected final RelativeEncoder m_encoder;
     protected final SparkClosedLoopController m_pidController;
     // CACHES
@@ -70,6 +73,8 @@ public abstract class CANSparkMotor implements BareMotor {
         // NOTE: this makes error-checking not work at all.
         Rev100.crash(() -> m_motor.setCANTimeout(0));
         // CACHES
+        m_forLimitSwitch = m_motor.getForwardLimitSwitch();
+        m_revLimitSwitch = m_motor.getReverseLimitSwitch();
         m_encoder_position = Memo.ofDouble(m_encoder::getPosition);
         m_encoder_velocity = Memo.ofDouble(m_encoder::getVelocity);
         m_current = Memo.ofDouble(m_motor::getOutputCurrent);
@@ -100,6 +105,14 @@ public abstract class CANSparkMotor implements BareMotor {
         m_motor.set(output);
         m_log_duty.log(() -> output);
         log();
+    }
+
+    public boolean getForwardLimitSwitch() {
+        return m_forLimitSwitch.isPressed();
+    }
+
+    public boolean getReverseLimitSwitch() {
+        return m_revLimitSwitch.isPressed();
     }
 
     @Override

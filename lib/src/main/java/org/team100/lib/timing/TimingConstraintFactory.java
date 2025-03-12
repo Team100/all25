@@ -36,7 +36,7 @@ public class TimingConstraintFactory {
     /** Maybe unrealistically fast? */
     public List<TimingConstraint> medium() {
         // note low yaw scale
-        return scaled(0.75, 0.75, 0.75, 0.25);
+        return scaled(0.75, 1, 0.75, 0.25);
     }
 
     /**

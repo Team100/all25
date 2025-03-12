@@ -32,10 +32,11 @@ public class SetElevatorPerpetually extends Command {
   public void execute() {
     m_elevator.setPosition(m_value); //24.5 for l3
 
-    double error = Math.abs(m_elevator.getPosition() - m_value);
-    if(error < 0.5){
-        finished = true;
-    }
+    // double error = Math.abs(m_elevator.getPosition() - m_value);
+    // if(error < 0.5){
+    //     finished = true;
+    // }
+    // m_elevator.setDutyCycle(0.3);
   }
 
   // Called once the command ends or is interrupted.

@@ -13,6 +13,7 @@ public class SetElevator extends Command {
   double m_value;
   boolean finished = false;
   boolean m_perpetual;
+  double count = 0;
   public SetElevator(Elevator elevator, double value, boolean perpetual) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_elevator = elevator;
@@ -25,6 +26,7 @@ public class SetElevator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    count = 0;
     finished = false;
     m_elevator.resetElevatorProfile();
   }
@@ -35,7 +37,13 @@ public class SetElevator extends Command {
     m_elevator.setPosition(m_value); //24.5 for l3
 
     double error = Math.abs(m_elevator.getPosition() - m_value);
-    if(error < 2){
+    if(error < 0.5){
+        count++;
+    } else{
+        count = 0;
+    }
+
+    if(count >= 20){
         finished = true;
     }
   }
@@ -45,6 +53,7 @@ public class SetElevator extends Command {
   public void end(boolean interrupted) {
     m_elevator.stop();
     finished = false;
+    count = 0;
     
   }
 
