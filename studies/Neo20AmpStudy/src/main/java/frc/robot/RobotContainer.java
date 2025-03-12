@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.ExampleCommand2;
 import frc.robot.commands.SetNine;
 import frc.robot.subsystems.ExampleSubsystem;
 
@@ -36,7 +37,9 @@ public class RobotContainer {
 
     ExampleSubsystem sub = new ExampleSubsystem();
     sub.setDefaultCommand(new SetNine(sub));
+
     m_driverController.a().whileTrue( new ExampleCommand(sub));
+    m_driverController.b().whileTrue( new ExampleCommand2(sub));
 
   }
 

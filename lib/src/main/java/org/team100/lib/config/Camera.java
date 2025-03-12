@@ -59,10 +59,11 @@ public enum Camera {
     /**
      * Right swerve 
      */
-    SWERVE_RIGHT("06ece53b019a5c2e",
+    SWERVE_RIGHT("47403d5eafe002a9",
             new Transform3d(
-                    new Translation3d(-0.271, -0.307, 0.217),
-                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(-60)))),
+                    new Translation3d(-0.261, -0.317, 0.217),
+                    new Rotation3d(-0.146, 0.195, -0.508).unaryMinus().plus(new Rotation3d(0, 0, -Math.PI/2)))),
+                    // new Rotation3d(0, 0, 0))),
 
     
     /**
@@ -70,8 +71,10 @@ public enum Camera {
      */
     SWERVE_LEFT("8132c256f63bbb4e",
             new Transform3d(
-                    new Translation3d(-0.271, 0.307, 0.217),
-                    new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
+                    new Translation3d(-0.241, 0.297, 0.207),
+                    // new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
+                    new Rotation3d(0.07, 0.147, 0.52).unaryMinus().plus(new Rotation3d(0, 0, Math.PI/2)))),
+
 
     /**
      * Funnel 
@@ -79,23 +82,27 @@ public enum Camera {
     FUNNEL("1e5acbaa5a7f9d10",
             new Transform3d(
                     new Translation3d(-0.023, -0.233, 0.902),
-                    new Rotation3d(0, Math.toRadians(-25), Math.toRadians(170)))),
+                    new Rotation3d(0.087, 0.455, 0.216).unaryMinus().plus(new Rotation3d(0, 0, Math.PI)))),
 
     /**
      * Coral reef left 
      */
     CORAL_LEFT("8ddb2ed6c49a9bce",
     new Transform3d(
-            new Translation3d(0.198, 0.294, 0.821),
-            new Rotation3d(0, Math.toRadians(40), Math.toRadians(-10)))),
+            new Translation3d(0.198, 0.284, 0.811),
+            // new Rotation3d(-0.16, Math.toRadians(40), Math.toRadians(-18)))),
+            new Rotation3d(-0.043, -0.705, 0.254).unaryMinus())),      
+            // new Rotation3d(0, 0, 0))),      
+
 
             /**
      * Coral reef right 
      */
     CORAL_RIGHT("364f07fb090a3bf7",
     new Transform3d(
-            new Translation3d(0.195, -0.293, 0.819),
-            new Rotation3d(0, Math.toRadians(45), Math.toRadians(10)))),
+            new Translation3d(0.225, -0.325, 0.79),
+            // new Rotation3d(0.01, -0.83, -0.199).unaryMinus())),
+            new Rotation3d(0.020, -0.84, -0.195).unaryMinus())),      
 
     TEST1("test1",
             new Transform3d(

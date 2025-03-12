@@ -49,7 +49,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
      * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
      * always use the camera.
      */
-    private static final double kTagRotationBeliefThresholdMeters = 0;
+    private static final double kTagRotationBeliefThresholdMeters = 10000;
     /** Discard results further than this from the previous one. */
     private static final double kVisionChangeToleranceMeters = 0.1;
     // private static final double kVisionChangeToleranceMeters = 1;

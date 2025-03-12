@@ -283,7 +283,7 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist) );
 
@@ -300,8 +300,10 @@ public class RobotContainer implements Glassy {
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
+        
 
-        whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
+        whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

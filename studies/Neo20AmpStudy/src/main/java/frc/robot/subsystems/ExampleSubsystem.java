@@ -21,20 +21,22 @@ public class ExampleSubsystem extends SubsystemBase {
 
   // TalonFX starboard = new TalonFX(1);
   // TalonFX port = new TalonFX(2);
-  SparkMax number1Max ;
-  SparkMax number2Max ;
+  // SparkMax number1Max ;
+  // SparkMax number2Max ;
+
+  TalonFX motor = new TalonFX(15);
 
   public ExampleSubsystem() {
 
 
 
-    number1Max = new SparkMax(27, MotorType.kBrushless);
-    SparkMaxConfig conf = new SparkMaxConfig();
-    conf.smartCurrentLimit(20, 20);
-    number1Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    // number1Max = new SparkMax(27, MotorType.kBrushless);
+    // SparkMaxConfig conf = new SparkMaxConfig();
+    // conf.smartCurrentLimit(20, 20);
+    // number1Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
-    number2Max = new SparkMax(5, MotorType.kBrushless);
-    number2Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    // number2Max = new SparkMax(5, MotorType.kBrushless);
+    // number2Max.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
@@ -42,16 +44,23 @@ public class ExampleSubsystem extends SubsystemBase {
     // starboard.set(-value);
     // port.set(-value);
 
-    number1Max.set(-value);
+    // number1Max.set(-value);
+    motor.set(-1);
   }
 
   public void set2(double value){
     // starboard.set(-value);
     // port.set(-value);
 
-    number2Max.set(-value);
+    motor.set(1);
   }
 
+  public void setN(double value){
+    // starboard.set(-value);
+    // port.set(-value);
+
+    motor.set(0);
+  }
   /**
    * Example command factory method.
    *

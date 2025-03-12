@@ -82,6 +82,13 @@ public class PoseEstimationHelper implements Glassy {
             Blip24 blip) {
 
         Transform3d tagInCameraCoords = blipToTransform(blip);
+        Transform3d tagInRobot = cameraInRobotCoords.plus(tagInCameraCoords);
+        
+        System.out.printf("TAG IN ROBOT %s x %f y %f z%f\n",
+                tagInRobot.getTranslation(),
+                tagInRobot.getRotation().getX(),
+                tagInRobot.getRotation().getY(),
+                tagInRobot.getRotation().getZ());
         Pose3d cameraInFieldCoords = toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
         return applyCameraOffset(cameraInFieldCoords, cameraInRobotCoords);
     }
