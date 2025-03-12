@@ -130,8 +130,8 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean driveOneMeter() {
-        return m_driverControl.driveOneMeter();
+    public boolean driveToTag() {
+        return m_driverControl.driveToTag();
     }
 
     @Override

@@ -30,15 +30,15 @@ public class ScoreCoral extends SequentialCommandGroup {
 
 
     addCommands(
-        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, FieldSector.AB, ReefDestination.CENTER),
-        new SelectSequence(
-            scoringPositionSupplier,
-            new ScoreL1(),
-            new ScoreL2(),
-            new ScoreL3(),
-            new ScoreL4(),
-            wrist,
-            elevator)
+        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, FieldSector.AB, ReefDestination.CENTER)
+        // new SelectSequence(
+        //     scoringPositionSupplier,
+        //     new ScoreL1(),
+        //     new ScoreL2(),
+        //     new ScoreL3(),
+        //     new ScoreL4(),
+        //     wrist,
+        //     elevator)
 
 
 

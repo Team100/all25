@@ -12,7 +12,7 @@ public class SwerveControllerFactory {
     public static SwerveController byIdentity(LoggerFactory log) {
         switch (Identity.instance) {
             case COMP_BOT -> {
-                return new FullStateSwerveController(log, 0, 3.5, 0, 0, 0.01, 0.01, 0.01, 0.01);
+                return new FullStateSwerveController(log, 0.5, 3.5, 0, 0, 0.01, 0.01, 0.01, 0.01);
                 // return new FullStateSwerveController(log, 0, 0, 0, 0, 0, 0, 0, 0);
             }
             case SWERVE_ONE -> {

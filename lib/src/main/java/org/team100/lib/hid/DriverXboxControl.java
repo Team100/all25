@@ -160,7 +160,7 @@ public class DriverXboxControl implements DriverControl {
     }
     
     @Override
-    public boolean driveOneMeter() {
+    public boolean driveToTag() {
         return m_controller.getAButton();
     }
 

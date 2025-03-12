@@ -38,6 +38,7 @@ public class WristDefaultCommand extends Command {
   public void execute() {
 
     if(m_elevator.getPosition() > 17.5){
+        m_wrist.setAngleValue(0.5);
       if(m_wrist.getAngle() < 0.5 - deadband){
         m_wrist.setSafeCondition(false);
         // m_wrist.setAngleValue(0.5);
@@ -48,7 +49,8 @@ public class WristDefaultCommand extends Command {
         m_wrist.setSafeCondition(false);
         // m_wrist.setAngleValue(0.5);
       }
-    } else{
+    } else if(m_elevator.getPosition() > 2 && m_elevator.getPosition() < 17.5){
+        m_wrist.setAngleValue(0.5);
       if(m_wrist.getAngle() < 0.5 - deadband){
         m_wrist.setSafeCondition(false);
         // m_wrist.setAngleValue(0.5);
@@ -59,24 +61,20 @@ public class WristDefaultCommand extends Command {
         m_wrist.setSafeCondition(false);
         // m_wrist.setAngleValue(0.5);
       }
-    }
-
-    double error = Math.abs(m_wrist.getAngle() - 0.5);
-
-    if(error < deadband + 0.02){
-        count++;
-        m_wrist.setAngleValue(0.5);
     } else {
-        m_wrist.setAngleValue(0.5);
+        if(m_elevator.getSafeCondition()){
+            m_wrist.setSafeCondition(true);
+            m_wrist.setAngleValue(0.1);
+        }
     }
 
-    if(count >= 20){
-        docked = true;
-    }
 
-    if(docked){
-        m_wrist.setAngleValue(0.1);
-    }
+    // if(m_elevator.getSafeCondition()){
+    //     m_wrist.setAngleValue(0.1);
+    // }
+
+
+
 
 
     

@@ -44,8 +44,9 @@ public class SetNine extends Command {
     // } else{
     //   timer.restart();
     // }
-    m_subsystem.set1(0);
-    m_subsystem.set2(0);
+    // m_subsystem.set1(0);
+    // m_subsystem.set2(0);
+    m_subsystem.setN(0);
 
   }
 

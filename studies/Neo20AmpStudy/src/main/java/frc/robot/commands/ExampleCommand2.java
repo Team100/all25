@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
+public class ExampleCommand2 extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ExampleSubsystem m_subsystem;
 
@@ -20,7 +20,7 @@ public class ExampleCommand extends Command {
    */
 
   Timer timer = new Timer();
-  public ExampleCommand(ExampleSubsystem subsystem) {
+  public ExampleCommand2(ExampleSubsystem subsystem) {
     m_subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -44,7 +44,7 @@ public class ExampleCommand extends Command {
     // } else{
     //   timer.restart();
     // }
-    m_subsystem.set2(0);
+    m_subsystem.set1(0);
   }
 
   // Called once the command ends or is interrupted.
