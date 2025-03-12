@@ -9,17 +9,23 @@ import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.CANSparkEncoder;
+import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.Neo550CANSparkMotor;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrip extends SubsystemBase implements Glassy {
     
     private final Neo550CANSparkMotor m_motor;
     private final LinearMechanism linearMechanism;
+    private final BooleanLogger leftLimitSwitch;
+    private final BooleanLogger rightLimitSwitch;
+
     public double position;
 
     private static final double m_5to1 = 5.2307692308;
@@ -28,7 +34,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
         LoggerFactory child = parent.child(this);
         int currLim = 20;
-
+        rightLimitSwitch = child.booleanLogger(Level.TRACE, getName());
+        leftLimitSwitch = child.booleanLogger(Level.TRACE, getName());
         switch (Identity.instance) {
             case COMP_BOT -> {
                 m_motor = new Neo550CANSparkMotor(child, 3, MotorPhase.FORWARD, currLim, Feedforward100.makeNeo550(),
@@ -52,6 +59,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     
     @Override
     public void periodic() {
+        rightLimitSwitch.log(() -> m_motor.getForwardLimitSwitch());
+        leftLimitSwitch.log(() -> m_motor.getReverseLimitSwitch());
         // This method will be called once per scheduler run
     }
 
