@@ -35,7 +35,7 @@ class Identity(Enum):
     RIGHTAMP = "10000000caeaae82"
     LEFTAMP = "100000004e0a1fb9"
     GAME_PIECE = "1000000013c9c96c"
-    DIST_TEST = "47403d5eafe002a9"
+    DIST_TEST = "cf206cd348d20bdd"
 
     # camera-bot cameras
     GLOBAL_GAME_PIECE = "d44649628c20d4d4"
@@ -45,7 +45,7 @@ class Identity(Enum):
     CORAL_LEFT = "8ddb2ed6c49a9bce" #32
     CORAL_RIGHT = "364f07fb090a3bf7" #31
     SWERVE_LEFT = "8132c256f63bbb4e" #33
-    SWERVE_RIGHT = "cf206cd348d20bdd" #34
+    SWERVE_RIGHT = "47403d5eafe002a9" #34
 
     # for testing
     DEV = "10000000a7c673d9"  # rpi4 used for development
