@@ -87,6 +87,7 @@ public class Neo550Factory {
         RotaryMechanism rotaryMechanism = new LimitedRotaryMechanism(new SimpleRotaryMechanism(moduleLogger, driveMotor,
                 new CANSparkEncoder(moduleLogger, driveMotor), gearRatio), lowerLimit, upperLimit);
         return new OutboardGravityServo(
+                parent,
                 new OutboardAngularPositionServo(
                         moduleLogger,
                         rotaryMechanism,
@@ -133,6 +134,7 @@ public class Neo550Factory {
         RotaryMechanism rotaryMechanism = new SimpleRotaryMechanism(parent, driveMotor,
                 new SimulatedBareEncoder(parent, driveMotor), 1);
         return new OutboardGravityServo(
+                parent,
                 new OutboardAngularPositionServo(
                         parent,
                         rotaryMechanism,

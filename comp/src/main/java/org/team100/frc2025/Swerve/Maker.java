@@ -4,10 +4,8 @@ import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
-import org.team100.frc2025.Swerve.Auto.GoToFirstPlace;
 import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
-import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.logging.FieldLogger;
@@ -58,7 +56,7 @@ public class Maker {
                 m_kinodynamics.getMaxAngleSpeedRad_S(),
                 m_kinodynamics.getMaxAngleAccelRad_S2(),
                 0.1); // 5 degrees
-        return new Embark(m_drive, holonomicController, profile);
+        return new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER);
     }
 
     public Command test(FieldLogger.Log fieldLog,SwerveController controller, HolonomicProfile profile) {

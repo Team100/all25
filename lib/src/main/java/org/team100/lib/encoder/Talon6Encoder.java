@@ -19,6 +19,7 @@ public class Talon6Encoder implements IncrementalBareEncoder {
         m_motor = motor;
         m_log_position = child.optionalDoubleLogger(Level.TRACE, "position (rad)");
         m_log_velocity = child.optionalDoubleLogger(Level.TRACE, "velocity (rad_s)");
+        reset();
     }
 
     /** Value is updated in Robot.robotPeriodic(). */

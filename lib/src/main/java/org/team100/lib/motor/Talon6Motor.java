@@ -145,7 +145,7 @@ public abstract class Talon6Motor implements BareMotor {
                 .ofDouble(() -> {
                     double latency = Utils.fpgaToCurrentTime(Takt.get()) - motorPosition.getTimestamp().getTime();
                     if (latency > 0.1) {
-                        Util.warn("!!!!!!! stale position! !!!!!!!");
+                        Util.warn("!!!!!!! stale position! !!!!!!!" + canId);
                         latency = 0.1;
                     }
                     return motorPosition.getValueAsDouble() + (motorVelocity.getValueAsDouble() * latency);
@@ -265,8 +265,8 @@ public abstract class Talon6Motor implements BareMotor {
         final double accelFFVolts = m_ff.accelFFVolts(currentMotorRev_S, motorRev_S2);
         final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
-        final double kFFVolts = frictionFFVolts + velocityFFVolts + torqueFFVolts + accelFFVolts;
-        // final double kFFVolts = torqueFFVolts;
+        // final double kFFVolts = frictionFFVolts + velocityFFVolts + torqueFFVolts + accelFFVolts;
+        final double kFFVolts = torqueFFVolts;
 
         // PositionVoltage has a velocity field for kV feedforward but we use arbitrary
         // feedforward for that.

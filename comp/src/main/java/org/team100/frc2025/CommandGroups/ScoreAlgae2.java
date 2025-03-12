@@ -2,10 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2025.Elevator;
+package org.team100.frc2025.CommandGroups;
 
+import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Wrist.AlgaeGrip;
-import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 
@@ -23,9 +25,10 @@ public class ScoreAlgae2 extends SequentialCommandGroup {
     addCommands(
         // new RunAlgaeGrip(grip, 1)
         // new SetWrist(wrist, 0.5, false),
-        // new SetElevator(elevator, 10, false),
-        // new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10) ),
-        new ParallelDeadlineGroup(new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10))
+        new SetElevator(elevator, 12, false),
+        new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12) )
+        // new ParallelDeadlineGroup(new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10))
+
         // new SetElevator(elevator, 30, false),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 1.2, false), new SetElevatorPerpetually(elevator, 57.2), new RunAlgaeGrip(grip, 1)),
         // new ParallelDeadlineGroup(new SetWrist(wrist, 2.3, false), new SetElevatorPerpetually(elevator, 57.2))
