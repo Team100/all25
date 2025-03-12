@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
@@ -64,6 +65,168 @@ class SwerveDrivePoseEstimator100Test {
     @BeforeEach
     void nolog() {
         DataLogManager.stop();
+    }
+
+    @Test
+    void testVisionStdDevs() {
+        // these are the "antijitter" values.
+        // 2 cm, somewhat higher than reality
+        double targetRangeM = 1.0;
+        double[] visionStdDev = VisionDataProvider24.visionMeasurementStdDevs(targetRangeM);
+        assertEquals(3, visionStdDev.length);
+        assertEquals(0.02, visionStdDev[0], kDelta);
+        assertEquals(0.02, visionStdDev[1], kDelta);
+        assertEquals(Double.MAX_VALUE, visionStdDev[2], kDelta);
+    }
+
+    @Test
+    void testStateStdDevs() {
+        // these are the "antijitter" values.
+        // 1 mm, very low
+        double[] stateStdDev = VisionDataProvider24.tightStateStdDevs;
+        assertEquals(3, stateStdDev.length);
+        assertEquals(0.001, stateStdDev[0], kDelta);
+        assertEquals(0.001, stateStdDev[1], kDelta);
+        assertEquals(0.1, stateStdDev[2], kDelta);
+    }
+
+    @Test
+    void testK() {
+        double[] stateStdDev = VisionDataProvider24.tightStateStdDevs;
+        double targetRangeM = 1.0;
+        double[] visionStdDev = VisionDataProvider24.visionMeasurementStdDevs(targetRangeM);
+        double[] k = SwerveDrivePoseEstimator100.getK(stateStdDev, visionStdDev);
+        assertEquals(3, k.length);
+        // state = 5 mm, vision = 100 mm, so k should be like 0.05
+        assertEquals(0.048, k[0], kDelta);
+        assertEquals(0.048, k[1], kDelta);
+        // state = something finite, vision = infinity, so k should be zero, i.e. ignore
+        // vision rotation
+        assertEquals(0, k[2], kDelta);
+    }
+
+    @Test
+    void testMix() {
+        assertEquals(0.091, SwerveDrivePoseEstimator100.mix(1, 100), kDelta);
+        assertEquals(0.24, SwerveDrivePoseEstimator100.mix(1, 10), kDelta);
+        assertEquals(0.5, SwerveDrivePoseEstimator100.mix(1, 1), kDelta);
+        assertEquals(0.76, SwerveDrivePoseEstimator100.mix(10, 1), kDelta);
+        assertEquals(0.909, SwerveDrivePoseEstimator100.mix(100, 1), kDelta);
+    }
+
+    @Test
+    void testScaledTwist() {
+        // 1 mm
+        double[] stateStdDev = VisionDataProvider24.tightStateStdDevs;
+        double targetRangeM = 1.0;
+        // 2 cm stdev, 20x
+        double[] visionStdDev = VisionDataProvider24.visionMeasurementStdDevs(targetRangeM);
+        // 10 cm of difference between the vision update and the current pose
+        Twist2d twist = new Twist2d(0.1, 0.1, 0);
+        Twist2d scaled = SwerveDrivePoseEstimator100.getScaledTwist(stateStdDev, visionStdDev, twist);
+        // difference is discounted 20x
+        assertEquals(0.004762, scaled.dx, 1e-6);
+        assertEquals(0.004762, scaled.dy, 1e-6);
+        assertEquals(0, scaled.dtheta, 1e-6);
+    }
+
+    /**
+     * If the measurement is the same as the sample, nothing happens.
+     */
+    @Test
+    void testZeroNudge() {
+        double[] stateStdDev = new double[] {
+                0.001,
+                0.001,
+                0.1 };
+        double[] visionStdDev = new double[] {
+                0.02,
+                0.02,
+                Double.MAX_VALUE };
+        final Pose2d sample = new Pose2d();
+        final Pose2d measurement = new Pose2d();
+        final Pose2d nudged = SwerveDrivePoseEstimator100.nudge(sample, measurement, stateStdDev, visionStdDev);
+        assertEquals(0, nudged.getX(), 1e-6);
+        assertEquals(0, nudged.getY(), 1e-6);
+        assertEquals(0, nudged.getRotation().getRadians(), 1e-6);
+
+    }
+
+    /**
+     * Let's say the camera is correct, and it says the sample is 0.1 meters off.
+     * How long does it take for the pose buffer to contain the right pose? Kind of
+     * a long time.
+     */
+    @Test
+    void testGentleNudge() {
+        // TODO: measure the actual frame rate.
+        int frameRate = 50;
+        double[] stateStdDev = new double[] {
+                0.001,
+                0.001,
+                0.1 };
+        double[] visionStdDev = new double[] {
+                0.1,
+                0.1,
+                Double.MAX_VALUE };
+        final Pose2d sample = new Pose2d();
+        final Pose2d measurement = new Pose2d(0.1, 0, new Rotation2d());
+        Pose2d nudged = sample;
+        for (int i = 0; i < frameRate; ++i) {
+            nudged = SwerveDrivePoseEstimator100.nudge(nudged, measurement, stateStdDev, visionStdDev);
+        }
+        // after 1 sec the error is about 6 cm which is too slow.
+        Transform2d error = measurement.minus(nudged);
+        assertEquals(0.061, error.getX(), kDelta);
+        assertEquals(0, error.getY(), kDelta);
+        assertEquals(0, error.getRotation().getRadians(), kDelta);
+        //
+        for (int i = 0; i < frameRate; ++i) {
+            nudged = SwerveDrivePoseEstimator100.nudge(nudged, measurement, stateStdDev, visionStdDev);
+        }
+        // after 2 sec the error is about 4 cm.
+        error = measurement.minus(nudged);
+        assertEquals(0.037, error.getX(), kDelta);
+        assertEquals(0, error.getY(), kDelta);
+        assertEquals(0, error.getRotation().getRadians(), kDelta);
+    }
+
+    /**
+     * Same as above with firmer updates. We want error under 2cm within about 1s.
+     */
+    @Test
+    void testFirmerNudge() {
+        // TODO: measure the actual frame rate.
+        int frameRate = 50;
+        double[] stateStdDev = new double[] {
+                0.001,
+                0.001,
+                0.1 };
+        double[] visionStdDev = new double[] {
+                0.03,
+                0.03,
+                Double.MAX_VALUE };
+        final Pose2d sample = new Pose2d();
+        final Pose2d measurement = new Pose2d(0.1, 0, new Rotation2d());
+        Pose2d nudged = sample;
+        for (int i = 0; i < frameRate; ++i) {
+            nudged = SwerveDrivePoseEstimator100.nudge(nudged, measurement, stateStdDev, visionStdDev);
+        }
+        // after 1 sec the error is about 2 cm which is the target.
+        Transform2d error = measurement.minus(nudged);
+        assertEquals(0.019, error.getX(), kDelta);
+        assertEquals(0, error.getY(), kDelta);
+        assertEquals(0, error.getRotation().getRadians(), kDelta);
+        //
+        for (int i = 0; i < frameRate; ++i) {
+            nudged = SwerveDrivePoseEstimator100.nudge(nudged, measurement, stateStdDev, visionStdDev);
+        }
+        // after 2 sec the error is about 4 mm which seems plenty tight
+        error = measurement.minus(nudged);
+        assertEquals(0.004, error.getX(), kDelta);
+        assertEquals(0, error.getY(), kDelta);
+        assertEquals(0, error.getRotation().getRadians(), kDelta);
+
     }
 
     @Test

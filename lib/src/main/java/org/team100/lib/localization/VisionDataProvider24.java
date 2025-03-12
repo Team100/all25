@@ -49,7 +49,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
      * Set this to some large number (e.g. 100) to disable gyro-derived rotation and
      * always use the camera.
      */
-    private static final double kTagRotationBeliefThresholdMeters = 10000;
+    private static final double kTagRotationBeliefThresholdMeters = 0;
     /** Discard results further than this from the previous one. */
     private static final double kVisionChangeToleranceMeters = 0.1;
     // private static final double kVisionChangeToleranceMeters = 1;
@@ -60,10 +60,10 @@ public class VisionDataProvider24 implements VisionData, Glassy {
             0.1,
             0.1 };
     /**
-     * this value is intended to make the response to vision input more gradual, to
-     * avoid "jitter." it's a guess.
+     * This value is tuned so that errors scale at 0.2x per second. See
+     * SwerveDrivePoseEstimator100Test::testFirmerNudge.
      */
-    private static final double[] tightStateStdDevs = new double[] {
+    static final double[] tightStateStdDevs = new double[] {
             0.001,
             0.001,
             0.1 };
@@ -263,25 +263,27 @@ public class VisionDataProvider24 implements VisionData, Glassy {
     static double[] visionMeasurementStdDevs(double distanceM) {
         if (Experiments.instance.enabled(Experiment.AvoidVisionJitter)) {
             /*
-             * actual stdev seem like between 0.03 at 1m or 0.15 at 5m so
-             * actual k might be 0.03. This needs to be accompanied by the
-             * much lower state stddev in RobotContainer.
+             * NEW (3/12/25), 2 cm std dev seems kinda realistic for 1 m.
+             * 
+             * If it still jitters, try 0.03 or 0.05, but watch out for slow convergence.
+             * 
+             * TODO: gather some actual data.
              */
+            final double k = 0.02;
             return new double[] {
-                    0.01 * distanceM,
-                    0.01 * distanceM,
+                    k * distanceM,
+                    k * distanceM,
                     Double.MAX_VALUE };
         }
         /*
          * Standard deviation of pose estimate, as a fraction of target range.
          * This is a guess based on figure 5 in the Apriltag2 paper:
          * https://april.eecs.umich.edu/media/media/pdfs/wang2016iros.pdf
-         * The error is much worse at very long range but I don't think that
-         * matters for us.
          */
+        final double k = 0.03;
         return new double[] {
-                .1 * distanceM,
-                .1 * distanceM,
+                k * distanceM,
+                k * distanceM,
                 Double.MAX_VALUE };
     }
 

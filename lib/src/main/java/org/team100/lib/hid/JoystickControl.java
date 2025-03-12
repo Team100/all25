@@ -4,6 +4,8 @@ import static org.team100.lib.hid.ControlUtil.clamp;
 import static org.team100.lib.hid.ControlUtil.deadband;
 import static org.team100.lib.hid.ControlUtil.expo;
 
+import org.team100.lib.util.Util;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.GenericHID;
  * Command buttons are not implemented.
  */
 public abstract class JoystickControl implements DriverControl {
+    private static final boolean DEBUG = false;
     private static final double kDeadband = 0.02;
     private static final double kExpo = 0.5;
 
@@ -73,7 +76,10 @@ public abstract class JoystickControl implements DriverControl {
         double dx = expo(deadband(-1.0 * clamp(m_controller.getRawAxis(1), 1), kDeadband, 1), kExpo);
         double dy = expo(deadband(-1.0 * clamp(m_controller.getRawAxis(0), 1), kDeadband, 1), kExpo);
         double dtheta = expo(deadband(-1.0 * clamp(m_controller.getRawAxis(2), 1), kDeadband, 1), kExpo);
-        return new DriverControl.Velocity(dx, dy, dtheta);
+        DriverControl.Velocity velocity = new DriverControl.Velocity(dx, dy, dtheta);
+        if (DEBUG)
+            Util.printf("JoystickControl %s\n", velocity);
+        return velocity;
     }
 
     @Override

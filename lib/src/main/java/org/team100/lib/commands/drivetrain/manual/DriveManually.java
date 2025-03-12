@@ -112,7 +112,7 @@ public class DriveManually extends Command implements Glassy {
                 new Driver() {
                     public void apply(SwerveModel s, DriverControl.Velocity t) {
                         if (DEBUG)
-                            Util.printf("module state driver %s\n", t);
+                            Util.printf("ModuleStateDriver %s\n", t);
                         m_drive.setRawModuleStates(d.apply(t));
                     }
 
@@ -129,6 +129,8 @@ public class DriveManually extends Command implements Glassy {
                 name,
                 new Driver() {
                     public void apply(SwerveModel s, DriverControl.Velocity t) {
+                        if (DEBUG)
+                            Util.printf("ChassisSpeedDriver %s\n", t);
                         m_drive.setChassisSpeeds(d.apply(s, t));
                     }
 
@@ -145,6 +147,8 @@ public class DriveManually extends Command implements Glassy {
                 name,
                 new Driver() {
                     public void apply(SwerveModel s, DriverControl.Velocity t) {
+                        if (DEBUG)
+                            Util.printf("FieldRelativeDriver %s\n", t);
                         m_drive.driveInFieldCoords(d.apply(s, t));
                     }
 
