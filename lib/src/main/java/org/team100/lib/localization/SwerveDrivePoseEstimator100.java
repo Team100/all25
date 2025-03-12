@@ -116,54 +116,27 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
             double[] stateSigma,
             double[] visionSigma) {
 
-        // discount the vision update by this factor.
-        final double[] k = new double[] {
-                mix(Math.pow(stateSigma[0], 2), Math.pow(visionSigma[0], 2)),
-                mix(Math.pow(stateSigma[1], 2), Math.pow(visionSigma[1], 2)),
-                mix(Math.pow(stateSigma[2], 2), Math.pow(visionSigma[2], 2)) };
-
-        // Step 0: If this measurement is old enough to be outside the pose buffer's
-        // timespan, skip.
-
+        // Skip too-old measurement
         if (m_poseBuffer.tooOld(timestampS)) {
             return;
         }
 
-        // Step 1: Get the pose odometry measured at the moment the vision measurement
-        // was made.
+        // Sample the history at the measurement time.
         InterpolationRecord sample = m_poseBuffer.get(timestampS);
 
-        // Step 2: Measure the twist between the odometry pose and the vision pose.
-        Pose2d pose = sample.m_state.pose();
-        Twist2d twist = pose.log(measurement);
+        // Nudge the sample towards the measurement.
+        Pose2d nudged = nudge(sample.m_state.pose(), measurement, stateSigma, visionSigma);
 
-        // Step 3: We should not trust the twist entirely, so instead we scale this
-        // twist by a Kalman gain matrix representing how much we trust vision
-        // measurements compared to our current pose.
-        // Matrix<N3, N1> k_times_twist = m_visionK.times(VecBuilder.fill(twist.dx,
-        // twist.dy, twist.dtheta));
-
-        // Step 4: Convert back to Twist2d.
-        Twist2d scaledTwist = new Twist2d(
-                k[0] * twist.dx,
-                k[1] * twist.dy,
-                k[2] * twist.dtheta);
-        // Twist2d scaledTwist = new Twist2d(k_times_twist.get(0, 0),
-        // k_times_twist.get(1, 0), k_times_twist.get(2, 0));
-
-        Pose2d newPose = sample.m_state.pose().exp(scaledTwist);
-
-        // Step 6: Record the current pose to allow multiple measurements from the same
-        // timestamp
+        // Add the result
         m_poseBuffer.put(
                 timestampS,
                 new InterpolationRecord(
                         m_kinodynamics.getKinematics(),
-                        new SwerveModel(newPose, sample.m_state.velocity()),
+                        new SwerveModel(nudged, sample.m_state.velocity()),
                         sample.m_wheelPositions));
-        // Step 7: Replay odometry inputs between sample time and latest recorded sample
-        // to update the pose buffer and correct odometry.
-        // note exclusive tailmap, don't need to reprocess the entry we just put there.
+
+        // Replay odometry after the sample time.
+        // (Note the exclusive tailmap: we don't need to see the entry we just added.)
         for (Map.Entry<Double, InterpolationRecord> entry : m_poseBuffer.tailMap(timestampS, false).entrySet()) {
             double entryTimestampS = entry.getKey();
             InterpolationRecord value = entry.getValue();
@@ -176,6 +149,42 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
             put(entryTimestampS, entryGyroAngle, entryGyroRate, wheelPositions);
         }
 
+    }
+
+    /**
+     * Nudge the sample towards the measurement.
+     */
+    static Pose2d nudge(
+            Pose2d sample,
+            Pose2d measurement,
+            double[] stateSigma,
+            double[] visionSigma) {
+        // Step 2: Measure the twist between the odometry pose and the vision pose.
+        Twist2d twist = sample.log(measurement);
+        // Step 4: Discount the twist based on the sigmas relative to each other
+        Twist2d scaledTwist = getScaledTwist(stateSigma, visionSigma, twist);
+        return sample.exp(scaledTwist);
+    }
+
+    static Twist2d getScaledTwist(
+            double[] stateSigma,
+            double[] visionSigma,
+            Twist2d twist) {
+        // discount the vision update by this factor.
+        final double[] k = getK(stateSigma, visionSigma);
+        Twist2d scaledTwist = new Twist2d(
+                k[0] * twist.dx,
+                k[1] * twist.dy,
+                k[2] * twist.dtheta);
+        return scaledTwist;
+    }
+
+    static double[] getK(double[] stateSigma, double[] visionSigma) {
+        return new double[] {
+                mix(Math.pow(stateSigma[0], 2), Math.pow(visionSigma[0], 2)),
+                mix(Math.pow(stateSigma[1], 2), Math.pow(visionSigma[1], 2)),
+                mix(Math.pow(stateSigma[2], 2), Math.pow(visionSigma[2], 2))
+        };
     }
 
     /**
@@ -192,6 +201,11 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
         put(currentTimeS, gyro.getYawNWU(), gyro.getYawRateNWU(), wheelPositions);
     }
 
+    /**
+     * Sample the history before the specified time, and record a new pose based on
+     * the difference in wheel positions between the sample and the specified
+     * positions.
+     */
     void put(
             double currentTimeS,
             Rotation2d gyroAngle,
@@ -270,8 +284,11 @@ public class SwerveDrivePoseEstimator100 implements PoseEstimator100, Glassy {
      * Given q and r stddev's, what mixture should that yield?
      * This is the "closed form Kalman gain for continuous Kalman filter with A = 0
      * and C = I. See wpimath/algorithms.md." ... but really it's just a mixer.
+     * 
+     * @param q state variance
+     * @param r vision variance
      */
-    private double mix(final double q, final double r) {
+    static double mix(final double q, final double r) {
         if (q == 0.0)
             return 0.0;
         return q / (q + Math.sqrt(q * r));

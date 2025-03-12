@@ -27,8 +27,10 @@ public class Experiments implements Glassy {
 
     /** These experiments are enabled on every robot type. */
     private final Set<Experiment> globalExperiments = Set.of(
-            Experiment.UseSetpointGenerator,
-            Experiment.HeedVision);
+            Experiment.AvoidVisionJitter,
+            Experiment.HeedVision,
+            Experiment.ReduceCrossTrackError,
+            Experiment.UseSetpointGenerator);
 
     /** These experiments are enabled on specific robot types. */
     private final Map<Identity, Set<Experiment>> experimentsByIdentity = Map.of(
@@ -73,8 +75,6 @@ public class Experiments implements Glassy {
         }
         return m_overrides.get(experiment).getSelected().getAsBoolean();
     }
-
-    
 
     ////////////////////////////////////////
 
