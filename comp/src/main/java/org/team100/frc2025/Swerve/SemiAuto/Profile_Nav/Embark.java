@@ -1,8 +1,11 @@
 package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 
+import java.util.function.Supplier;
+
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
@@ -33,17 +36,20 @@ public class Embark extends Command implements Glassy {
 
     private FieldSector m_targetSector;
     private ReefDestination m_destination;
-
+    private Supplier<ScoringPosition> m_scoringPositionSupplier;
+    
+    private ScoringPosition m_scoringPosition = ScoringPosition.NONE;
     public Embark(
             SwerveDriveSubsystem drive,
             SwerveController controller,
             HolonomicProfile profile,
             FieldSector targetSector,
-            ReefDestination destination) {
+            ReefDestination destination,
+            Supplier<ScoringPosition> scoringPositionSupplier) {
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
-
+        m_scoringPositionSupplier = scoringPositionSupplier;
         m_targetSector = targetSector;
         m_destination = destination;
         addRequirements(m_drive);
@@ -53,11 +59,22 @@ public class Embark extends Command implements Glassy {
     public void initialize() {
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
+        m_scoringPosition = m_scoringPositionSupplier.get();
 
-        double radius = 1.8;
+        double radius = 2;
+
         if(m_destination == ReefDestination.CENTER){
-            radius = 1.4;
+            radius = 1.3;
         }   
+
+        if(m_scoringPosition == ScoringPosition.L4){
+            radius = 1.4;
+        }
+
+        if(m_scoringPosition == ScoringPosition.L3){
+            radius = 1.4;
+        }
+        
 
         Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination, radius);
         Rotation2d heading = FieldConstants.getSectorAngle(m_targetSector).rotateBy(Rotation2d.fromDegrees(180));
