@@ -69,13 +69,8 @@ public class OperatorControlProxy implements OperatorControl {
     }
 
     @Override
-    public Double ramp() {
+    public double ramp() {
         return m_operatorControl.ramp();
-    }
-
-    @Override
-    public boolean never() {
-        return m_operatorControl.never();
     }
 
     @Override

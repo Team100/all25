@@ -91,13 +91,13 @@ public class OutboardAngularPositionServoWithoutWrapTest {
         // same accel
         assertEquals(450, wristMotor.accel, kDelta);
         // why is this negative?
-        assertEquals(-0.094, wristMotor.torque, kDelta);
+        assertEquals(-0.063, wristMotor.torque, kDelta);
         assertEquals(0.230, wristMotor.frictionFFVolts, kDelta);
         assertEquals(1.203, wristMotor.velocityFFVolts, kDelta);
         // ??
-        assertEquals(-0.472, wristMotor.torqueFFVolts, kDelta);
+        assertEquals(-0.316, wristMotor.torqueFFVolts, kDelta);
         assertEquals(0.931, wristMotor.accelFFVolts, kDelta);
-        assertEquals(1.892, wristMotor.ffVolts, kDelta);
+        assertEquals(2.048, wristMotor.ffVolts, kDelta);
         assertEquals(0.36, wristServoWithoutGravity.getSetpoint().x(), kDelta);
 
         // a few more times
@@ -117,14 +117,14 @@ public class OutboardAngularPositionServoWithoutWrapTest {
         // decel now
         assertEquals(-450, wristMotor.accel, kDelta);
         // ???
-        assertEquals(-0.320, wristMotor.torque, kDelta);
+        assertEquals(-0.227, wristMotor.torque, kDelta);
         assertEquals(0.230, wristMotor.frictionFFVolts, kDelta);
         assertEquals(1.101, wristMotor.velocityFFVolts, kDelta);
         // ???
-        assertEquals(-1.601, wristMotor.torqueFFVolts, kDelta);
+        assertEquals(-1.135, wristMotor.torqueFFVolts, kDelta);
         // braking => use kD value, which is lower
         assertEquals(-0.358, wristMotor.accelFFVolts, kDelta);
-        assertEquals(-0.628, wristMotor.ffVolts, kDelta);
+        assertEquals(-0.162, wristMotor.ffVolts, kDelta);
         assertEquals(1.058, wristServoWithoutGravity.getSetpoint().x(), kDelta);
 
         // almost done
@@ -145,12 +145,12 @@ public class OutboardAngularPositionServoWithoutWrapTest {
         // still decel
         assertEquals(-450, wristMotor.accel, kDelta);
         // ???
-        assertEquals(-0.405, wristMotor.torque, kDelta);
+        assertEquals(-0.308, wristMotor.torque, kDelta);
         assertEquals(0.230, wristMotor.frictionFFVolts, kDelta);
         assertEquals(0.099, wristMotor.velocityFFVolts, kDelta);
-        assertEquals(-2.025, wristMotor.torqueFFVolts, kDelta);
+        assertEquals(-1.538, wristMotor.torqueFFVolts, kDelta);
         assertEquals(-0.358, wristMotor.accelFFVolts, kDelta);
-        assertEquals(-2.054, wristMotor.ffVolts, kDelta);
+        assertEquals(-1.567, wristMotor.ffVolts, kDelta);
 
         // almost done
         assertEquals(1.357, wristServoWithoutGravity.getSetpoint().x(), kDelta);
@@ -170,12 +170,12 @@ public class OutboardAngularPositionServoWithoutWrapTest {
         assertEquals(12.24, wristMotor.position, kDelta);
         assertEquals(0, wristMotor.velocity, kDelta);
         assertEquals(0, wristMotor.accel, kDelta);
-        assertEquals(-0.408, wristMotor.torque, kDelta);
+        assertEquals(-0.312, wristMotor.torque, kDelta);
         assertEquals(0, wristMotor.frictionFFVolts, kDelta);
         assertEquals(0, wristMotor.velocityFFVolts, kDelta);
-        assertEquals(-2.042, wristMotor.torqueFFVolts, kDelta);
+        assertEquals(-1.558, wristMotor.torqueFFVolts, kDelta);
         assertEquals(0, wristMotor.accelFFVolts, kDelta);
-        assertEquals(-2.042, wristMotor.ffVolts, kDelta);
+        assertEquals(-1.558, wristMotor.ffVolts, kDelta);
         assertEquals(1.36, wristServoWithoutGravity.getSetpoint().x(), kDelta);
     }
 }

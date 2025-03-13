@@ -112,16 +112,9 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
-    // this exists to bind to commands we don't want to run,
-    // but we don't want them to rot either.
-    default boolean never() {
-        return false;
-    }
-
     default boolean test() {
         return false;
     }
-
 
     default boolean button4() {
         return false;
