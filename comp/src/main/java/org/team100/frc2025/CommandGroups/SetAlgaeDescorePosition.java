@@ -7,7 +7,6 @@ package org.team100.frc2025.CommandGroups;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
-import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 
@@ -17,14 +16,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ScoreAlgae2 extends SequentialCommandGroup {
+public class SetAlgaeDescorePosition extends SequentialCommandGroup {
   /** Creates a new ScoreLevel. */
-  public ScoreAlgae2(Wrist2 wrist, Elevator elevator, AlgaeGrip grip) {
+  public SetAlgaeDescorePosition(Wrist2 wrist, Elevator elevator) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         // new RunAlgaeGrip(grip, 1)
-        // new SetWrist(wrist, 0.5, false),
+        new SetWrist(wrist, 0.5, false),
         new SetElevator(elevator, 12, false),
         new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12) )
         // new ParallelDeadlineGroup(new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 10))
