@@ -17,6 +17,7 @@ import org.team100.frc2025.CommandGroups.ScoreCoral;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.Auto.GoToClimb;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
@@ -24,7 +25,6 @@ import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
@@ -62,7 +62,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
-import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -71,7 +70,6 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.state.Model100;
 import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryPlanner;
@@ -84,7 +82,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -184,7 +181,7 @@ public class RobotContainer implements Glassy {
                 kDriveCurrentLimit,
                 kDriveStatorLimit,
                 m_swerveKinodynamics);
-                
+
         final Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
@@ -272,7 +269,7 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-      
+
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist));
         m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
@@ -289,13 +286,7 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
-        whileTrue(() -> driverControl.driveToObject(), new SequentialCommandGroup(new DriveToPoseWithProfile(fieldLog, () -> {
-            Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, true), new Rotation2d());
-            return new SwerveModel(new Model100(x.getX(),1),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
-        },m_drive, holonomicController, profile, false), new DriveToPoseWithProfile(fieldLog, () -> {
-            Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, false), new Rotation2d());
-            return new SwerveModel(new Model100(x.getX(),0),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
-        },m_drive, holonomicController, profile)));
+        whileTrue(() -> driverControl.driveToObject(), new GoToClimb(fieldLog, m_drive, holonomicController, profile));
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,
         // 10));
