@@ -20,7 +20,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.RobotController;
 
-public abstract class  CANSparkMotor implements BareMotor {
+public abstract class CANSparkMotor implements BareMotor {
     protected final Feedforward100 m_ff;
     protected final SparkBase m_motor;
     protected final SparkLimitSwitch m_forLimitSwitch;
@@ -72,9 +72,12 @@ public abstract class  CANSparkMotor implements BareMotor {
         // make everything after this asynchronous.
         // NOTE: this makes error-checking not work at all.
         Rev100.crash(() -> m_motor.setCANTimeout(0));
-        // CACHES
+
+        // LIMIT SWITCHES
         m_forLimitSwitch = m_motor.getForwardLimitSwitch();
         m_revLimitSwitch = m_motor.getReverseLimitSwitch();
+
+        // CACHES
         m_encoder_position = Memo.ofDouble(m_encoder::getPosition);
         m_encoder_velocity = Memo.ofDouble(m_encoder::getVelocity);
         m_current = Memo.ofDouble(m_motor::getOutputCurrent);
@@ -158,7 +161,11 @@ public abstract class  CANSparkMotor implements BareMotor {
      * Motor revolutions wind up, so setting 0 revs and 1 rev are different.
      */
     @Override
-    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorAccelRad_S2, double motorTorqueNm) {
+    public void setPosition(
+            double motorPositionRad,
+            double motorVelocityRad_S,
+            double motorAccelRad_S2,
+            double motorTorqueNm) {
         final double motorRev = motorPositionRad / (2 * Math.PI);
         final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
         final double currentMotorRev_S = m_encoder_velocity.getAsDouble() / 60;
