@@ -147,7 +147,6 @@ public class RobotContainer implements Glassy {
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         demo.setup();
 
-        final SwerveKinodynamics swerveKinodynamics;
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
             // m_leds.setFront(LEDIndicator.State.ORANGE);
@@ -180,12 +179,12 @@ public class RobotContainer implements Glassy {
         final TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                         m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
-
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,
                 kDriveStatorLimit,
                 m_swerveKinodynamics);
+                
         final Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
