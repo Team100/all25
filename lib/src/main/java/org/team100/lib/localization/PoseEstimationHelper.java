@@ -83,6 +83,7 @@ public class PoseEstimationHelper implements Glassy {
             Pose3d tagInFieldCoords,
             Blip24 blip) {
         Transform3d tagInCameraCoords = blipToTransform(blip);
+
         if (DEBUG) {
             // This is used for camera offset calibration. Place a tag at a known position,
             // set the tag rotation belief threshold to a very high number (so this code
