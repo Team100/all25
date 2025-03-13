@@ -19,12 +19,13 @@ public class GoToClimb extends SequentialCommandGroup{
 
         addCommands(new DriveToPoseWithProfile(fieldLog, () -> {
                     Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, true),
-                            new Rotation2d());
+                            new Rotation2d(Math.PI));
                     return new SwerveModel(new Model100(x.getX(), 1), new Model100(x.getY(), 0),
                             new Model100(x.getRotation().getRadians(), 0));
-                }, m_drive, holonomicController, profile, false), new DriveToPoseWithProfile(fieldLog, () -> {
+                }, m_drive, holonomicController, profile, false), 
+                    new DriveToPoseWithProfile(fieldLog, () -> {
                     Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, false),
-                            new Rotation2d());
+                            new Rotation2d(Math.PI));
                     return new SwerveModel(new Model100(x.getX(), 0), new Model100(x.getY(), 0),
                             new Model100(x.getRotation().getRadians(), 0));
                 }, m_drive, holonomicController, profile));
