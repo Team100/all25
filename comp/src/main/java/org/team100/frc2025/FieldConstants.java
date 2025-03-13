@@ -68,22 +68,14 @@ public class FieldConstants {
     Right
   }
 
-  public static Translation2d getBargeStation(BargeDestination bargeDestination, boolean prep) {
-    Translation2d translation2d = getBargeStationPrep(bargeDestination);
-    if (!prep) {
-        return new Translation2d(translation2d.getX() + 1.1, translation2d.getY());
-    }
-    return translation2d;
-  }
-
-  private static Translation2d getBargeStationPrep(BargeDestination bargeDestination) {
+  public static Translation2d getBargeStation(BargeDestination bargeDestination) {
     switch (bargeDestination) {
         case RIGHT:
-            return new Translation2d(7.647, 5.020); 
+            return new Translation2d(8.747, 5.020); 
         case CENTER:
-            return new Translation2d(7.647, 6.142); 
+            return new Translation2d(8.747, 6.142); 
         case LEFT:
-            return new Translation2d(7.647, 7.206); 
+            return new Translation2d(8.747, 7.206); 
         default:
             return null;
     }

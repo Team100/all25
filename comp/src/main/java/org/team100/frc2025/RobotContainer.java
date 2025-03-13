@@ -4,7 +4,6 @@ package org.team100.frc2025;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -292,9 +291,8 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
         whileTrue(() -> driverControl.driveToObject(), new DriveToPoseWithProfile(fieldLog, () -> {
-                    Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, false), new Rotation2d());
-                    return Optional
-                            .of(new SwerveModel(new Model100(x.getX(),3),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0)));
+                    Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER), new Rotation2d());
+                    return new SwerveModel(new Model100(x.getX(),3),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
                 },m_drive, holonomicController, profile));
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,

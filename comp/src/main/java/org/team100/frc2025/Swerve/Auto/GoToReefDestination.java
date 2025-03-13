@@ -49,7 +49,7 @@ public class GoToReefDestination extends SequentialCommandGroup {
     SwerveController tet = new FullStateSwerveController(parent, 3, 3.5, 0.05, 0, 1, 1, 1, 1);
     addCommands(
         new GoToReefBuffer(parent, drive, tet, viz, kinodynamics, endSector, reefDest),
-        new DriveToPoseWithProfile(fieldLog, () -> Optional.of(new SwerveModel(m_goal)),drive, hcontroller, profile)
+        new DriveToPoseWithProfile(fieldLog, () -> new SwerveModel(m_goal),drive, hcontroller, profile)
 
     );
   }

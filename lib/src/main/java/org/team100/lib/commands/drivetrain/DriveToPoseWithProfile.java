@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class DriveToPoseWithProfile extends Command implements Glassy {
     private final FieldLogger.Log m_field_log;
-    private final Supplier<Optional<SwerveModel>> m_goals;
+    private final Supplier<SwerveModel> m_goals;
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
@@ -33,12 +33,12 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
 
     public DriveToPoseWithProfile(
             FieldLogger.Log fieldLogger,
-            Supplier<Optional<SwerveModel>> goals,
+            Supplier<SwerveModel> goal,
             SwerveDriveSubsystem drive,
             SwerveController controller,
             HolonomicProfile profile) {
         m_field_log = fieldLogger;
-        m_goals = goals;
+        m_goals = goal;
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
@@ -70,10 +70,6 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
-        if (m_referenceController != null) {
-            System.out.println(m_referenceController.isDone());
-        }
-        System.out.println(m_goal);
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
@@ -87,7 +83,7 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
     }
 
     private void updateGoal() {
-        m_goals.get().ifPresent((x) -> m_goal = x);
+        m_goal = m_goals.get();
     }
 
 }
