@@ -39,8 +39,7 @@ public class DescoreAlgae extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
             new SetAlgaeDescorePositionPrep(wrist, elevator),
-            new ParallelCommandGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
-            // new SetAlgaeDescorePosition(wrist, elevator)
+            new ParallelDeadlineGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
             new ParallelDeadlineGroup(new SetElevator(elevator, 20, false), new SetWrist(wrist, 3.7, true))
 
 

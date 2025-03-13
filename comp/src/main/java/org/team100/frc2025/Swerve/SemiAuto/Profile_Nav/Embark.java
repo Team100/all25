@@ -54,9 +54,9 @@ public class Embark extends Command implements Glassy {
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
 
-        double radius = 1.4;
+        double radius = 1.8;
         if(m_destination == ReefDestination.CENTER){
-            radius = 1.8;
+            radius = 1.4;
         }   
 
         Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination, radius);
