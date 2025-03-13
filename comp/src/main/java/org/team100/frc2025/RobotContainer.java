@@ -9,38 +9,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-import org.opencv.ml.EM;
-
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
-import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.SetElevator;
-import org.team100.frc2025.Elevator.SetElevatorPerpetually;
-import org.team100.lib.config.ElevatorUtil.ScoringPosition;
-
 import org.team100.frc2025.Funnel.Funnel;
-import org.team100.frc2025.Swerve.FullCycle;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
-import org.team100.frc2025.Wrist.WristDefaultCommand;
-import org.team100.frc2025.Wrist.SetWrist;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
-
-import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
-import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
-import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
-import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
-import org.team100.lib.commands.drivetrain.Rotate;
 import org.team100.lib.commands.drivetrain.SetRotation;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
@@ -74,7 +53,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
-import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -89,7 +67,6 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
-import org.team100.frc2025.CommandGroups.ScoreCoral;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
