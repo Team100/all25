@@ -22,18 +22,18 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class DriveToPoseWithProfile extends Command implements Glassy {
     private final FieldLogger.Log m_field_log;
-    private final Supplier<Optional<Pose2d>> m_goals;
+    private final Supplier<Optional<SwerveModel>> m_goals;
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
 
-    private Pose2d m_goal;
+    private SwerveModel m_goal;
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
 
     public DriveToPoseWithProfile(
             FieldLogger.Log fieldLogger,
-            Supplier<Optional<Pose2d>> goals,
+            Supplier<Optional<SwerveModel>> goals,
             SwerveDriveSubsystem drive,
             SwerveController controller,
             HolonomicProfile profile) {
@@ -51,7 +51,7 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
         if (m_goal == null)
             return;
         m_reference = new ProfileReference(m_profile);
-        m_reference.setGoal(new SwerveModel(m_goal));
+        m_reference.setGoal(m_goal);
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
     }
 
@@ -60,16 +60,20 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
         updateGoal();
         if (m_goal == null || m_referenceController == null)
             return;
-        m_reference.setGoal(new SwerveModel(m_goal));
+        m_reference.setGoal(m_goal);
         m_referenceController.execute();
         m_field_log.m_log_target.log(() -> new double[] {
-                m_goal.getX(),
-                m_goal.getY(),
-                m_goal.getRotation().getRadians() });
+                m_goal.x().x(),
+                m_goal.y().x(),
+                m_goal.theta().x() });
     }
 
     @Override
     public boolean isFinished() {
+        if (m_referenceController != null) {
+            System.out.println(m_referenceController.isDone());
+        }
+        System.out.println(m_goal);
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
