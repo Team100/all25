@@ -1,4 +1,5 @@
 package org.team100.frc2025;
+// import org.team100.frc2025.CommandGroups.ScoreAlgae2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Elevator.ElevatorDown;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
+import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.FullCycle;
@@ -283,9 +285,9 @@ public class RobotContainer implements Glassy {
 
         // DEFAULT COMMANDS
         m_drive.setDefaultCommand(driveManually);
-        // m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
-        m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator));
-        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist) );
+        m_climber.setDefaultCommand(new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        // m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator));
+        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist) );
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
@@ -303,7 +305,10 @@ public class RobotContainer implements Glassy {
         
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
-        whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new ScoreAlgae2(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
+
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

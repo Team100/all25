@@ -4,6 +4,7 @@
 
 package org.team100.frc2025.CommandGroups;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
@@ -19,6 +20,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
 
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -30,15 +32,21 @@ public class ScoreCoral extends SequentialCommandGroup {
 
 
     addCommands(
-        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, FieldSector.AB, ReefDestination.CENTER)
+        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination),
         // new SelectSequence(
         //     scoringPositionSupplier,
         //     new ScoreL1(),
         //     new ScoreL2(),
         //     new ScoreL3(),
-        //     new ScoreL4(),
+        //     new ScoreL4(wrist, elevator),
         //     wrist,
         //     elevator)
+        new SelectCommand<>(
+            Map.of(
+                ScoringPosition.L1, new ScoreL1(),
+                ScoringPosition.L4, new ScoreL4(wrist, elevator)
+            )
+            ,scoringPositionSupplier)
 
 
 
