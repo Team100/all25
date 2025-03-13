@@ -54,7 +54,12 @@ public class Embark extends Command implements Glassy {
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
 
-        Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination, 1.4);
+        double radius = 1.8;
+        if(m_destination == ReefDestination.CENTER){
+            radius = 1.4;
+        }   
+
+        Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination, radius);
         Rotation2d heading = FieldConstants.getSectorAngle(m_targetSector).rotateBy(Rotation2d.fromDegrees(180));
 
 
@@ -81,6 +86,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
+        System.out.println("*************I FINISHED EMBBARKING********************");
         return m_referenceController != null && m_referenceController.isFinished();
     }
 

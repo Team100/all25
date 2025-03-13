@@ -31,7 +31,7 @@ public class ElevatorDefaultCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double goal = 0.5;
+    double goal = 0.15;
     if(m_wrist.getSafeCondition()){
         m_elevator.setPosition(goal);
     } else {
@@ -40,7 +40,7 @@ public class ElevatorDefaultCommand extends Command {
 
     double error = Math.abs(m_elevator.getPosition() - goal);
 
-    if(error <= 0.5){
+    if(error <= 0.2){
         m_elevator.setSafeCondition(true);
     } else{
         m_elevator.setSafeCondition(false);

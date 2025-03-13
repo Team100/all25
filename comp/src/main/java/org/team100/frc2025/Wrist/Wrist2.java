@@ -88,7 +88,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.250021,
+                        0.138521,
                         EncoderDrive.DIRECT,
                         false);
  
