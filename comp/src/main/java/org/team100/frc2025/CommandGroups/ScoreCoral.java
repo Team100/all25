@@ -32,7 +32,8 @@ public class ScoreCoral extends SequentialCommandGroup {
 
 
     addCommands(
-        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination),
+        
+        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier),
         // new SelectSequence(
         //     scoringPositionSupplier,
         //     new ScoreL1(),
@@ -44,6 +45,7 @@ public class ScoreCoral extends SequentialCommandGroup {
         new SelectCommand<>(
             Map.of(
                 ScoringPosition.L1, new ScoreL1(),
+                ScoringPosition.L3, new ScoreL3(wrist, elevator),
                 ScoringPosition.L4, new ScoreL4(wrist, elevator)
             )
             ,scoringPositionSupplier)

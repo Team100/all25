@@ -279,8 +279,8 @@ public class RobotContainer implements Glassy {
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L3, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
 
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();

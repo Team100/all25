@@ -29,12 +29,13 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     private static final double wheelDiameterM = 0.072;
 
     private final BareMotor m_motor;
+    private final Neo550CANSparkMotor rawMotor;
+
     private final LinearMechanism m_linearMechanism;
     private final BooleanSupplier m_leftLimitSwitch;
     private final BooleanSupplier m_rightLimitSwitch;
     private final BooleanLogger m_logLeftLimitSwitch;
     private final BooleanLogger m_logRightLimitSwitch;
-
     public double position;
 
     private static final double m_5to1 = 5.2307692308;
@@ -48,7 +49,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
             case COMP_BOT -> {
                 Neo550CANSparkMotor motor = new Neo550CANSparkMotor(
                         child,
-                        3,
+                        25,
                         MotorPhase.FORWARD,
                         currLim,
                         Feedforward100.makeNeo550(),
@@ -61,6 +62,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                         m_5to1 * m_5to1,
                         wheelDiameterM);
                 m_motor = motor;
+                rawMotor = motor;
                 reset();
             }
             default -> {
@@ -74,6 +76,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                         m_5to1 * m_5to1,
                         wheelDiameterM);
                 m_motor = motor;
+                rawMotor = null;
             }
         }
 
@@ -86,8 +89,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     @Override
     public void periodic() {
-        m_logRightLimitSwitch.log(m_rightLimitSwitch);
-        m_logLeftLimitSwitch.log(m_leftLimitSwitch);
+        m_logRightLimitSwitch.log(() -> rawMotor.getForwardLimitSwitch());
+        m_logLeftLimitSwitch.log(() -> rawMotor.getReverseLimitSwitch());
         // This method will be called once per scheduler run
     }
 
@@ -105,6 +108,10 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         m_motor.setPosition(position, 0, 0, 0.1);
     }
 
+
+    public void setDutyCycle(){
+        m_motor.setDutyCycle(1);
+    }
     public void stop() {
         m_motor.setDutyCycle(0);
     }

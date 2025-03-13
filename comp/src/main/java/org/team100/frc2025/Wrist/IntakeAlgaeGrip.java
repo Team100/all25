@@ -9,8 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeAlgaeGrip extends Command {
   /** Creates a new IntakeAlgaeGrip. */
-  public IntakeAlgaeGrip() {
+  AlgaeGrip m_grip;
+  public IntakeAlgaeGrip(AlgaeGrip grip) {
     // Use addRequirements() here to declare subsystem dependencies.
+    m_grip = grip;
+    addRequirements(m_grip);
   }
 
   // Called when the command is initially scheduled.
@@ -19,7 +22,9 @@ public class IntakeAlgaeGrip extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    m_grip.setDutyCycle();
+  }
 
   // Called once the command ends or is interrupted.
   @Override
