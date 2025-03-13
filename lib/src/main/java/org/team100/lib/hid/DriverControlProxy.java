@@ -155,11 +155,6 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
-    public boolean never() {
-        return m_driverControl.never();
-    }
-
-    @Override
     public boolean test() {
         return m_driverControl.test();
     }

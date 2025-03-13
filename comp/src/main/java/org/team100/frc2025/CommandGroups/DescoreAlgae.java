@@ -4,10 +4,7 @@
 
 package org.team100.frc2025.CommandGroups;
 
-import java.util.Map;
 import java.util.function.Supplier;
-import org.team100.frc2025.CommandGroups.*;
-import org.team100.frc2025.Wrist.SetWrist;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
@@ -19,6 +16,7 @@ import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
 import org.team100.frc2025.Wrist.RunAlgaeGrip;
+import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;

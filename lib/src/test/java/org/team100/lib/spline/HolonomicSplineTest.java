@@ -315,9 +315,11 @@ class HolonomicSplineTest {
                 new HolonomicPose2d(new Translation2d(0, -1), Rotation2d.kZero, Rotation2d.kZero),
                 new HolonomicPose2d(new Translation2d(1, 0), Rotation2d.kZero, Rotation2d.kCCW_90deg),
                 1.2, 1.2);
-        // for (double t = 0; t < 1; t += 0.03) {
-        // Util.printf("%5.3f %5.3f\n", s0.x(t), s0.y(t));
-        // }
+        if (DEBUG) {
+            for (double t = 0; t < 1; t += 0.03) {
+                Util.printf("%5.3f %5.3f\n", s0.x(t), s0.y(t));
+            }
+        }
 
         List<HolonomicSpline> splines = List.of(s0);
         List<Pose2dWithMotion> motion = PathFactory.parameterizeSplines(splines, 0.05, 0.05, 0.05);
@@ -325,11 +327,13 @@ class HolonomicSplineTest {
             Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
         }
         Path100 path = new Path100(motion);
-        // for (int i = 0; i < path.length(); ++i) {
-        // Util.printf("%5.3f %5.3f\n",
-        // path.getPoint(i).getTranslation().getX(),
-        // path.getPoint(i).getTranslation().getY());
-        // }
+        if (DEBUG) {
+            for (int i = 0; i < path.length(); ++i) {
+                Util.printf("%5.3f %5.3f\n",
+                        path.getPoint(i).getTranslation().getX(),
+                        path.getPoint(i).getTranslation().getY());
+            }
+        }
 
         // if we enter a circle at the capsize velocity, we should continue at that same
         // speed.
@@ -343,6 +347,7 @@ class HolonomicSplineTest {
         // a = v^2/r so v = sqrt(ar) = 2.858
         Trajectory100 trajectory = scheduleGenerator.timeParameterizeTrajectory(path,
                 0.05, 2.858, 2.858);
-        // Util.printf("trajectory %s\n", trajectory);
+        if (DEBUG)
+            Util.printf("trajectory %s\n", trajectory);
     }
 }

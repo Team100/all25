@@ -37,7 +37,7 @@ public class OperatorV2Control implements OperatorControl {
     }
 
     @Override
-    public Double ramp() {
+    public double ramp() {
         return m_controller.getLeftX();
     }
  

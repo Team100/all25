@@ -9,38 +9,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-import org.opencv.ml.EM;
-
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
-import org.team100.frc2025.Elevator.ElevatorDown;
-import org.team100.frc2025.Elevator.SetElevator;
-import org.team100.frc2025.Elevator.SetElevatorPerpetually;
-import org.team100.lib.config.ElevatorUtil.ScoringPosition;
-
 import org.team100.frc2025.Funnel.Funnel;
-import org.team100.frc2025.Swerve.FullCycle;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
-import org.team100.frc2025.Wrist.WristDefaultCommand;
-import org.team100.frc2025.Wrist.SetWrist;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
-
-import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
-import org.team100.lib.commands.drivetrain.DriveToPoseSimple;
-import org.team100.lib.commands.drivetrain.DriveToPoseWithTrajectory;
-import org.team100.lib.commands.drivetrain.DriveToTranslationWithFront;
-import org.team100.lib.commands.drivetrain.FullCycle2;
 import org.team100.lib.commands.drivetrain.ResetPose;
-import org.team100.lib.commands.drivetrain.Rotate;
 import org.team100.lib.commands.drivetrain.SetRotation;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
@@ -74,7 +53,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveLocal;
-import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -83,7 +61,6 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
@@ -159,7 +136,6 @@ public class RobotContainer implements Glassy {
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         demo.setup();
 
-        final SwerveKinodynamics swerveKinodynamics;
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
             // m_leds.setFront(LEDIndicator.State.ORANGE);
@@ -189,16 +165,12 @@ public class RobotContainer implements Glassy {
             m_leds = null;
         }
 
-
-        final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
-                        m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
-
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,
                 kDriveStatorLimit,
                 m_swerveKinodynamics);
+                
         final Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
