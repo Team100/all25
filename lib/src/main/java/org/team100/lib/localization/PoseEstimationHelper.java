@@ -5,6 +5,7 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.geometry.Translation3d;
  * Static methods used to interpret camera input.
  */
 public class PoseEstimationHelper implements Glassy {
+    private static final boolean DEBUG = false;
 
     private final StringLogger m_log_rotation_source;
 
@@ -80,15 +82,19 @@ public class PoseEstimationHelper implements Glassy {
             Transform3d cameraInRobotCoords,
             Pose3d tagInFieldCoords,
             Blip24 blip) {
-
         Transform3d tagInCameraCoords = blipToTransform(blip);
-        Transform3d tagInRobot = cameraInRobotCoords.plus(tagInCameraCoords);
-        
-        // System.out.printf("TAG IN ROBOT %s x %f y %f z%f\n",
-        //         tagInRobot.getTranslation(),
-        //         tagInRobot.getRotation().getX(),
-        //         tagInRobot.getRotation().getY(),
-        //         tagInRobot.getRotation().getZ());
+
+        if (DEBUG) {
+            // This is used for camera offset calibration. Place a tag at a known position,
+            // set the tag rotation belief threshold to a very high number (so this code
+            // executes), observe the offset, and add it to Camera.java, inverted.
+            Transform3d tagInRobot = cameraInRobotCoords.plus(tagInCameraCoords);
+            Util.printf("TAG IN ROBOT %s x %f y %f z%f\n",
+                    tagInRobot.getTranslation(),
+                    tagInRobot.getRotation().getX(),
+                    tagInRobot.getRotation().getY(),
+                    tagInRobot.getRotation().getZ());
+        }
         Pose3d cameraInFieldCoords = toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
         return applyCameraOffset(cameraInFieldCoords, cameraInRobotCoords);
     }

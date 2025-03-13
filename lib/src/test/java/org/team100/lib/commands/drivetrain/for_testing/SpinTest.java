@@ -12,6 +12,7 @@ import org.team100.lib.testing.Timeless;
 class SpinTest extends Fixtured implements Timeless {
     private static final double kDelta = 0.01;
 
+    /** The Cross Track Error thing affects this test. */
     @Test
     void testSimple() {
         Experiments.instance.testOverride(Experiment.UseSetpointGenerator, true);
@@ -30,6 +31,7 @@ class SpinTest extends Fixtured implements Timeless {
         assertEquals(0, fixture.drive.getSwerveLocal().getDesiredStates().frontLeft().angle().get().getRadians(), 0.01);
 
         for (int i = 0; i < 273; ++i) {
+            stepTime();
             command.execute();
         }
         assertEquals(0, command.m_center.getX(), kDelta);

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.config.Camera;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -22,6 +23,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+/**
+ * TODO: clean up these cases for 2025.
+ */
 class VisionDataProviderTest implements Timeless {
     private static final double kDelta = 0.01;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
@@ -224,12 +228,19 @@ class VisionDataProviderTest implements Timeless {
         VisionDataProvider24 vdp = new VisionDataProvider24(
                 logger, layout, poseEstimator);
 
-        Blip24 tag4 = new Blip24(4, new Transform3d(
+        // tag is 1m away on bore
+        final Blip24 tag4 = new Blip24(4, new Transform3d(
                 new Translation3d(0, 0, 1),
                 new Rotation3d()));
 
         // test camera has zero offset
         final String cameraSerialNumber = "test";
+        // verify zero offset
+        final Transform3d cameraInRobotCoordinates = Camera.get(cameraSerialNumber).getOffset();
+        assertEquals(0, cameraInRobotCoordinates.getX(), kDelta);
+        assertEquals(0, cameraInRobotCoordinates.getY(), kDelta);
+        assertEquals(0, cameraInRobotCoordinates.getZ(), kDelta);
+
         final Blip24[] tags = new Blip24[] { tag4 };
 
         vdp.estimateRobotPose(cameraSerialNumber, tags, Takt.get(), Alliance.Red);
