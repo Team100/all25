@@ -289,10 +289,13 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
-        whileTrue(() -> driverControl.driveToObject(), new DriveToPoseWithProfile(fieldLog, () -> {
-                    Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER), new Rotation2d());
-                    return new SwerveModel(new Model100(x.getX(),3),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
-                },m_drive, holonomicController, profile));
+        whileTrue(() -> driverControl.driveToObject(), new SequentialCommandGroup(new DriveToPoseWithProfile(fieldLog, () -> {
+            Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, true), new Rotation2d());
+            return new SwerveModel(new Model100(x.getX(),1),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
+        },m_drive, holonomicController, profile, false), new DriveToPoseWithProfile(fieldLog, () -> {
+            Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, false), new Rotation2d());
+            return new SwerveModel(new Model100(x.getX(),0),new Model100(x.getY(),0),new Model100(x.getRotation().getRadians(),0));
+        },m_drive, holonomicController, profile)));
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,
         // 10));

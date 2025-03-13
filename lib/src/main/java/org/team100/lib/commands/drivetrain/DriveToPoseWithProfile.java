@@ -26,6 +26,7 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
+    private final boolean m_careAboutPosition;
 
     private SwerveModel m_goal;
     private ProfileReference m_reference;
@@ -36,13 +37,24 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
             Supplier<SwerveModel> goal,
             SwerveDriveSubsystem drive,
             SwerveController controller,
-            HolonomicProfile profile) {
+            HolonomicProfile profile, 
+            boolean careAboutPosition) {
         m_field_log = fieldLogger;
         m_goals = goal;
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
+        m_careAboutPosition = careAboutPosition;
         addRequirements(m_drive);
+    }
+
+    public DriveToPoseWithProfile(
+            FieldLogger.Log fieldLogger,
+            Supplier<SwerveModel> goal,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
+            HolonomicProfile profile) {
+        this(fieldLogger, goal,drive,controller, profile, true);
     }
 
     @Override
@@ -70,7 +82,7 @@ public class DriveToPoseWithProfile extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
-        return m_referenceController != null && m_referenceController.isFinished();
+        return m_referenceController != null && (m_referenceController.isFinished() || (!m_careAboutPosition && m_referenceController.isDone()));
     }
 
     @Override
