@@ -15,7 +15,10 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
+import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
+import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
+import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -34,14 +37,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class DescoreAlgae extends SequentialCommandGroup {
   /** Creates a new DescoreAlgae. */
   
-  public DescoreAlgae(LoggerFactory logger, Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, FieldSector targetSector, ReefDestination destination, Supplier<ScoringPosition> scoringPositionSupplier,  SwerveController controller, HolonomicProfile profile, SwerveDriveSubsystem m_drive) {
+  public DescoreAlgae(LoggerFactory logger, Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, AlgaeGrip grip, FieldSector targetSector, ReefDestination destination, Supplier<ScoringPosition> scoringPositionSupplier,  SwerveController controller, HolonomicProfile profile, SwerveDriveSubsystem m_drive) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
             new SetAlgaeDescorePositionPrep(wrist, elevator),
-            new ParallelDeadlineGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
-            new ParallelDeadlineGroup(new SetElevator(elevator, 20, false), new SetWrist(wrist, 3.7, true))
-
+            new ParallelDeadlineGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
+            new ParallelDeadlineGroup(new SetElevator(elevator, 35, false), new SetWrist(wrist, 3.7, true)),
+            new ParallelDeadlineGroup(new IntakeAlgaeGrip(grip), new SetElevatorPerpetually(elevator, 35), new SetWrist(wrist, 3.7, true))
 
         // new SetWrist(wrist, 0.4, false)
         // new ParallelCommandGroup(
