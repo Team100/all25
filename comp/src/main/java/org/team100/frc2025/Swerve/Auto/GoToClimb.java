@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class GoToClimb extends SequentialCommandGroup{
     public GoToClimb(FieldLogger.Log fieldLog, SwerveDriveSubsystem m_drive, SwerveController holonomicController, HolonomicProfile profile) {
 
+        //TODO make this also deploy climber and climb
         addCommands(new DriveToPoseWithProfile(fieldLog, () -> {
                     Pose2d x = new Pose2d(FieldConstants.getBargeStation(BargeDestination.CENTER, true),
                             new Rotation2d(Math.PI));
