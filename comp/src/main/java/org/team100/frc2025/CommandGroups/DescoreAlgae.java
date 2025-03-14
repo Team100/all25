@@ -40,9 +40,23 @@ public class DescoreAlgae extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
             new SetAlgaeDescorePositionPrep(wrist, elevator),
-            new ParallelDeadlineGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
-            new ParallelDeadlineGroup(new SetElevator(elevator, 35, false), new SetWrist(wrist, 3.7, true)),
-            new ParallelDeadlineGroup(new IntakeAlgaeGrip(grip), new SetElevatorPerpetually(elevator, 35), new SetWrist(wrist, 3.7, true))
+            // new IntakeAlgaeGrip(grip, true)
+            new ParallelDeadlineGroup(new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier, 1.4), new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
+            new ParallelDeadlineGroup(new SetElevator(elevator, 35, false), new SetWrist(wrist, 3.7, true), new IntakeAlgaeGrip(grip, true)),
+            new ParallelDeadlineGroup(
+                new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier, 1.35), 
+                new IntakeAlgaeGrip(grip, true),
+                new SetElevatorPerpetually(elevator, 35),
+                new SetWrist(wrist, 3.7, true)
+            ),
+            new ParallelCommandGroup(
+                new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier, 1.75),
+                new IntakeAlgaeGrip(grip, true),
+                new SetElevatorPerpetually(elevator, 35),
+                new SetWrist(wrist, 3.7, true)
+            )
+            
+             
 
         // new SetWrist(wrist, 0.4, false)
         // new ParallelCommandGroup(

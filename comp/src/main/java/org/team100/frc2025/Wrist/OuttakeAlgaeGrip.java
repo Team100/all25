@@ -7,19 +7,19 @@ package org.team100.frc2025.Wrist;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RunAlgaeGrip extends Command {
+public class OuttakeAlgaeGrip extends Command {
   /** Creates a new RunAlgaeManipulator. */
   AlgaeGrip m_grip;
 
 
-  public RunAlgaeGrip(AlgaeGrip tunnel) {
+  public OuttakeAlgaeGrip(AlgaeGrip tunnel) {
     m_grip = tunnel;
     addRequirements(m_grip);
   }
 
   @Override
   public void initialize() {
-    m_grip.setDutyCycle(1);
+    m_grip.setDutyCycle(-1);
   }
 
   @Override

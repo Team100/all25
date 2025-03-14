@@ -28,14 +28,6 @@ public class ScoreL4 extends SequentialCommandGroup {
         new ParallelDeadlineGroup(new SetElevator(elevator, 45, false), new SetWrist(wrist, 0.4, true)),//45
         new ParallelDeadlineGroup(new SetWrist(wrist, 1.25, false), new SetElevatorPerpetually(elevator, 45)),
         new ParallelDeadlineGroup(new SetElevator(elevator, 35, false), new SetWrist(wrist, 1.25, true))
-        // new ParallelDeadlineGroup(new WaitCommand(10), new SetWristDutyCycle(wrist, -1), new SetElevatorPerpetually(elevator, 35))
-        // new ParallelDeadlineGroup(new SetWrist(wrist, 0.5, false), new SetElevatorPerpetually(elevator, 35)), 
-        // new SetElevator(elevator, 2, false)
-
-        // new SetWrist(wrist, 0.5, false),
-
-        // new ParallelDeadlineGroup(new SetElevator(elevator, 10, false), new SetWrist(wrist, 1.26, false))
-        // new SetWrist(wrist, 0.5, false)
 
     );
   }
