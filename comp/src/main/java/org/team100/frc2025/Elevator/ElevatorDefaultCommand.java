@@ -4,7 +4,10 @@
 
 package org.team100.frc2025.Elevator;
 
+import org.team100.frc2025.FieldConstants;
+import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -13,11 +16,14 @@ public class ElevatorDefaultCommand extends Command {
   /** Creates a new ElevatorDefaultCommand. */
   Elevator m_elevator;
   Wrist2 m_wrist;
-  
-  public ElevatorDefaultCommand(Elevator elevator, Wrist2 wrist) {
+  AlgaeGrip m_grip;
+  SwerveDriveSubsystem m_drive;
+  public ElevatorDefaultCommand(Elevator elevator, Wrist2 wrist, AlgaeGrip grip, SwerveDriveSubsystem drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_elevator = elevator;
     m_wrist = wrist;
+    m_grip = grip;
+    m_drive = drive;
     addRequirements(m_elevator);
   }
 
@@ -31,21 +37,47 @@ public class ElevatorDefaultCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double goal = 0.15;
-    if(m_wrist.getSafeCondition()){
-        m_elevator.setPosition(goal);
+    
+    double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
+
+    if(distanceToReef > 1.6){
+
+        if(!m_grip.hasAlgae()){
+            double goal = 0.15;
+            if(m_wrist.getSafeCondition()){
+                m_elevator.setPosition(goal);
+            } else {
+                m_elevator.setStatic();
+            }
+
+            double error = Math.abs(m_elevator.getPosition() - goal);
+
+            if(error <= 0.2){
+                m_elevator.setSafeCondition(true);
+            } else{
+                m_elevator.setSafeCondition(false);
+            }
+        } else{
+            double goal = 12;
+
+            if(m_wrist.getSafeCondition()){
+                m_elevator.setPosition(goal);
+            } else {
+                m_elevator.setStatic();
+            }
+
+            // double error = Math.abs(m_elevator.getPosition() - goal);
+
+            // if(error <= 0.2){
+            //     m_elevator.setSafeCondition(true);
+            // } else{
+            //     m_elevator.setSafeCondition(false);
+            // }
+            
+        }
     } else {
         m_elevator.setStatic();
     }
-
-    double error = Math.abs(m_elevator.getPosition() - goal);
-
-    if(error <= 0.2){
-        m_elevator.setSafeCondition(true);
-    } else{
-        m_elevator.setSafeCondition(false);
-    }
-
   }
 
   // Called once the command ends or is interrupted.

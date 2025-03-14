@@ -25,7 +25,7 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrip extends SubsystemBase implements Glassy {
-    private static final int currLim = 20;
+    private static final int currLim = 10;
     private static final double wheelDiameterM = 0.072;
 
     private final BareMotor m_motor;
@@ -36,7 +36,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     private final BooleanSupplier m_rightLimitSwitch;
     private final BooleanLogger m_logLeftLimitSwitch;
     private final BooleanLogger m_logRightLimitSwitch;
-    public double position;
+    public double m_holdPosition;
 
     private static final double m_5to1 = 5.2307692308;
 
@@ -84,13 +84,14 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     public void reset() {
         m_linearMechanism.resetEncoderPosition();
-        position = 0;
+        m_holdPosition = 0;
     }
 
     @Override
     public void periodic() {
         m_logRightLimitSwitch.log(() -> rawMotor.getForwardLimitSwitch());
         m_logLeftLimitSwitch.log(() -> rawMotor.getReverseLimitSwitch());
+        m_linearMechanism.periodic();
         // This method will be called once per scheduler run
     }
 
@@ -98,19 +99,28 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         return m_rightLimitSwitch.getAsBoolean() || m_leftLimitSwitch.getAsBoolean();
     }
 
-    public void intake() {
-        if (!hasAlgae()) {
-            position = m_linearMechanism.getPositionM().getAsDouble();
-            m_linearMechanism.setDutyCycle(1);
-            return;
-        }
-        // TODO get torque constant
-        m_motor.setPosition(position, 0, 0, 0.1);
+    // public void intake() {
+    //     if (!hasAlgae()) {
+    //         position = m_linearMechanism.getPositionM().getAsDouble();
+    //         m_linearMechanism.setDutyCycle(1);
+    //         return;
+    //     }
+    //     // TODO get torque constant
+    //     m_motor.setPosition(position, 0, 0, 0.1);
+    // }
+
+    public double getPosition(){
+        return m_linearMechanism.getPositionM().getAsDouble();
+    }
+
+    public void setPosition(double pos){
+        // m_motor.setPosition(pos, 0, 0, 0.1);
+
     }
 
 
-    public void setDutyCycle(){
-        m_motor.setDutyCycle(1);
+    public void setDutyCycle(double dutyCycle) {
+        m_motor.setDutyCycle(dutyCycle);
     }
     public void stop() {
         m_motor.setDutyCycle(0);
@@ -118,5 +128,15 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     public void outtake() {
         m_linearMechanism.setDutyCycle(-1);
+    }
+
+    public void setHoldPosition(double position) {
+        m_holdPosition = position;
+
+    }
+
+    public double getHoldPosition() {
+        return m_holdPosition;
+
     }
 }

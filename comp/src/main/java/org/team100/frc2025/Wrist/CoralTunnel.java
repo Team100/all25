@@ -38,7 +38,7 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
                 m_motor = new Neo550CANSparkMotor(
                         child,
                         3,
-                        MotorPhase.FORWARD,
+                        MotorPhase.REVERSE,
                         coralCurrentLimit,
                         Feedforward100.makeNeo550(),
                         new PIDConstants());
