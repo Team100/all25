@@ -33,7 +33,7 @@ public class ScoreCoral extends SequentialCommandGroup {
 
     addCommands(
         
-        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier), //CHANGE BEFORE ITS TOO
+        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector, destination, scoringPositionSupplier), 
         // new SelectSequence(
         //     scoringPositionSupplier,
         //     new ScoreL1(),
