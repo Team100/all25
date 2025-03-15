@@ -49,14 +49,14 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(2.2);
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(6.5);
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(100, 100, 0.01); // TODO CHANGE THESE
 
 
         switch (Identity.instance) {
@@ -125,18 +125,15 @@ public class Elevator extends SubsystemBase implements Glassy {
     /**
      */
     public void setPosition(double x) {
-        // if (getPosition() < .9) {
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
-        // } else if (getPosition() > 1.8) {
-        //     //TODO get these constants
-        //     starboardServo.setPosition(x, 1.7); // 54 max
-        //     portServo.setPosition(x, 1.7); // 54 max
-        // } else {
-        //     //TODO get these constants
-        //     starboardServo.setPosition(x, 1.5); // 54 max
-        //     portServo.setPosition(x, 1.5); // 54 max
-        // }
+
+    }
+
+    public void setPositionNoGravity(double x) {
+        starboardServo.setPosition(x, 0); // 54 max
+        portServo.setPosition(x, 0); // 54 max
+
     }
 
     public void setStatic() {
