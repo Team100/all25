@@ -22,6 +22,7 @@ import org.team100.frc2025.CommandGroups.PartRedSea;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreBarge;
 import org.team100.frc2025.CommandGroups.ScoreCoral;
+import org.team100.frc2025.CommandGroups.Hesitant.ScoreCoralHesitantly;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
@@ -39,6 +40,7 @@ import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.SetRotation;
+import org.team100.lib.commands.drivetrain.manual.DriveAdjustCoral;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
 import org.team100.lib.commands.drivetrain.manual.ManualFieldRelativeSpeeds;
@@ -94,6 +96,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 
 /**
  * Try to keep this container clean; if there's something you want to keep but
@@ -276,6 +279,16 @@ public class RobotContainer implements Glassy {
                         thetaFeedback));
 
         // DEFAULT COMMANDS
+        // m_drive.setDefaultCommand(driveManually);
+
+        FieldRelativeDriver driver = new ManualWithProfiledHeading(
+                        manLog,
+                        m_swerveKinodynamics,
+                        driverControl::desiredRotation,
+                        thetaFeedback);
+
+                        
+        // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow, m_drive, () -> false, driver));
         m_drive.setDefaultCommand(driveManually);
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
@@ -296,18 +309,21 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
         
+        
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L2, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
         // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
-        whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist, m_grip));
+        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist, m_grip));
         // whileTrue(driverControl::driveToTag, new PartRedSea(m_wrist, m_elevator));
         // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist, m_grip));
 
 
+        // whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive, driverControl::verySlow, buttons::red3, driver));
         whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+
         whileTrue(driverControl::driveToTag, buttons::b, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
 
         whileTrue(driverControl::driveToTag, buttons::c, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.CD, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
