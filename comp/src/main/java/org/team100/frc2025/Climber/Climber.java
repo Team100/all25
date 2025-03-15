@@ -37,9 +37,11 @@ public class Climber extends SubsystemBase {
     m_motor.setDutyCycle(dutyCycle);
   }
 
-  public void setAngle(){
-    climberMotor.setPosition(18, 0);
+  public void setAngle(double value){
+    climberMotor.setPosition(value, 0);
   }
+
+  
 
   public void reset(){
     climberMotor.reset();

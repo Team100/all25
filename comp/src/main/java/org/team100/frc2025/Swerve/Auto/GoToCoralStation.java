@@ -46,13 +46,13 @@ public class GoToCoralStation extends Navigator {
         double scaleAdjust = kScale;
 
         if (m_station == CoralStation.Left) {
-            goalTranslation = new Translation2d(1.2, 7.15);
-            goalRotation = Rotation2d.fromDegrees(-50);
+            goalTranslation = new Translation2d(1.2, 7.00);
+            goalRotation = Rotation2d.fromDegrees(-54);
             scaleAdjust *= 1;
 
         } else {
-            goalTranslation = new Translation2d(1.2, 0.7);
-            goalRotation = Rotation2d.fromDegrees(50);
+            goalTranslation = new Translation2d(1.2, 1.05);
+            goalRotation = Rotation2d.fromDegrees(54);
             scaleAdjust *= -1;
         }
 

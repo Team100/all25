@@ -4,60 +4,41 @@
 
 package org.team100.frc2025.Wrist;
 
-import edu.wpi.first.wpilibj.Timer;
+import org.team100.frc2025.Elevator.Elevator;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetWristDutyCycle extends Command {
-  /** Creates a new SetWristDutyCycle. */
-  Wrist2 m_wrist;
-  double m_duty;
-  boolean m_withCount;
-  Timer m_timer;
-  boolean isDone = false;
-
-  public SetWristDutyCycle(Wrist2 wrist, double duty, boolean withCount) {
+public class ElevatorDutyCycle extends Command {
+  /** Creates a new ElevatorDutyCycle. */
+  Elevator m_elevator;
+  public ElevatorDutyCycle(Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_wrist = wrist;
-    m_duty = duty;
-    m_withCount = withCount;
-    m_timer = new Timer();
-    addRequirements(m_wrist);
+
+    m_elevator = elevator;
+
+    addRequirements(m_elevator);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    m_timer.restart();
-    isDone = false;
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_wrist.setWristDutyCycle(m_duty);
-
-    if(m_timer.get() > 2){
-        isDone = true;
-    }
+    m_elevator.setDutyCycle(-0.03);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_timer.stop();
-    isDone = false;
-
-    System.out.println("**************************************I FINISHED NUMBER 4*******************************************");
-
+    System.out.println("I FINISHED NUMBER 2");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(m_withCount){
-        return isDone;
-    }
     return false;
   }
 }

@@ -43,6 +43,12 @@ public class SwerveControllerFactory {
         return new FullStateSwerveController(log, 1.5, 1.3, 0, 0, 0.1, 0.1, 0.1, 0.1);
     }
 
+    public static FullStateSwerveController auto2025LooseTolerance(LoggerFactory log) {
+        return new FullStateSwerveController(log, 2.7, 3.5, 0.025, 0.01, 0.05, 0.3, 1, 1);
+    }
+
+
+
     ////////////////
     //
     // don't use these for real robots

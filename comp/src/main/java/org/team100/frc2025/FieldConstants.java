@@ -169,7 +169,7 @@ public class FieldConstants {
   }
 
   public static Translation2d getReefCenter() { // blue
-    return new Translation2d(4.508405, 4.038690);
+    return new Translation2d(4.489, 4.026);
   }
 
   public static double getOrbitWaypointRadius() {
@@ -181,7 +181,7 @@ public class FieldConstants {
   }
 
   public static double getReefOffset() {
-    return 0.1524; // 0.1524
+    return 0.1645; // 0.1524
   }
 
   public static Translation2d getOrbitWaypoint(Rotation2d angle) {

@@ -100,9 +100,11 @@ public enum Camera {
      */
     CORAL_RIGHT("364f07fb090a3bf7",
     new Transform3d(
-            new Translation3d(0.225, -0.325, 0.79),
+            new Translation3d(0.215, -0.305, 0.79),
             // new Rotation3d(0.01, -0.83, -0.199).unaryMinus())),
-            new Rotation3d(0.020, -0.84, -0.195).unaryMinus())),      
+            // new Rotation3d(0.020, -0.84, -0.195).unaryMinus())), 
+            new Rotation3d(0.015, -0.915, -0.170).unaryMinus())),      
+     
 
     TEST1("test1",
             new Transform3d(

@@ -9,6 +9,7 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.field.FieldPoint2024;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;
@@ -80,6 +81,7 @@ public class Embark extends Command implements Glassy {
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
         m_scoringPosition = m_scoringPositionSupplier.get();
+        System.out.println(m_scoringPosition);
 
         double radius = 0;
 
@@ -91,7 +93,7 @@ public class Embark extends Command implements Glassy {
             }   
     
             if(m_scoringPosition == ScoringPosition.L4){
-                radius = 1.45;
+                radius = 1.4;
             }
     
             if(m_scoringPosition == ScoringPosition.L3){
@@ -133,7 +135,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
-        System.out.println("*************I FINISHED EMBBARKING********************");
+        // System.out.println("*************I FINISHED EMBBARKING********************");
         return m_referenceController != null && m_referenceController.isFinished();
     }
 

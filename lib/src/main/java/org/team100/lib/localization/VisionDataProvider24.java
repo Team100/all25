@@ -207,7 +207,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
             if (!tagInFieldCoordsOptional.isPresent())
                 continue;
 
-            int distanceTillIgnoreM = 5;
+            double distanceTillIgnoreM = 3.5;
             if (blip.getPose().getTranslation().getNorm() > distanceTillIgnoreM) {
                 return;
             }
@@ -269,10 +269,10 @@ public class VisionDataProvider24 implements VisionData, Glassy {
              * 
              * TODO: gather some actual data.
              */
-            final double k = 0.02;
+            final double k = 0.03;
             return new double[] {
-                    k * distanceM,
-                    k * distanceM,
+                    (k * distanceM) + 0.01,
+                    (k * distanceM) + 0.01,
                     Double.MAX_VALUE };
         }
         /*

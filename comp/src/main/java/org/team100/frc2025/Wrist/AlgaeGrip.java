@@ -29,7 +29,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     private static final double wheelDiameterM = 0.072;
 
     private final BareMotor m_motor;
-    private final Neo550CANSparkMotor rawMotor;
+    // private final Neo550CANSparkMotor rawMotor;
 
     private final LinearMechanism m_linearMechanism;
     private final BooleanSupplier m_leftLimitSwitch;
@@ -62,7 +62,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                         m_5to1 * m_5to1,
                         wheelDiameterM);
                 m_motor = motor;
-                rawMotor = motor;
+                // rawMotor = motor;
                 reset();
             }
             default -> {
@@ -76,7 +76,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                         m_5to1 * m_5to1,
                         wheelDiameterM);
                 m_motor = motor;
-                rawMotor = null;
+                // rawMotor = null;
             }
         }
 
@@ -89,8 +89,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     @Override
     public void periodic() {
-        m_logRightLimitSwitch.log(() -> rawMotor.getForwardLimitSwitch());
-        m_logLeftLimitSwitch.log(() -> rawMotor.getReverseLimitSwitch());
+        m_logRightLimitSwitch.log(() -> m_rightLimitSwitch.getAsBoolean());
+        m_logLeftLimitSwitch.log(() -> m_leftLimitSwitch.getAsBoolean());
         m_linearMechanism.periodic();
         // This method will be called once per scheduler run
     }
