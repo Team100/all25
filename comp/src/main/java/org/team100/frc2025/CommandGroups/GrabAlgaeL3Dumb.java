@@ -23,7 +23,7 @@ public class GrabAlgaeL3Dumb extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new SetAlgaeDescorePositionPrep(wrist, elevator),
+        // new SetAlgaeDescorePositionPrep(wrist, elevator),
         new ParallelDeadlineGroup(new SetElevator(elevator, 35, true), new SetWrist(wrist, 3.7, true), new IntakeAlgaeGrip(grip, true))
 
     );

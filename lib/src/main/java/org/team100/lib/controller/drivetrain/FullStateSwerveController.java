@@ -2,6 +2,8 @@ package org.team100.lib.controller.drivetrain;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
+import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeDeltaLogger;
 import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.logging.LoggerFactory.SwerveModelLogger;
@@ -11,6 +13,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 
 /**
  * Velocity feedforward, proportional feedback on position and velocity.
@@ -18,6 +21,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class FullStateSwerveController implements SwerveController {
     private static final boolean DEBUG = false;
     private final SwerveModelLogger m_log_measurement;
+    private final BooleanLogger m_log_atPositionReference;
+    private final BooleanLogger m_log_atVelocityReference;
+
+    private final DoubleLogger m_log_PositionError;
+    private final DoubleLogger m_log_VelocityError;
+
+
     private final SwerveModelLogger m_log_currentReference;
     private final SwerveModelLogger m_log_nextReference;
     private final FieldRelativeVelocityLogger m_log_u_FF;
@@ -56,6 +66,14 @@ public class FullStateSwerveController implements SwerveController {
         m_log_u_FB = log.fieldRelativeVelocityLogger(Level.TRACE, "u_FB");
         m_log_velocity_error = log.fieldRelativeVelocityLogger(Level.TRACE, "velocityError");
         m_log_u_VFB = log.fieldRelativeVelocityLogger(Level.TRACE, "u_VFB");
+        
+
+        m_log_atPositionReference = log.booleanLogger(Level.TRACE, "At Position Reference");
+        m_log_atVelocityReference = log.booleanLogger(Level.TRACE, "At Velocity Reference");
+
+        m_log_PositionError = log.doubleLogger(Level.TRACE, "Position Error ");
+        m_log_VelocityError = log.doubleLogger(Level.TRACE, "Velocity Error ");
+
 
         m_kPCart = kPCart;
         m_kPTheta = kPTheta;
@@ -118,10 +136,16 @@ public class FullStateSwerveController implements SwerveController {
         FieldRelativeDelta positionError = positionError(measurement, currentReference);
         m_atReference &= positionError.getTranslation().getNorm() < m_xTolerance
                 && Math.abs(positionError.getRotation().getRadians()) < m_thetaTolerance;
+        
         FieldRelativeVelocity u_FB = new FieldRelativeVelocity(
                 m_kPCart * positionError.getX(),
                 m_kPCart * positionError.getY(),
                 m_kPTheta * positionError.getRotation().getRadians());
+
+        m_log_atPositionReference.log( () -> positionError.getTranslation().getNorm() < m_xTolerance
+        && Math.abs(positionError.getRotation().getRadians()) < m_thetaTolerance);
+
+        m_log_PositionError.log( () -> positionError.getTranslation().getNorm());
         m_log_u_FB.log(() -> u_FB);
         return u_FB;
     }
