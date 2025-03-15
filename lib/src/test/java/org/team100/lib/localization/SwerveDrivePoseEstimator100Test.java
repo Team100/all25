@@ -69,13 +69,11 @@ class SwerveDrivePoseEstimator100Test {
 
     @Test
     void testVisionStdDevs() {
-        // these are the "antijitter" values.
-        // 2 cm, somewhat higher than reality
         double targetRangeM = 1.0;
         double[] visionStdDev = VisionDataProvider24.visionMeasurementStdDevs(targetRangeM);
         assertEquals(3, visionStdDev.length);
-        assertEquals(0.02, visionStdDev[0], kDelta);
-        assertEquals(0.02, visionStdDev[1], kDelta);
+        assertEquals(0.04, visionStdDev[0], kDelta);
+        assertEquals(0.04, visionStdDev[1], kDelta);
         assertEquals(Double.MAX_VALUE, visionStdDev[2], kDelta);
     }
 
@@ -97,11 +95,8 @@ class SwerveDrivePoseEstimator100Test {
         double[] visionStdDev = VisionDataProvider24.visionMeasurementStdDevs(targetRangeM);
         double[] k = SwerveDrivePoseEstimator100.getK(stateStdDev, visionStdDev);
         assertEquals(3, k.length);
-        // state = 5 mm, vision = 100 mm, so k should be like 0.05
-        assertEquals(0.048, k[0], kDelta);
-        assertEquals(0.048, k[1], kDelta);
-        // state = something finite, vision = infinity, so k should be zero, i.e. ignore
-        // vision rotation
+        assertEquals(0.024, k[0], kDelta);
+        assertEquals(0.024, k[1], kDelta);
         assertEquals(0, k[2], kDelta);
     }
 
@@ -125,8 +120,8 @@ class SwerveDrivePoseEstimator100Test {
         Twist2d twist = new Twist2d(0.1, 0.1, 0);
         Twist2d scaled = SwerveDrivePoseEstimator100.getScaledTwist(stateStdDev, visionStdDev, twist);
         // difference is discounted 20x
-        assertEquals(0.004762, scaled.dx, 1e-6);
-        assertEquals(0.004762, scaled.dy, 1e-6);
+        assertEquals(0.002439, scaled.dx, 1e-6);
+        assertEquals(0.002439, scaled.dy, 1e-6);
         assertEquals(0, scaled.dtheta, 1e-6);
     }
 
