@@ -7,6 +7,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.logging.LoggerFactory.IntLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Util;
 
@@ -26,6 +27,7 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     private final DoubleSupplier m_duty;
     // LOGGERS
     private final DoubleLogger m_log_duty;
+    private final IntLogger m_log_frequency;
     private final BooleanLogger m_log_connected;
 
     // if the encoder becomes disconnected, don't break, return the most-recent
@@ -45,6 +47,7 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
         m_dutyCycle = new DutyCycle(m_digitalInput);
         m_duty = Memo.ofDouble(m_dutyCycle::getOutput);
         m_log_duty = child.doubleLogger(Level.TRACE, "duty cycle");
+        m_log_frequency = child.intLogger(Level.TRACE, "frequency");
         m_log_connected = child.booleanLogger(Level.TRACE, "connected");
         child.intLogger(Level.COMP, "channel").log(() -> channel);
     }
@@ -75,6 +78,8 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     }
 
     private boolean isConnected() {
-        return m_dutyCycle.getFrequency() > kFrequencyThreshold;
+        int frequency = m_dutyCycle.getFrequency();
+        m_log_frequency.log(() -> frequency);
+        return frequency > kFrequencyThreshold;
     }
 }
