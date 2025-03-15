@@ -56,6 +56,10 @@ public interface DriverControl extends Glassy {
         return new Velocity(0, 0, 0);
     }
 
+    default Velocity verySlow() {
+        return new Velocity(0, 0, 0);
+    }
+
     default double shooterPivot() {
         return 0;
     }

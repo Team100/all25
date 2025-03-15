@@ -7,6 +7,7 @@ package org.team100.frc2025.Elevator;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
@@ -33,6 +34,9 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final ElevatorVisualization m_viz;
     private boolean m_isSafe = false;
 
+    private ScoringPosition m_targetPosition = ScoringPosition.NONE;
+
+    
     public Elevator(
             LoggerFactory parent,
             int starboardID,
@@ -112,6 +116,8 @@ public class Elevator extends SubsystemBase implements Glassy {
         starboardServo.periodic();
         portServo.periodic();
         m_viz.viz();
+
+        // System.out.println(m_targetPosition);
     }
 
     public void resetElevatorProfile() {
@@ -176,5 +182,15 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void setSafeCondition(boolean isSafe){
         m_isSafe = isSafe;
     }
+
+    public void setTargetScoringPosition(ScoringPosition position){
+        m_targetPosition = position;
+    }
+
+    public ScoringPosition getScoringPosition(){
+        return m_targetPosition;
+    }
+
+
 
 }
