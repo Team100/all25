@@ -348,7 +348,7 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::fullCycle, new Embark(m_drive, holonomicController, profile, FieldSector.EF, ReefDestination.LEFT, () -> ScoringPosition.L4));
         whileTrue(driverControl::testTrajectory, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4));
 
-        whileTrue(operatorControl::downavate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         // whileTrue(operatorControl::elevate, new SetClimber(m_climber));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();

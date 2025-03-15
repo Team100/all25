@@ -30,11 +30,14 @@ public class PrepareFunnelHandoff extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     m_wrist = wrist;
     addCommands(
-        new SetWrist(wrist, 0.1, false),
-        new SetElevatorFunnelHandoff(elevator, 0.1),
-        new ParallelRaceGroup(new WaitCommand(0.5), new ElevatorDutyCycle(elevator)),
-        new SetWristHandoff(wrist, 0.1),
-        new SetWristDutyCycle(wrist, -0.15, false)
+        new ParallelCommandGroup( 
+            // new SetWrist(wrist, 0.1, false),
+            new SetWristHandoff(wrist, 0.1),
+            new SetElevatorFunnelHandoff(elevator, 0.1)
+        )
+        // new ParallelRaceGroup(new WaitCommand(0.5), new ElevatorDutyCycle(elevator)),
+        // new SetWristHandoff(wrist, 0.1),
+        // new ParallelRaceGroup(new WaitCommand(0.2), new SetWristDutyCycle(wrist, -0.15, false))
 
     );
   }
