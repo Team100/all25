@@ -43,19 +43,25 @@ public class ElevatorDefaultCommand extends Command {
     if(distanceToReef > 1.6){
 
         if(!m_grip.hasAlgae()){
-            double goal = 0.15;
+            double goal = 0.05;
+
             if(m_wrist.getSafeCondition()){
-                m_elevator.setPosition(goal);
+                m_elevator.setPositionNoGravity(goal);
             } else {
                 m_elevator.setStatic();
             }
 
             double error = Math.abs(m_elevator.getPosition() - goal);
 
-            if(error <= 0.2){
+            if(error <= 0.3){
                 m_elevator.setSafeCondition(true);
+                // m_elevator.setPosition(goal);
+
+
             } else{
                 m_elevator.setSafeCondition(false);
+                // m_elevator.setPosition(goal);
+
             }
         } else{
             double goal = 12;

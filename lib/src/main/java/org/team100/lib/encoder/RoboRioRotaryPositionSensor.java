@@ -115,6 +115,10 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
     }
 
     /**
+     * NOTE (3/14/25): this seems to return garbage?  I'm not sure, so I'll
+     * comment it out for now.
+     * TODO (3/14/25): test this in reality.
+     * 
      * Nearly cached.
      * 
      * Current rate in rad/s.
@@ -129,24 +133,26 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
      */
     @Override
     public OptionalDouble getRateRad_S() {
-        OptionalDouble angleRad = getRad();
-        if (angleRad.isEmpty())
-            return OptionalDouble.empty();
-        double timeS = Takt.get();
-        if (m_prevAngleRad == null) {
-            m_prevAngleRad = angleRad.getAsDouble();
-            m_prevTimeS = timeS;
-            return OptionalDouble.of(0);
-        }
-        double dxRad = MathUtil.angleModulus(angleRad.getAsDouble() - m_prevAngleRad);
-        double dtS = timeS - m_prevTimeS;
+        return OptionalDouble.of(0);
 
-        m_prevAngleRad = angleRad.getAsDouble();
-        m_prevTimeS = timeS;
+        // OptionalDouble angleRad = getRad();
+        // if (angleRad.isEmpty())
+        //     return OptionalDouble.empty();
+        // double timeS = Takt.get();
+        // if (m_prevAngleRad == null) {
+        //     m_prevAngleRad = angleRad.getAsDouble();
+        //     m_prevTimeS = timeS;
+        //     return OptionalDouble.of(0);
+        // }
+        // double dxRad = MathUtil.angleModulus(angleRad.getAsDouble() - m_prevAngleRad);
+        // double dtS = timeS - m_prevTimeS;
 
-        double rateRad_S = dxRad / dtS;
-        m_log_rate.log(() -> rateRad_S);
-        return OptionalDouble.of(rateRad_S);
+        // m_prevAngleRad = angleRad.getAsDouble();
+        // m_prevTimeS = timeS;
+
+        // double rateRad_S = dxRad / dtS;
+        // m_log_rate.log(() -> rateRad_S);
+        // return OptionalDouble.of(rateRad_S);
     }
 
 }

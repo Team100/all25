@@ -5,7 +5,9 @@ import java.util.function.DoubleSupplier;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.logging.LoggerFactory.IntLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Util;
 
@@ -16,7 +18,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
  * Absolute rotary position sensor using duty cycle input.
  */
 public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositionSensor {
-    private static final int kFrequencyThreshold = 1000;
+    private static final int kFrequencyThreshold = 500;
 
     private final int m_channel;
     private final DigitalInput m_digitalInput;
@@ -25,6 +27,8 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     private final DoubleSupplier m_duty;
     // LOGGERS
     private final DoubleLogger m_log_duty;
+    private final IntLogger m_log_frequency;
+    private final BooleanLogger m_log_connected;
 
     // if the encoder becomes disconnected, don't break, return the most-recent
     // value.
@@ -43,6 +47,8 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
         m_dutyCycle = new DutyCycle(m_digitalInput);
         m_duty = Memo.ofDouble(m_dutyCycle::getOutput);
         m_log_duty = child.doubleLogger(Level.TRACE, "duty cycle");
+        m_log_frequency = child.intLogger(Level.TRACE, "frequency");
+        m_log_connected = child.booleanLogger(Level.TRACE, "connected");
         child.intLogger(Level.COMP, "channel").log(() -> channel);
     }
 
@@ -60,9 +66,11 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     @Override
     protected OptionalDouble getRatio() {
         if (!isConnected()) {
+            m_log_connected.log(() -> false);
             Util.warn(String.format("*** encoder %d not connected, returning previous value ***", m_channel));
             return OptionalDouble.of(m_dutyIfDisconnected);
         }
+        m_log_connected.log(() -> true);
         double dutyCycle = m_duty.getAsDouble();
         m_log_duty.log(() -> dutyCycle);
         m_dutyIfDisconnected = dutyCycle;
@@ -70,6 +78,8 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     }
 
     private boolean isConnected() {
-        return m_dutyCycle.getFrequency() > kFrequencyThreshold;
+        int frequency = m_dutyCycle.getFrequency();
+        m_log_frequency.log(() -> frequency);
+        return frequency > kFrequencyThreshold;
     }
 }
