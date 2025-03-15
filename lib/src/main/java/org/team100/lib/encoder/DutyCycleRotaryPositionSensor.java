@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
  * Absolute rotary position sensor using duty cycle input.
  */
 public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositionSensor {
-    private static final int kFrequencyThreshold = 1000;
+    private static final int kFrequencyThreshold = 500;
 
     private final int m_channel;
     private final DigitalInput m_digitalInput;
