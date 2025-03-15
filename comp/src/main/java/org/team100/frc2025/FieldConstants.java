@@ -52,6 +52,12 @@ public class FieldConstants {
     CENTER
   }
 
+  public enum BargeDestination {
+    LEFT,
+    RIGHT,
+    CENTER
+  }
+
   public enum ReefAproach {
     CCW,
     CW
@@ -60,6 +66,33 @@ public class FieldConstants {
   public enum CoralStation {
     Left,
     Right
+  }
+
+  /**
+   * 
+   * @param bargeDestination
+   * @param prep if you want the robot to go in front of the deep climb or into it
+   * @return
+   */
+  public static Translation2d getBargeStation(BargeDestination bargeDestination, boolean prep) {
+    Translation2d translation2d = getBargeStationPrep(bargeDestination);
+    if (!prep) {
+        return new Translation2d(translation2d.getX() + .9, translation2d.getY());
+    }
+    return translation2d;
+  }
+
+  private static Translation2d getBargeStationPrep(BargeDestination bargeDestination) {
+    switch (bargeDestination) {
+        case RIGHT:
+            return new Translation2d(7.647, 5.020); 
+        case CENTER:
+            return new Translation2d(7.647, 6.15); 
+        case LEFT:
+            return new Translation2d(7.647, 7.206); 
+        default:
+            return null;
+    }
   }
 
   public static FieldConstants.FieldSector getSector(Pose2d pose) {

@@ -15,6 +15,7 @@ import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
+import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.visualization.TrajectoryVisualization;
@@ -48,7 +49,7 @@ public class GoToReefDestination extends SequentialCommandGroup {
     SwerveController tet = new FullStateSwerveController(parent, 3, 3.5, 0.05, 0, 1, 1, 1, 1);
     addCommands(
         new GoToReefBuffer(parent, drive, tet, viz, kinodynamics, endSector, reefDest),
-        new DriveToPoseWithProfile(fieldLog, () -> Optional.of(m_goal),drive, hcontroller, profile)
+        new DriveToPoseWithProfile(fieldLog, () -> new SwerveModel(m_goal),drive, hcontroller, profile)
 
     );
   }
