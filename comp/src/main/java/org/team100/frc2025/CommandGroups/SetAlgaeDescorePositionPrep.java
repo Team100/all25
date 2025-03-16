@@ -39,9 +39,9 @@ public class SetAlgaeDescorePositionPrep extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         // new RunAlgaeGrip(grip, 1)
-        new SetWrist(wrist, 0.5, false),
-        new SetElevator(elevator, 12, false),
-        new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, false), new SetElevatorPerpetually(elevator, 12) )
+        // new SetWrist(wrist, 0.5, false),
+        // new SetElevator(elevator, 12, false),
+        // new ParallelDeadlineGroup(new SetWrist(wrist, 3.7, false), new SetElevatorPerpetually(elevator, 12) )
 
     );
 

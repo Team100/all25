@@ -130,7 +130,9 @@ public class Embark extends Command implements Glassy {
         //         m_goal.getX(),
         //         m_goal.getY(),
         //         m_goal.getRotation().getRadians() });
-         
+
+        // System.out.println("REFERENCE DONE: " + m_referenceController.isDone());
+        // System.out.println("REFERENCE IN TOLERENCE" + m_referenceController.atReference())         ;
     }
 
     @Override
