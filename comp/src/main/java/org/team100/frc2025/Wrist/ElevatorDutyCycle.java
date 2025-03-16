@@ -33,7 +33,7 @@ public class ElevatorDutyCycle extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("I FINISHED NUMBER 2");
+    // System.out.println("I FINISHED NUMBER 2");
   }
 
   // Returns true when the command should end.

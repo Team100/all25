@@ -97,7 +97,7 @@ public class Embark extends Command implements Glassy {
             }
     
             if(m_scoringPosition == ScoringPosition.L3){
-                radius = 1.4;
+                radius = 1.35;
             }
     
             if(m_scoringPosition == ScoringPosition.L2){
@@ -135,12 +135,12 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
-        // System.out.println("*************I FINISHED EMBBARKING********************");
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

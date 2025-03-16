@@ -105,6 +105,11 @@ public class DriverControlProxy implements DriverControl {
     }
 
     @Override
+    public Velocity verySlow() {
+        return m_driverControl.verySlow();
+    }
+
+    @Override
     public Rotation2d desiredRotation() {
         return m_driverControl.desiredRotation();
     }

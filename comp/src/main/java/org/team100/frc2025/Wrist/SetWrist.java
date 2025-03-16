@@ -74,7 +74,7 @@ public class SetWrist extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("**************************************I FINISHED*******************************************");
+    // System.out.println("**************************************I FINISHED*******************************************");
     m_wrist.setWristDutyCycle(0);
     finished = false;
     count = 0;

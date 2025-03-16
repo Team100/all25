@@ -100,7 +100,7 @@ public class EmbarkHesitantly extends Command implements Glassy {
             }
     
             if(m_scoringPosition == ScoringPosition.L3){
-                radius = 1.4;
+                radius = 1.35;
             }
     
             if(m_scoringPosition == ScoringPosition.L2){

@@ -41,6 +41,10 @@ public class Climber extends SubsystemBase {
     climberMotor.setPosition(value, 0);
   }
 
+  public double getAngle(){
+    return climberMotor.getPosition().getAsDouble();
+  }
+
   
 
   public void reset(){

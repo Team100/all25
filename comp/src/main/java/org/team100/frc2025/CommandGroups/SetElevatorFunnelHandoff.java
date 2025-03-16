@@ -54,7 +54,7 @@ public class SetElevatorFunnelHandoff extends Command {
     m_elevator.stop();
     finished = false;
     count = 0;
-    System.out.println("I FINISHED NUMBER 1");
+    // System.out.println("I FINISHED NUMBER 1");
     
   }
 

@@ -48,7 +48,7 @@ public class SetWristDutyCycle extends Command {
     m_timer.stop();
     isDone = false;
 
-    System.out.println("**************************************I FINISHED NUMBER 4*******************************************");
+    // System.out.println("**************************************I FINISHED NUMBER 4*******************************************");
 
   }
 
