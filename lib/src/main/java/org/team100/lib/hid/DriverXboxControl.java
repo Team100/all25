@@ -142,14 +142,8 @@ public class DriverXboxControl implements DriverControl {
         Speed speed = speed();
         m_log_speed.log(() -> speed);
 
-        switch (speed) {
-            case SLOW:
-                return new Velocity(kSlow * dx, kSlow * dy, kSlow * dtheta);
-            case MEDIUM:
-                return new Velocity(kMedium * dx, kMedium * dy, kMedium * dtheta);
-            default:
-                return new Velocity(dx, dy, dtheta);
-        }
+        return new Velocity(kSlow * dx, kSlow * dy, kSlow * dtheta);
+        
     }
 
     public boolean shoot() {

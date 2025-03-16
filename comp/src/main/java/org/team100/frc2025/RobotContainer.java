@@ -14,6 +14,7 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
 import org.team100.frc2025.Climber.ClimberRotate;
+import org.team100.frc2025.Climber.ClimberRotateOverride;
 import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.DescoreAlgae;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
@@ -358,14 +359,14 @@ public class RobotContainer implements Glassy {
 
         whileTrue(buttons::red1, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel, m_grip) );
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(m_grip, m_wrist, m_elevator) );
-        whileTrue(buttons::red3, new PartRedSea(m_wrist, m_elevator, m_climber) );
+        whileTrue(buttons::red3, new ScoreBarge(m_elevator, m_wrist, m_grip) );
 
         // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile, m_drive, m_swerveKinodynamics, viz ));
         whileTrue(driverControl::fullCycle, new Embark(m_drive, holonomicController, profile, FieldSector.EF, ReefDestination.LEFT, () -> ScoringPosition.L4));
         whileTrue(driverControl::testTrajectory, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4));
 
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
-        // whileTrue(operatorControl::elevate, new SetClimber(m_climber));
+        whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

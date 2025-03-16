@@ -64,7 +64,7 @@ public class Coral2Auto extends SequentialCommandGroup {
             new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
         ),
         new ParallelRaceGroup(
-            new WaitCommand(1.5),
+            new WaitCommand(0.1),
             new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
         ),
         new Embark(m_drive, controller, profile, FieldSector.KL, ReefDestination.LEFT, () -> ScoringPosition.L4),

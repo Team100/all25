@@ -68,8 +68,8 @@ public class DriveAdjustCoral extends Command implements Glassy {
         // input in [-1,1] control units
         DriverControl.Velocity input = m_twistSupplier.get();
         SwerveModel state = m_drive.getState();
-        
-        m_driver.apply(state, input);
+        // System.out.println("IM RUNN");
+        m_drive.driveInFieldCoords(m_driver.apply(state, input));
 
     }
 

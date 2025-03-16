@@ -27,9 +27,7 @@ public class SetElevator extends Command {
   @Override
   public void initialize() {
 
-    if(m_value == 35){
-        System.out.println("I AM MOST DEFINETLY RUNNING");
-    }
+    
     count = 0;
     finished = false;
     m_elevator.resetElevatorProfile();

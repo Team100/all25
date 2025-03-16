@@ -23,7 +23,8 @@ public class ScoreL3 extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new SetWrist(wrist, 0.4, false),
-        new ParallelDeadlineGroup(new SetElevator(elevator, 23, false), new SetWrist(wrist, 0.4, true)),
+        new PrePlaceCoralL3(wrist, elevator, 23),
+        // new ParallelDeadlineGroup(new SetElevator(elevator, 23, false), new SetWrist(wrist, 0.4, true)),
         new ParallelDeadlineGroup(new SetWrist(wrist, 0.9, false), new SetElevatorPerpetually(elevator, 23)),
         new ParallelDeadlineGroup(new SetElevator(elevator, 16, false), new SetWrist(wrist, 0.9, true)),
         new ParallelDeadlineGroup(new SetElevator(elevator, 10, false), new SetWrist(wrist, 0.5, true))

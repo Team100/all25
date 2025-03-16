@@ -24,7 +24,7 @@ public class GrabAlgaeL2Dumb extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new SetAlgaeDescorePositionPrep(wrist, elevator),
-        new ParallelDeadlineGroup(new SetElevator(elevator, 35, true), new SetWrist(wrist, 3.7, true), new IntakeAlgaeGrip(grip, true))
+        new ParallelDeadlineGroup(new SetElevator(elevator, 25, true), new SetWrist(wrist, 3.7, true), new IntakeAlgaeGrip(grip, true))
 
     );
   }
