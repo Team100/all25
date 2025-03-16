@@ -113,6 +113,39 @@ public class DriverXboxControl implements DriverControl {
         }
     }
 
+    @Override
+    public Velocity verySlow() {
+        final double rightY = m_controller.getRightY();
+        final double rightX = m_controller.getRightX();
+        final double leftX = m_controller.getLeftX();
+        m_log_right_y.log(() -> rightY);
+        m_log_right_x.log(() -> rightX);
+        m_log_left_x.log(() -> leftX);
+
+        double dx = 0;
+        double dy = 0;
+        double x = -1.0 * clamp(rightY, 1);
+        double y = -1.0 * clamp(rightX, 1);
+        double r = Math.hypot(x, y);
+        if (r > kDeadband) {
+            double expoR = expo(r, kExpo);
+            double ratio = expoR / r;
+            dx = ratio * x;
+            dy = ratio * y;
+        } else {
+            dx = 0;
+            dy = 0;
+        }
+
+        double dtheta = expo(deadband(-1.0 * clamp(leftX, 1), kDeadband, 1), kExpo);
+
+        Speed speed = speed();
+        m_log_speed.log(() -> speed);
+
+        return new Velocity(kSlow * dx, kSlow * dy, kSlow * dtheta);
+        
+    }
+
     public boolean shoot() {
         return m_controller.getRightBumperButton();
     }

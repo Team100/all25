@@ -26,6 +26,8 @@ public class SetElevator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
+    
     count = 0;
     finished = false;
     m_elevator.resetElevatorProfile();

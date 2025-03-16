@@ -5,12 +5,12 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class ClimberRotate extends Command {
+public class ClimberRotateOverride extends Command {
     Climber climber;
     double duty;
     Supplier<Double> m_joystick;
 
-    public ClimberRotate(Climber c, double d, Supplier<Double> joystick) {
+    public ClimberRotateOverride(Climber c, double d, Supplier<Double> joystick) {
         climber = c;
         duty = d;
         m_joystick = joystick;
@@ -23,11 +23,7 @@ public class ClimberRotate extends Command {
 
     @Override
     public void execute() {
-        if(climber.getAngle() >= 0 && m_joystick.get() >= 0){
-
-        }else{
-            climber.setDutyCycle(m_joystick.get());
-        }
+        climber.setDutyCycle(m_joystick.get());
 
     }
 

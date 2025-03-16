@@ -41,11 +41,17 @@ public class Coral2Auto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         //First Coral
-        new Embark(m_drive, controller, profile, FieldSector.IJ, ReefDestination.RIGHT, () -> ScoringPosition.L4),
+        new ParallelCommandGroup(
+            new Embark(m_drive, controller, profile, FieldSector.IJ, ReefDestination.RIGHT, () -> ScoringPosition.L4),
+            new ParallelRaceGroup(
+                new WaitCommand(2),
+                new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
+            )
+        ),
         new ScoreL4(wrist, elevator),
         //Second Coral
         new ParallelRaceGroup( //NAVIGATOR DOSENT END? CHECK LOGS
-            new WaitCommand(5),
+            new WaitCommand(3),
             new GoToCoralStation(
                 logger,
                 m_drive,
@@ -58,7 +64,7 @@ public class Coral2Auto extends SequentialCommandGroup {
             new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
         ),
         new ParallelRaceGroup(
-            new WaitCommand(3),
+            new WaitCommand(0.1),
             new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
         ),
         new Embark(m_drive, controller, profile, FieldSector.KL, ReefDestination.LEFT, () -> ScoringPosition.L4),

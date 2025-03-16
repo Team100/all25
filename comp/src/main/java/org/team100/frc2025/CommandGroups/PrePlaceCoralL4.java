@@ -2,71 +2,69 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.team100.frc2025.Wrist;
+package org.team100.frc2025.CommandGroups;
+
+import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Wrist.Wrist2;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetWristHandoff extends Command {
-  /** Creates a new SetElevator. */
+public class PrePlaceCoralL4 extends Command {
+  /** Creates a new PrePlaceCoral. */
   Wrist2 m_wrist;
-  double m_angle;
-  boolean finished = false;
+  Elevator m_elevator;
+  double m_elevatorGoal;
   double count = 0;
-  public SetWristHandoff(Wrist2 wrist, double angle) {
+  boolean finished = false;
+  public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_wrist = wrist;
-    m_angle = angle;
-    addRequirements(m_wrist);
+    m_elevator = elevator;
+    m_elevatorGoal = elevatorValue;
+    addRequirements(m_wrist, m_elevator);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    finished = false;
     count = 0;
+    finished = false;
     m_wrist.resetWristProfile();
+    m_elevator.resetElevatorProfile();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    m_elevator.setPosition(m_elevatorGoal);
+    if(m_elevatorGoal - 10 > m_elevator.getPosition()){
+      m_wrist.setAngleValue(0.4);
+    } else {
+      m_wrist.setAngleValue(1.25);
+    }
 
-        if( Math.abs(m_wrist.getAngle() - m_angle) < 0.05){
-            count++;
-            m_wrist.setAngleValue(m_angle);
+    double error = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
 
-        } else {
-            m_wrist.setAngleValue(m_angle);
-            count = 0;
-        } 
+    if(error < 0.5){
+      count++;
+    } else {
+      count = 0;
+    }
 
-        if(count >= 20){
-            m_wrist.setStatic();
-            finished = true;
-        }
-    
-   
-        // if(m_wrist.getAngle() < m_angle){
-        //     finished = true;
-        // }
-
+    if(count >= 20){
+      finished = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    // System.out.println("**************************************I FINISHED*******************************************");
-    m_wrist.setWristDutyCycle(0);
-    finished = false;
-    count = 0;
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // return m_wrist.atSetpoint();
-    
     return finished;
   }
 }
+

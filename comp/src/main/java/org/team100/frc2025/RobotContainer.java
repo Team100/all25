@@ -14,6 +14,7 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
 import org.team100.frc2025.Climber.ClimberRotate;
+import org.team100.frc2025.Climber.ClimberRotateOverride;
 import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.DescoreAlgae;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
@@ -22,6 +23,7 @@ import org.team100.frc2025.CommandGroups.PartRedSea;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreBarge;
 import org.team100.frc2025.CommandGroups.ScoreCoral;
+import org.team100.frc2025.CommandGroups.Hesitant.ScoreCoralHesitantly;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
@@ -43,6 +45,7 @@ import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.SetRotation;
+import org.team100.lib.commands.drivetrain.manual.DriveAdjustCoral;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
 import org.team100.lib.commands.drivetrain.manual.ManualFieldRelativeSpeeds;
@@ -99,6 +102,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 
 /**
  * Try to keep this container clean; if there's something you want to keep but
@@ -282,6 +286,16 @@ public class RobotContainer implements Glassy {
                         thetaFeedback));
 
         // DEFAULT COMMANDS
+        // m_drive.setDefaultCommand(driveManually);
+
+        FieldRelativeDriver driver = new ManualWithProfiledHeading(
+                        manLog,
+                        m_swerveKinodynamics,
+                        driverControl::desiredRotation,
+                        thetaFeedback);
+
+                        
+        // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow, m_drive, () -> false, driver));
         m_drive.setDefaultCommand(driveManually);
 
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
@@ -307,14 +321,16 @@ public class RobotContainer implements Glassy {
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L2, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
         // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
-        whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist, m_grip));
+        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist, m_grip));
         // whileTrue(driverControl::driveToTag, new PartRedSea(m_wrist, m_elevator));
         // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist, m_grip));
 
 
+        // whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive, driverControl::verySlow, buttons::red3, driver));
         whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+
         whileTrue(driverControl::driveToTag, buttons::b, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
 
         whileTrue(driverControl::driveToTag, buttons::c, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.CD, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
@@ -349,14 +365,14 @@ public class RobotContainer implements Glassy {
 
         whileTrue(buttons::red1, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel, m_grip) );
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(m_grip, m_wrist, m_elevator) );
-        whileTrue(buttons::red3, new PartRedSea(m_wrist, m_elevator, m_climber) );
+        whileTrue(buttons::red3, new ScoreBarge(m_elevator, m_wrist, m_grip) );
 
         // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile, m_drive, m_swerveKinodynamics, viz ));
         whileTrue(driverControl::fullCycle, new Embark(m_drive, holonomicController, profile, FieldSector.EF, ReefDestination.LEFT, () -> ScoringPosition.L4));
         whileTrue(driverControl::testTrajectory, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4));
 
-        whileTrue(operatorControl::downavate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
-        // whileTrue(operatorControl::elevate, new SetClimber(m_climber));
+        whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

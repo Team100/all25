@@ -1,10 +1,11 @@
-package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
+package org.team100.frc2025.CommandGroups.Hesitant;
 
 import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.Elevator.Elevator;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -25,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * If the supplier starts delivering empties, retain the old goal.
  */
-public class Embark extends Command implements Glassy {
+public class EmbarkHesitantly extends Command implements Glassy {
     
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
@@ -37,42 +38,43 @@ public class Embark extends Command implements Glassy {
 
     private FieldSector m_targetSector;
     private ReefDestination m_destination;
-    private Supplier<ScoringPosition> m_scoringPositionSupplier;
-    private double m_radius;   
+    private double m_radius;
+    
+    private Elevator m_elevator;
 
     private ScoringPosition m_scoringPosition = ScoringPosition.NONE;
-    public Embark(
+    public EmbarkHesitantly(
             SwerveDriveSubsystem drive,
             SwerveController controller,
             HolonomicProfile profile,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier) {
+            Elevator elevator) {
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
-        m_scoringPositionSupplier = scoringPositionSupplier;
         m_targetSector = targetSector;
         m_destination = destination;
         m_radius = 0;
+        m_elevator = elevator;
         addRequirements(m_drive);
     }
 
-    public Embark(
+    public EmbarkHesitantly(
             SwerveDriveSubsystem drive,
             SwerveController controller,
             HolonomicProfile profile,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier,
+            Elevator elevator,
             double radius) {
         m_drive = drive;
         m_controller = controller;
         m_profile = profile;
-        m_scoringPositionSupplier = scoringPositionSupplier;
         m_targetSector = targetSector;
         m_destination = destination;
         m_radius = radius;
+        m_elevator = elevator;
         addRequirements(m_drive);
     }
 
@@ -80,7 +82,8 @@ public class Embark extends Command implements Glassy {
     public void initialize() {
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
-        m_scoringPosition = m_scoringPositionSupplier.get();
+
+        m_scoringPosition = m_elevator.getScoringPosition();
         System.out.println(m_scoringPosition);
 
         double radius = 0;
@@ -97,7 +100,7 @@ public class Embark extends Command implements Glassy {
             }
     
             if(m_scoringPosition == ScoringPosition.L3){
-                radius = 1.34;
+                radius = 1.35;
             }
     
             if(m_scoringPosition == ScoringPosition.L2){
@@ -135,12 +138,12 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
+        // System.out.println("*************I FINISHED EMBBARKING********************");
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;
