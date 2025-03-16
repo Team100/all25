@@ -97,7 +97,7 @@ public class Embark extends Command implements Glassy {
             }
     
             if(m_scoringPosition == ScoringPosition.L3){
-                radius = 1.35;
+                radius = 1.34;
             }
     
             if(m_scoringPosition == ScoringPosition.L2){

@@ -25,7 +25,7 @@ public class ScoreL4 extends SequentialCommandGroup {
     
     addCommands(
         new SetWrist(wrist, 0.4, false),
-        new PrePlaceCoral(wrist, elevator, 45),
+        new PrePlaceCoralL4(wrist, elevator, 45),
         // new ParallelDeadlineGroup(new SetElevator(elevator, 45, false), new SetWrist(wrist, 0.4, true)),//45
         new ParallelDeadlineGroup(new SetWrist(wrist, 1.25, false), new SetElevatorPerpetually(elevator, 45)),
         new ParallelDeadlineGroup(new SetElevator(elevator, 35, false), new SetWrist(wrist, 1.25, true)),

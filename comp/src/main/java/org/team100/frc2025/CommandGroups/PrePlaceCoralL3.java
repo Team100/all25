@@ -10,14 +10,15 @@ import org.team100.frc2025.Wrist.Wrist2;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PrePlaceCoral extends Command {
-  /** Creates a new PrePlaceCoral. */
-  Wrist2 m_wrist;
+public class PrePlaceCoralL3 extends Command {
+  /** Creates a new PrePlaceCoralL3. */
+    Wrist2 m_wrist;
   Elevator m_elevator;
   double m_elevatorGoal;
   double count = 0;
   boolean finished = false;
-  public PrePlaceCoral(Wrist2 wrist, Elevator elevator, double elevatorValue) {
+
+  public PrePlaceCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_wrist = wrist;
     m_elevator = elevator;
@@ -28,7 +29,6 @@ public class PrePlaceCoral extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("IM STARTING UP");
     count = 0;
     finished = false;
     m_wrist.resetWristProfile();
@@ -42,7 +42,7 @@ public class PrePlaceCoral extends Command {
     if(m_elevatorGoal - 10 > m_elevator.getPosition()){
       m_wrist.setAngleValue(0.4);
     } else {
-      m_wrist.setAngleValue(1.25);
+      m_wrist.setAngleValue(0.9);
     }
 
     double error = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
@@ -65,7 +65,6 @@ public class PrePlaceCoral extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished;
+    return false;
   }
 }
-
