@@ -7,13 +7,13 @@ package org.team100.frc2025.Wrist;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class IntakeAlgaeGrip extends Command {
-  /** Creates a new IntakeAlgaeGrip. */
+public class StopAlgaeGrip extends Command {
+  /** Creates a new StopAlgaeGrip. */
   AlgaeGrip m_grip;
   boolean m_perpetual = false;
   double position = 0;
   boolean hasAlgae = false;
-  public IntakeAlgaeGrip(AlgaeGrip grip, boolean perpetual) {
+  public StopAlgaeGrip(AlgaeGrip grip, boolean perpetual) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_grip = grip;
     m_perpetual = perpetual;
@@ -30,9 +30,8 @@ public class IntakeAlgaeGrip extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     if(!m_grip.hasAlgae()){
-        m_grip.setDutyCycle(1);
+        m_grip.setDutyCycle(-1);
         // position = m_grip.getPosition();
     } else {
         hasAlgae = true;
@@ -45,8 +44,6 @@ public class IntakeAlgaeGrip extends Command {
         // m_grip.setPosition(position);
         // m_grip.setDutyCycle(0);
     }
-
-
   }
 
   // Called once the command ends or is interrupted.
@@ -59,9 +56,6 @@ public class IntakeAlgaeGrip extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // if(!m_perpetual){
-    //     return m_grip.hasAlgae();
-    // }
     return false;
   }
 }

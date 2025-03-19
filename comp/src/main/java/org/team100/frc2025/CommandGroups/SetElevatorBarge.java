@@ -5,56 +5,26 @@
 package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Wrist.Wrist2;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PrePlaceCoralL4 extends Command {
-  /** Creates a new PrePlaceCoral. */
-  Wrist2 m_wrist;
+public class SetElevatorBarge extends Command {
+  /** Creates a new SetElevatorBarge. */
   Elevator m_elevator;
-  double m_elevatorGoal;
-  double count = 0;
-  boolean finished = false;
-  public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue) {
+  public SetElevatorBarge(Elevator elevator) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_wrist = wrist;
     m_elevator = elevator;
-    m_elevatorGoal = elevatorValue;
-    addRequirements(m_wrist, m_elevator);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    count = 0;
-    finished = false;
-    m_wrist.resetWristProfile();
-    m_elevator.resetElevatorProfile();
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_elevator.setPosition(m_elevatorGoal);
-    if(m_elevatorGoal - 10 > m_elevator.getPosition()){
-      m_wrist.setAngleValue(0.4);
-    } else {
-      m_wrist.setAngleValue(1.25);
-    }
-
-    double error = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
-
-    if(error < 0.5){
-      count++;
-    } else {
-      count = 0;
-    }
-
-    if(count >= 10){
-      finished = true;
-    }
+    m_elevator.setPosition(0);
   }
 
   // Called once the command ends or is interrupted.
@@ -64,7 +34,6 @@ public class PrePlaceCoralL4 extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished;
+    return false;
   }
 }
-

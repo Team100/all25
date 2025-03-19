@@ -367,6 +367,9 @@ public class RobotContainer implements Glassy {
 
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
+        whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
+                
+
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

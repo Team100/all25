@@ -43,7 +43,7 @@ public class SetWrist extends Command {
             count = 0;
         }}
 
-        if(count >= 20){
+        if(count >= 10){
             finished = true;
         }
     } else{
@@ -56,7 +56,7 @@ public class SetWrist extends Command {
             count = 0;
         } 
 
-        if(count >= 20){
+        if(count >= 10){
             m_wrist.setStatic();
         }
     }

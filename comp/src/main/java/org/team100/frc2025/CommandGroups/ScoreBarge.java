@@ -6,12 +6,16 @@ package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Wrist.AlgaeGrip;
+import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
+import org.team100.frc2025.Wrist.OuttakeAlgaeGrip;
 import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -23,14 +27,23 @@ public class ScoreBarge extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(
+        new ParallelDeadlineGroup(
             new SetElevator(elevator, 54, false), 
-            new SetWrist(wrist, 3.4, true)
+            new SetWrist(wrist, 3.4, true),
+            new IntakeAlgaeGrip(algae, true)
+            // new RunAlgaeGrip(algae)
+        ),
+        new ParallelCommandGroup(
+            new SetElevatorPerpetually(elevator, 54) 
+            // new OuttakeAlgaeGrip(wrist, algae)
         )
 
 
 
 
     );
+
+    // new OuttakeAlgaeGrip(wrist, algae)
+
   }
 }

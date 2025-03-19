@@ -23,7 +23,7 @@ public class ClimberRotate extends Command {
 
     @Override
     public void execute() {
-        if(climber.getAngle() >= 0 && m_joystick.get() >= 0){
+        if(climber.getAngle() >= -1.42 && m_joystick.get() >= 0){
 
         }else{
             climber.setDutyCycle(m_joystick.get());
