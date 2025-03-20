@@ -1,5 +1,6 @@
 package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 
+import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants;
@@ -26,8 +27,11 @@ import edu.wpi.first.wpilibj2.command.Command;
  * If the supplier starts delivering empties, retain the old goal.
  */
 public class Embark extends Command implements Glassy {
-    
+    /** While driving to scoring tag, pay attention only to very close tags. */
+    private static final double kHeedRadiusM = 1.5;
+
     private final SwerveDriveSubsystem m_drive;
+    private final DoubleConsumer m_heedRadiusM;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
 
@@ -38,28 +42,32 @@ public class Embark extends Command implements Glassy {
     private FieldSector m_targetSector;
     private ReefDestination m_destination;
     private Supplier<ScoringPosition> m_scoringPositionSupplier;
-    private double m_radius;   
+    private double m_radius;
 
     private ScoringPosition m_scoringPosition = ScoringPosition.NONE;
+
     public Embark(
             SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
             SwerveController controller,
             HolonomicProfile profile,
             FieldSector targetSector,
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier) {
-        m_drive = drive;
-        m_controller = controller;
-        m_profile = profile;
-        m_scoringPositionSupplier = scoringPositionSupplier;
-        m_targetSector = targetSector;
-        m_destination = destination;
-        m_radius = 0;
-        addRequirements(m_drive);
+        this(
+                drive,
+                heedRadiusM,
+                controller,
+                profile,
+                targetSector,
+                destination,
+                scoringPositionSupplier,
+                0);
     }
 
     public Embark(
             SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
             SwerveController controller,
             HolonomicProfile profile,
             FieldSector targetSector,
@@ -67,6 +75,7 @@ public class Embark extends Command implements Glassy {
             Supplier<ScoringPosition> scoringPositionSupplier,
             double radius) {
         m_drive = drive;
+        m_heedRadiusM = heedRadiusM;
         m_controller = controller;
         m_profile = profile;
         m_scoringPositionSupplier = scoringPositionSupplier;
@@ -78,6 +87,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void initialize() {
+        m_heedRadiusM.accept(kHeedRadiusM);
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
         m_scoringPosition = m_scoringPositionSupplier.get();
@@ -85,32 +95,28 @@ public class Embark extends Command implements Glassy {
 
         double radius = 0;
 
-        if(m_radius != 0){
+        if (m_radius != 0) {
             radius = m_radius;
         } else {
-            if(m_destination == ReefDestination.CENTER){
+            if (m_destination == ReefDestination.CENTER) {
                 radius = 1.2;
-            }   
-    
-            if(m_scoringPosition == ScoringPosition.L4){
+            }
+
+            if (m_scoringPosition == ScoringPosition.L4) {
                 radius = 1.42;
             }
-    
-            if(m_scoringPosition == ScoringPosition.L3){
+
+            if (m_scoringPosition == ScoringPosition.L3) {
                 radius = 1.34;
             }
-    
-            if(m_scoringPosition == ScoringPosition.L2){
+
+            if (m_scoringPosition == ScoringPosition.L2) {
                 radius = 1.35;
             }
         }
 
-       
-        
-
         Translation2d destination = FieldConstants.getOrbitDestination(m_targetSector, m_destination, radius);
         Rotation2d heading = FieldConstants.getSectorAngle(m_targetSector).rotateBy(Rotation2d.fromDegrees(180));
-
 
         m_goal = new Pose2d(destination, heading);
 
@@ -127,12 +133,13 @@ public class Embark extends Command implements Glassy {
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController.execute();
         // m_field_log.m_log_target.log(() -> new double[] {
-        //         m_goal.getX(),
-        //         m_goal.getY(),
-        //         m_goal.getRotation().getRadians() });
+        // m_goal.getX(),
+        // m_goal.getY(),
+        // m_goal.getRotation().getRadians() });
 
         // System.out.println("REFERENCE DONE: " + m_referenceController.isDone());
-        // System.out.println("REFERENCE IN TOLERENCE" + m_referenceController.atReference())         ;
+        // System.out.println("REFERENCE IN TOLERENCE" +
+        // m_referenceController.atReference()) ;
     }
 
     @Override
@@ -149,7 +156,5 @@ public class Embark extends Command implements Glassy {
         m_referenceController = null;
         m_goal = null;
     }
-
-  
 
 }

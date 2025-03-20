@@ -9,12 +9,12 @@ import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelCommandGroup100;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class ScoreBarge extends SequentialCommandGroup {
+public class ScoreBarge extends SequentialCommandGroup100 {
     public ScoreBarge(LoggerFactory parent, Elevator elevator, Wrist2 wrist, AlgaeGrip algae) {
+        super(parent);
         addCommands(
                 new ParallelDeadlineGroup100(
                         parent,

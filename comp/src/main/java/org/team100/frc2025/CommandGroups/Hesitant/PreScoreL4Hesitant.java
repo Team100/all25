@@ -10,13 +10,13 @@ import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class PreScoreL4Hesitant extends SequentialCommandGroup {
+public class PreScoreL4Hesitant extends SequentialCommandGroup100 {
+    
     public PreScoreL4Hesitant(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
-
+        super(parent);
         addCommands(
                 new SetWrist(wrist, 0.4, false),
                 new ParallelDeadlineGroup100(parent,

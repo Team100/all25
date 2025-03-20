@@ -9,11 +9,10 @@ import org.team100.frc2025.Wrist.RunCoralTunnel;
 import org.team100.frc2025.Wrist.SetWristDutyCycle;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelCommandGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class RunFunnelHandoff extends SequentialCommandGroup {
+public class RunFunnelHandoff extends SequentialCommandGroup100 {
     public RunFunnelHandoff(
             LoggerFactory parent,
             Elevator elevator,
@@ -21,6 +20,7 @@ public class RunFunnelHandoff extends SequentialCommandGroup {
             Funnel funnel,
             CoralTunnel tunnel,
             AlgaeGrip grip) {
+        super(parent);
         addCommands(
                 new PrepareFunnelHandoff(parent, wrist, elevator),
                 new ParallelCommandGroup100(parent,

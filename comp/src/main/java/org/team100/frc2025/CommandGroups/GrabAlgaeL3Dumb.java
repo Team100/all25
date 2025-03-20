@@ -8,12 +8,16 @@ import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class GrabAlgaeL3Dumb extends SequentialCommandGroup {
-    public GrabAlgaeL3Dumb(LoggerFactory parent, Wrist2 wrist, Elevator elevator, AlgaeGrip grip) {
+public class GrabAlgaeL3Dumb extends SequentialCommandGroup100 {
+    public GrabAlgaeL3Dumb(
+            LoggerFactory parent,
+            Wrist2 wrist,
+            Elevator elevator,
+            AlgaeGrip grip) {
+        super(parent);
         addCommands(
                 // new SetAlgaeDescorePositionPrep(wrist, elevator),
                 new CheckWristDanger(wrist),

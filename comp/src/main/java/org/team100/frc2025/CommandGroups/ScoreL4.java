@@ -10,6 +10,7 @@ import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
 public class ScoreL4 extends SequentialCommandGroup100 {
+    
     public ScoreL4(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
         super(parent);
         addCommands(

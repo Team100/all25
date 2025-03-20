@@ -1,5 +1,7 @@
 package org.team100.frc2025.Swerve;
 
+import java.util.function.DoubleConsumer;
+
 import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
@@ -32,14 +34,17 @@ public class Maker {
     SwerveKinodynamics m_kinodynamics;
 
     Trajectory100 m_clockWiseTraj;
+    DoubleConsumer m_heedRadiusM;
 
     public Maker(
             LoggerFactory parent,
-            SwerveDriveSubsystem swerve,
+            SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
             SwerveKinodynamics kinodynamics,
             TrajectoryVisualization viz) {
         m_logger = parent.child("Maker");
-        m_drive = swerve;
+        m_drive = drive;
+        m_heedRadiusM = heedRadiusM;
         constraints = new TimingConstraintFactory(kinodynamics);
         m_viz = viz;
         m_kinodynamics = kinodynamics;
@@ -56,11 +61,14 @@ public class Maker {
                 m_kinodynamics.getMaxAngleSpeedRad_S(),
                 m_kinodynamics.getMaxAngleAccelRad_S2(),
                 0.1); // 5 degrees
-        return new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.CENTER,
+        return new Embark(m_drive, m_heedRadiusM,
+                holonomicController, profile, FieldSector.AB, ReefDestination.CENTER,
                 () -> ScoringPosition.L4);
     }
 
-    public Command test(LoggerFactory parent, FieldLogger.Log fieldLog, SwerveController controller,
+    public Command test(LoggerFactory parent,
+            FieldLogger.Log fieldLog,
+            SwerveController controller,
             HolonomicProfile profile) {
 
         return new SequentialCommandGroup100(

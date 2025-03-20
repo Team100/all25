@@ -14,15 +14,15 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
 
 import edu.wpi.first.wpilibj2.command.SelectCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class ScoreCoralHesitantly extends SequentialCommandGroup {
+public class ScoreCoralHesitantly extends SequentialCommandGroup100 {
     public ScoreCoralHesitantly(
             LoggerFactory logger,
             Wrist2 wrist,
@@ -37,6 +37,7 @@ public class ScoreCoralHesitantly extends SequentialCommandGroup {
             Supplier<DriverControl.Velocity> twistSupplier,
             Supplier<Boolean> readyToPlace,
             FieldRelativeDriver driver) {
+        super(logger);
 
         addCommands(
                 new SetElevatorTargetPosition(elevator, scoringPositionSupplier),

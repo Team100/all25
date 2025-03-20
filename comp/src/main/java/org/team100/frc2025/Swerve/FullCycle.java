@@ -1,6 +1,7 @@
 package org.team100.frc2025.Swerve;
 
 import java.util.List;
+import java.util.function.DoubleConsumer;
 
 import org.team100.frc2025.FieldConstants;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -32,7 +33,8 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
     public FullCycle(
             FieldLogger.Log fieldLogger,
             LoggerFactory parent,
-            SwerveDriveSubsystem drivetrain,
+            SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
             TrajectoryVisualization viz,
             SwerveKinodynamics kinodynamics,
             SwerveController controller,
@@ -41,7 +43,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
                 List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
-        Maker makerTrajec = new Maker(parent, drivetrain, kinodynamics, viz);
+        Maker makerTrajec = new Maker(parent, drive, heedRadiusM, kinodynamics, viz);
         Translation2d reefCenter = FieldConstants.getReefCenter();
 
         // for now just drive back and forth.

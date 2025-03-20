@@ -9,14 +9,15 @@ import org.team100.frc2025.Wrist.SetWristDutyCycle;
 import org.team100.frc2025.Wrist.SetWristHandoff;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelCommandGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-public class PartRedSea extends SequentialCommandGroup {
+public class PartRedSea extends SequentialCommandGroup100 {
     public PartRedSea(LoggerFactory parent, Wrist2 wrist, Elevator elevator, Climber climber) {
+        super(parent);
         addCommands(
                 new SetWristHandoff(wrist, 0.1),
                 new SetWristDutyCycle(wrist, -0.11, true),

@@ -1,5 +1,6 @@
 package org.team100.frc2025.CommandGroups;
 
+import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
@@ -15,17 +16,25 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class ScoreL2 extends SequentialCommandGroup {
-    public ScoreL2(LoggerFactory logger, Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, FieldSector targetSector,
-            ReefDestination destination, Supplier<ScoringPosition> scoringPositionSupplier, SwerveController controller,
-            HolonomicProfile profile, SwerveDriveSubsystem m_drive) {
-
+public class ScoreL2 extends SequentialCommandGroup100 {
+    public ScoreL2(
+            LoggerFactory logger,
+            Wrist2 wrist,
+            Elevator elevator,
+            CoralTunnel tunnel,
+            FieldSector targetSector,
+            ReefDestination destination,
+            Supplier<ScoringPosition> scoringPositionSupplier,
+            SwerveController controller,
+            HolonomicProfile profile,
+            SwerveDriveSubsystem m_drive,
+            DoubleConsumer heedRadiusM) {
+        super(logger);
         addCommands(
                 new SetWrist(wrist, 0.4, false),
                 new ParallelDeadlineGroup100(logger,
@@ -38,7 +47,9 @@ public class ScoreL2 extends SequentialCommandGroup {
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 4.6)),
                 new ParallelDeadlineGroup100(logger,
-                        new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector,
+                        new Embark(m_drive, heedRadiusM,
+                                SwerveControllerFactory.byIdentity(logger),
+                                profile, targetSector,
                                 destination, scoringPositionSupplier, 2),
                         new SetWrist(wrist, 1.2, true), new SetElevatorPerpetually(elevator, 4.6))
         // new ParallelDeadlineGroup100(logger,

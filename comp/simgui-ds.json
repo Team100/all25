@@ -1,7 +1,7 @@
 {
-  "Keyboard 2 Settings": {
+  "Joysticks": {
     "window": {
-      "visible": true
+      "visible": false
     }
   },
   "keyboardJoysticks": [

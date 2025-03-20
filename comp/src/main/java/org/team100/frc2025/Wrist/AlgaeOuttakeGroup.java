@@ -2,11 +2,16 @@ package org.team100.frc2025.Wrist;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
+import org.team100.lib.framework.ParallelCommandGroup100;
+import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-
-public class AlgaeOuttakeGroup extends ParallelCommandGroup {
-    public AlgaeOuttakeGroup(AlgaeGrip grip, Wrist2 wrist, Elevator elevator) {
+public class AlgaeOuttakeGroup extends ParallelCommandGroup100 {
+    public AlgaeOuttakeGroup(
+            LoggerFactory parent,
+            AlgaeGrip grip,
+            Wrist2 wrist,
+            Elevator elevator) {
+        super(parent);
         addCommands(
                 new OuttakeAlgaeGrip(grip),
                 new SetWrist(wrist, 3.7, true),
