@@ -1,11 +1,13 @@
-package org.team100.lib.localization;
+package org.team100.lib.targeting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -47,7 +49,7 @@ public class TargetLocalizer {
         if (robotRelative.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(PoseEstimationHelper.robotRelativeToFieldRelative(
+        return Optional.of(TargetLocalizer.robotRelativeToFieldRelative(
                 robotPose,
                 robotRelative.get()));
     }
@@ -102,4 +104,13 @@ public class TargetLocalizer {
     private TargetLocalizer() {
         //
     }
+
+	/** Convert robot-relative translation to field-relative translation. */
+	public static Translation2d robotRelativeToFieldRelative(
+	        Pose2d currentPose,
+	        Translation2d robotRelative) {
+	    return currentPose
+	            .transformBy(new Transform2d(robotRelative, new Rotation2d()))
+	            .getTranslation();
+	}
 }

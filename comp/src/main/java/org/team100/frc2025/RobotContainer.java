@@ -225,7 +225,7 @@ public class RobotContainer implements Glassy {
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider,
+                visionDataProvider::update,
                 limiter);
 
         ///////////////////////////

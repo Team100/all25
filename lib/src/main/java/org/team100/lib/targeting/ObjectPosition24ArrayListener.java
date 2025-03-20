@@ -1,4 +1,4 @@
-package org.team100.lib.localization;
+package org.team100.lib.targeting;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import org.team100.lib.config.Camera;
 import org.team100.lib.config.Identity;
-import org.team100.lib.config.SimulatedCamera;
+import org.team100.lib.localization.PoseEstimator100;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.MultiSubscriber;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -101,7 +102,13 @@ public class ObjectPosition24ArrayListener {
         switch (Identity.instance) {
             case BLANK:
                 Pose2d robotPose = m_poseSupplier.get(Takt.get()).pose();
-                SimulatedCamera simCamera = SimulatedCamera.getGamePieceCamera();
+                Transform3d offset = new Transform3d(
+                        new Translation3d(-0.1265, 0.03, 0.61),
+                        new Rotation3d(0, Math.toRadians(31.5), Math.PI));
+                SimulatedObjectDetector simCamera = new SimulatedObjectDetector(
+                        offset,
+                        Math.toRadians(40),
+                        Math.toRadians(31.5));
                 Optional<Alliance> alliance = DriverStation.getAlliance();
                 if (alliance.isEmpty())
                     return new ArrayList<>();
@@ -133,7 +140,7 @@ public class ObjectPosition24ArrayListener {
      * The field-relative translation of the closest object, if any.
      */
     public Translation2d getClosestTranslation2dNull() {
-        Optional<Translation2d> translation2d = getClosestTranslation2d(); 
+        Optional<Translation2d> translation2d = getClosestTranslation2d();
         if (translation2d.isEmpty()) {
             return null;
         }

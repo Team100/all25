@@ -7,7 +7,6 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
-import org.team100.lib.localization.VisionData;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -53,11 +52,7 @@ public class SimulatedDrivingTest implements Timeless {
             Pose2d.kZero,
             0);
     SwerveLocal swerveLocal = new SwerveLocal(logger, swerveKinodynamics, collection);
-    VisionData visionData = new VisionData() {
-        @Override
-        public void update() {
-        }
-    };
+
     SwerveLimiter limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
 
     SwerveDriveSubsystem drive = new SwerveDriveSubsystem(
@@ -66,7 +61,8 @@ public class SimulatedDrivingTest implements Timeless {
             gyro,
             poseEstimator,
             swerveLocal,
-            visionData,
+            () -> {
+            },
             limiter);
 
     @Test

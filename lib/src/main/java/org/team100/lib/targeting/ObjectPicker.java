@@ -1,4 +1,4 @@
-package org.team100.lib.localization;
+package org.team100.lib.targeting;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +9,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class ObjectPicker {
 
     /**
+     * Given a list of field-relative translations, return the one closest to the
+     * robot.
+     * 
      * @param notes     the field relative pose of detected notes
      * @param robotPose the pose of the swerve drivetrain
      * @return The field relative translation of the closest note, or empty if none
@@ -20,20 +23,22 @@ public class ObjectPicker {
         if (notes.isEmpty()) {
             return Optional.empty();
         }
-        double bestObject = 1000000000;
-        Optional<Translation2d> bestNoteTranslation = Optional.empty();
+        Translation2d robotTranslation = robotPose.getTranslation();
+        double shortestDistance = 1000000000;
+        Optional<Translation2d> closestTranslation = Optional.empty();
         for (Translation2d note : notes) {
-            // if (note.getY() < -1 || note.getX() < -1 || note.getY() > 9.21 || note.getX() > 17.54) {
-            //     // ignore out-of-bounds
-            //     continue;
+            // if (note.getY() < -1 || note.getX() < -1 || note.getY() > 9.21 || note.getX()
+            // > 17.54) {
+            // // ignore out-of-bounds
+            // continue;
             // }
-            double difference = Math.abs(note.minus(robotPose.getTranslation()).getNorm());
-            if (difference < bestObject) {
-                bestObject = difference;
-                bestNoteTranslation = Optional.of(note);
+            double distance = robotTranslation.getDistance(note);
+            if (distance < shortestDistance) {
+                shortestDistance = distance;
+                closestTranslation = Optional.of(note);
             }
         }
-        return bestNoteTranslation;
+        return closestTranslation;
     }
 
     private ObjectPicker() {

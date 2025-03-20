@@ -3,7 +3,6 @@ package org.team100.lib.motion.drivetrain;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
-import org.team100.lib.localization.VisionData;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -49,11 +48,6 @@ public class Fixture {
                 collection.positions(),
                 Pose2d.kZero,
                 0); // initial time is zero here for testing
-        VisionData v = new VisionData() {
-            @Override
-            public void update() {
-            }
-        };
 
         SwerveLimiter limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
         drive = new SwerveDriveSubsystem(
@@ -62,7 +56,8 @@ public class Fixture {
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                v,
+                () -> {
+                },
                 limiter);
 
         controller = SwerveControllerFactory.test(logger);

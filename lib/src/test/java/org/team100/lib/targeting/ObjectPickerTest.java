@@ -1,4 +1,4 @@
-package org.team100.lib.localization;
+package org.team100.lib.targeting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-class NotePickerTest {
+class ObjectPickerTest {
     private static final double kDelta = 0.0001;
 
     @Test
