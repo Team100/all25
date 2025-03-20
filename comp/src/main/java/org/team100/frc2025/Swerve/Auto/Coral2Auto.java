@@ -48,7 +48,7 @@ public class Coral2Auto extends SequentialCommandGroup {
                 new RunFunnelHandoff(elevator, wrist, funnel, tunnel, grip)
             )
         ),
-        new ScoreL4(wrist, elevator),
+        new ScoreL4(logger, wrist, elevator),
         //Second Coral
         new ParallelRaceGroup( //NAVIGATOR DOSENT END? CHECK LOGS
             new WaitCommand(3),
@@ -69,7 +69,7 @@ public class Coral2Auto extends SequentialCommandGroup {
         ),
         new Embark(m_drive, controller, profile, FieldSector.KL, ReefDestination.LEFT, () -> ScoringPosition.L4),
         
-        new ScoreL4(wrist, elevator)
+        new ScoreL4(logger, wrist, elevator)
 
         
     );

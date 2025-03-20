@@ -46,6 +46,9 @@ public class ThirdControlProxy implements ThirdControl {
         if (name.contains("Buttons 2025")) {
             return new Buttons2025();
         }
+        if (name.contains("Keyboard")) {
+            return new Buttons2025();
+        }
         return new NoThirdControl();
     }
 
