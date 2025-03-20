@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
-
+import org.team100.frc2025.FieldConstants.BargeDestination;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Climber.Climber;
@@ -27,6 +27,7 @@ import org.team100.frc2025.CommandGroups.Hesitant.ScoreCoralHesitantly;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.Auto.GoToClimb;
 import org.team100.frc2025.Swerve.Auto.Coral2Auto;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
@@ -36,6 +37,9 @@ import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.OuttakeAlgaeGrip;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
+import org.team100.lib.async.Async;
+import org.team100.lib.async.AsyncFactory;
+import org.team100.lib.commands.Buttons2025Demo;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
@@ -85,6 +89,7 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
+import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
@@ -156,7 +161,7 @@ public class RobotContainer implements Glassy {
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
         final ThirdControl buttons = new ThirdControlProxy(async);
-        
+
         Buttons2025Demo demo = new Buttons2025Demo(buttons);
         // demo.setup();
 
@@ -171,7 +176,7 @@ public class RobotContainer implements Glassy {
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
             m_grip = new AlgaeGrip(logger);
-            m_climber = new Climber(logger,18);
+            m_climber = new Climber(logger, 18);
             // TODO: calibrate the elevator and use it here.
             // swerveKinodynamics = SwerveKinodynamicsFactory
             // .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -185,16 +190,19 @@ public class RobotContainer implements Glassy {
             m_elevator = new Elevator(elevatorLog, 2, 19);
             m_wrist = new Wrist2(elevatorLog, 9);
             m_funnel = new Funnel(logger, 23, 14);
-            m_climber = new Climber(logger,18);
+            m_climber = new Climber(logger, 18);
             m_leds = null;
         }
 
+        final TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
+                        m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,
                 kDriveStatorLimit,
                 m_swerveKinodynamics);
-                
+
         final Gyro gyro = GyroFactory.get(
                 driveLog,
                 m_swerveKinodynamics,
@@ -229,8 +237,6 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider,
                 limiter);
-
-
 
         ///////////////////////////
         //
@@ -291,7 +297,9 @@ public class RobotContainer implements Glassy {
                         
         // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow, m_drive, () -> false, driver));
         m_drive.setDefaultCommand(driveManually);
+
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
+
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive) );
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
@@ -309,8 +317,6 @@ public class RobotContainer implements Glassy {
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
-        
-        
 
         // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
         // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
