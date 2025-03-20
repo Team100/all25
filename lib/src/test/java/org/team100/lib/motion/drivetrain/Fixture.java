@@ -55,7 +55,7 @@ public class Fixture {
             }
         };
 
-        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
         drive = new SwerveDriveSubsystem(
                 fieldLogger,
                 logger,

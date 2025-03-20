@@ -34,6 +34,7 @@ public class SwerveKinodynamicsFactory {
      * TODO: actually use the VCG supplier.
      */
     public static SwerveKinodynamics get(DoubleSupplier vcg) {
+        Util.printf("Swerve Kinodynamics Factory using Identity %s\n", Identity.instance);
         switch (Identity.instance) {
             case COMP_BOT:
                 // these numbers are a guess based on the betabot numbers.
@@ -86,10 +87,10 @@ public class SwerveKinodynamicsFactory {
                 // a whole lots of tests, which you'll have to touch every time you
                 // change it. :-(
                 return new SwerveKinodynamics(
-                        5, // vel m/s
+                        3, // vel m/s
                         10, // stall m/s/s
-                        10, // accel m/s/s
-                        20, // decel m/s/s
+                        5, // accel m/s/s
+                        25, // decel m/s/s
                         40, // steering rate rad/s
                         120, // steering accel rad/s/s
                         0.5, // track m

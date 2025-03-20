@@ -53,7 +53,7 @@ public class RealisticFixture {
             public void update() {
             }
         };
-        SwerveLimiter limiter = new SwerveLimiter(swerveKinodynamics, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, swerveKinodynamics, () -> 12);
 
         drive = new SwerveDriveSubsystem(
                 fieldLogger,

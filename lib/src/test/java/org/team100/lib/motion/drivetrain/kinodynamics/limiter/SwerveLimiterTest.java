@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.TestLoggerFactory;
+import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
@@ -11,12 +14,13 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 public class SwerveLimiterTest {
     private static final double kDelta = 0.001;
     private final static SwerveKinodynamics kKinematicLimits = SwerveKinodynamicsFactory.limiting();
+    LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     /** The setpoint generator never changes the field-relative course. */
     @Test
     void courseInvariant() {
         FieldRelativeVelocity target = new FieldRelativeVelocity(0, 0, 0);
-        SwerveLimiter limiter = new SwerveLimiter(kKinematicLimits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, kKinematicLimits, () -> 12);
 
         {
             // motionless
@@ -68,7 +72,7 @@ public class SwerveLimiterTest {
         assertEquals(0, targetSpeed.y(), 1e-12);
         assertEquals(3.5, targetSpeed.theta(), 1e-12);
 
-        SwerveLimiter limiter = new SwerveLimiter(kKinematicLimits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, kKinematicLimits, () -> 12);
         limiter.updateSetpoint(prevSpeed);
         FieldRelativeVelocity setpoint = limiter.apply(targetSpeed);
 
@@ -81,7 +85,7 @@ public class SwerveLimiterTest {
     @Test
     void motionlessNoOp() {
         SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
-        SwerveLimiter limiter = new SwerveLimiter(unlimited, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, unlimited, () -> 12);
 
         FieldRelativeVelocity target = new FieldRelativeVelocity(0, 0, 0);
 
@@ -101,7 +105,7 @@ public class SwerveLimiterTest {
     @Test
     void driveNoOp() {
         SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
-        SwerveLimiter limiter = new SwerveLimiter(unlimited, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, unlimited, () -> 12);
 
         FieldRelativeVelocity target = new FieldRelativeVelocity(1, 0, 0);
 
@@ -121,7 +125,7 @@ public class SwerveLimiterTest {
     @Test
     void spinNoOp() {
         SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
-        SwerveLimiter limiter = new SwerveLimiter(unlimited, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, unlimited, () -> 12);
 
         FieldRelativeVelocity target = new FieldRelativeVelocity(0, 0, 1);
 
@@ -140,7 +144,7 @@ public class SwerveLimiterTest {
     @Test
     void driveAndSpin() {
         SwerveKinodynamics unlimited = SwerveKinodynamicsFactory.unlimited();
-        SwerveLimiter limiter = new SwerveLimiter(unlimited, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, unlimited, () -> 12);
 
         // spin fast to make the discretization effect larger
         FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 25);
@@ -166,7 +170,7 @@ public class SwerveLimiterTest {
         // capsize limit is 24.5 m/s^2
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.highCapsize();
         assertEquals(24.5, limits.getMaxCapsizeAccelM_S2(), kDelta);
-        SwerveLimiter limiter = new SwerveLimiter(limits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
 
         // initially at rest, wheels facing forward.
         FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
@@ -200,7 +204,7 @@ public class SwerveLimiterTest {
     void testNotLimiting() {
         // high centripetal limit to stay out of the way
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.highCapsize();
-        SwerveLimiter limiter = new SwerveLimiter(limits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
 
         // initially at rest.
         FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
@@ -219,7 +223,7 @@ public class SwerveLimiterTest {
     void testLimitingALittle() {
         // high centripetal limit to stay out of the way
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.highCapsize();
-        SwerveLimiter limiter = new SwerveLimiter(limits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
 
         // initially at rest.
         FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
@@ -243,7 +247,7 @@ public class SwerveLimiterTest {
     @Test
     void testCase4() {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.decelCase();
-        SwerveLimiter limiter = new SwerveLimiter(limits, () -> 12);
+        SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
 
         // initially moving 0.5 +y
         FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0.5, 0);

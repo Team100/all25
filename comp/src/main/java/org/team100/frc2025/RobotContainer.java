@@ -217,7 +217,7 @@ public class RobotContainer implements Glassy {
                 m_swerveKinodynamics,
                 m_modules);
 
-        SwerveLimiter limiter = new SwerveLimiter(m_swerveKinodynamics, RobotController::getBatteryVoltage);
+        SwerveLimiter limiter = new SwerveLimiter(driveLog, m_swerveKinodynamics, RobotController::getBatteryVoltage);
 
         m_drive = new SwerveDriveSubsystem(
                 fieldLogger,

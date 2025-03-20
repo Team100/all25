@@ -2,83 +2,97 @@ package org.team100.lib.motion.drivetrain.kinodynamics.limiter;
 
 import java.util.function.DoubleSupplier;
 
+import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
+import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.logging.LoggerFactory.FieldRelativeVelocityLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.util.Util;
 
 /**
- * A field-relative version of the setpoint generator.
- * 
- * The robot-relative setpoint generator makes veering correction difficult, and
- * it seems unnecessary, since all our controls are field-relative.
+ * Makes drivetrain input feasible.
  * 
  * Keeps the current setpoint, to avoid round-tripping through the pose
  * estimator. Remember to update the setpoint!
  */
-public class SwerveLimiter {
+public class SwerveLimiter implements Glassy {
     private static final boolean DEBUG = false;
+
+    private final DoubleLogger m_log_norm;
+    private final FieldRelativeVelocityLogger m_log_next;
+
     private final FieldRelativeVelocityLimiter m_velocityLimiter;
     private final FieldRelativeCapsizeLimiter m_capsizeLimiter;
     private final FieldRelativeAccelerationLimiter m_accelerationLimiter;
     private final SwerveDeadband m_deadband;
-    // the velocity expected at the current time step, i.e. the previous time step's
-    // desire.
+    // Velocity expected at the current time, i.e. the previous time step's desire.
     private FieldRelativeVelocity m_current;
-    // the desire before that, used to calculate jerk.
-    private FieldRelativeVelocity m_prev;
 
-    public SwerveLimiter(SwerveKinodynamics dynamics, DoubleSupplier voltage) {
-        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(dynamics, voltage);
-        m_velocityLimiter = new FieldRelativeVelocityLimiter(limit);
-        m_capsizeLimiter = new FieldRelativeCapsizeLimiter(dynamics);
-        // alpha is *really* low: rotating fast can be upsetting.
-        m_accelerationLimiter = new FieldRelativeAccelerationLimiter(dynamics, 0.2);
-        m_deadband = new SwerveDeadband();
+    public SwerveLimiter(LoggerFactory parent, SwerveKinodynamics dynamics, DoubleSupplier voltage) {
+        LoggerFactory child = parent.child(this);
+        m_log_norm = child.doubleLogger(Level.TRACE, "norm");
+        m_log_next = child.fieldRelativeVelocityLogger(Level.TRACE, "next");
+
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(child, dynamics, voltage);
+        m_velocityLimiter = new FieldRelativeVelocityLimiter(child, limit);
+        m_capsizeLimiter = new FieldRelativeCapsizeLimiter(child, dynamics);
+
+        // Use the absolute maximum acceleration.
+        final double cartesianScale = 1.0;
+        // Use much less than the maximum rotational acceleration.
+        // Rotating fast can be upsetting.
+        // TODO: find the right alpha scale.
+        final double alphaScale = 0.2;
+        m_accelerationLimiter = new FieldRelativeAccelerationLimiter(child, dynamics, cartesianScale, alphaScale);
+
+        m_deadband = new SwerveDeadband(child);
     }
 
     /**
-     * Find a feasible setpoint izn the direction of the target, and remember it for
+     * Find a feasible setpoint in the direction of the target, and remember it for
      * next time.
      */
-    public FieldRelativeVelocity apply(FieldRelativeVelocity next) {
+    public FieldRelativeVelocity apply(FieldRelativeVelocity nextReference) {
+        m_log_next.log(() -> nextReference);
         if (DEBUG)
-            Util.printf("next velocity %s\n", next);
+            Util.printf("nextReference %s\n", nextReference);
         if (m_current == null)
-            m_current = next;
-        if (m_prev == null)
-            m_prev = next;
+            m_current = nextReference;
 
-        // first limit the goal to a feasible velocity
-        FieldRelativeVelocity result = m_velocityLimiter.limit(next);
+        // First, limit the goal to a feasible velocity.
+        FieldRelativeVelocity result = m_velocityLimiter.apply(nextReference);
         if (DEBUG)
-            Util.printf("result2 %s\n", result);
+            Util.printf("velocity limited %s\n", result);
 
         // then limit acceleration towards that goal to avoid capsize
-        result = m_capsizeLimiter.limit(m_current, result);
+        result = m_capsizeLimiter.apply(m_current, result);
         if (DEBUG)
-            Util.printf("result3 %s\n", result);
+            Util.printf("capsize limited %s\n", result);
 
         // finally limit acceleration further, using motor physics
-        result = m_accelerationLimiter.limit(m_current, result);
+        result = m_accelerationLimiter.apply(m_current, result);
         if (DEBUG)
-            Util.printf("result4 %s\n", result);
+            Util.printf("accel limited %s\n", result);
 
         // NEW! Ignore very small inputs.
         if (Experiments.instance.enabled(Experiment.SwerveDeadband)) {
             result = m_deadband.apply(result);
         }
 
-        m_prev = m_current;
-        m_current = result;
+        updateSetpoint(result);
+
         if (DEBUG)
             Util.printf("result %s\n", result);
-        return m_current;
+        m_log_norm.log(result::norm);
+
+        return result;
     }
 
     public void updateSetpoint(FieldRelativeVelocity setpoint) {
-        m_prev = m_current;
         m_current = setpoint;
     }
 

@@ -59,8 +59,14 @@ public class SwerveKinodynamics implements Glassy {
     /**
      * @param maxDriveVelocity        module drive speed m/s
      * @param stallAcceleration       acceleration at stall, used to compute
-     *                                back-EMF-limited acceleration at higher RPMs
-     * @param maxDriveAcceleration    module drive accel m/s^2
+     *                                back-EMF-limited acceleration at higher RPMs,
+     *                                resulting in an exponential velocity curve at
+     *                                max output.
+     * @param maxDriveAcceleration    module drive accel m/s^2, used for
+     *                                constant-acceleration profiles. This should be
+     *                                less than the stall acceleration, so that the
+     *                                robot can stay ahead of the profile initially,
+     *                                and fall behind as speed increases.
      * @param maxDriveDeceleration    module drive decel m/s^2. Should be higher
      *                                than accel limit, this is a positive number.
      * @param maxSteeringVelocity     module steering axis rate rad/s
@@ -139,7 +145,10 @@ public class SwerveKinodynamics implements Glassy {
         return m_stallAccelerationM_S2;
     }
 
-    /** Motor-torque-limited acceleration rate, m/s^2 */
+    /**
+     * Motor-torque-limited acceleration rate, m/s^2. Used for constant-acceleration
+     * profiles.
+     */
     public double getMaxDriveAccelerationM_S2() {
         return m_maxDriveAccelerationM_S2;
     }
