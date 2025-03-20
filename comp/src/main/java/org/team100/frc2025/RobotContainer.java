@@ -346,16 +346,16 @@ public class RobotContainer implements Glassy {
         // whileTrue(driverControl::driveToTag, buttons::ij, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
         // whileTrue(driverControl::driveToTag, buttons::kl, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
 
-        whileTrue(buttons::ab, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        whileTrue(buttons::cd, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        whileTrue(buttons::ef, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        whileTrue(buttons::gh, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        whileTrue(buttons::ij, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        whileTrue(buttons::kl, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::ab, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::cd, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::ef, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::gh, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::ij, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
+        whileTrue(buttons::kl, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
 
-        whileTrue(buttons::red1, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel, m_grip) );
+        whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip) );
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(m_grip, m_wrist, m_elevator) );
-        whileTrue(buttons::red3, new ScoreBarge(m_elevator, m_wrist, m_grip) );
+        whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip) );
 
         // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile, m_drive, m_swerveKinodynamics, viz ));
         whileTrue(driverControl::fullCycle, new Embark(m_drive, holonomicController, profile, FieldSector.EF, ReefDestination.LEFT, () -> ScoringPosition.L4));
