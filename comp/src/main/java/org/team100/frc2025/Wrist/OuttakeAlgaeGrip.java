@@ -11,19 +11,26 @@ public class OuttakeAlgaeGrip extends Command {
   /** Creates a new RunAlgaeManipulator. */
   AlgaeGrip m_grip;
 
-
-  public OuttakeAlgaeGrip(AlgaeGrip tunnel) {
-    m_grip = tunnel;
+  public OuttakeAlgaeGrip(AlgaeGrip grip) {
+    m_grip = grip;
     addRequirements(m_grip);
   }
 
   @Override
   public void initialize() {
+
     m_grip.setDutyCycle(-1);
   }
 
   @Override
   public void execute() {
+    // m_wrist.setAngleValue(1.7);
+
+    // if(m_wrist.getAngle() < 1.9){
+    //   m_grip.setDutyCycle(-1);
+    // } else {
+    //   m_grip.setDutyCycle(1);
+    // }
     // m_grip.intake();
   }
 

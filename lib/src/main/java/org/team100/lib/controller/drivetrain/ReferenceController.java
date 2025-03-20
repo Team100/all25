@@ -94,6 +94,11 @@ public class ReferenceController implements Glassy {
     /** Trajectory is complete and controller error is within tolerance. */
     public boolean isFinished() {
         return m_reference.done() && m_controller.atReference();
+        
+    }
+
+    public boolean atReference(){
+        return m_controller.atReference();
     }
 
     /**

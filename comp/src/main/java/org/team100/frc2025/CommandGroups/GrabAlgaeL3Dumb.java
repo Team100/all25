@@ -7,6 +7,7 @@ package org.team100.frc2025.CommandGroups;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Wrist.AlgaeGrip;
+import org.team100.frc2025.Wrist.CheckWristDanger;
 import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
@@ -24,6 +25,7 @@ public class GrabAlgaeL3Dumb extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         // new SetAlgaeDescorePositionPrep(wrist, elevator),
+        new CheckWristDanger(wrist),
         new ParallelDeadlineGroup(new SetElevator(elevator, 35, true), new SetWrist(wrist, 3.7, true), new IntakeAlgaeGrip(grip, true))
 
     );

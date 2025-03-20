@@ -53,7 +53,7 @@ public class PrePlaceCoralL3 extends Command {
       count = 0;
     }
 
-    if(count >= 20){
+    if(count >= 10){
       finished = true;
     }
   }
@@ -65,6 +65,6 @@ public class PrePlaceCoralL3 extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return finished;
   }
 }
