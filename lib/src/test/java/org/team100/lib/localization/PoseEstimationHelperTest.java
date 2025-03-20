@@ -552,39 +552,4 @@ class PoseEstimationHelperTest {
             assertEquals(1, t.getTranslation().toTranslation2d().getNorm(), kDelta);
         }
     }
-
-    @Test
-    void testRobotRelativeToFieldRelative() {
-        {
-            Pose2d robotPose = new Pose2d();
-            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
-            Translation2d t = PoseEstimationHelper.robotRelativeToFieldRelative(
-                    robotPose,
-                    cameraRotationRobotRelative);
-            // since the robot is at the origin this doesn't do anything.
-            assertEquals(1, t.getX(), kDelta);
-            assertEquals(0, t.getY(), kDelta);
-        }
-        {
-            Pose2d robotPose = new Pose2d(1, 0, new Rotation2d());
-            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
-            Translation2d t = PoseEstimationHelper.robotRelativeToFieldRelative(
-                    robotPose,
-                    cameraRotationRobotRelative);
-            // since the robot is at the origin this doesn't do anything.
-            assertEquals(2, t.getX(), kDelta);
-            assertEquals(0, t.getY(), kDelta);
-        }
-        {
-            Pose2d robotPose = new Pose2d(1, 0, new Rotation2d(Math.PI / 4));
-            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
-            Translation2d t = PoseEstimationHelper.robotRelativeToFieldRelative(
-                    robotPose,
-                    cameraRotationRobotRelative);
-            // since the robot is at the origin this doesn't do anything.
-            assertEquals(1.707, t.getX(), kDelta);
-            assertEquals(0.707, t.getY(), kDelta);
-        }
-    }
-
 }

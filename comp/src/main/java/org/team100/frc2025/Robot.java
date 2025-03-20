@@ -1,7 +1,7 @@
 package org.team100.frc2025;
 
 import java.io.IOException;
-import au.grapplerobotics.CanBridge;
+
 import org.team100.lib.config.Identity;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -18,6 +18,7 @@ import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -37,7 +38,6 @@ public class Robot extends TimedRobot100 {
     private final JvmLogger m_jvmLogger;
     private final DoubleLogger m_log_update;
 
-
     private RobotContainer m_robotContainer;
 
     public Robot() {
@@ -53,7 +53,6 @@ public class Robot extends TimedRobot100 {
         m_jvmLogger = new JvmLogger(m_robotLogger);
         m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
         CanBridge.runTCP();
-
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -116,7 +115,7 @@ public class Robot extends TimedRobot100 {
 
         // After the clock is advanced, it would be good to make as many observations as
         // possible, so the times of those observations are as close to the interrupt
-        // time as possible.  This might yield a whole lot of work, though.
+        // time as possible. This might yield a whole lot of work, though.
         Memo.updateAll();
         double endUpdateS = Takt.actual();
         double updateS = endUpdateS - startUpdateS;

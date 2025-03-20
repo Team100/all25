@@ -6,7 +6,6 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
-import org.team100.lib.localization.VisionData;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleArrayLogger;
@@ -39,7 +38,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     private final Gyro m_gyro;
     private final SwerveDrivePoseEstimator100 m_poseEstimator;
     private final SwerveLocal m_swerveLocal;
-    private final VisionData m_cameras;
+    private final Runnable m_cameraUpdater;
     private final SwerveLimiter m_limiter;
 
     // CACHES
@@ -60,13 +59,13 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
             Gyro gyro,
             SwerveDrivePoseEstimator100 poseEstimator,
             SwerveLocal swerveLocal,
-            VisionData cameras,
+            Runnable cameraUpdater,
             SwerveLimiter limiter) {
         LoggerFactory child = parent.child(this);
         m_gyro = gyro;
         m_poseEstimator = poseEstimator;
         m_swerveLocal = swerveLocal;
-        m_cameras = cameras;
+        m_cameraUpdater = cameraUpdater;
         m_limiter = limiter;
         m_stateSupplier = Memo.of(this::update);
         stop();
@@ -291,7 +290,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
                 now,
                 m_gyro,
                 m_swerveLocal.positions());
-        m_cameras.update();
+        m_cameraUpdater.run();
         SwerveModel swerveModel = m_poseEstimator.get(now);
         if (DEBUG)
             Util.printf("update() estimated pose: %s\n", swerveModel);

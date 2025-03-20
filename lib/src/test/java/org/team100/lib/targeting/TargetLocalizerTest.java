@@ -1,4 +1,4 @@
-package org.team100.lib.localization;
+package org.team100.lib.targeting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.localization.PoseEstimationHelper;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -346,7 +348,7 @@ class TargetLocalizerTest {
             assertEquals(1, t.getX(), kDelta);
             assertEquals(1, t.getY(), kDelta);
         }
-         {
+        {
             // camera level
             Transform3d camera = new Transform3d(0, 0, 1, new Rotation3d(0, 0, 0));
             // target is down and to the left
@@ -381,6 +383,40 @@ class TargetLocalizerTest {
             Rotation3d sight = new Rotation3d(0, 0, Math.PI / 4);
             Optional<Translation2d> t = TargetLocalizer.sightToRobotRelative(camera, sight);
             assertTrue(t.isEmpty());
+        }
+    }
+
+    @Test
+    void testRobotRelativeToFieldRelative() {
+        {
+            Pose2d robotPose = new Pose2d();
+            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
+            Translation2d t = TargetLocalizer.robotRelativeToFieldRelative(
+                    robotPose,
+                    cameraRotationRobotRelative);
+            // since the robot is at the origin this doesn't do anything.
+            assertEquals(1, t.getX(), kDelta);
+            assertEquals(0, t.getY(), kDelta);
+        }
+        {
+            Pose2d robotPose = new Pose2d(1, 0, new Rotation2d());
+            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
+            Translation2d t = TargetLocalizer.robotRelativeToFieldRelative(
+                    robotPose,
+                    cameraRotationRobotRelative);
+            // since the robot is at the origin this doesn't do anything.
+            assertEquals(2, t.getX(), kDelta);
+            assertEquals(0, t.getY(), kDelta);
+        }
+        {
+            Pose2d robotPose = new Pose2d(1, 0, new Rotation2d(Math.PI / 4));
+            Translation2d cameraRotationRobotRelative = new Translation2d(1, 0);
+            Translation2d t = TargetLocalizer.robotRelativeToFieldRelative(
+                    robotPose,
+                    cameraRotationRobotRelative);
+            // since the robot is at the origin this doesn't do anything.
+            assertEquals(1.707, t.getX(), kDelta);
+            assertEquals(0.707, t.getY(), kDelta);
         }
     }
 

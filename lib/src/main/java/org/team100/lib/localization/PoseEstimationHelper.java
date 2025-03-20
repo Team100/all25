@@ -9,11 +9,8 @@ import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 /**
@@ -27,15 +24,6 @@ public class PoseEstimationHelper implements Glassy {
     public PoseEstimationHelper(LoggerFactory parent) {
         LoggerFactory child = parent.child(this);
         m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation_source");
-    }
-
-    /** Convert robot-relative translation to field-relative translation. */
-    static Translation2d robotRelativeToFieldRelative(
-            Pose2d currentPose,
-            Translation2d robotRelative) {
-        return currentPose
-                .transformBy(new Transform2d(robotRelative, new Rotation2d()))
-                .getTranslation();
     }
 
     /**

@@ -110,7 +110,7 @@ public class RobotContainerParkingLot implements Glassy {
                 m_gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider,
+                visionDataProvider::update,
                 limiter);
         SwerveController controller = SwerveControllerFactory.byIdentity(driveLogger);
 

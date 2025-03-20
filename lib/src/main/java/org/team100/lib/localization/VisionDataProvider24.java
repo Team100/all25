@@ -37,7 +37,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * This "24" version uses the "struct" method instead of the "msgpack" method,
  * which matches the TagFinder24 code on the camera.
  */
-public class VisionDataProvider24 implements VisionData, Glassy {
+public class VisionDataProvider24 implements Glassy {
     /**
      * If the tag is closer than this threshold, then the camera's estimate of tag
      * rotation might be more accurate than the gyro, so we use the camera's
@@ -121,6 +121,9 @@ public class VisionDataProvider24 implements VisionData, Glassy {
         return now - latestTimeSec;
     }
 
+    /**
+     * Read queued network input, and give it to the pose estimator.
+     */
     public void update() {
         NetworkTableEvent[] events = m_poller.readQueue();
         for (NetworkTableEvent e : events) {

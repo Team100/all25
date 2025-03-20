@@ -63,6 +63,7 @@ import org.team100.lib.hid.ThirdControl;
 import org.team100.lib.hid.ThirdControlProxy;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.SimulatedTagDetector;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
 import org.team100.lib.logging.FieldLogger;
@@ -90,6 +91,7 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -129,6 +131,8 @@ public class RobotContainer implements Glassy {
     private final ScheduledExecutorService m_initializer;
 
     // final AlgaeIntake m_intake;
+
+    private final Runnable m_simulatedTagDetector;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -171,7 +175,6 @@ public class RobotContainer implements Glassy {
             // swerveKinodynamics = SwerveKinodynamicsFactory
             // .get(() -> VCG.vcg(m_elevator.getPosition()));
             m_swerveKinodynamics = SwerveKinodynamicsFactory.get(() -> 0.5);
-
         } else {
             m_swerveKinodynamics = SwerveKinodynamicsFactory
                     .get(() -> 1);
@@ -182,6 +185,15 @@ public class RobotContainer implements Glassy {
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
             m_leds = null;
+        }
+
+        if (RobotBase.isReal()) {
+            // Real robots get an empty simulated tag detector.
+            m_simulatedTagDetector = () -> {
+            };
+        } else {
+            // In simulation, we want the real simulated tag detector.
+            m_simulatedTagDetector = new SimulatedTagDetector()::periodic;
         }
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
@@ -225,7 +237,7 @@ public class RobotContainer implements Glassy {
                 gyro,
                 poseEstimator,
                 swerveLocal,
-                visionDataProvider,
+                visionDataProvider::update,
                 limiter);
 
         ///////////////////////////
@@ -520,6 +532,8 @@ public class RobotContainer implements Glassy {
     }
 
     public void periodic() {
+        // publish the simulated tag sightings.
+        m_simulatedTagDetector.run();
     }
 
     public void cancelAuton() {

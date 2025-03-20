@@ -1,4 +1,4 @@
-package org.team100.lib.config;
+package org.team100.lib.targeting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +16,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
- * Creates a simulated camera with the given parameters, used for game piece
- * detection testing
+ * This was from 2024.
  */
-public class SimulatedCamera {
+public class SimulatedObjectDetector {
     private final Transform3d m_offset;
     private final double m_hFovHalfAngleRad;
     private final double m_vFovHalfAngleRad;
@@ -29,20 +28,13 @@ public class SimulatedCamera {
      * @param hFovHalfAngleRad horizontal field of view, half-angle
      * @param vFovHalfAngleRad vertical field of view, half-angle
      */
-    public SimulatedCamera(
+    public SimulatedObjectDetector(
             Transform3d offset,
             double hFovHalfAngleRad,
             double vFovHalfAngleRad) {
         m_offset = offset;
         m_hFovHalfAngleRad = hFovHalfAngleRad;
         m_vFovHalfAngleRad = vFovHalfAngleRad;
-    }
-
-    public static SimulatedCamera getGamePieceCamera() {
-        return new SimulatedCamera(
-                Camera.GAME_PIECE.getOffset(),
-                Math.toRadians(40),
-                Math.toRadians(31.5));
     }
 
     public Transform3d getOffset() {

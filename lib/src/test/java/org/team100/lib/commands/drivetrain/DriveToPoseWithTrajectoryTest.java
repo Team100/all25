@@ -1,18 +1,15 @@
 package org.team100.lib.commands.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
-import org.team100.lib.localization.Target;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -73,9 +70,7 @@ class DriveToPoseWithTrajectoryTest extends Fixtured implements Timeless {
                 new Translation2d(-1, -1),
                 Rotation2d.kZero);
 
-        Optional<Pose2d> optGoal = Target.goal(layout, Alliance.Blue, 1, transform);
-        assertTrue(optGoal.isPresent());
-        Pose2d goal = optGoal.get();
+        Pose2d goal = layout.getTagPose(Alliance.Blue, 1).get().toPose2d().plus(transform);
         assertEquals(15.300, goal.getX(), kDelta);
         assertEquals(0.876, goal.getY(), kDelta);
         assertEquals(-0.942, goal.getRotation().getRadians(), kDelta);
