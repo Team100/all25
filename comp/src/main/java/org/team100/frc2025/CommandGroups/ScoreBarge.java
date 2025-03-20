@@ -9,8 +9,6 @@ import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.IntakeAlgaeGrip;
-import org.team100.frc2025.Wrist.OuttakeAlgaeGrip;
-import org.team100.frc2025.Wrist.RunAlgaeGrip;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 

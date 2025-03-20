@@ -4,8 +4,6 @@
 
 package org.team100.frc2025.Wrist;
 
-import java.lang.reflect.Field;
-
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;

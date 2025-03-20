@@ -1,7 +1,5 @@
 package org.team100.frc2025.CommandGroups.Hesitant;
 
-import java.util.function.Supplier;
-
 import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
@@ -10,7 +8,6 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.field.FieldPoint2024;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;

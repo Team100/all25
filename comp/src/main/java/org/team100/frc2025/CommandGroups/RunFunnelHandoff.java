@@ -9,7 +9,6 @@ import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.RunFunnel;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.ElevatorDutyCycle;
 import org.team100.frc2025.Wrist.RunCoralTunnel;
 import org.team100.frc2025.Wrist.SetWristDutyCycle;
 import org.team100.frc2025.Wrist.Wrist2;

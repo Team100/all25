@@ -4,15 +4,14 @@
 
 package org.team100.frc2025.Swerve.Auto;
 
-import java.util.function.Supplier;
-
+import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.Funnel.Funnel;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
@@ -28,8 +27,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-
-import org.team100.frc2025.FieldConstants.CoralStation;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:

@@ -9,16 +9,10 @@ import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.CommandGroups.ScoreL1;
-import org.team100.frc2025.CommandGroups.ScoreL2;
-import org.team100.frc2025.CommandGroups.ScoreL3;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.commands.drivetrain.manual.DriveAdjustCoral;
-import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -28,10 +22,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
 
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
