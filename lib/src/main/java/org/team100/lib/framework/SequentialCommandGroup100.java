@@ -100,6 +100,7 @@ public class SequentialCommandGroup100 extends Command {
 
     @Override
     public final void end(boolean interrupted) {
+        m_log_active_command.log(() -> "");
         if (interrupted
                 && !m_commands.isEmpty()
                 && m_currentCommandIndex > -1

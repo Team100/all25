@@ -144,6 +144,7 @@ public class ParallelDeadlineGroup100 extends Command {
 
     @Override
     public final void end(boolean interrupted) {
+        m_log_active_commands.log(() -> "");
         for (Map.Entry<Command, Boolean> commandRunning : m_commands.entrySet()) {
             if (commandRunning.getValue()) {
                 commandRunning.getKey().end(true);
