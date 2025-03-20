@@ -2,12 +2,13 @@ package org.team100.frc2025.Elevator;
 
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class ScoreAlgae extends SequentialCommandGroup {
+public class ScoreAlgae extends SequentialCommandGroup100 {
+    
     public ScoreAlgae(LoggerFactory parent, Wrist2 wrist, Elevator elevator, AlgaeGrip grip) {
+        super(parent);
 
         addCommands(
         // new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE)

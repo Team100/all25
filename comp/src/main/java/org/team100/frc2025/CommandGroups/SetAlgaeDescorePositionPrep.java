@@ -2,12 +2,13 @@ package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class SetAlgaeDescorePositionPrep extends SequentialCommandGroup {
+public class SetAlgaeDescorePositionPrep extends SequentialCommandGroup100 {
     public SetAlgaeDescorePositionPrep(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
+        super(parent);
+
         addCommands(
         // new RunAlgaeGrip(grip, 1)
         // new SetWrist(wrist, 0.5, false),

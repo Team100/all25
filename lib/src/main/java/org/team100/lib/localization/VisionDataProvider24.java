@@ -11,6 +11,7 @@ import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.util.Takt;
 
@@ -74,6 +75,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
     private final NetworkTableListenerPoller m_poller;
     // LOGGERS
     private final EnumLogger m_log_alliance;
+    private final DoubleLogger m_log_heedRadius;
 
     // for blip filtering
     private Pose2d lastRobotInFieldCoords;
@@ -82,6 +84,9 @@ public class VisionDataProvider24 implements VisionData, Glassy {
     private StructBuffer<Blip24> m_buf = StructBuffer.create(Blip24.struct);
 
     private double latestTimeSec = 0;
+
+    /** use tags closer than this; ignore tags further than this. */
+    private double m_heedRadiusM = 3.5;
 
     /**
      * @param layout
@@ -104,6 +109,7 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 new MultiSubscriber(inst, new String[] { "vision" }),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
+        m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
     }
 
     /**
@@ -166,6 +172,13 @@ public class VisionDataProvider24 implements VisionData, Glassy {
     }
 
     /**
+     * Tags outside this radius are ignored.
+     */
+    public void setHeedRadiusM(double heedRadiusM) {
+        m_heedRadiusM = heedRadiusM;
+    }
+
+    /**
      * @param estimateConsumer   is the pose estimator but exposing it here makes it
      *                           easier to test.
      * @param cameraSerialNumber the camera identity, obtained from proc/cpuinfo
@@ -191,7 +204,6 @@ public class VisionDataProvider24 implements VisionData, Glassy {
                 blipTimeSec,
                 gyroRotation,
                 alliance);
-
     }
 
     private void estimateFromBlips(
@@ -207,8 +219,8 @@ public class VisionDataProvider24 implements VisionData, Glassy {
             if (!tagInFieldCoordsOptional.isPresent())
                 continue;
 
-            double distanceTillIgnoreM = 3.5;
-            if (blip.getPose().getTranslation().getNorm() > distanceTillIgnoreM) {
+            m_log_heedRadius.log(() -> m_heedRadiusM);
+            if (blip.getPose().getTranslation().getNorm() > m_heedRadiusM) {
                 return;
             }
 

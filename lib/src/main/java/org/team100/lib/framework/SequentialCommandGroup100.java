@@ -12,17 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
- * A command composition that runs a list of commands in sequence.
- *
- * <p>
- * The rules for command compositions apply: command instances that are passed
- * to it cannot be
- * added to any other composition or scheduled individually, and the composition
- * requires all
- * subsystems its components require.
- *
- * <p>
- * This class is provided by the NewCommands VendorDep
+ * A copy of WPILib's SequentialCommandGroup that logs what it's doing.
  */
 public class SequentialCommandGroup100 extends Command {
     private final List<Command> m_commands = new ArrayList<>();
@@ -31,14 +21,6 @@ public class SequentialCommandGroup100 extends Command {
     private InterruptionBehavior m_interruptBehavior = InterruptionBehavior.kCancelIncoming;
     private final StringLogger m_log_active_command;
 
-    /**
-     * Creates a new SequentialCommandGroup. The given commands will be run
-     * sequentially, with the
-     * composition finishing when the last command finishes.
-     *
-     * @param commands the commands to include in this composition.
-     */
-    @SuppressWarnings("this-escape")
     public SequentialCommandGroup100(
             LoggerFactory parent,
             Command... commands) {
@@ -46,12 +28,6 @@ public class SequentialCommandGroup100 extends Command {
         addCommands(commands);
     }
 
-    /**
-     * Adds the given commands to the group.
-     *
-     * @param commands Commands to add, in order of execution.
-     */
-    @SuppressWarnings("PMD.UseArraysAsList")
     public final void addCommands(Command... commands) {
         if (m_currentCommandIndex != -1) {
             throw new IllegalStateException(

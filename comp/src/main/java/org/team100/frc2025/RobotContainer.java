@@ -235,7 +235,10 @@ public class RobotContainer implements Glassy {
 
         final SwerveController holonomicController = SwerveControllerFactory.byIdentity(comLog);
 
-        final DriveManually driveManually = new DriveManually(driverControl::velocity, m_drive);
+        final DriveManually driveManually = new DriveManually(
+                driverControl::velocity,
+                visionDataProvider::setHeedRadiusM,
+                m_drive);
         final LoggerFactory manLog = comLog.child(driveManually);
 
         final Feedback100 thetaFeedback = new PIDFeedback(
@@ -279,19 +282,19 @@ public class RobotContainer implements Glassy {
         // m_drive.setDefaultCommand(driveManually);
 
         FieldRelativeDriver driver = new ManualWithProfiledHeading(
-                        manLog,
-                        m_swerveKinodynamics,
-                        driverControl::desiredRotation,
-                        thetaFeedback);
+                manLog,
+                m_swerveKinodynamics,
+                driverControl::desiredRotation,
+                thetaFeedback);
 
-                        
-        // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow, m_drive, () -> false, driver));
+        // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow,
+        // m_drive, () -> false, driver));
         m_drive.setDefaultCommand(driveManually);
 
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
 
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
-        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive) );
+        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
@@ -301,50 +304,123 @@ public class RobotContainer implements Glassy {
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
                 0.1);
-        
+
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
-        m_auton = new Coral2Auto(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController, profile, m_drive, m_swerveKinodynamics, viz);
+        m_auton = new Coral2Auto(
+                logger, m_wrist,
+                m_elevator, m_funnel,
+                m_tunnel, m_grip,
+                autoController, profile,
+                m_drive, visionDataProvider::setHeedRadiusM,
+                m_swerveKinodynamics, viz);
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
 
-        // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator, 10));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L2, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist, m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () -> ScoringPosition.L4, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator, m_wrist, m_funnel, m_tunnel));
-        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist, m_grip));
+        // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,
+        // 10));
+        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
+        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT,
+        // buttons::scoringPosition, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
+        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () ->
+        // ScoringPosition.L2, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist,
+        // m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () ->
+        // ScoringPosition.L4, holonomicController, profile, m_drive));
+        // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator,
+        // m_wrist, m_funnel, m_tunnel));
+        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist,
+        // m_grip));
         // whileTrue(driverControl::driveToTag, new PartRedSea(m_wrist, m_elevator));
-        // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist, m_grip));
+        // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist,
+        // m_grip));
 
+        // whileTrue(driverControl::driveToTag, buttons::a, new
+        // ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel,
+        // FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition,
+        // holonomicController, profile, m_drive, driverControl::verySlow,
+        // buttons::red3, driver));
 
-        // whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive, driverControl::verySlow, buttons::red3, driver));
-        whileTrue(driverControl::driveToTag, buttons::a, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::a,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.AB, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::b,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.AB, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        whileTrue(driverControl::driveToTag, buttons::b, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.AB, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::c,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.CD, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::d,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.CD, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        whileTrue(driverControl::driveToTag, buttons::c, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.CD, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, buttons::d, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.CD, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::e,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.EF, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::f,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.EF, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        whileTrue(driverControl::driveToTag, buttons::e, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.EF, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, buttons::f, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.EF, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::g,
+                new ScoreCoral(
+                        coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.GH, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::h,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.GH, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        whileTrue(driverControl::driveToTag, buttons::g, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.GH, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, buttons::h, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.GH, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        
-        whileTrue(driverControl::driveToTag, buttons::i, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.IJ, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, buttons::j, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.IJ, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::i,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.IJ, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::j,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.IJ, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        whileTrue(driverControl::driveToTag, buttons::k, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.KL, ReefDestination.LEFT, buttons::scoringPosition, holonomicController, profile, m_drive));
-        whileTrue(driverControl::driveToTag, buttons::l, new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel, FieldSector.KL, ReefDestination.RIGHT, buttons::scoringPosition, holonomicController, profile, m_drive));
+        whileTrue(driverControl::driveToTag, buttons::k,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.KL, ReefDestination.LEFT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
+        whileTrue(driverControl::driveToTag, buttons::l,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
+                        FieldSector.KL, ReefDestination.RIGHT,
+                        buttons::scoringPosition, holonomicController, profile,
+                        m_drive, visionDataProvider::setHeedRadiusM));
 
-        
-        // whileTrue(driverControl::driveToTag, buttons::ab, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::cd, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::ef, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::gh, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::ij, new GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::kl, new GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::ab, new
+        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::cd, new
+        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::ef, new
+        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::gh, new
+        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::ij, new
+        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
+        // whileTrue(driverControl::driveToTag, buttons::kl, new
+        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
 
         whileTrue(buttons::ab, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
         whileTrue(buttons::cd, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
@@ -353,19 +429,25 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::ij, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
         whileTrue(buttons::kl, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
 
-        whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip) );
-        whileTrue(buttons::red2, new AlgaeOuttakeGroup(m_grip, m_wrist, m_elevator) );
-        whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip) );
+        whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
+        whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
-        // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile, m_drive, m_swerveKinodynamics, viz ));
-        whileTrue(driverControl::fullCycle, new Embark(m_drive, holonomicController, profile, FieldSector.EF, ReefDestination.LEFT, () -> ScoringPosition.L4));
-        whileTrue(driverControl::testTrajectory, new Embark(m_drive, holonomicController, profile, FieldSector.AB, ReefDestination.LEFT, () -> ScoringPosition.L4));
+        // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist,
+        // m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile,
+        // m_drive, m_swerveKinodynamics, viz ));
+        whileTrue(driverControl::fullCycle, new Embark(m_drive,
+                visionDataProvider::setHeedRadiusM,
+                holonomicController, profile, FieldSector.EF,
+                ReefDestination.LEFT, () -> ScoringPosition.L4));
+        whileTrue(driverControl::testTrajectory, new Embark(m_drive,
+                visionDataProvider::setHeedRadiusM,
+                holonomicController, profile, FieldSector.AB,
+                ReefDestination.LEFT, () -> ScoringPosition.L4));
 
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
-                
-
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

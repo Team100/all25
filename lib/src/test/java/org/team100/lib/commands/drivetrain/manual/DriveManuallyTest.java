@@ -29,7 +29,11 @@ class DriveManuallyTest extends Fixtured implements Timeless {
         stepTime();
         SwerveKinodynamics swerveKinodynamics = SwerveKinodynamicsFactory.forTest();
 
-        DriveManually command = new DriveManually(twistSupplier, drive);
+        DriveManually command = new DriveManually(
+                twistSupplier,
+                (x) -> {
+                },
+                drive);
 
         command.register("MODULE_STATE", false,
                 new SimpleManualModuleStates(logger, swerveKinodynamics));

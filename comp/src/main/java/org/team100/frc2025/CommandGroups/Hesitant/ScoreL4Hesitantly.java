@@ -5,12 +5,12 @@ import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-
-public class ScoreL4Hesitantly extends SequentialCommandGroup {
+public class ScoreL4Hesitantly extends SequentialCommandGroup100 {
     public ScoreL4Hesitantly(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
+        super(parent);
         addCommands(
                 new ParallelDeadlineGroup100(parent,
                         new SetElevator(elevator, 35, false),

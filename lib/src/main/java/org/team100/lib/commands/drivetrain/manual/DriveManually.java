@@ -2,6 +2,7 @@ package org.team100.lib.commands.drivetrain.manual;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
 import org.team100.lib.dashboard.Glassy;
@@ -29,6 +30,9 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Chooser.
  */
 public class DriveManually extends Command implements Glassy {
+    /** While driving manually, pay attention to tags even if they are far away. */
+    private static final double kHeedRadiusM = 12.0;
+
     private static final boolean DEBUG = false;
 
     private static final SendableChooser<String> m_manualModeChooser = new NamedChooser<>("Manual Drive Mode") {
@@ -40,6 +44,7 @@ public class DriveManually extends Command implements Glassy {
      * mapped to a feasible velocity control as early as possible.
      */
     private final Supplier<DriverControl.Velocity> m_twistSupplier;
+    private final DoubleConsumer m_heedRadiusM;
     private final SwerveDriveSubsystem m_drive;
     private final Map<String, Driver> m_drivers;
     private final Driver m_defaultDriver;
@@ -47,9 +52,11 @@ public class DriveManually extends Command implements Glassy {
 
     public DriveManually(
             Supplier<DriverControl.Velocity> twistSupplier,
+            DoubleConsumer heedRadiusM,
             SwerveDriveSubsystem drive) {
         m_mode = m_manualModeChooser::getSelected;
         m_twistSupplier = twistSupplier;
+        m_heedRadiusM = heedRadiusM;
         m_drive = drive;
         m_defaultDriver = stop();
         m_drivers = new ConcurrentHashMap<>();
@@ -59,6 +66,7 @@ public class DriveManually extends Command implements Glassy {
 
     @Override
     public void initialize() {
+        m_heedRadiusM.accept(kHeedRadiusM);
         m_drive.resetLimiter();
         SwerveModel p = m_drive.getState();
         for (Driver d : m_drivers.values()) {

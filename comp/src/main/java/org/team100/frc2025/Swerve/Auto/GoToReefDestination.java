@@ -6,6 +6,7 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.controller.drivetrain.FullStateSwerveController;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -17,9 +18,8 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class GoToReefDestination extends SequentialCommandGroup {
+public class GoToReefDestination extends SequentialCommandGroup100 {
     public GoToReefDestination(
             FieldLogger.Log fieldLog,
             LoggerFactory parent,
@@ -30,14 +30,15 @@ public class GoToReefDestination extends SequentialCommandGroup {
             FieldSector endSector,
             ReefDestination reefDest,
             HolonomicProfile profile) {
-
+        super(parent);
         Translation2d destination = FieldConstants.getOrbitDestination(endSector, reefDest, 1.3);
         Rotation2d heading = FieldConstants.getSectorAngle(endSector).rotateBy(Rotation2d.fromDegrees(180));
         Pose2d m_goal = new Pose2d(destination, heading);
         SwerveController tet = new FullStateSwerveController(parent, 3, 3.5, 0.05, 0, 1, 1, 1, 1);
         addCommands(
                 new GoToReefBuffer(parent, drive, tet, viz, kinodynamics, endSector, reefDest),
-                new DriveToPoseWithProfile(fieldLog, () -> new SwerveModel(m_goal), drive, hcontroller, profile)
+                new DriveToPoseWithProfile(fieldLog,
+                        () -> new SwerveModel(m_goal), drive, hcontroller, profile)
 
         );
     }

@@ -12,49 +12,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
- * A command composition that runs a set of commands in parallel, ending when
- * the last command ends.
- *
- * <p>
- * The rules for command compositions apply: command instances that are passed
- * to it cannot be
- * added to any other composition or scheduled individually, and the composition
- * requires all
- * subsystems its components require.
- *
- * <p>
- * This class is provided by the NewCommands VendorDep
+ * A copy of WPILib's ParallelCommandGroup that logs what it's doing.
  */
 public class ParallelCommandGroup100 extends Command {
-    // maps commands in this composition to whether they are still running
-    // LinkedHashMap guarantees we iterate over commands in the order they were
-    // added (Note that
-    // changing the value associated with a command does NOT change the order)
     private final Map<Command, Boolean> m_commands = new LinkedHashMap<>();
     private boolean m_runWhenDisabled = true;
     private InterruptionBehavior m_interruptBehavior = InterruptionBehavior.kCancelIncoming;
     private final StringLogger m_log_active_commands;
 
-    /**
-     * Creates a new ParallelCommandGroup. The given commands will be executed
-     * simultaneously. The
-     * command composition will finish when the last command finishes. If the
-     * composition is
-     * interrupted, only the commands that are still running will be interrupted.
-     *
-     * @param commands the commands to include in this composition.
-     */
-    @SuppressWarnings("this-escape")
     public ParallelCommandGroup100(LoggerFactory parent, Command... commands) {
         m_log_active_commands = parent.stringLogger(Level.TRACE, "active commands");
         addCommands(commands);
     }
 
-    /**
-     * Adds the given commands to the group.
-     *
-     * @param commands Commands to add to the group.
-     */
     public final void addCommands(Command... commands) {
         if (m_commands.containsValue(true)) {
             throw new IllegalStateException(

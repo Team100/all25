@@ -7,13 +7,14 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class WristDefaultCommand extends Command {
-    Elevator m_elevator;
-    Wrist2 m_wrist;
-    double deadband = 0.03;
-    double count = 0;
-    boolean docked = false;
-    AlgaeGrip m_grip;
-    SwerveDriveSubsystem m_drive;
+    private final Elevator m_elevator;
+    private final Wrist2 m_wrist;
+    private static final double deadband = 0.03;
+    private final AlgaeGrip m_grip;
+    private final SwerveDriveSubsystem m_drive;
+
+    private double count = 0;
+    private boolean docked = false;
 
     public WristDefaultCommand(Wrist2 wrist, Elevator elevator, AlgaeGrip grip, SwerveDriveSubsystem drive) {
         m_elevator = elevator;
@@ -28,7 +29,6 @@ public class WristDefaultCommand extends Command {
         m_wrist.resetWristProfile();
         count = 0;
         docked = false;
-
     }
 
     @Override
