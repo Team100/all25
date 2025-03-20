@@ -29,9 +29,8 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
     private static final Pose2d waypoint0 = new Pose2d(6, 2, Rotation2d.kZero);
     private static final Pose2d waypoint1 = new Pose2d(2, 2, Rotation2d.kZero);
 
-    public 
-    FullCycle(
-        FieldLogger.Log fieldLogger,
+    public FullCycle(
+            FieldLogger.Log fieldLogger,
             LoggerFactory parent,
             SwerveDriveSubsystem drivetrain,
             TrajectoryVisualization viz,
@@ -50,7 +49,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
                 // new ResetPose(drivetrain, 6.305274, 5.979709, 0),
 
                 // new RepeatCommand(
-                makerTrajec.test(fieldLogger,controller,profile)
+                makerTrajec.test(parent, fieldLogger, controller, profile)
         // )
 
         // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)

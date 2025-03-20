@@ -4,7 +4,6 @@ package org.team100.frc2025.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ElevatorDown extends Command {
-    /** Creates a new SetElevator. */
     Elevator m_elevator;
 
     public ElevatorDown(Elevator elevator) {

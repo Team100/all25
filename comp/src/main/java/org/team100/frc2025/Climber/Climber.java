@@ -1,6 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-
 package org.team100.frc2025.Climber;
 
 import org.team100.lib.config.Feedforward100;
@@ -19,7 +16,6 @@ import org.team100.lib.profile.TrapezoidProfile100;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
-  /** Creates a new Climber. */
 
   AngularPositionServo climberMotor;
   Falcon6Motor m_motor; 

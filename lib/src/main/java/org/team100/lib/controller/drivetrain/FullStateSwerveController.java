@@ -12,9 +12,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeDelta;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-
 /**
  * Velocity feedforward, proportional feedback on position and velocity.
  */

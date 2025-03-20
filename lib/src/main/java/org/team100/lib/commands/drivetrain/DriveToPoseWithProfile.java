@@ -1,6 +1,5 @@
 package org.team100.lib.commands.drivetrain;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.team100.lib.controller.drivetrain.ReferenceController;
@@ -12,7 +11,6 @@ import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReference;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**

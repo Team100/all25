@@ -36,7 +36,6 @@
 // import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // public class Wrist extends SubsystemBase implements Glassy {
-//     /** Creates a new Elevator. */
 
 
 
@@ -128,8 +127,6 @@
 
 //     @Override
 //     public void periodic() {
-//         // This method will be called on    ce per scheduler run
-
 //         wristServo.periodic();
 //     }
 

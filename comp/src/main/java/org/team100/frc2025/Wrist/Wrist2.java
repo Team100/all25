@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2025.Wrist;
 
 import org.team100.lib.config.Feedforward100;
@@ -39,8 +35,6 @@ import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
-    /** Creates a new Elevator. */
-
     private LaserCan lc;
 
     private boolean m_isSafe = false;
@@ -50,6 +44,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     private final RotaryMechanism m_wristMech;
     private final BooleanLogger safeLogger;
+    private final WristVisualization m_viz;
 
     public Wrist2(
             LoggerFactory parent,
@@ -60,8 +55,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         LoggerFactory wristLogger = child.child("Wrist 2");
 
         LoggerFactory wristMotorLogger = child.child("Wrist 2 Motor");
-        
-
 
         int wristSupplyLimit = 60;
         int wristStatorLimit = 90;
@@ -69,7 +62,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); //31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); // 31
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
@@ -79,43 +72,42 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         switch (Identity.instance) {
             case COMP_BOT -> {
-                
-                Kraken6Motor wristMotor = new Kraken6Motor(wristMotorLogger, wristID, MotorPhase.REVERSE, 
+
+                Kraken6Motor wristMotor = new Kraken6Motor(wristMotorLogger, wristID, MotorPhase.REVERSE,
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
-                
-             
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.324990, //0.346857, //0.317012, //0.227471, //0.188726
+                        0.324990, // 0.346857, //0.317012, //0.227471, //0.188726
                         EncoderDrive.DIRECT,
                         false);
- 
-                IncrementalBareEncoder internalWristEncoder  = new Talon6Encoder(wristLogger, wristMotor);
 
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder, 25);
+                IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
+
+                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder,
+                        25);
 
                 m_wristMech = wristMech;
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 7.5, 0.00, 0.000 , false, kPositionTolerance, kPositionTolerance); 
-                // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false, kPositionTolerance, kPositionTolerance); 
+                Feedback100 wristFeedback = new PIDFeedback(parent, 7.5, 0.00, 0.000, false, kPositionTolerance,
+                        kPositionTolerance);
+                // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false,
+                // kPositionTolerance, kPositionTolerance);
 
-                ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x, kPositionTolerance, kPositionTolerance);
+                ProfiledController controller = new ProfiledController(wristProfile, wristFeedback, x -> x,
+                        kPositionTolerance, kPositionTolerance);
 
-                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech, encoder, controller);
+                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech,
+                        encoder, controller);
                 wristServoWithoutGravity.reset();
 
                 wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0); //
-                
-                
 
                 break;
             }
             default -> {
-                
 
-               
                 SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
                 RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor,
                         new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
@@ -126,17 +118,19 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0);
                 m_wristMech = wristMech;
 
-                // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
+                // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child,
+                // algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
 
         }
+        m_viz = new WristVisualization(this);
     }
 
     @Override
     public void periodic() {
         wristServo.periodic();
         safeLogger.log(() -> m_isSafe);
-        
+        m_viz.viz();
     }
 
     public void resetWristProfile() {
@@ -147,11 +141,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         return wristServo.atSetpoint();
     }
 
-    public void setWristDutyCycle(double value){
+    public void setWristDutyCycle(double value) {
         m_wristMech.setDutyCycle(value);
     }
 
-    public void setStatic(){
+    public void setStatic() {
         wristServo.setStaticTorque(2.1);
     }
 
@@ -159,32 +153,31 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         return wristServo.getPositionRad().orElse(0);
     }
 
-    public void setAngle(){
-        Control100 control = new Control100(0.2, 0, 0); //1.17 for l3
+    public void setAngle() {
+        Control100 control = new Control100(0.2, 0, 0); // 1.17 for l3
         wristServo.setState(control);
     }
 
-    public void setAngleValue(double value){
-        Control100 control = new Control100(value, 0, 0); //1.17 for l3
+    public void setAngleValue(double value) {
+        Control100 control = new Control100(value, 0, 0); // 1.17 for l3
         wristServo.setState(control);
     }
 
-
-    public void setAngleSafe(){
-        Control100 control = new Control100(-0.1, 0, 0); //1.17 for l3
+    public void setAngleSafe() {
+        Control100 control = new Control100(-0.1, 0, 0); // 1.17 for l3
         wristServo.setState(control);
     }
 
-    public boolean getSafeCondition(){
+    public boolean getSafeCondition() {
         return m_isSafe;
     }
 
-    public void setSafeCondition(boolean isSafe){
+    public void setSafeCondition(boolean isSafe) {
         m_isSafe = isSafe;
     }
 
-    public void stop(){
+    public void stop() {
         wristServo.stop();
-    }   
+    }
 
 }
