@@ -5,13 +5,16 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.util.Math100;
+import org.team100.lib.util.Util;
 
 public class SwerveUtil {
+    private static final boolean DEBUG = false;
 
     /**
      * At low speed, accel is limited by the current limiters.
      * At high speed, accel is limited by back EMF.
-     * Deceleration limits are different: back EMF is helping in that case.
+     * Deceleration limits are different: back EMF is helping in that case, but we
+     * just return the maximum, which is less than the real maximum.
      * 
      * @see SwerveDriveDynamicsConstraint.getMinMaxAcceleration().
      */
@@ -35,6 +38,11 @@ public class SwerveUtil {
         double backEmfLimit = 1 - speedFraction;
         double backEmfLimitedAcceleration = backEmfLimit * m_limits.getStallAccelerationM_S2();
         double currentLimitedAcceleration = m_limits.getMaxDriveAccelerationM_S2();
+        if (DEBUG) {
+            Util.printf("speedFraction %.5f\n", speedFraction);
+            Util.printf("backEmfLimitedAcceleration %.5f\n", backEmfLimitedAcceleration);
+            Util.printf("currentLimitedAcceleration %.5f\n", currentLimitedAcceleration);
+        }
         return Math.min(backEmfLimitedAcceleration, currentLimitedAcceleration);
     }
 
