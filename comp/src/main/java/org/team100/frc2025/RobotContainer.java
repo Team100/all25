@@ -45,6 +45,7 @@ import org.team100.lib.commands.drivetrain.manual.ManualWithFullStateHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
 import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
+import org.team100.lib.config.Camera;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.drivetrain.FullStateSwerveController;
@@ -187,15 +188,6 @@ public class RobotContainer implements Glassy {
             m_leds = null;
         }
 
-        if (RobotBase.isReal()) {
-            // Real robots get an empty simulated tag detector.
-            m_simulatedTagDetector = () -> {
-            };
-        } else {
-            // In simulation, we want the real simulated tag detector.
-            m_simulatedTagDetector = new SimulatedTagDetector()::periodic;
-        }
-
         final TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                         m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
@@ -218,10 +210,11 @@ public class RobotContainer implements Glassy {
                 Pose2d.kZero,
                 Takt.get());
 
-        final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
+        final AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
+
         final VisionDataProvider24 visionDataProvider = new VisionDataProvider24(
                 driveLog,
-                m_layout,
+                layout,
                 poseEstimator);
 
         final SwerveLocal swerveLocal = new SwerveLocal(
@@ -239,6 +232,17 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider::update,
                 limiter);
+
+        if (RobotBase.isReal()) {
+            // Real robots get an empty simulated tag detector.
+            m_simulatedTagDetector = () -> {
+            };
+        } else {
+            // In simulation, we want the real simulated tag detector.
+            SimulatedTagDetector sim = new SimulatedTagDetector(
+                    List.of(Camera.CORAL_LEFT), layout, m_drive::getPose);
+            m_simulatedTagDetector = sim::periodic;
+        }
 
         ///////////////////////////
         //
