@@ -169,8 +169,8 @@ public class RobotContainer implements Glassy {
             m_wrist = new Wrist2(elevatorLog, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
-            m_grip = new AlgaeGrip(logger);
-            m_climber = new Climber(logger, 18);
+            m_grip = new AlgaeGrip(logger, m_tunnel);
+            m_climber = new Climber(logger, 15);
             // TODO: calibrate the elevator and use it here.
             // swerveKinodynamics = SwerveKinodynamicsFactory
             // .get(() -> VCG.vcg(m_elevator.getPosition()));
@@ -178,8 +178,8 @@ public class RobotContainer implements Glassy {
         } else {
             m_swerveKinodynamics = SwerveKinodynamicsFactory
                     .get(() -> 1);
-            m_grip = new AlgaeGrip(logger);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
+            m_grip = new AlgaeGrip(logger, m_tunnel);
             m_elevator = new Elevator(elevatorLog, 2, 19);
             m_wrist = new Wrist2(elevatorLog, 9);
             m_funnel = new Funnel(logger, 23, 14);
@@ -305,7 +305,7 @@ public class RobotContainer implements Glassy {
 
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
 
-        m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
+        // m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         // DRIVER BUTTONS

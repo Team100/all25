@@ -12,11 +12,15 @@ public class RunAlgaeGrip extends Command {
 
     @Override
     public void initialize() {
+        m_grip.applyHighConfigs();
         m_grip.setDutyCycle(1);
     }
 
     @Override
     public void execute() {
+        if(m_grip.hasAlgae()){
+            m_grip.applyLowConfigs();
+        }
         // m_grip.intake();
     }
 

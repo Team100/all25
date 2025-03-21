@@ -12,6 +12,7 @@ public class AlgaeGripDefaultCommand extends Command {
 
     @Override
     public void initialize() {
+        m_grip.applyLowConfigs();
     }
 
     @Override

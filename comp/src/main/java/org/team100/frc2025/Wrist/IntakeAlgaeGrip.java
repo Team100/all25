@@ -18,23 +18,29 @@ public class IntakeAlgaeGrip extends Command {
     public void initialize() {
         position = 0;
         hasAlgae = false;
+        m_grip.applyHighConfigs();
     }
 
     @Override
     public void execute() {
 
-        if (!m_grip.hasAlgae()) {
-            m_grip.setDutyCycle(1);
-            // position = m_grip.getPosition();
-        } else {
-            hasAlgae = true;
-        }
+        // if (!m_grip.hasAlgae()) {
+        //     m_grip.setDutyCycle(1);
+        //     // position = m_grip.getPosition();
+        // } else {
+        //     hasAlgae = true;
+        // }
 
-        if (hasAlgae) {
-            // System.out.println("*************HAS ALGAE****************");
-            // m_grip.setHoldPosition(position);
-            // m_grip.setPosition(position);
-            // m_grip.setDutyCycle(0);
+        // if (hasAlgae) {
+        //     // System.out.println("*************HAS ALGAE****************");
+        //     // m_grip.setHoldPosition(position);
+        //     // m_grip.setPosition(position);
+        //     // m_grip.setDutyCycle(0);
+        // }
+        m_grip.setDutyCycle(1);
+
+        if(m_grip.hasAlgae()){
+            m_grip.applyLowConfigs();
         }
 
     }
