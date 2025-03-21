@@ -7,10 +7,13 @@ import java.util.function.Supplier;
 import org.team100.lib.config.Camera;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -20,6 +23,20 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public class SimulatedTagDetector {
     private static final boolean DEBUG = true;
+    // these are the extents of the normalized image coordinates
+    // i.e. in WPILib coordinates this would be Y/X and Z/X.
+    // our real cameras can see horizontally to about
+    // 0.8 on each side. we didn't measure the vertical
+    // extent, but it's probably something like 0.6.
+    // TODO: make these parameters, to accommodate different sensors and lenses.
+    //
+    // see
+    // https://docs.google.com/spreadsheets/d/1x2_58wyVb5e9HJW8WgakgYcOXgPaJe0yTIHew206M-M
+    private static final double kHFOV = 0.8;
+    private static final double kVFOV = 0.6;
+    private static final int kTagCount = 22;
+    // past about 80 degrees, you can't see the tag.
+    private static final double kObliqueLimitRad = 1.4;
 
     private final List<Camera> m_cameras;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
@@ -41,19 +58,164 @@ public class SimulatedTagDetector {
         if (opt.isEmpty())
             return;
         Pose3d robotPose3d = new Pose3d(m_robotPose.get());
+        if (DEBUG) {
+            Util.printf("robot pose X %6.2f Y %6.2f Z %6.2f R %6.2f P %6.2f Y %6.2f \n",
+                    robotPose3d.getTranslation().getX(),
+                    robotPose3d.getTranslation().getY(),
+                    robotPose3d.getTranslation().getZ(),
+                    robotPose3d.getRotation().getX(),
+                    robotPose3d.getRotation().getY(),
+                    robotPose3d.getRotation().getZ());
+        }
         for (Camera camera : m_cameras) {
-            Transform3d offset = camera.getOffset();
-            Pose3d cameraPose3d = robotPose3d.plus(offset);
-            for (AprilTag tag : m_layout.getTags(opt.get())) {
-                Pose3d tagPose = tag.pose;
-                Transform3d tagInCamera = tagPose.minus(cameraPose3d);
-                if (DEBUG)
-                    Util.printf("camera %s offset %s tag %d in camera %s\n", camera.name(), offset, tag.ID,
-                            tagInCamera);
+            Transform3d cameraOffset = camera.getOffset();
+            Pose3d cameraPose3d = robotPose3d.plus(cameraOffset);
+            Alliance alliance = opt.get();
+
+            for (int tagId = 1; tagId <= kTagCount; ++tagId) {
+                if (DEBUG) {
+                    Util.printf("alliance %s camera %12s ", alliance.name(), camera.name());
+                }
+                Pose3d tagPose = m_layout.getTagPose(alliance, tagId).get();
+                if (DEBUG) {
+                    Util.printf("tag id: %2d tag pose: X %6.2f Y %6.2f Z %6.2f R %6.2f P %6.2f Y %6.2f ",
+                            tagId,
+                            tagPose.getTranslation().getX(),
+                            tagPose.getTranslation().getY(),
+                            tagPose.getTranslation().getZ(),
+                            tagPose.getRotation().getX(),
+                            tagPose.getRotation().getY(),
+                            tagPose.getRotation().getZ());
+                }
+                Transform3d tagInCamera = tagInCamera(cameraPose3d, tagPose);
+                Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
+                Rotation3d tagRotationInCamera = tagInCamera.getRotation();
+                if (visible(tagInCamera)) {
+                    // publish it
+                    if (DEBUG) {
+                        Util.printf("VISIBLE ");
+                    }
+                } else {
+                    // ignore it
+                    if (DEBUG) {
+                        Util.printf(" . ");
+                    }
+                }
+                if (DEBUG) {
+                    Util.printf("camera: X %6.2f Y %6.2f Z %6.2f R %6.2f P %6.2f Y %6.2f",
+                            cameraOffset.getTranslation().getX(),
+                            cameraOffset.getTranslation().getY(),
+                            cameraOffset.getTranslation().getZ(),
+                            cameraOffset.getRotation().getX(),
+                            cameraOffset.getRotation().getY(),
+                            cameraOffset.getRotation().getZ());
+                    Util.printf(" tag in camera: X %6.2f Y %6.2f Z %6.2f  R %6.2f P %6.2f Y %6.2f\n",
+                            tagTranslationInCamera.getX(),
+                            tagTranslationInCamera.getY(),
+                            tagTranslationInCamera.getZ(),
+                            tagRotationInCamera.getX(),
+                            tagRotationInCamera.getY(),
+                            tagRotationInCamera.getZ());
+                }
+
             }
 
         }
 
+    }
+
+    /** Return the transform from the camera pose to the tag pose. */
+    static Transform3d tagInCamera(Pose3d cameraPose3d, Pose3d tagPose) {
+        return new Transform3d(cameraPose3d, tagPose);
+    }
+
+    /**
+     * If the target is behind the camera, it is never visible.
+     */
+    static boolean inFront(Transform3d tagInCamera) {
+        Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
+        double x = tagTranslationInCamera.getX();
+        if (x < 0) {
+            if (DEBUG)
+                Util.printf("   behind (%6.2f) ", x);
+            return false;
+        }
+        if (DEBUG)
+            Util.printf(" in front (%6.2f) ", x);
+        return true;
+    }
+
+    /**
+     * The tag needs to be facing the camera, at least a little.
+     * 
+     * We compute the angle between the tag normal vector and the translation
+     * vector to find the apparent angle.
+     */
+    static boolean facing(Transform3d tagInCamera) {
+        Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
+        Rotation3d tagRotationInCamera = tagInCamera.getRotation();
+        Translation3d normal = new Translation3d(1, 0, 0);
+        // this points "into the page" of the tag
+        Translation3d rotatedNormal = normal.rotateBy(tagRotationInCamera);
+        Vector<N3> rotatedNormalVector = rotatedNormal.toVector();
+        Vector<N3> tagTranslationVector = tagTranslationInCamera.toVector();
+        Rotation3d apparentAngle = new Rotation3d(tagTranslationVector, rotatedNormalVector);
+        double angle = apparentAngle.getAngle();
+
+        if (Math.abs(angle) > kObliqueLimitRad) {
+            if (DEBUG)
+                Util.printf(" facing away (%6.2f)", angle);
+            return false;
+        }
+        if (DEBUG)
+            Util.printf("    angle ok (%6.2f)", angle);
+        return true;
+    }
+
+    /**
+     * The "field of view" is expressed as an angle, but we don't really use an
+     * angle, we use the pinhole projection.
+     * opencv notation for these normalized coordinates is
+     * x'' and y'' so these are x-prime-prime.
+     * x is the horizontal dimension, pointing right
+     * y is the vertical dimension, pointing down
+     * the origin is on the camera bore.
+     */
+    static boolean inFOV(Transform3d tagInCamera) {
+        Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
+        double xpp = -1.0 * tagTranslationInCamera.getY() / tagTranslationInCamera.getX();
+        double ypp = -1.0 * tagTranslationInCamera.getZ() / tagTranslationInCamera.getX();
+        if (Math.abs(xpp) < kHFOV && Math.abs(ypp) < kVFOV) {
+            if (DEBUG)
+                Util.printf("  FOV IN xpp %6.2f ypp %6.2f ", xpp, ypp);
+            return true;
+        }
+        if (DEBUG)
+            Util.printf(" FOV OUT xpp %6.2f ypp %6.2f ", xpp, ypp);
+        return false;
+
+    }
+
+    static boolean visible(Transform3d tagInCamera) {
+        if (!inFront(tagInCamera)) {
+            if (DEBUG)
+                Util.printf(" ........................................................");
+            return false;
+        }
+
+        if (!facing(tagInCamera)) {
+            if (DEBUG)
+                Util.printf(" ...................................");
+            return false;
+        }
+
+        if (!inFOV(tagInCamera)) {
+            if (DEBUG)
+                Util.printf(" ... ");
+            return false;
+        }
+
+        return true;
     }
 
 }
