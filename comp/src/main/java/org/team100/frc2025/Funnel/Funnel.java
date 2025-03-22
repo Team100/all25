@@ -73,14 +73,17 @@ public class Funnel extends SubsystemBase implements Glassy {
     }
 
     public void setLatch1(double value){
+        if(latchingServo1==null) return;
         latchingServo1.setAngle(value);
     }
 
     public double getLatch1(){
+        
         return latchingServo1.getAngle();
     }
 
     public void setLatch2(double value){
+        if(latchingServo2==null) return;
         latchingServo2.setAngle(value);
     }
 

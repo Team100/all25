@@ -84,7 +84,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 // rawMotor = motor;
 
                 m_motor = new TalonFX(11);
-
+                if(m_motor==null) return;
                 TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
                 CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -158,6 +158,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
 
     public void setDutyCycle(double dutyCycle) {
+        if(m_motor==null) return;
         m_motor.set(dutyCycle);
     }
     public void stop() {
@@ -179,6 +180,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     }
 
     public void applyLowConfigs(){
+        if(m_motor==null) return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -192,6 +194,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     }
 
     public void applyHighConfigs(){
+        if(m_motor==null) return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
