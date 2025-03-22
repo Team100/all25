@@ -15,6 +15,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
+import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -75,18 +76,18 @@ public class VisionDataProvider24 implements Glassy {
 
     private final PoseEstimator100 m_poseEstimator;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
-    private final PoseEstimationHelper m_helper;
     private final NetworkTableListenerPoller m_poller;
     private final StructArrayPublisher<Pose3d> m_pub_tags;
 
     // LOGGERS
     private final EnumLogger m_log_alliance;
     private final DoubleLogger m_log_heedRadius;
+    private final StringLogger m_log_rotation_source;
 
     // Remember the previous vision-based pose estimate, so we can measure the
     // distance
     // between consecutive updates, and ignore too-far updates.
-    private Pose2d m_lastRobotInFieldCoords;
+    private Pose2d m_prevPose;
 
     // reuse the buffer since it takes some time to make
     private StructBuffer<Blip24> m_buf = StructBuffer.create(Blip24.struct);
@@ -108,7 +109,6 @@ public class VisionDataProvider24 implements Glassy {
             PoseEstimator100 poseEstimator) {
         LoggerFactory child = parent.child(this);
         m_layout = layout;
-        m_helper = new PoseEstimationHelper(child);
         m_poseEstimator = poseEstimator;
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -119,6 +119,7 @@ public class VisionDataProvider24 implements Glassy {
         m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
         m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
+        m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation_source");
     }
 
     /**
@@ -142,6 +143,8 @@ public class VisionDataProvider24 implements Glassy {
             Util.warn("VisionDataProvider24: Alliance is not present!");
             return;
         }
+        m_log_alliance.log(() -> alliance.get());
+
         List<Pose3d> tags = new ArrayList<>();
         NetworkTableEvent[] events = m_poller.readQueue();
         for (NetworkTableEvent e : events) {
@@ -174,17 +177,13 @@ public class VisionDataProvider24 implements Glassy {
                     continue;
                 }
                 // the ID of the camera
-                String cameraSerialNumber = fields[1];
+                String cameraId = fields[1];
 
                 // Vasili added this extra delay after some experimentation that he should
                 // describe here.
                 final double IMPORTANT_MAGIC_NUMBER = 0.027;
                 double blipTimeSec = (v.getServerTime() / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
-                List<Pose3d> newTags = estimateRobotPose(
-                        cameraSerialNumber,
-                        blips,
-                        blipTimeSec,
-                        alliance.get());
+                List<Pose3d> newTags = estimateRobotPose(cameraId, blips, blipTimeSec, alliance.get());
                 tags.addAll(newTags);
             } else {
                 // this event is not for us
@@ -203,40 +202,19 @@ public class VisionDataProvider24 implements Glassy {
     }
 
     /**
-     * @param estimateConsumer   is the pose estimator but exposing it here makes it
-     *                           easier to test.
-     * @param cameraSerialNumber the camera identity, obtained from proc/cpuinfo
-     * @param blips              all the targets the camera sees right now
-     * @return the apparent location of tags we can see
+     * Compute the robot pose and put it in the pose estimator.
+     * 
+     * @param cameraId  From proc/cpuinfo
+     * @param blips     The targets in the current camera frame
+     * @param timestamp Camera frame timestamp
+     * @param alliance  From the driver station
+     * @return The apparent location of tags we can see
      */
-    List<Pose3d> estimateRobotPose(
-            String cameraSerialNumber,
-            final Blip24[] blips,
-            double blipTimeSec,
-            Alliance alliance) {
-        m_log_alliance.log(() -> alliance);
-        final Transform3d cameraInRobotCoordinates = Camera.get(cameraSerialNumber).getOffset();
-
-        final Rotation2d gyroRotation = m_poseEstimator.get(blipTimeSec).pose().getRotation();
-
-        // double endTime = Takt.actual();
-        // Util.printf("Time: %.4f\n", (endTime - startTime));
-
-        return estimateFromBlips(
-                blips,
-                cameraInRobotCoordinates,
-                blipTimeSec,
-                gyroRotation,
-                alliance);
-    }
-
-    private List<Pose3d> estimateFromBlips(
-            final Blip24[] blips,
-            final Transform3d cameraInRobotCoordinates,
-            final double frameTimeSec,
-            final Rotation2d gyroRotation,
-            Alliance alliance) {
+    List<Pose3d> estimateRobotPose(String cameraId, Blip24[] blips, double timestamp, Alliance alliance) {
         m_log_heedRadius.log(() -> m_heedRadiusM);
+
+        Transform3d cameraInRobot = Camera.get(cameraId).getOffset();
+        Rotation2d gyroRotation = m_poseEstimator.get(timestamp).pose().getRotation();
 
         List<Pose3d> tags = new ArrayList<>();
 
@@ -259,24 +237,25 @@ public class VisionDataProvider24 implements Glassy {
             }
             final Pose3d tagInField = tagInFieldCoordsOptional.get();
 
-            // Gyro only produces yaw so use zero roll and zero pitch
-            final Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(
-                    0, 0, gyroRotation.getRadians());
-
             // Tag as it appears in the camera frame.
             final Transform3d tagInCamera = blip.blipToTransform();
 
+            if (DEBUG) {
+                // This is used for camera offset calibration. Place a tag at a known position,
+                // observe the offset, and add it to Camera.java, inverted.
+                Transform3d tagInRobot = cameraInRobot.plus(tagInCamera);
+                Util.printf("TAG IN ROBOT %s x %f y %f z%f\n",
+                        tagInRobot.getTranslation(),
+                        tagInRobot.getRotation().getX(),
+                        tagInRobot.getRotation().getY(),
+                        tagInRobot.getRotation().getZ());
+            }
+
             // Robot in the field frame.
-            final Pose3d robotPoseInField = m_helper.getRobotPoseInFieldCoords(
-                    cameraInRobotCoordinates,
+            final Pose2d pose = getPose(
+                    cameraInRobot,
                     tagInField,
                     tagInCamera,
-                    robotRotationInFieldCoordsFromGyro,
-                    kTagRotationBeliefThresholdMeters);
-
-            // Robot in field frame. We always use the gyro for rotation.
-            final Pose2d currentRobotinFieldCoords = new Pose2d(
-                    robotPoseInField.getTranslation().toTranslation2d(),
                     gyroRotation);
 
             if (!Experiments.instance.enabled(Experiment.HeedVision)) {
@@ -285,30 +264,71 @@ public class VisionDataProvider24 implements Glassy {
                 continue;
             }
 
-            if (m_lastRobotInFieldCoords == null) {
+            if (m_prevPose == null) {
                 // Ignore the very first update since we have no idea if it is far from the
                 // previous one.
-                m_lastRobotInFieldCoords = currentRobotinFieldCoords;
+                m_prevPose = pose;
                 continue;
             }
 
-            final double distanceM = distance(m_lastRobotInFieldCoords, currentRobotinFieldCoords);
+            final double distanceM = distance(m_prevPose, pose);
             if (distanceM > kVisionChangeToleranceMeters) {
                 // The new estimate is too far from the previous one: it's probably garbage.
-                m_lastRobotInFieldCoords = currentRobotinFieldCoords;
+                m_prevPose = pose;
                 continue;
             }
 
             m_poseEstimator.put(
-                    frameTimeSec,
-                    currentRobotinFieldCoords,
+                    timestamp,
+                    pose,
                     stateStdDevs(),
                     visionMeasurementStdDevs(distanceM));
 
             m_latestTimeSec = Takt.get();
-            m_lastRobotInFieldCoords = currentRobotinFieldCoords;
+            m_prevPose = pose;
         }
         return tags;
+    }
+
+    /**
+     * Calculate robot pose.
+     * 
+     * First calculates the distance to the tag. If it's closer than the threshold,
+     * use the camera-derived tag rotation. If it's far, use the gyro.
+     * 
+     * @param cameraInRobot robot-to-camera, offset from Camera.java
+     * @param tagInField    field-to-tag, canonical pose from the JSON file
+     * @param tagInCamera   camera-to-tag, what the camera sees
+     * @param gyroRotation  from the pose buffer
+     */
+    private Pose2d getPose(
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d tagInCamera,
+            Rotation2d gyroRotation) {
+
+        if (tagInCamera.getTranslation().getNorm() > kTagRotationBeliefThresholdMeters) {
+            // if the tag is further than the threshold, replace the tag rotation with
+            // a rotation derived from the gyro.
+            m_log_rotation_source.log(() -> "GYRO");
+            tagInCamera = PoseEstimationHelper.tagInCamera(
+                    cameraInRobot,
+                    tagInField,
+                    tagInCamera,
+                    new Rotation3d(gyroRotation));
+        } else {
+            m_log_rotation_source.log(() -> "CAMERA");
+        }
+
+        Pose3d robotPoseInField = PoseEstimationHelper.robotInField(
+                cameraInRobot,
+                tagInField,
+                tagInCamera);
+
+        // Robot in field frame. We always use the gyro for rotation.
+        return new Pose2d(
+                robotPoseInField.getTranslation().toTranslation2d(),
+                gyroRotation);
     }
 
     static double[] stateStdDevs() {
