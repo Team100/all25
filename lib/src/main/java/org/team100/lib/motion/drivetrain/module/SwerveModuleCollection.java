@@ -63,7 +63,7 @@ public class SwerveModuleCollection {
                         WCPSwerveModule100.getKrakenDrive(frontLeftLogger,
                                 currentLimit,
                                 statorLimit,
-                                11,
+                                18,
                                 DriveRatio.MEDIUM, DutyCycleRotaryPositionSensor.class,
                                 54,
                                 0,

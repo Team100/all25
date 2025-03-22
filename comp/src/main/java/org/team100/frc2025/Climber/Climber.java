@@ -19,6 +19,7 @@ public class Climber extends SubsystemBase {
 
   AngularPositionServo climberMotor;
   Falcon6Motor m_motor; 
+  
 
   public Climber(LoggerFactory logger, int canID) {
     LoggerFactory child = logger.child("Climber");

@@ -22,16 +22,16 @@ public class OuttakeAlgaeGrip extends Command {
 
     @Override
     public void execute() {
-        if(m_timer.get() < 0.5){
-            m_grip.setDutyCycle(1);
-        }else{
-            m_grip.applyLowConfigs();
-            atit = true;
-        }
+        // if(m_timer.get() < 0.5){
+        //     m_grip.setDutyCycle(1);
+        // }else{
+        //     m_grip.applyLowConfigs();
+        //     atit = true;
+        // }
 
-        if(atit){
+        // if(atit){
             m_grip.setDutyCycle(-1);
-        }
+        // }
 
 
         
