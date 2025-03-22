@@ -143,6 +143,7 @@ public class VisionDataProvider24 implements Glassy {
                 byte[] b = v.getRaw();
                 if (b.length == 0)
                     return;
+                    
                 Blip24[] blips;
                 try {
                     synchronized (m_buf) {
