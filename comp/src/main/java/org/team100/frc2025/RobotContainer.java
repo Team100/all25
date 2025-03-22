@@ -240,7 +240,14 @@ public class RobotContainer implements Glassy {
         } else {
             // In simulation, we want the real simulated tag detector.
             SimulatedTagDetector sim = new SimulatedTagDetector(
-                    List.of(Camera.CORAL_LEFT), layout, m_drive::getPose);
+                    List.of(
+                            Camera.SWERVE_LEFT,
+                            Camera.SWERVE_RIGHT,
+                            Camera.FUNNEL,
+                            Camera.CORAL_LEFT,
+                            Camera.CORAL_RIGHT),
+                    layout,
+                    m_drive::getPose);
             m_simulatedTagDetector = sim::periodic;
         }
 

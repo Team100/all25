@@ -1,6 +1,9 @@
 package org.team100.lib.localization;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -14,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -22,7 +27,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * cameras would.
  */
 public class SimulatedTagDetector {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
+    private static final boolean PUBLISH_DEBUG = false;
     // these are the extents of the normalized image coordinates
     // i.e. in WPILib coordinates this would be Y/X and Z/X.
     // our real cameras can see horizontally to about
@@ -42,6 +48,8 @@ public class SimulatedTagDetector {
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
     private final Supplier<Pose2d> m_robotPose;
 
+    private final Map<Camera, StructArrayPublisher<Blip24>> m_publishers;
+
     public SimulatedTagDetector(
             List<Camera> cameras,
             AprilTagFieldLayoutWithCorrectOrientation layout,
@@ -49,6 +57,17 @@ public class SimulatedTagDetector {
         m_cameras = cameras;
         m_layout = layout;
         m_robotPose = robotPose;
+        m_publishers = new HashMap<>();
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        for (Camera camera : m_cameras) {
+            System.out.println(camera);
+            // see tag_detector.py
+            String path = "vision/" + camera.getSerial() + "/0";
+            String name = path + "/blips";
+            var topic = inst.getStructArrayTopic(name, Blip24.struct);
+            StructArrayPublisher<Blip24> publisher = topic.publish();
+            m_publishers.put(camera, publisher);
+        }
     }
 
     public void periodic() {
@@ -68,6 +87,7 @@ public class SimulatedTagDetector {
                     robotPose3d.getRotation().getZ());
         }
         for (Camera camera : m_cameras) {
+            List<Blip24> blips = new ArrayList<>();
             Transform3d cameraOffset = camera.getOffset();
             Pose3d cameraPose3d = robotPose3d.plus(cameraOffset);
             Alliance alliance = opt.get();
@@ -88,13 +108,12 @@ public class SimulatedTagDetector {
                             tagPose.getRotation().getZ());
                 }
                 Transform3d tagInCamera = tagInCamera(cameraPose3d, tagPose);
-                Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
-                Rotation3d tagRotationInCamera = tagInCamera.getRotation();
                 if (visible(tagInCamera)) {
                     // publish it
                     if (DEBUG) {
                         Util.printf("VISIBLE ");
                     }
+                    blips.add(new Blip24(tagId, tagInCamera));
                 } else {
                     // ignore it
                     if (DEBUG) {
@@ -109,6 +128,9 @@ public class SimulatedTagDetector {
                             cameraOffset.getRotation().getX(),
                             cameraOffset.getRotation().getY(),
                             cameraOffset.getRotation().getZ());
+                    Translation3d tagTranslationInCamera = tagInCamera.getTranslation();
+                    Rotation3d tagRotationInCamera = tagInCamera.getRotation();
+
                     Util.printf(" tag in camera: X %6.2f Y %6.2f Z %6.2f  R %6.2f P %6.2f Y %6.2f\n",
                             tagTranslationInCamera.getX(),
                             tagTranslationInCamera.getY(),
@@ -120,6 +142,12 @@ public class SimulatedTagDetector {
 
             }
 
+            // publish whatever we saw
+            // TODO: pose should be from the past, using publisher "set" from the past.
+            m_publishers.get(camera).set(blips.toArray(new Blip24[0]));
+            if (PUBLISH_DEBUG) {
+                Util.printf("%s\n", blips);
+            }
         }
 
     }

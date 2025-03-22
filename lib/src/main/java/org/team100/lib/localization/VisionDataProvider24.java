@@ -14,6 +14,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.util.Takt;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -38,6 +39,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * which matches the TagFinder24 code on the camera.
  */
 public class VisionDataProvider24 implements Glassy {
+    private static final boolean DEBUG = false;
     /**
      * If the tag is closer than this threshold, then the camera's estimate of tag
      * rotation might be more accurate than the gyro, so we use the camera's
@@ -217,6 +219,9 @@ public class VisionDataProvider24 implements Glassy {
             Alliance alliance) {
         for (int i = 0; i < blips.length; ++i) {
             Blip24 blip = blips[i];
+
+            if (DEBUG)
+                Util.printf("blip %s\n", blip);
 
             Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldCoordsOptional.isPresent())
