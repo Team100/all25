@@ -570,7 +570,7 @@ class PanTiltOffsetTest {
                         new Rotation3d(Math.PI / 4, 0, 0)));
 
         // Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
+        Translation3d tagTranslationInCameraCoords = blip.blipToTransform().getTranslation();
 
         assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
         assertEquals(0, tagTranslationInCameraCoords.getY(), kDelta);
@@ -683,10 +683,12 @@ class PanTiltOffsetTest {
         // CALCULATIONS
         LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
         PoseEstimationHelper helper = new PoseEstimationHelper(logger);
+        Transform3d tagInCameraCoords = blip.blipToTransform();
+
         Pose3d robotInFieldCoords = helper.getRobotPoseInFieldCoords(
                 cameraInRobotCoords,
                 tagInFieldCoords,
-                blip,
+                tagInCameraCoords,
                 robotRotationInFieldCoordsFromGyro);
 
         assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
@@ -718,10 +720,12 @@ class PanTiltOffsetTest {
                             new Translation3d(0, 0, Math.sqrt(2)),
                             new Rotation3d(0, Math.PI / 4, 0)));
 
+            Transform3d tagInCameraCoords = blip.blipToTransform();
+
             Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
                     cameraInRobotCoords,
                     tagInFieldCoords,
-                    blip);
+                    tagInCameraCoords);
 
             assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
             assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
@@ -745,10 +749,13 @@ class PanTiltOffsetTest {
                     new Transform3d(
                             new Translation3d(0, 0, Math.sqrt(2)),
                             new Rotation3d(-Math.PI / 4, 0, 0)));
+
+            Transform3d tagInCameraCoords = blip.blipToTransform();
+
             Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
                     cameraInRobotCoords,
                     tagInFieldCoords,
-                    blip);
+                    tagInCameraCoords);
 
             assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
             assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);

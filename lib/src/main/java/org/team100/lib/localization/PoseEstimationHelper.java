@@ -1,13 +1,11 @@
 package org.team100.lib.localization;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -33,29 +31,24 @@ public class PoseEstimationHelper implements Glassy {
      * use the camera-derived tag rotation. If it's far, use the gyro.
      */
     public Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip,
-            Rotation3d robotRotationInFieldCoordsFromGyro,
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d tagInCamera,
+            Rotation3d robotRotationInFieldFromGyro,
             double thresholdMeters) {
-
-        final Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
-
-        if (tagTranslationInCameraCoords.getNorm() < thresholdMeters) {
+        if (tagInCamera.getTranslation().getNorm() < thresholdMeters) {
             m_log_rotation_source.log(() -> "CAMERA");
             return getRobotPoseInFieldCoords(
-                    cameraInRobotCoords,
-                    tagInFieldCoords,
-                    blip);
+                    cameraInRobot,
+                    tagInField,
+                    tagInCamera);
         }
-
         m_log_rotation_source.log(() -> "GYRO");
-
         return getRobotPoseInFieldCoords(
-                cameraInRobotCoords,
-                tagInFieldCoords,
-                blip,
-                robotRotationInFieldCoordsFromGyro);
+                cameraInRobot,
+                tagInField,
+                tagInCamera,
+                robotRotationInFieldFromGyro);
     }
 
     /**
@@ -67,37 +60,23 @@ public class PoseEstimationHelper implements Glassy {
      * This method trusts the tag rotation calculated by the camera.
      */
     public static Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip) {
-        Transform3d tagInCameraCoords = blipToTransform(blip);
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d tagInCamera) {
 
         if (DEBUG) {
             // This is used for camera offset calibration. Place a tag at a known position,
             // set the tag rotation belief threshold to a very high number (so this code
             // executes), observe the offset, and add it to Camera.java, inverted.
-            Transform3d tagInRobot = cameraInRobotCoords.plus(tagInCameraCoords);
+            Transform3d tagInRobot = cameraInRobot.plus(tagInCamera);
             Util.printf("TAG IN ROBOT %s x %f y %f z%f\n",
                     tagInRobot.getTranslation(),
                     tagInRobot.getRotation().getX(),
                     tagInRobot.getRotation().getY(),
                     tagInRobot.getRotation().getZ());
         }
-        Pose3d cameraInFieldCoords = toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
-        return applyCameraOffset(cameraInFieldCoords, cameraInRobotCoords);
-    }
-
-    public static Transform3d getTransformFromRobotPose(
-            Transform3d cameraInRobotCoords,
-            Pose2d robotPose,
-            Pose3d tagInFieldCoords) {
-        Pose3d cameraInFieldCords = unapplyCameraOffsetCamera(new Pose3d(robotPose), cameraInRobotCoords);
-        Transform3d tagInCameraCords = untoFieldCoordinates(
-                cameraInFieldCords,
-                tagInFieldCoords);
-        Translation3d tagTranslationInCameraCoords = tagInCameraCords.getTranslation();
-        Rotation3d rotationToTagInCameraCoords = tagInCameraCords.getRotation();
-        return translationToBlipTransform3d(tagTranslationInCameraCoords, rotationToTagInCameraCoords);
+        Pose3d cameraInField = toFieldCoordinates(tagInCamera, tagInField);
+        return applyCameraOffset(cameraInField, cameraInRobot);
     }
 
     /**
@@ -109,16 +88,18 @@ public class PoseEstimationHelper implements Glassy {
      * This method does not trust the tag rotation from the camera, it uses the gyro
      * signal instead.
      * 
-     * @param cameraInRobotCoords                camera offset expressed as a
+     * @param cameraInRobot                camera offset expressed as a
      *                                           transform from robot-frame to
      *                                           camera-frame, e.g.camera 0.5m in
      *                                           front of the robot center and 0.5m
      *                                           from the floor would have a
      *                                           translation (0.5, 0, 0.5)
-     * @param tagInFieldCoords                   tag location expressed as a pose in
+     * @param tagInField                   tag location expressed as a pose in
      *                                           field-frame. this should come from
      *                                           the json
-     * @param blip                               direct from the camera
+     * @param apparentTagInCamera          Tag pose in camera coordinates; we
+     *                                           ignore the rotational component of
+     *                                           this pose.
      * @param robotRotationInFieldCoordsFromGyro direct from the gyro. note that
      *                                           drive.getPose() isn't exactly the
      *                                           gyro reading; it might be better to
@@ -126,19 +107,19 @@ public class PoseEstimationHelper implements Glassy {
      *                                           method.
      */
     public Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip,
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d apparentTagInCamera,
             Rotation3d robotRotationInFieldCoordsFromGyro) {
 
         Rotation3d cameraRotationInFieldCoords = cameraRotationInFieldCoords(
-                cameraInRobotCoords,
+                cameraInRobot,
                 robotRotationInFieldCoordsFromGyro);
 
-        Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
+        Translation3d tagTranslationInCameraCoords = apparentTagInCamera.getTranslation();
 
         Rotation3d tagRotationInCameraCoords = tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
+                tagInField.getRotation(),
                 cameraRotationInFieldCoords);
 
         Transform3d tagInCameraCoords = new Transform3d(
@@ -147,11 +128,11 @@ public class PoseEstimationHelper implements Glassy {
 
         Pose3d cameraInFieldCoords = toFieldCoordinates(
                 tagInCameraCoords,
-                tagInFieldCoords);
+                tagInField);
 
         return applyCameraOffset(
                 cameraInFieldCoords,
-                cameraInRobotCoords);
+                cameraInRobot);
     }
 
     //////////////////////////////
@@ -163,43 +144,9 @@ public class PoseEstimationHelper implements Glassy {
      * rotation. Package-private for testing.
      */
     static Rotation3d cameraRotationInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Rotation3d robotRotationInFieldCoordsFromGyro) {
-        return cameraInRobotCoords.getRotation()
-                .rotateBy(robotRotationInFieldCoordsFromGyro);
-    }
-
-    /**
-     * Extract translation and rotation from z-forward blip and return the same
-     * translation and rotation as an NWU x-forward transform. Package-private for
-     * testing.
-     */
-    static Transform3d blipToTransform(Blip24 b) {
-        return new Transform3d(blipToTranslation(b), blipToRotation(b));
-    }
-
-    /**
-     * Extract the translation from a "z-forward" blip and return the same
-     * translation expressed in our usual "x-forward" NWU translation.
-     * It would be possible to also consume the blip rotation matrix, if it were
-     * renormalized, but it's not very accurate, so we don't consume it.
-     * Package-private for testing.
-     */
-    static Translation3d blipToTranslation(Blip24 b) {
-        return GeometryUtil.zForwardToXForward(b.getPose().getTranslation());
-    }
-
-    static Transform3d translationToBlipTransform3d(Translation3d b, Rotation3d w) {
-        return new Transform3d(GeometryUtil.xForwardToZForward(b), GeometryUtil.xForwardToZForward(w));
-    }
-
-    /**
-     * Extract the rotation from the "z forward" blip and return the same rotation
-     * expressed in our usual "x forward" NWU coordinates. Package-private for
-     * testing.
-     */
-    static Rotation3d blipToRotation(Blip24 b) {
-        return GeometryUtil.zForwardToXForward(b.getPose().getRotation());
+            Transform3d cameraInRobot,
+            Rotation3d robotRotationInFieldFromGyro) {
+        return cameraInRobot.getRotation().rotateBy(robotRotationInFieldFromGyro);
     }
 
     /**
@@ -208,48 +155,28 @@ public class PoseEstimationHelper implements Glassy {
      * the camera rotation in field frame (from gyro). Package-private for testing.
      */
     static Rotation3d tagRotationInRobotCoordsFromGyro(
-            Rotation3d tagRotationInFieldCoords,
-            Rotation3d cameraRotationInFieldCoords) {
-        return tagRotationInFieldCoords.rotateBy(cameraRotationInFieldCoords.unaryMinus());
+            Rotation3d tagRotationInField,
+            Rotation3d cameraRotationInField) {
+        return tagRotationInField.rotateBy(cameraRotationInField.unaryMinus());
     }
 
     /**
      * Given the tag in camera frame and tag in field frame, return the camera in
      * field frame. Package-private for testing.
      */
-    static Pose3d toFieldCoordinates(Transform3d tagInCameraCords, Pose3d tagInFieldCords) {
+    static Pose3d toFieldCoordinates(Transform3d tagInCamera, Pose3d tagInField) {
         // First invert the camera-to-tag transform, obtaining tag-to-camera.
-        Transform3d cameraInTagCords = tagInCameraCords.inverse();
-        // Transform3d cameraInTagCords = tagInCameraCords;
-
+        Transform3d cameraInTag = tagInCamera.inverse();
         // Then compose field-to-tag with tag-to-camera to get field-to-camera.
-        return tagInFieldCords.transformBy(cameraInTagCords);
-    }
-
-    static Transform3d untoFieldCoordinates(Pose3d cameraInFieldCoords, Pose3d tagInFieldCords) {
-        Transform3d cameraInTagCords = cameraInFieldCoords.minus(tagInFieldCords);
-        return cameraInTagCords.inverse();
+        return tagInField.transformBy(cameraInTag);
     }
 
     /**
      * Given the camera in field frame and camera in robot frame, return the robot
      * in field frame. Package-private for testing.
      */
-    static Pose3d applyCameraOffset(Pose3d cameraInFieldCoords, Transform3d cameraInRobotCoords) {
-        Transform3d robotInCameraCoords = cameraInRobotCoords.inverse();
-        return cameraInFieldCoords.transformBy(robotInCameraCoords);
-    }
-
-    static Pose3d unapplyCameraOffsetCamera(Pose3d robotPose, Transform3d cameraInRobotCoords) {
-        return robotPose.transformBy(cameraInRobotCoords);
-    }
-
-    /**
-     * Return a robot relative transform to the blip.
-     */
-    static Transform3d toTarget(Transform3d cameraInRobotCoordinates, Blip24 blip) {
-        Translation3d t = PoseEstimationHelper.blipToTranslation(blip);
-        return cameraInRobotCoordinates.plus(
-                new Transform3d(t, Rotation3d.kZero));
+    static Pose3d applyCameraOffset(Pose3d cameraInField, Transform3d cameraInRobot) {
+        Transform3d robotInCamera = cameraInRobot.inverse();
+        return cameraInField.transformBy(robotInCamera);
     }
 }

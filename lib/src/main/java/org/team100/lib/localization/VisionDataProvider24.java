@@ -1,7 +1,9 @@
 package org.team100.lib.localization;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
 import org.team100.lib.config.Camera;
@@ -21,12 +23,12 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.MultiSubscriber;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableListenerPoller;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.ValueEventData;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -75,17 +77,21 @@ public class VisionDataProvider24 implements Glassy {
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
     private final PoseEstimationHelper m_helper;
     private final NetworkTableListenerPoller m_poller;
+    private final StructArrayPublisher<Pose3d> m_pub_tags;
+
     // LOGGERS
     private final EnumLogger m_log_alliance;
     private final DoubleLogger m_log_heedRadius;
 
-    // for blip filtering
-    private Pose2d lastRobotInFieldCoords;
+    // Remember the previous vision-based pose estimate, so we can measure the
+    // distance
+    // between consecutive updates, and ignore too-far updates.
+    private Pose2d m_lastRobotInFieldCoords;
 
     // reuse the buffer since it takes some time to make
     private StructBuffer<Blip24> m_buf = StructBuffer.create(Blip24.struct);
 
-    private double latestTimeSec = 0;
+    private double m_latestTimeSec = 0;
 
     /** use tags closer than this; ignore tags further than this. */
     private double m_heedRadiusM = 3.5;
@@ -110,6 +116,7 @@ public class VisionDataProvider24 implements Glassy {
         m_poller.addListener(
                 new MultiSubscriber(inst, new String[] { "vision" }),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
+        m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
         m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
     }
@@ -120,13 +127,22 @@ public class VisionDataProvider24 implements Glassy {
      */
     public double getPoseAgeSec() {
         double now = Takt.get();
-        return now - latestTimeSec;
+        return now - m_latestTimeSec;
     }
 
     /**
      * Read queued network input, and give it to the pose estimator.
+     * 
+     * This runs once per cycle, in SwerveDriveSubsystem.update() which is called by
+     * Memo.updateAll(), which runs in Robot.robotPeriodic().
      */
     public void update() {
+        final Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (!alliance.isPresent()) {
+            Util.warn("VisionDataProvider24: Alliance is not present!");
+            return;
+        }
+        List<Pose3d> tags = new ArrayList<>();
         NetworkTableEvent[] events = m_poller.readQueue();
         for (NetworkTableEvent e : events) {
             ValueEventData ve = e.valueData;
@@ -134,7 +150,8 @@ public class VisionDataProvider24 implements Glassy {
             String name = ve.getTopic().getName();
             String[] fields = name.split("/");
             if (fields.length != 4) {
-                return;
+                Util.warnf("VisionDataProvider24: weird event name: %s\n", name);
+                continue;
             }
             if (fields[2].equals("fps")) {
                 // FPS is not used by the robot
@@ -143,37 +160,39 @@ public class VisionDataProvider24 implements Glassy {
             } else if (fields[3].equals("blips")) {
                 // decode the way StructArrayEntryImpl does
                 byte[] b = v.getRaw();
-                if (b.length == 0)
-                    return;
+                if (b.length == 0) {
+                    Util.warnf("VisionDataProvider24: no raw value for name: %s\n", name);
+                    continue;
+                }
                 Blip24[] blips;
                 try {
                     synchronized (m_buf) {
                         blips = m_buf.readArray(b);
                     }
                 } catch (RuntimeException ex) {
-                    return;
+                    Util.warnf("VisionDataProvider24: blip decoding failed for name: %s\n", name);
+                    continue;
                 }
                 // the ID of the camera
                 String cameraSerialNumber = fields[1];
-
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                if (!alliance.isPresent())
-                    return;
 
                 // Vasili added this extra delay after some experimentation that he should
                 // describe here.
                 final double IMPORTANT_MAGIC_NUMBER = 0.027;
                 double blipTimeSec = (v.getServerTime() / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
-                estimateRobotPose(
+                List<Pose3d> newTags = estimateRobotPose(
                         cameraSerialNumber,
                         blips,
                         blipTimeSec,
                         alliance.get());
+                tags.addAll(newTags);
             } else {
                 // this event is not for us
                 // Util.println("weird vision update key: " + name);
             }
         }
+        // publish all the tags we've seen
+        m_pub_tags.set(tags.toArray(new Pose3d[0]));
     }
 
     /**
@@ -188,13 +207,13 @@ public class VisionDataProvider24 implements Glassy {
      *                           easier to test.
      * @param cameraSerialNumber the camera identity, obtained from proc/cpuinfo
      * @param blips              all the targets the camera sees right now
+     * @return the apparent location of tags we can see
      */
-    void estimateRobotPose(
+    List<Pose3d> estimateRobotPose(
             String cameraSerialNumber,
             final Blip24[] blips,
             double blipTimeSec,
             Alliance alliance) {
-
         m_log_alliance.log(() -> alliance);
         final Transform3d cameraInRobotCoordinates = Camera.get(cameraSerialNumber).getOffset();
 
@@ -203,7 +222,7 @@ public class VisionDataProvider24 implements Glassy {
         // double endTime = Takt.actual();
         // Util.printf("Time: %.4f\n", (endTime - startTime));
 
-        estimateFromBlips(
+        return estimateFromBlips(
                 blips,
                 cameraInRobotCoordinates,
                 blipTimeSec,
@@ -211,65 +230,85 @@ public class VisionDataProvider24 implements Glassy {
                 alliance);
     }
 
-    private void estimateFromBlips(
+    private List<Pose3d> estimateFromBlips(
             final Blip24[] blips,
             final Transform3d cameraInRobotCoordinates,
             final double frameTimeSec,
             final Rotation2d gyroRotation,
             Alliance alliance) {
+        m_log_heedRadius.log(() -> m_heedRadiusM);
+
+        List<Pose3d> tags = new ArrayList<>();
+
         for (int i = 0; i < blips.length; ++i) {
             Blip24 blip = blips[i];
 
             if (DEBUG)
                 Util.printf("blip %s\n", blip);
 
-            Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
-            if (!tagInFieldCoordsOptional.isPresent())
+            // Skip too-far tags.
+            if (blip.blipToTransform().getTranslation().getNorm() > m_heedRadiusM) {
                 continue;
-
-            m_log_heedRadius.log(() -> m_heedRadiusM);
-            if (blip.getPose().getTranslation().getNorm() > m_heedRadiusM) {
-                return;
             }
 
+            // Look up the pose of the tag in the field frame.
+            Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
+            if (!tagInFieldCoordsOptional.isPresent()) {
+                Util.warnf("VisionDataProvider24: no tag for id %d\n", blip.getId());
+                continue;
+            }
+            final Pose3d tagInField = tagInFieldCoordsOptional.get();
+
             // Gyro only produces yaw so use zero roll and zero pitch
-            Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(
+            final Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(
                     0, 0, gyroRotation.getRadians());
 
-            Pose3d tagInFieldCoords = tagInFieldCoordsOptional.get();
-            Pose3d robotPoseInFieldCoords = m_helper.getRobotPoseInFieldCoords(
+            // Tag as it appears in the camera frame.
+            final Transform3d tagInCamera = blip.blipToTransform();
+
+            // Robot in the field frame.
+            final Pose3d robotPoseInField = m_helper.getRobotPoseInFieldCoords(
                     cameraInRobotCoordinates,
-                    tagInFieldCoords,
-                    blip,
+                    tagInField,
+                    tagInCamera,
                     robotRotationInFieldCoordsFromGyro,
                     kTagRotationBeliefThresholdMeters);
 
-            Translation2d robotTranslationInFieldCoords = robotPoseInFieldCoords.getTranslation().toTranslation2d();
+            // Robot in field frame. We always use the gyro for rotation.
+            final Pose2d currentRobotinFieldCoords = new Pose2d(
+                    robotPoseInField.getTranslation().toTranslation2d(),
+                    gyroRotation);
 
-            Pose2d currentRobotinFieldCoords = new Pose2d(robotTranslationInFieldCoords, gyroRotation);
-
-            if (!Experiments.instance.enabled(Experiment.HeedVision))
+            if (!Experiments.instance.enabled(Experiment.HeedVision)) {
+                // If we've turned vision off altogether, then don't apply this update to the
+                // pose estimator.
                 continue;
-
-            if (lastRobotInFieldCoords != null) {
-                // the translation distance is a little quicker to calculate and we don't care
-                // about the "twist" curve measurement
-                double distanceM = GeometryUtil.distance(
-                        lastRobotInFieldCoords.getTranslation(),
-                        currentRobotinFieldCoords.getTranslation());
-                if (distanceM <= kVisionChangeToleranceMeters) {
-                    // this hard limit excludes false positives, which were a bigger problem in 2023
-                    // due to the coarse tag family used. in 2024 this might not be an issue.
-                    latestTimeSec = Takt.get();
-                    m_poseEstimator.put(
-                            frameTimeSec,
-                            currentRobotinFieldCoords,
-                            stateStdDevs(),
-                            visionMeasurementStdDevs(distanceM));
-                }
             }
-            lastRobotInFieldCoords = currentRobotinFieldCoords;
+
+            if (m_lastRobotInFieldCoords == null) {
+                // Ignore the very first update since we have no idea if it is far from the
+                // previous one.
+                m_lastRobotInFieldCoords = currentRobotinFieldCoords;
+                continue;
+            }
+
+            final double distanceM = distance(m_lastRobotInFieldCoords, currentRobotinFieldCoords);
+            if (distanceM > kVisionChangeToleranceMeters) {
+                // The new estimate is too far from the previous one: it's probably garbage.
+                m_lastRobotInFieldCoords = currentRobotinFieldCoords;
+                continue;
+            }
+
+            m_poseEstimator.put(
+                    frameTimeSec,
+                    currentRobotinFieldCoords,
+                    stateStdDevs(),
+                    visionMeasurementStdDevs(distanceM));
+
+            m_latestTimeSec = Takt.get();
+            m_lastRobotInFieldCoords = currentRobotinFieldCoords;
         }
+        return tags;
     }
 
     static double[] stateStdDevs() {
@@ -305,6 +344,17 @@ public class VisionDataProvider24 implements Glassy {
                 k * distanceM,
                 k * distanceM,
                 Double.MAX_VALUE };
+    }
+
+    ///////////////////////////////////////
+
+    /** Distance between pose translations. */
+    private static double distance(Pose2d a, Pose2d b) {
+        // the translation distance is a little quicker to calculate and we don't care
+        // about the "twist" curve measurement
+        return GeometryUtil.distance(
+                a.getTranslation(),
+                b.getTranslation());
     }
 
 }

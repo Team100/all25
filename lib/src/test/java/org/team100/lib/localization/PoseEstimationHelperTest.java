@@ -93,7 +93,7 @@ class PoseEstimationHelperTest {
                         new Translation3d(0, 0, 1),
                         new Rotation3d(0, 0, 0)));
 
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
+        Translation3d tagTranslationInCameraCoords = blip.blipToTransform().getTranslation();
         Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
@@ -129,10 +129,12 @@ class PoseEstimationHelperTest {
                         new Translation3d(0, 0, 1),
                         new Rotation3d(0, 0, 0)));
 
+        Transform3d tagInCameraCoords = blip.blipToTransform();
+
         Pose3d robotPoseInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
                 cameraInRobotCoords,
                 tagInFieldCoords,
-                blip);
+                tagInCameraCoords);
 
         assertEquals(0, robotPoseInFieldCoords.getX(), kDelta);
         assertEquals(0, robotPoseInFieldCoords.getY(), kDelta);
@@ -159,10 +161,13 @@ class PoseEstimationHelperTest {
         Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d();
         LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
         PoseEstimationHelper helper = new PoseEstimationHelper(logger);
+
+        Transform3d tagInCameraCoords = blip.blipToTransform();
+
         Pose3d robotPoseInFieldCoords = helper.getRobotPoseInFieldCoords(
                 cameraInRobotCoords,
                 tagInFieldCoords,
-                blip,
+                tagInCameraCoords,
                 robotRotationInFieldCoordsFromGyro);
 
         assertEquals(0, robotPoseInFieldCoords.getX(), kDelta);
@@ -208,10 +213,11 @@ class PoseEstimationHelperTest {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < iterations; ++i) {
             @SuppressWarnings("unused")
+            Transform3d tagInCameraCoords = blip.blipToTransform();
             Pose3d robotPoseInFieldCoords = helper.getRobotPoseInFieldCoords(
                     cameraInRobotCoords,
                     tagInFieldCoords,
-                    blip,
+                    tagInCameraCoords,
                     robotRotationInFieldCoordsFromGyro);
         }
         long finishTime = System.currentTimeMillis();
@@ -243,7 +249,7 @@ class PoseEstimationHelperTest {
                     new Transform3d(
                             new Translation3d(),
                             new Rotation3d()));
-            Transform3d transform3d = PoseEstimationHelper.blipToTransform(blip);
+            Transform3d transform3d = blip.blipToTransform();
             assertEquals(0, transform3d.getX(), kDelta);
             assertEquals(0, transform3d.getY(), kDelta);
             assertEquals(0, transform3d.getZ(), kDelta);
@@ -256,7 +262,7 @@ class PoseEstimationHelperTest {
                     new Transform3d(
                             new Translation3d(-2, -1, 3),
                             new Rotation3d(Math.PI / 4, 0, 0)));
-            Transform3d transform3d = PoseEstimationHelper.blipToTransform(blip);
+            Transform3d transform3d = blip.blipToTransform();
             assertEquals(3, transform3d.getX(), kDelta);
             assertEquals(2, transform3d.getY(), kDelta);
             assertEquals(1, transform3d.getZ(), kDelta);
@@ -275,7 +281,7 @@ class PoseEstimationHelperTest {
                         new Translation3d(-2, -1, 3),
                         new Rotation3d()));
 
-        Translation3d nwuTranslation = PoseEstimationHelper.blipToTranslation(blip);
+        Translation3d nwuTranslation = blip.blipToTransform().getTranslation();
 
         // NWU values now
         assertEquals(3, nwuTranslation.getX(), kDelta);
@@ -291,7 +297,7 @@ class PoseEstimationHelperTest {
                             new Translation3d(-2, -1, 3),
                             new Rotation3d()));
 
-            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            Rotation3d nwuRotation = blip.blipToTransform().getRotation();
             assertEquals(0, nwuRotation.getX(), kDelta);
             assertEquals(0, nwuRotation.getY(), kDelta);
             assertEquals(0, nwuRotation.getZ(), kDelta);
@@ -304,7 +310,7 @@ class PoseEstimationHelperTest {
                             new Translation3d(0, Math.sqrt(2) / 2, Math.sqrt(2) / 2),
                             new Rotation3d(Math.PI / 4, 0, 0)));
 
-            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            Rotation3d nwuRotation = blip.blipToTransform().getRotation();
             // tilt up in NWU is -y
             assertEquals(0, nwuRotation.getX(), kDelta);
             assertEquals(-Math.PI / 4, nwuRotation.getY(), kDelta);
@@ -318,7 +324,7 @@ class PoseEstimationHelperTest {
                             new Translation3d(0, Math.sqrt(2) / 2, Math.sqrt(2) / 2),
                             new Rotation3d(0, Math.PI / 4, 0)));
 
-            Rotation3d nwuRotation = PoseEstimationHelper.blipToRotation(blip);
+            Rotation3d nwuRotation = blip.blipToTransform().getRotation();
             // pan right in NWU is -z
             assertEquals(0, nwuRotation.getX(), kDelta);
             assertEquals(0, nwuRotation.getY(), kDelta);
@@ -443,7 +449,7 @@ class PoseEstimationHelperTest {
                         new Translation3d(0, 0, 1),
                         new Rotation3d(0, 0, 0)));
 
-        Transform3d tagInCameraCoords = PoseEstimationHelper.blipToTransform(blip);
+        Transform3d tagInCameraCoords = blip.blipToTransform();
         assertEquals(1, tagInCameraCoords.getX(), kDelta);
         assertEquals(0, tagInCameraCoords.getY(), kDelta);
         assertEquals(0, tagInCameraCoords.getZ(), kDelta);
@@ -486,7 +492,7 @@ class PoseEstimationHelperTest {
                         new Translation3d(0, 0, 1),
                         new Rotation3d(0, 0, 0)));
 
-        Transform3d tagInCameraCoords = PoseEstimationHelper.blipToTransform(blip);
+        Transform3d tagInCameraCoords = blip.blipToTransform();
         assertEquals(1, tagInCameraCoords.getX(), kDelta);
         assertEquals(0, tagInCameraCoords.getY(), kDelta);
         assertEquals(0, tagInCameraCoords.getZ(), kDelta);
@@ -515,41 +521,5 @@ class PoseEstimationHelperTest {
         assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
         // camera is facing back towards the wall
         assertEquals(Math.PI, cameraInFieldCoords.getRotation().getZ(), kDelta);
-    }
-
-    @Test
-    void testAngleToTarget() {
-        {
-            Transform3d cameraInRobotCoordinates = new Transform3d();
-            Blip24 blip = new Blip24(7, new Transform3d(0, 0, 1, new Rotation3d()));
-            Transform3d t = PoseEstimationHelper.toTarget(cameraInRobotCoordinates, blip);
-            assertEquals(0, t.getTranslation().toTranslation2d().getAngle().getRadians(), kDelta);
-            assertEquals(1, t.getTranslation().toTranslation2d().getNorm(), kDelta);
-        }
-        {
-            Transform3d cameraInRobotCoordinates = new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI / 2));
-            Blip24 blip = new Blip24(7, new Transform3d(0, 0, 1, new Rotation3d()));
-            Transform3d t = PoseEstimationHelper.toTarget(cameraInRobotCoordinates, blip);
-            assertEquals(Math.PI / 2, t.getTranslation().toTranslation2d().getAngle().getRadians(), kDelta);
-            assertEquals(1, t.getTranslation().toTranslation2d().getNorm(), kDelta);
-        }
-        {
-            Transform3d cameraInRobotCoordinates = new Transform3d(0, 0, 0, new Rotation3d(0, 0, Math.PI / 2));
-            Blip24 blip = new Blip24(7, new Transform3d(1, 0, 1, new Rotation3d()));
-            Transform3d t = PoseEstimationHelper.toTarget(cameraInRobotCoordinates, blip);
-            assertEquals(Math.PI / 4, t.getTranslation().toTranslation2d().getAngle().getRadians(), kDelta);
-            assertEquals(1.414, t.getTranslation().toTranslation2d().getNorm(), kDelta);
-        }
-        {
-            // this very strange camera angle is 90 tilt up, then 90 around (global) z, so
-            // the right side of the camera is pointing forward
-            Transform3d cameraInRobotCoordinates = new Transform3d(0, 0, 0,
-                    new Rotation3d(0, -Math.PI / 2, Math.PI / 2));
-            // this should end up straight ahead
-            Blip24 blip = new Blip24(7, new Transform3d(1, 0, 1, new Rotation3d()));
-            Transform3d t = PoseEstimationHelper.toTarget(cameraInRobotCoordinates, blip);
-            assertEquals(0, t.getTranslation().toTranslation2d().getAngle().getRadians(), kDelta);
-            assertEquals(1, t.getTranslation().toTranslation2d().getNorm(), kDelta);
-        }
     }
 }
