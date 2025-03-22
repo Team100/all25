@@ -24,6 +24,9 @@ import org.team100.frc2025.CommandGroups.ScoreCoral;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Funnel.FunnelDefault;
+import org.team100.frc2025.Funnel.ReleaseFunnel;
+import org.team100.frc2025.Funnel.SetFunnelLatch;
 import org.team100.frc2025.Swerve.Auto.Coral2Auto;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
@@ -305,9 +308,10 @@ public class RobotContainer implements Glassy {
 
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
 
-        // m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
+        m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
+        m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
@@ -421,19 +425,6 @@ public class RobotContainer implements Glassy {
                         buttons::scoringPosition, holonomicController, profile,
                         m_drive, visionDataProvider::setHeedRadiusM));
 
-        // whileTrue(driverControl::driveToTag, buttons::ab, new
-        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::cd, new
-        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::ef, new
-        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::gh, new
-        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::ij, new
-        // GrabAlgaeL3Dumb(m_wrist, m_elevator, m_grip));
-        // whileTrue(driverControl::driveToTag, buttons::kl, new
-        // GrabAlgaeL2Dumb(m_wrist, m_elevator, m_grip));
-
         whileTrue(buttons::ab, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
         whileTrue(buttons::cd, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
         whileTrue(buttons::ef, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
@@ -459,7 +450,9 @@ public class RobotContainer implements Glassy {
 
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
-        whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
+        // whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
+        whileTrue(operatorControl::intake, new ReleaseFunnel(m_funnel, m_climber));
+        // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

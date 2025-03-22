@@ -83,7 +83,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 // m_motor = motor;
                 // rawMotor = motor;
 
-                m_motor = new TalonFX(18);
+                m_motor = new TalonFX(11);
 
                 TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
                 CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
