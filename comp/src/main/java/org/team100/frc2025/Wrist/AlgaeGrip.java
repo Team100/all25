@@ -126,7 +126,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         // m_logLeftLimitSwitch.log(() -> m_leftLimitSwitch.getAsBoolean());
         // m_linearMechanism.periodic();
         // This method will be called once per scheduler run
-
+        if(m_motor==null) return;
         entry1.setDouble(m_motor.getStatorCurrent().getValueAsDouble());
         entry2.setDouble(m_motor.getSupplyCurrent().getValueAsDouble());
 

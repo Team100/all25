@@ -57,8 +57,8 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
             }
             default -> {
                 // m_motor = new SimulatedBareMotor(child, 100);
-                m_leftLimitSwitch = null;
-                m_rightLimitSwitch = null;
+                m_leftLimitSwitch = () -> false;
+                m_rightLimitSwitch = () -> false;
                 m_motor = null;
             }
         }
@@ -71,11 +71,13 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
         m_logLeftLimitSwitch.log(() -> m_leftLimitSwitch.getAsBoolean());
     }
 
-    public boolean hasAlgae(){
+    public boolean hasAlgae() {
         return m_leftLimitSwitch.getAsBoolean() || m_rightLimitSwitch.getAsBoolean();
     }
 
     public void setCoralMotor(double value) {
+        if (m_motor == null)
+            return;
         m_motor.setDutyCycle(value);
     }
 }

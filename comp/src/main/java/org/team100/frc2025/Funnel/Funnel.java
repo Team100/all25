@@ -91,6 +91,7 @@ public class Funnel extends SubsystemBase implements Glassy {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        if(servoAngle1Log==null) return;
         servoAngle1Log.log(() -> getLatch1());
         servoAngle2Log.log(() -> getLatch2());
 
