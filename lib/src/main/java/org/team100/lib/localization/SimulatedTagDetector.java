@@ -113,7 +113,7 @@ public class SimulatedTagDetector {
                     if (DEBUG) {
                         Util.printf("VISIBLE ");
                     }
-                    blips.add(new Blip24(tagId, tagInCamera));
+                    blips.add(Blip24.fromXForward(tagId, tagInCamera));
                 } else {
                     // ignore it
                     if (DEBUG) {

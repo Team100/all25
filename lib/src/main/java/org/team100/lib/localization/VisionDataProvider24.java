@@ -15,6 +15,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
+import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -24,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.MultiSubscriber;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -42,7 +44,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * which matches the TagFinder24 code on the camera.
  */
 public class VisionDataProvider24 implements Glassy {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     /**
      * If the tag is closer than this threshold, then the camera's estimate of tag
      * rotation might be more accurate than the gyro, so we use the camera's
@@ -83,6 +85,8 @@ public class VisionDataProvider24 implements Glassy {
     private final EnumLogger m_log_alliance;
     private final DoubleLogger m_log_heedRadius;
     private final StringLogger m_log_rotation_source;
+    private final DoubleLogger m_log_tag_error;
+    private final Pose2dLogger m_log_pose;
 
     // Remember the previous vision-based pose estimate, so we can measure the
     // distance
@@ -119,7 +123,9 @@ public class VisionDataProvider24 implements Glassy {
         m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
         m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
-        m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation_source");
+        m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation source");
+        m_log_tag_error = child.doubleLogger(Level.TRACE, "tag error");
+        m_log_pose = child.pose2dLogger(Level.TRACE, "pose");
     }
 
     /**
@@ -191,7 +197,11 @@ public class VisionDataProvider24 implements Glassy {
             }
         }
         // publish all the tags we've seen
-        m_pub_tags.set(tags.toArray(new Pose3d[0]));
+        // TODO: publish blank if we haven't seen any for awhile
+        // TODO: Network Tables ignores dupliciates, which makes it
+        // work poorly in simulation, so fix that.
+        if (tags.size() > 0)
+            m_pub_tags.set(tags.toArray(new Pose3d[0]));
     }
 
     /**
@@ -213,16 +223,31 @@ public class VisionDataProvider24 implements Glassy {
     List<Pose3d> estimateRobotPose(String cameraId, Blip24[] blips, double timestamp, Alliance alliance) {
         m_log_heedRadius.log(() -> m_heedRadiusM);
 
-        Transform3d cameraInRobot = Camera.get(cameraId).getOffset();
-        Rotation2d gyroRotation = m_poseEstimator.get(timestamp).pose().getRotation();
+        // Robot-to-camera, offset from Camera.java
+        final Transform3d cameraInRobot = Camera.get(cameraId).getOffset();
+
+        // The pose from the frame timestamp.
+        final Pose2d historicalPose = m_poseEstimator.get(timestamp).pose();
+
+        // Field-to-robot
+        Pose3d historicalPose3d = new Pose3d(historicalPose);
+        // Field-to-robot plus robot-to-camera = field-to-camera
+        Pose3d historicalCameraInField = historicalPose3d.transformBy(cameraInRobot);
+
+        // The gyro rotation for the frame timestamp
+        final Rotation2d gyroRotation = historicalPose.getRotation();
 
         List<Pose3d> tags = new ArrayList<>();
 
         for (int i = 0; i < blips.length; ++i) {
             Blip24 blip = blips[i];
 
-            if (DEBUG)
-                Util.printf("blip %s\n", blip);
+            if (DEBUG) {
+                Translation3d t = blip.getRawPose().getTranslation();
+                Rotation3d r = blip.getRawPose().getRotation();
+                Util.printf("blip raw pose  %d X %5.2f Y %5.2f Z %5.2f R %5.2f P %5.2f Y %5.2f\n",
+                        blip.getId(), t.getX(), t.getY(), t.getZ(), r.getX(), r.getY(), r.getZ());
+            }
 
             // Skip too-far tags.
             if (blip.blipToTransform().getTranslation().getNorm() > m_heedRadiusM) {
@@ -235,29 +260,60 @@ public class VisionDataProvider24 implements Glassy {
                 Util.warnf("VisionDataProvider24: no tag for id %d\n", blip.getId());
                 continue;
             }
+
+            // Field-to-tag, canonical pose from the JSON file
             final Pose3d tagInField = tagInFieldCoordsOptional.get();
 
-            // Tag as it appears in the camera frame.
-            final Transform3d tagInCamera = blip.blipToTransform();
+            // Camera-to-tag, as it appears in the camera frame.
+            Transform3d tagInCamera = blip.blipToTransform();
 
             if (DEBUG) {
                 // This is used for camera offset calibration. Place a tag at a known position,
                 // observe the offset, and add it to Camera.java, inverted.
                 Transform3d tagInRobot = cameraInRobot.plus(tagInCamera);
-                Util.printf("TAG IN ROBOT %s x %f y %f z%f\n",
-                        tagInRobot.getTranslation(),
+                Util.printf("tagInRobot id %d X %5.2f Y %5.2f Z %5.2f R %5.2f P %5.2f Y %5.2f\n",
+                        blip.getId(),
+                        tagInRobot.getTranslation().getX(),
+                        tagInRobot.getTranslation().getY(),
+                        tagInRobot.getTranslation().getZ(),
                         tagInRobot.getRotation().getX(),
                         tagInRobot.getRotation().getY(),
                         tagInRobot.getRotation().getZ());
             }
 
-            // Robot in the field frame.
-            final Pose2d pose = getPose(
+            if (tagInCamera.getTranslation().getNorm() > kTagRotationBeliefThresholdMeters) {
+                // If the tag is further than the threshold, replace the tag rotation with
+                // a rotation derived from the gyro.
+                m_log_rotation_source.log(() -> "GYRO");
+                tagInCamera = PoseEstimationHelper.tagInCamera(
+                        cameraInRobot,
+                        tagInField,
+                        tagInCamera,
+                        new Rotation3d(gyroRotation));
+            } else {
+                m_log_rotation_source.log(() -> "CAMERA");
+            }
+
+            // given the historical pose, where do we think the tag is?
+            Pose3d estimatedTagInField = historicalCameraInField.transformBy(tagInCamera);
+            tags.add(estimatedTagInField);
+
+            // log the norm of the translational error of the tag.
+            Transform3d tagError = tagInField.minus(estimatedTagInField);
+            m_log_tag_error.log(() -> tagError.getTranslation().getNorm());
+
+            // Estimate of robot pose.
+            Pose3d pose3d = PoseEstimationHelper.robotInField(
                     cameraInRobot,
                     tagInField,
-                    tagInCamera,
+                    tagInCamera);
+
+            // Robot in field frame. We always use the gyro for rotation.
+            final Pose2d pose = new Pose2d(
+                    pose3d.getTranslation().toTranslation2d(),
                     gyroRotation);
 
+            m_log_pose.log(() -> pose);
             if (!Experiments.instance.enabled(Experiment.HeedVision)) {
                 // If we've turned vision off altogether, then don't apply this update to the
                 // pose estimator.
@@ -288,47 +344,6 @@ public class VisionDataProvider24 implements Glassy {
             m_prevPose = pose;
         }
         return tags;
-    }
-
-    /**
-     * Calculate robot pose.
-     * 
-     * First calculates the distance to the tag. If it's closer than the threshold,
-     * use the camera-derived tag rotation. If it's far, use the gyro.
-     * 
-     * @param cameraInRobot robot-to-camera, offset from Camera.java
-     * @param tagInField    field-to-tag, canonical pose from the JSON file
-     * @param tagInCamera   camera-to-tag, what the camera sees
-     * @param gyroRotation  from the pose buffer
-     */
-    private Pose2d getPose(
-            Transform3d cameraInRobot,
-            Pose3d tagInField,
-            Transform3d tagInCamera,
-            Rotation2d gyroRotation) {
-
-        if (tagInCamera.getTranslation().getNorm() > kTagRotationBeliefThresholdMeters) {
-            // if the tag is further than the threshold, replace the tag rotation with
-            // a rotation derived from the gyro.
-            m_log_rotation_source.log(() -> "GYRO");
-            tagInCamera = PoseEstimationHelper.tagInCamera(
-                    cameraInRobot,
-                    tagInField,
-                    tagInCamera,
-                    new Rotation3d(gyroRotation));
-        } else {
-            m_log_rotation_source.log(() -> "CAMERA");
-        }
-
-        Pose3d robotPoseInField = PoseEstimationHelper.robotInField(
-                cameraInRobot,
-                tagInField,
-                tagInCamera);
-
-        // Robot in field frame. We always use the gyro for rotation.
-        return new Pose2d(
-                robotPoseInField.getTranslation().toTranslation2d(),
-                gyroRotation);
     }
 
     static double[] stateStdDevs() {

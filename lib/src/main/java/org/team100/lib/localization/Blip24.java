@@ -2,6 +2,7 @@ package org.team100.lib.localization;
 
 import org.team100.lib.geometry.GeometryUtil;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -14,6 +15,12 @@ public class Blip24 {
     public Blip24(int id, Transform3d pose) {
         this.id = id;
         this.pose = pose;
+    }
+
+    public static Blip24 fromXForward(int id, Transform3d pose) {
+        return new Blip24(id, new Transform3d(
+                GeometryUtil.xForwardToZForward(pose.getTranslation()),
+                GeometryUtil.xForwardToZForward(pose.getRotation())));
     }
 
     /**

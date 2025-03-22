@@ -77,8 +77,7 @@ public class PoseEstimationHelper implements Glassy {
      * Compose field-to-tag with tag-to-camera, to get field-to-camera.
      */
     static Pose3d cameraInField(Pose3d tagInField, Transform3d tagInCamera) {
-        Transform3d cameraInTag = tagInCamera.inverse();
-        return tagInField.transformBy(cameraInTag);
+        return tagInField.transformBy(tagInCamera.inverse());
     }
 
     /**
@@ -86,7 +85,6 @@ public class PoseEstimationHelper implements Glassy {
      * Compose field-to-camera with camera-to-robot, to get field-to-robot.
      */
     static Pose3d robotInField(Pose3d cameraInField, Transform3d cameraInRobot) {
-        Transform3d robotInCamera = cameraInRobot.inverse();
-        return cameraInField.transformBy(robotInCamera);
+        return cameraInField.transformBy(cameraInRobot.inverse());
     }
 }
