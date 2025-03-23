@@ -11,6 +11,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -31,7 +32,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * 
  * The profile depends on robot speed, making rotation the lowest priority.
  */
-public class ManualWithProfiledHeading implements FieldRelativeDriver {
+public class ManualWithBargeAssist implements FieldRelativeDriver {
     // don't try to go full speed
     private static final double PROFILE_SPEED = 0.5;
     // accelerate gently to avoid upset
@@ -41,7 +42,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     private final Supplier<Rotation2d> m_desiredRotation;
     private final HeadingLatch m_latch;
     private final Feedback100 m_thetaFeedback;
-
+    private final SwerveDriveSubsystem m_drive;
     // LOGGERS
     private final StringLogger m_log_mode;
     private final DoubleLogger m_log_max_speed;
@@ -65,16 +66,18 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
      * @param thetaController
      * @param omegaController
      */
-    public ManualWithProfiledHeading(
+    public ManualWithBargeAssist(
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Rotation2d> desiredRotation,
-            Feedback100 thetaController) {
+            Feedback100 thetaController,
+            SwerveDriveSubsystem drive) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_desiredRotation = desiredRotation;
         m_thetaFeedback = thetaController;
         m_latch = new HeadingLatch();
+        m_drive = drive;
         m_log_mode = child.stringLogger(Level.TRACE, "mode");
         m_log_max_speed = child.doubleLogger(Level.TRACE, "maxSpeedRad_S");
         m_log_max_accel = child.doubleLogger(Level.TRACE, "maxAccelRad_S2");
@@ -182,7 +185,9 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         // clip the input to the unit circle
         final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
 
- 
+        double scale = Math.max(0, (10 - Math.abs(m_drive.getPose().getX() - 10))); 
+        
+        DriverControl.Velocity scaled = new DriverControl.Velocity(clipped.x() * scale, clipped.y(), clipped.theta());
 
         // scale to max in both translation and rotation
         return DriveUtil.scale(
