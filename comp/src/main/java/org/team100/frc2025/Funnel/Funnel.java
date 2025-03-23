@@ -73,14 +73,17 @@ public class Funnel extends SubsystemBase implements Glassy {
     }
 
     public void setLatch1(double value){
+        if(latchingServo1==null) return;
         latchingServo1.setAngle(value);
     }
 
     public double getLatch1(){
+        
         return latchingServo1.getAngle();
     }
 
     public void setLatch2(double value){
+        if(latchingServo2==null) return;
         latchingServo2.setAngle(value);
     }
 
@@ -91,6 +94,7 @@ public class Funnel extends SubsystemBase implements Glassy {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        if(servoAngle1Log==null) return;
         servoAngle1Log.log(() -> getLatch1());
         servoAngle2Log.log(() -> getLatch2());
 

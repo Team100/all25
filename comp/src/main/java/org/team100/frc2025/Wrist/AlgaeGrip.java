@@ -84,7 +84,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 // rawMotor = motor;
 
                 m_motor = new TalonFX(11);
-
+                if(m_motor==null) return;
                 TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
                 CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -126,7 +126,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         // m_logLeftLimitSwitch.log(() -> m_leftLimitSwitch.getAsBoolean());
         // m_linearMechanism.periodic();
         // This method will be called once per scheduler run
-
+        if(m_motor==null) return;
         entry1.setDouble(m_motor.getStatorCurrent().getValueAsDouble());
         entry2.setDouble(m_motor.getSupplyCurrent().getValueAsDouble());
 
@@ -158,6 +158,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
 
     public void setDutyCycle(double dutyCycle) {
+        if(m_motor==null) return;
         m_motor.set(dutyCycle);
     }
     public void stop() {
@@ -179,6 +180,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     }
 
     public void applyLowConfigs(){
+        if(m_motor==null) return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -192,6 +194,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     }
 
     public void applyHighConfigs(){
+        if(m_motor==null) return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
