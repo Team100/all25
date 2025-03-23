@@ -126,7 +126,7 @@ public class RobotContainer implements Glassy {
     final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
-    LEDIndicator m_leds;
+    final LEDIndicator m_leds;
 
     final CoralTunnel m_tunnel;
     final AlgaeGrip m_grip;
@@ -168,7 +168,6 @@ public class RobotContainer implements Glassy {
             // m_leds.setFront(LEDIndicator.State.ORANGE);
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
-            m_leds = null;
             m_elevator = new Elevator(elevatorLog, 2, 19);
             m_wrist = new Wrist2(elevatorLog, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
@@ -188,7 +187,6 @@ public class RobotContainer implements Glassy {
             m_wrist = new Wrist2(elevatorLog, 9);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
-            m_leds = null;
         }
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
@@ -524,6 +522,7 @@ public class RobotContainer implements Glassy {
     // this keeps the tests from conflicting via the use of simulated HAL ports.
     public void close() {
         m_modules.close();
+        m_leds.close();
     }
 
 }

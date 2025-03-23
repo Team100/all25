@@ -161,4 +161,8 @@ public class LEDIndicator {
         // update the output with the buffer we constructed.
         led.setData(buffer);
     }
+
+    public void close() {
+        led.close();
+    }
 }
