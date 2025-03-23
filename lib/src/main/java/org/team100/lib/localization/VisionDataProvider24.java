@@ -216,6 +216,7 @@ public class VisionDataProvider24 implements Glassy {
                     // Util.warnf("VisionDataProvider24: no raw value for name: %s\n", name);
                     continue;
                 }
+
                 Blip24[] blips;
                 try {
                     synchronized (m_buf) {

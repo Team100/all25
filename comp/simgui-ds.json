@@ -4,6 +4,26 @@
       "visible": false
     }
   },
+  "Keyboard 0 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
+  "Keyboard 1 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
+  "Keyboard 2 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
+  "Keyboard 3 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -86,7 +106,7 @@
         260,
         268,
         266,
-        261,
+        49,
         269,
         267,
         -1,
@@ -97,7 +117,7 @@
         -1,
         -1,
         -1,
-        76,
+        50,
         -1,
         -1,
         -1,
