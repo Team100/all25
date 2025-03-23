@@ -50,6 +50,7 @@ public class SimulatedTagDetector {
     private final Supplier<Pose2d> m_robotPose;
 
     private final Map<Camera, StructArrayPublisher<Blip24>> m_publishers;
+    private final NetworkTableInstance m_inst;
 
     public SimulatedTagDetector(
             List<Camera> cameras,
@@ -59,13 +60,14 @@ public class SimulatedTagDetector {
         m_layout = layout;
         m_robotPose = robotPose;
         m_publishers = new HashMap<>();
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        m_inst = NetworkTableInstance.create();
+        m_inst.startClient4("SimulatedTagDetector");
+        m_inst.setServer("localhost");
         for (Camera camera : m_cameras) {
-            System.out.println(camera);
             // see tag_detector.py
             String path = "vision/" + camera.getSerial() + "/0";
             String name = path + "/blips";
-            var topic = inst.getStructArrayTopic(name, Blip24.struct);
+            var topic = m_inst.getStructArrayTopic(name, Blip24.struct);
             StructArrayPublisher<Blip24> publisher = topic.publish();
             m_publishers.put(camera, publisher);
         }

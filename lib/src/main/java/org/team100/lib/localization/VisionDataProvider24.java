@@ -45,7 +45,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * which matches the TagFinder24 code on the camera.
  */
 public class VisionDataProvider24 implements Glassy {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     /**
      * If the tag is closer than this threshold, then the camera's estimate of tag
      * rotation might be more accurate than the gyro, so we use the camera's
@@ -89,6 +89,9 @@ public class VisionDataProvider24 implements Glassy {
      * detector) then these positions will be a little bit wrong.
      */
     private final StructArrayPublisher<Pose3d> m_pub_tags;
+    /** Just tags we use for pose estimation. */
+    private final StructArrayPublisher<Pose3d> m_pub_used_tags;
+
     /**
      * The pose we derive from each sighting, so we can see it in AdvantageScope's
      * map, which can't understand our usual Pose2dLogger's output.
@@ -122,6 +125,16 @@ public class VisionDataProvider24 implements Glassy {
     private double m_heedRadiusM = 3.5;
 
     /**
+     * Accumulates all tags we receive in each cycle, whether we use them or not.
+     */
+    private final List<Pose3d> m_allTags = new ArrayList<>();
+    /**
+     * Just the tags we use for pose estimation, i.e. not ones that are too far
+     * away.
+     */
+    private final List<Pose3d> m_usedTags = new ArrayList<>();
+
+    /**
      * @param layout
      * @param poseEstimator
      * @param rotationSupplier rotation for the given time in seconds
@@ -141,6 +154,8 @@ public class VisionDataProvider24 implements Glassy {
                 new MultiSubscriber(inst, new String[] { "vision" }),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
         m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
+        m_pub_used_tags = inst.getStructArrayTopic("used tags", Pose3d.struct).publish();
+
         m_pub_pose = inst.getStructTopic("pose", Pose2d.struct).publish();
 
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
@@ -169,12 +184,15 @@ public class VisionDataProvider24 implements Glassy {
     public void update() {
         final Optional<Alliance> alliance = DriverStation.getAlliance();
         if (!alliance.isPresent()) {
-            Util.warn("VisionDataProvider24: Alliance is not present!");
+            // this happens on startup
+            // Util.warn("VisionDataProvider24: Alliance is not present!");
             return;
         }
         m_log_alliance.log(() -> alliance.get());
 
-        List<Pose3d> tags = new ArrayList<>();
+        // only publish new sights
+        m_allTags.clear();
+        m_usedTags.clear();
         NetworkTableEvent[] events = m_poller.readQueue();
         for (NetworkTableEvent e : events) {
             ValueEventData ve = e.valueData;
@@ -193,7 +211,9 @@ public class VisionDataProvider24 implements Glassy {
                 // decode the way StructArrayEntryImpl does
                 byte[] b = v.getRaw();
                 if (b.length == 0) {
-                    Util.warnf("VisionDataProvider24: no raw value for name: %s\n", name);
+                    // this seems to happen not-never which is weird.
+                    // TODO: why?
+                    // Util.warnf("VisionDataProvider24: no raw value for name: %s\n", name);
                     continue;
                 }
                 Blip24[] blips;
@@ -217,12 +237,9 @@ public class VisionDataProvider24 implements Glassy {
                 double blipTimeSec = (serverTimeUs / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
 
                 // this seems to always be 1. ????
-                System.out.println("serverTime " + serverTimeUs);
-                System.out.println("blip time " + blipTimeSec);
                 m_log_lag.log(() -> Takt.get() - blipTimeSec);
 
-                List<Pose3d> newTags = estimateRobotPose(cameraId, blips, blipTimeSec, alliance.get());
-                tags.addAll(newTags);
+                estimateRobotPose(cameraId, blips, blipTimeSec, alliance.get());
             } else {
                 // this event is not for us
                 // Util.println("weird vision update key: " + name);
@@ -232,8 +249,10 @@ public class VisionDataProvider24 implements Glassy {
         // TODO: publish blank if we haven't seen any for awhile
         // TODO: Network Tables ignores dupliciates, which makes it
         // work poorly in simulation, so fix that.
-        if (tags.size() > 0)
-            m_pub_tags.set(tags.toArray(new Pose3d[0]));
+        if (m_allTags.size() > 0)
+            m_pub_tags.set(m_allTags.toArray(new Pose3d[0]));
+        if (m_usedTags.size() > 0)
+            m_pub_used_tags.set(m_usedTags.toArray(new Pose3d[0]));
     }
 
     /**
@@ -252,7 +271,7 @@ public class VisionDataProvider24 implements Glassy {
      * @param alliance  From the driver station
      * @return The apparent location of tags we can see
      */
-    List<Pose3d> estimateRobotPose(String cameraId, Blip24[] blips, double timestamp, Alliance alliance) {
+    void estimateRobotPose(String cameraId, Blip24[] blips, double timestamp, Alliance alliance) {
         m_log_heedRadius.log(() -> m_heedRadiusM);
 
         // Robot-to-camera, offset from Camera.java
@@ -269,8 +288,6 @@ public class VisionDataProvider24 implements Glassy {
         // The gyro rotation for the frame timestamp
         final Rotation2d gyroRotation = historicalPose.getRotation();
 
-        List<Pose3d> tags = new ArrayList<>();
-
         for (int i = 0; i < blips.length; ++i) {
             Blip24 blip = blips[i];
 
@@ -281,14 +298,10 @@ public class VisionDataProvider24 implements Glassy {
                         blip.getId(), t.getX(), t.getY(), t.getZ(), r.getX(), r.getY(), r.getZ());
             }
 
-            // Skip too-far tags.
-            if (blip.blipToTransform().getTranslation().getNorm() > m_heedRadiusM) {
-                continue;
-            }
-
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldCoordsOptional.isPresent()) {
+                // this should never happen
                 Util.warnf("VisionDataProvider24: no tag for id %d\n", blip.getId());
                 continue;
             }
@@ -328,7 +341,7 @@ public class VisionDataProvider24 implements Glassy {
 
             // given the historical pose, where do we think the tag is?
             Pose3d estimatedTagInField = historicalCameraInField.transformBy(tagInCamera);
-            tags.add(estimatedTagInField);
+            m_allTags.add(estimatedTagInField);
 
             // log the norm of the translational error of the tag.
             Transform3d tagError = tagInField.minus(estimatedTagInField);
@@ -354,6 +367,11 @@ public class VisionDataProvider24 implements Glassy {
                 continue;
             }
 
+            if (blip.blipToTransform().getTranslation().getNorm() > m_heedRadiusM) {
+                // Skip too-far tags.
+                continue;
+            }
+
             if (m_prevPose == null) {
                 // Ignore the very first update since we have no idea if it is far from the
                 // previous one.
@@ -368,6 +386,7 @@ public class VisionDataProvider24 implements Glassy {
                 continue;
             }
 
+            m_usedTags.add(estimatedTagInField);
             m_poseEstimator.put(
                     timestamp,
                     pose,
@@ -377,7 +396,6 @@ public class VisionDataProvider24 implements Glassy {
             m_latestTimeSec = Takt.get();
             m_prevPose = pose;
         }
-        return tags;
     }
 
     static double[] stateStdDevs() {

@@ -150,7 +150,6 @@ public class SimulatedTagDetectorTest {
     @Test
     void testVisible1() {
         Rotation3d tag6 = new Rotation3d(0.62, -0.36, -0.93);
-        System.out.println(tag6);
         // this case
         // Rotation3d(Quaternion(0.861, 0.191, -0.286, -0.371))
         // from above

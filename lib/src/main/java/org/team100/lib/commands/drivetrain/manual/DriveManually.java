@@ -30,8 +30,8 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Chooser.
  */
 public class DriveManually extends Command implements Glassy {
-    /** While driving manually, pay attention to tags even if they are far away. */
-    private static final double kHeedRadiusM = 12.0;
+    /** While driving manually, pay attention to tags even if they are somewhat far away. */
+    private static final double kHeedRadiusM = 6.0;
 
     private static final boolean DEBUG = false;
 
