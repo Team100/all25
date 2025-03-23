@@ -51,7 +51,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
                 // new ResetPose(drivetrain, 6.305274, 5.979709, 0),
 
                 // new RepeatCommand(
-                makerTrajec.test(parent, fieldLogger, controller, profile)
+                makerTrajec.test(fieldLogger, controller, profile)
         // )
 
         // new DriveToPoseSimple(parent, controller , drivetrain, makerTrajec)

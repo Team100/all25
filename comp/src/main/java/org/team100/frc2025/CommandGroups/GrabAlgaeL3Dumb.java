@@ -13,15 +13,15 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class GrabAlgaeL3Dumb extends SequentialCommandGroup100 {
     public GrabAlgaeL3Dumb(
-            LoggerFactory parent,
+            LoggerFactory logger,
             Wrist2 wrist,
             Elevator elevator,
             AlgaeGrip grip) {
-        super(parent);
+        super(logger);
         addCommands(
                 // new SetAlgaeDescorePositionPrep(wrist, elevator),
                 new CheckWristDanger(wrist),
-                new ParallelDeadlineGroup100(parent,
+                new ParallelDeadlineGroup100(logger.child("grabL3"),
                         new SetElevator(elevator, 35, true),
                         new SetWrist(wrist, 3.7, true),
                         new IntakeAlgaeGrip(grip, true)));

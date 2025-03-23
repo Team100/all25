@@ -17,8 +17,8 @@ import org.team100.lib.logging.LoggerFactory;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 
 public class ScoreBarge extends SequentialCommandGroup100 {
-    public ScoreBarge(LoggerFactory parent, Elevator elevator, Wrist2 wrist, AlgaeGrip grip) {
-        super(parent);
+    public ScoreBarge(LoggerFactory logger, Elevator elevator, Wrist2 wrist, AlgaeGrip grip) {
+        super(logger);
         // addCommands(
         //         // new ParallelDeadlineGroup100(
         //         //         parent,
@@ -39,7 +39,7 @@ public class ScoreBarge extends SequentialCommandGroup100 {
         addCommands(
                 // new SetAlgaeDescorePositionPrep(wrist, elevator),
                 // new CheckWristDanger(wrist),
-                new ParallelDeadlineGroup100(parent,
+                new ParallelDeadlineGroup100(logger.child("up"),
                         new SetWrist(wrist, 2.0, false),
                         new SetElevator(elevator, 54, true),
                         new IntakeAlgaeGrip(grip, true)

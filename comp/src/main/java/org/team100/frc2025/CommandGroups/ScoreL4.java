@@ -11,21 +11,21 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class ScoreL4 extends SequentialCommandGroup100 {
     
-    public ScoreL4(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
-        super(parent);
+    public ScoreL4(LoggerFactory logger, Wrist2 wrist, Elevator elevator) {
+        super(logger);
         addCommands(
                 new SetWrist(wrist, 0.4, false),
                 new PrePlaceCoralL4(wrist, elevator, 45),
                 // new ParallelDeadlineGroup100(parent,
                 // new SetElevator(elevator, 45, false),
                 // new SetWrist(wrist, 0.4, true)),//45
-                new ParallelDeadlineGroup100(parent,
+                new ParallelDeadlineGroup100(logger.child("up"),
                         new SetWrist(wrist, 1.25, false),
                         new SetElevatorPerpetually(elevator, 45)),
-                new ParallelDeadlineGroup100(parent,
+                new ParallelDeadlineGroup100(logger.child("score"),
                         new SetElevator(elevator, 35, false),
                         new SetWrist(wrist, 1.25, true)),
-                new ParallelDeadlineGroup100(parent,
+                new ParallelDeadlineGroup100(logger.child("down"),
                         new SetElevator(elevator, 10, false),
                         new SetWrist(wrist, 0.5, true))
 

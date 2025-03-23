@@ -16,14 +16,15 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class PartRedSea extends SequentialCommandGroup100 {
-    public PartRedSea(LoggerFactory parent, Wrist2 wrist, Elevator elevator, Climber climber) {
-        super(parent);
+    public PartRedSea(LoggerFactory logger, Wrist2 wrist, Elevator elevator, Climber climber) {
+        super(logger);
         addCommands(
                 new SetWristHandoff(wrist, 0.1),
                 new SetWristDutyCycle(wrist, -0.11, true),
-                new ParallelRaceGroup(new WaitCommand(4), new SetClimber(climber, -3)),
-                new ParallelCommandGroup100(
-                        parent,
+                new ParallelRaceGroup(
+                        new WaitCommand(4),
+                        new SetClimber(climber, -3)),
+                new ParallelCommandGroup100(logger.child("elevate"),
                         new SetElevator(elevator, 10, true),
                         new SetWrist(wrist, 0.5, true)));
     }

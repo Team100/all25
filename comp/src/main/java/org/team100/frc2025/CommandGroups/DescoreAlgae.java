@@ -16,7 +16,6 @@ import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelCommandGroup100;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
@@ -34,7 +33,7 @@ public class DescoreAlgae extends SequentialCommandGroup100 {
             AlgaeGrip grip,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier,
+            Supplier<ScoringPosition> height,
             SwerveController controller,
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
@@ -44,28 +43,21 @@ public class DescoreAlgae extends SequentialCommandGroup100 {
         addCommands(
                 new SetAlgaeDescorePositionPrep(logger, wrist, elevator),
                 // new IntakeAlgaeGrip(grip, true)
-                new ParallelDeadlineGroup100(logger,
-                        new Embark(m_drive, heedRadiusM, SwerveControllerFactory.byIdentity(logger), profile,
-                                targetSector,
-                                destination, scoringPositionSupplier, 1.4),
-                        new SetWrist(wrist, 3.7, true), new SetElevatorPerpetually(elevator, 12)),
-                new ParallelDeadlineGroup100(logger,
-                        new SetElevator(elevator, 35, false), new SetWrist(wrist, 3.7, true),
+                new ParallelDeadlineGroup100(logger.child("approach"),
+                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.4),
+                        new SetWrist(wrist, 3.7, true),
+                        new SetElevatorPerpetually(elevator, 12)),
+                new ParallelDeadlineGroup100(logger.child("elevate"),
+                        new SetElevator(elevator, 35, false),
+                        new SetWrist(wrist, 3.7, true),
                         new IntakeAlgaeGrip(grip, true)),
-                new ParallelDeadlineGroup100(logger,
-                        new Embark(m_drive, heedRadiusM,
-                                SwerveControllerFactory.byIdentity(logger), profile,
-                                targetSector,
-                                destination, scoringPositionSupplier, 1.35),
+                new ParallelDeadlineGroup100(logger.child("pick"),
+                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.35),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),
                         new SetWrist(wrist, 3.7, true)),
-                new ParallelCommandGroup100(
-                        logger,
-                        new Embark(m_drive, heedRadiusM,
-                                SwerveControllerFactory.byIdentity(logger), profile,
-                                targetSector,
-                                destination, scoringPositionSupplier, 1.75),
+                new ParallelCommandGroup100(logger.child("retreat"),
+                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.75),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),
                         new SetWrist(wrist, 3.7, true))

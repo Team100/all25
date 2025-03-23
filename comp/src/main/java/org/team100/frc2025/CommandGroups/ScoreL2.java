@@ -14,7 +14,6 @@ import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
@@ -29,7 +28,7 @@ public class ScoreL2 extends SequentialCommandGroup100 {
             CoralTunnel tunnel,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier,
+            Supplier<ScoringPosition> height,
             SwerveController controller,
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
@@ -37,21 +36,19 @@ public class ScoreL2 extends SequentialCommandGroup100 {
         super(logger);
         addCommands(
                 new SetWrist(wrist, 0.4, false),
-                new ParallelDeadlineGroup100(logger,
+                new ParallelDeadlineGroup100(logger.child("up"),
                         new SetElevator(elevator, 10.5, false),
                         new SetWrist(wrist, 0.4, true)),
-                new ParallelDeadlineGroup100(logger,
+                new ParallelDeadlineGroup100(logger.child("out"),
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 10.5)),
-                new ParallelDeadlineGroup100(logger,
+                new ParallelDeadlineGroup100(logger.child("down"),
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 4.6)),
-                new ParallelDeadlineGroup100(logger,
-                        new Embark(m_drive, heedRadiusM,
-                                SwerveControllerFactory.byIdentity(logger),
-                                profile, targetSector,
-                                destination, scoringPositionSupplier, 2),
-                        new SetWrist(wrist, 1.2, true), new SetElevatorPerpetually(elevator, 4.6))
+                new ParallelDeadlineGroup100(logger.child("drive"),
+                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 2),
+                        new SetWrist(wrist, 1.2, true),
+                        new SetElevatorPerpetually(elevator, 4.6))
         // new ParallelDeadlineGroup100(logger,
         // new SetElevator(elevator, 6, false), new
         // SetWrist(wrist, 0.9, true))

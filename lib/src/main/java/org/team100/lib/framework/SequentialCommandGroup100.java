@@ -21,6 +21,10 @@ public class SequentialCommandGroup100 extends Command {
     private InterruptionBehavior m_interruptBehavior = InterruptionBehavior.kCancelIncoming;
     private final StringLogger m_log_active_command;
 
+    /**
+     * It would be good to use a named child as the logger here, so that we don't
+     * have so many publishers to the same log key.
+     */
     public SequentialCommandGroup100(
             LoggerFactory parent,
             Command... commands) {

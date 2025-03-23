@@ -11,13 +11,12 @@ public class PrepareFunnelHandoff extends SequentialCommandGroup100 {
     private final Wrist2 m_wrist;
     private final Elevator m_elevator;
 
-    public PrepareFunnelHandoff(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
-        super(parent);
+    public PrepareFunnelHandoff(LoggerFactory logger, Wrist2 wrist, Elevator elevator) {
+        super(logger);
         m_wrist = wrist;
         m_elevator = elevator;
         addCommands(
-                new ParallelCommandGroup100(
-                        parent,
+                new ParallelCommandGroup100(logger.child("prep"),
                         // new SetWrist(wrist, 0.1, false),
                         new SetWristHandoff(wrist, 0.1),
                         new SetElevatorFunnelHandoff(elevator, 0.1))
