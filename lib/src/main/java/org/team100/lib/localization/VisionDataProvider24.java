@@ -32,6 +32,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableListenerPoller;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.ValueEventData;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -79,7 +80,20 @@ public class VisionDataProvider24 implements Glassy {
     private final PoseEstimator100 m_poseEstimator;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
     private final NetworkTableListenerPoller m_poller;
+    /**
+     * The apparent position of tags we see: this can be shown in AdvantageScope
+     * using the Vision Target feature. The apparent position should match the
+     * actual position, if the cameras are calibrated correctly. Note this involves
+     * matching the frame timestamp with the pose history timestamp, so if the blip
+     * source timestamp is wrong (as it is at the moment in the simulated tag
+     * detector) then these positions will be a little bit wrong.
+     */
     private final StructArrayPublisher<Pose3d> m_pub_tags;
+    /**
+     * The pose we derive from each sighting, so we can see it in AdvantageScope's
+     * map, which can't understand our usual Pose2dLogger's output.
+     */
+    private final StructPublisher<Pose2d> m_pub_pose;
 
     // LOGGERS
     private final EnumLogger m_log_alliance;
@@ -87,6 +101,12 @@ public class VisionDataProvider24 implements Glassy {
     private final StringLogger m_log_rotation_source;
     private final DoubleLogger m_log_tag_error;
     private final Pose2dLogger m_log_pose;
+    /**
+     * The difference between the current instant and the instant of the blip,
+     * including our magic correction, i.e. this is the time we look up in the pose
+     * buffer.
+     */
+    private final DoubleLogger m_log_lag;
 
     // Remember the previous vision-based pose estimate, so we can measure the
     // distance
@@ -121,11 +141,14 @@ public class VisionDataProvider24 implements Glassy {
                 new MultiSubscriber(inst, new String[] { "vision" }),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
         m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
+        m_pub_pose = inst.getStructTopic("pose", Pose2d.struct).publish();
+
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
         m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
         m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation source");
         m_log_tag_error = child.doubleLogger(Level.TRACE, "tag error");
         m_log_pose = child.pose2dLogger(Level.TRACE, "pose");
+        m_log_lag = child.doubleLogger(Level.TRACE, "lag");
     }
 
     /**
@@ -188,7 +211,16 @@ public class VisionDataProvider24 implements Glassy {
                 // Vasili added this extra delay after some experimentation that he should
                 // describe here.
                 final double IMPORTANT_MAGIC_NUMBER = 0.027;
-                double blipTimeSec = (v.getServerTime() / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
+                // server time is in microseconds
+                // https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-intro.html#timestamps
+                long serverTimeUs = v.getServerTime();
+                double blipTimeSec = (serverTimeUs / 1000000.0 - IMPORTANT_MAGIC_NUMBER);
+
+                // this seems to always be 1. ????
+                System.out.println("serverTime " + serverTimeUs);
+                System.out.println("blip time " + blipTimeSec);
+                m_log_lag.log(() -> Takt.get() - blipTimeSec);
+
                 List<Pose3d> newTags = estimateRobotPose(cameraId, blips, blipTimeSec, alliance.get());
                 tags.addAll(newTags);
             } else {
@@ -314,6 +346,8 @@ public class VisionDataProvider24 implements Glassy {
                     gyroRotation);
 
             m_log_pose.log(() -> pose);
+            m_pub_pose.set(pose);
+
             if (!Experiments.instance.enabled(Experiment.HeedVision)) {
                 // If we've turned vision off altogether, then don't apply this update to the
                 // pose estimator.

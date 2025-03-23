@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -144,7 +145,14 @@ public class SimulatedTagDetector {
 
             // publish whatever we saw
             // TODO: pose should be from the past, using publisher "set" from the past.
-            m_publishers.get(camera).set(blips.toArray(new Blip24[0]));
+            // use a microsecond timestamp as specified here
+            // https://docs.wpilib.org/en/stable/docs/software/networktables/publish-and-subscribe.html
+            
+            // guess about a reasonable delay
+            long delayUs = 80;
+            long timestampUs = NetworkTablesJNI.now();
+
+            m_publishers.get(camera).set(blips.toArray(new Blip24[0]), timestampUs - delayUs);
             if (PUBLISH_DEBUG) {
                 Util.printf("%s\n", blips);
             }
