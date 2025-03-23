@@ -44,7 +44,7 @@ public class SimulatedTagDetectorTest {
         AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
         // right in front of tag 7
         Pose2d pose = new Pose2d(2.6576, 4.0259, Rotation2d.kZero);
-        SimulatedTagDetector sim = new SimulatedTagDetector(cameras, layout, () -> pose);
+        SimulatedTagDetector sim = new SimulatedTagDetector(cameras, layout, (x) -> pose);
         // sim uses alliance from driver station
         DriverStationSim.setAllianceStationId(AllianceStationID.Red1);
         DriverStationSim.notifyNewData();

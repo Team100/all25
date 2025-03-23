@@ -247,7 +247,7 @@ public class RobotContainer implements Glassy {
                             Camera.CORAL_LEFT,
                             Camera.CORAL_RIGHT),
                     layout,
-                    m_drive::getPose);
+                    (timestampS) -> poseEstimator.get(timestampS).pose());
             m_simulatedTagDetector = sim::periodic;
         }
 

@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.DoubleFunction;
 
 import org.team100.lib.config.Camera;
+import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.Vector;
@@ -44,18 +45,27 @@ public class SimulatedTagDetector {
     private static final int kTagCount = 22;
     // past about 80 degrees, you can't see the tag.
     private static final double kObliqueLimitRad = 1.4;
+    // camera frame is from 85 ms ago
+    // TODO: make this jitter a little
+    private static final double kDelayS = 0.085;
 
     private final List<Camera> m_cameras;
     private final AprilTagFieldLayoutWithCorrectOrientation m_layout;
-    private final Supplier<Pose2d> m_robotPose;
+    private final DoubleFunction<Pose2d> m_robotPose;
 
     private final Map<Camera, StructArrayPublisher<Blip24>> m_publishers;
     private final NetworkTableInstance m_inst;
 
+    /**
+     * 
+     * @param cameras
+     * @param layout
+     * @param robotPose look up pose by timestamp (sec)
+     */
     public SimulatedTagDetector(
             List<Camera> cameras,
             AprilTagFieldLayoutWithCorrectOrientation layout,
-            Supplier<Pose2d> robotPose) {
+            DoubleFunction<Pose2d> robotPose) {
         m_cameras = cameras;
         m_layout = layout;
         m_robotPose = robotPose;
@@ -79,7 +89,8 @@ public class SimulatedTagDetector {
         Optional<Alliance> opt = DriverStation.getAlliance();
         if (opt.isEmpty())
             return;
-        Pose3d robotPose3d = new Pose3d(m_robotPose.get());
+        double timestampS = Takt.get() - kDelayS;
+        Pose3d robotPose3d = new Pose3d(m_robotPose.apply(timestampS));
         if (DEBUG) {
             Util.printf("robot pose X %6.2f Y %6.2f Z %6.2f R %6.2f P %6.2f Y %6.2f \n",
                     robotPose3d.getTranslation().getX(),
@@ -149,11 +160,10 @@ public class SimulatedTagDetector {
             // TODO: pose should be from the past, using publisher "set" from the past.
             // use a microsecond timestamp as specified here
             // https://docs.wpilib.org/en/stable/docs/software/networktables/publish-and-subscribe.html
-            
-            // guess about a reasonable delay
-            long delayUs = 80;
-            long timestampUs = NetworkTablesJNI.now();
 
+            // guess about a reasonable delay
+            long delayUs = (long) kDelayS * 1000000;
+            long timestampUs = NetworkTablesJNI.now();
             m_publishers.get(camera).set(blips.toArray(new Blip24[0]), timestampUs - delayUs);
             if (PUBLISH_DEBUG) {
                 Util.printf("%s\n", blips);
