@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -41,6 +40,8 @@ import edu.wpi.first.wpilibj.Filesystem;
  * 
  * @see https://github.com/AprilRobotics/apriltag/wiki/AprilTag-User-Guide#coordinate-system
  * 
+ * NOTE: the AprilTag object is just the raw JSON, not corrected for alliance
+ * orientation.  Do not use the AprilTag object!
  */
 public class AprilTagFieldLayoutWithCorrectOrientation {
     private static final String kProdFilename = "2025-reefscape.json";
@@ -65,24 +66,15 @@ public class AprilTagFieldLayoutWithCorrectOrientation {
         layouts.put(Alliance.Blue, blueLayout);
     }
 
-    /** Always use prod layouts. */
-    public List<AprilTag> getTags(Alliance alliance) {
-        return getLayout(alliance, 0).getTags();
-    }
-
     /**
      * @return Tag pose with correct yaw (inverted compared to json file)
      */
     public Optional<Pose3d> getTagPose(Alliance alliance, int id) {
-        AprilTagFieldLayout layout = getLayout(alliance, id);
+        AprilTagFieldLayout layout = layouts.get(alliance);
         Optional<Pose3d> pose = layout.getTagPose(id);
         if (pose.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(pose.get().transformBy(kFix));
-    }
-
-    private AprilTagFieldLayout getLayout(Alliance alliance, int id) {
-        return layouts.get(alliance);
     }
 }

@@ -37,7 +37,7 @@ public class Blip24Struct implements Struct<Blip24> {
     @Override
     public void pack(ByteBuffer bb, Blip24 value) {
         bb.putInt(value.getId());
-        Transform3d.struct.pack(bb, value.getPose());
+        Transform3d.struct.pack(bb, value.getRawPose());
     }
 
 }
