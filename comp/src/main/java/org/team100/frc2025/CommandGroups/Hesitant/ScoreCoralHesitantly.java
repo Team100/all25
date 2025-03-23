@@ -50,12 +50,6 @@ public class ScoreCoralHesitantly extends SequentialCommandGroup100 {
                                 Map.of(
                                         ScoringPosition.L4, new PreScoreL4Hesitant(logger, wrist, elevator)),
                                 elevator::getScoringPosition)),
-                // new SelectCommand<>(
-                // Map.of(
-                // ScoringPosition.L4, new ScoreL4Hesitantly(wrist, elevator)
-                // )
-                // ,elevator::getScoringPosition
-                // )
                 new ScoreL4Hesitantly(logger, wrist, elevator)
 
         );

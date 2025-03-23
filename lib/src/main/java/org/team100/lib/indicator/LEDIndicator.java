@@ -2,6 +2,7 @@ package org.team100.lib.indicator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.team100.lib.util.Takt;
 
@@ -72,7 +73,8 @@ public class LEDIndicator {
     private State m_back;
     private boolean m_flashing;
 
-    public LEDIndicator(int port) {
+    private Supplier<Double> m_timeSinceLastPose;
+    public LEDIndicator(int port, Supplier<Double> timeSinceLastPose) {
         m_frontStrips = new ArrayList<>();
         m_backStrips = new ArrayList<>();
 
@@ -82,11 +84,14 @@ public class LEDIndicator {
         int length = Math.max(
                 m_frontStrips.stream().map(LEDStrip::end).reduce(0, Integer::max),
                 m_backStrips.stream().map(LEDStrip::end).reduce(0, Integer::max));
+
         led = new AddressableLED(port);
         led.setLength(length);
         buffer = new AddressableLEDBuffer(length);
         led.setData(buffer);
         led.start();
+
+        m_timeSinceLastPose = timeSinceLastPose;
 
         m_flashing = false;
 
@@ -110,28 +115,46 @@ public class LEDIndicator {
     public void periodic() {
         // back always shows the same
         // front depends on flashing state
-        if (m_flashing) {
-            if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
-                for (LEDStrip strip : m_frontStrips) {
-                    strip.solid(buffer, Color.kBlack);
-                }
-                for (LEDStrip strip : m_backStrips) {
-                    strip.solid(buffer, Color.kBlack);
-                }
-            } else if ((int)(Takt.get() / kFlashDurationSec) % 2 == 1){
-                for (LEDStrip strip : m_frontStrips) {
-                    strip.solid(buffer, m_front.color);
-                }
-                for (LEDStrip strip : m_backStrips) {
-                    strip.solid(buffer, m_back.color);
-                }
+        // if (m_flashing) {
+        //     if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
+        //         for (LEDStrip strip : m_frontStrips) {
+        //             strip.solid(buffer, Color.kBlack);
+        //         }
+        //         for (LEDStrip strip : m_backStrips) {
+        //             strip.solid(buffer, Color.kBlack);
+        //         }
+        //     } else if ((int)(Takt.get() / kFlashDurationSec) % 2 == 1){
+        //         for (LEDStrip strip : m_frontStrips) {
+        //             strip.solid(buffer, m_front.color);
+        //         }
+        //         for (LEDStrip strip : m_backStrips) {
+        //             strip.solid(buffer, m_back.color);
+        //         }
+        //     }
+        // } else {
+        //     for (LEDStrip strip : m_frontStrips) {
+        //         strip.solid(buffer, m_front.color);
+        //     }
+        //     for (LEDStrip strip : m_backStrips) {
+        //         strip.solid(buffer, m_back.color);
+        //     }
+        // }
+
+        if(m_timeSinceLastPose.get() < 1){
+            for (LEDStrip strip : m_frontStrips) {
+                strip.solid(buffer, Color.kBlack);
+            }
+
+            for (LEDStrip strip : m_backStrips) {
+                strip.solid(buffer, Color.kBlack);
             }
         } else {
             for (LEDStrip strip : m_frontStrips) {
-                strip.solid(buffer, m_front.color);
+                strip.solid(buffer, Color.kGreen);
             }
+
             for (LEDStrip strip : m_backStrips) {
-                strip.solid(buffer, m_back.color);
+                strip.solid(buffer, Color.kGreen);
             }
         }
 

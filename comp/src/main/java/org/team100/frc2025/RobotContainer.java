@@ -125,7 +125,7 @@ public class RobotContainer implements Glassy {
     final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
-    final LEDIndicator m_leds;
+    LEDIndicator m_leds;
 
     final CoralTunnel m_tunnel;
     final AlgaeGrip m_grip;
@@ -226,11 +226,13 @@ public class RobotContainer implements Glassy {
                 driveLog,
                 m_layout,
                 poseEstimator);
+        
+        m_leds = new LEDIndicator(0, visionDataProvider::getPoseAgeSec);
 
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
                 m_swerveKinodynamics,
-                m_modules);
+                m_modules); 
 
         SwerveLimiter limiter = new SwerveLimiter(driveLog, m_swerveKinodynamics, RobotController::getBatteryVoltage);
 
@@ -304,14 +306,14 @@ public class RobotContainer implements Glassy {
 
         // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow,
         // m_drive, () -> false, driver));
+
         m_drive.setDefaultCommand(driveManually);
-
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
-
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
+        
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
@@ -332,31 +334,7 @@ public class RobotContainer implements Glassy {
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
-
-        // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,
-        // 10));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT,
-        // buttons::scoringPosition, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () ->
-        // ScoringPosition.L2, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () ->
-        // ScoringPosition.L4, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator,
-        // m_wrist, m_funnel, m_tunnel));
-        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist,
-        // m_grip));
-        // whileTrue(driverControl::driveToTag, new PartRedSea(m_wrist, m_elevator));
-        // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist,
-        // m_grip));
-
-        // whileTrue(driverControl::driveToTag, buttons::a, new
-        // ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel,
-        // FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition,
-        // holonomicController, profile, m_drive, driverControl::verySlow,
-        // buttons::red3, driver));
+        
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -436,9 +414,6 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
-        // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist,
-        // m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile,
-        // m_drive, m_swerveKinodynamics, viz ));
         whileTrue(driverControl::fullCycle, new Embark(m_drive,
                 visionDataProvider::setHeedRadiusM,
                 holonomicController, profile, FieldSector.EF,
