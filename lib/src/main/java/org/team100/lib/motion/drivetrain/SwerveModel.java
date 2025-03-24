@@ -68,6 +68,7 @@ public class SwerveModel {
         return new SwerveModel(x().plus(other.x()), y().plus(other.y()), theta().plus(other.theta()));
     }
 
+    /** all dimensions position and velocity are within (the same) tolerance */
     public boolean near(SwerveModel other, double tolerance) {
         return x().near(other.x(), tolerance)
                 && y().near(other.y(), tolerance)

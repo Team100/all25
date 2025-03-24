@@ -54,11 +54,15 @@ public class FieldRelativeAccelerationLimiter implements Glassy {
                 prev,
                 TimedRobot100.LOOP_PERIOD_S);
         m_log_accel.log(() -> accel);
-        double scale = Math.min(cartesianScale(prev, target, accel), alphaScale(accel));
+        double cartesianScale = cartesianScale(prev, target, accel);
+        double alphaScale = alphaScale(accel);
+        double scale = Math.min(cartesianScale, alphaScale);
         m_log_scale.log(() -> scale);
         FieldRelativeVelocity result = prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
         if (DEBUG)
-            Util.printf("accel limit prev %s target %s scale %.5f %s\n", prev, target, scale, result);
+            Util.printf(
+                    "FieldRelativeAccelerationLimiter prev %s target %s accel %s cartesian scale %5.2f alpha scale %5.2f total scale %5.2f result %s\n",
+                    prev, target, accel, cartesianScale, alphaScale, scale, result);
         return result;
     }
 
@@ -74,7 +78,7 @@ public class FieldRelativeAccelerationLimiter implements Glassy {
         double accelLimit = m_cartesianScale * SwerveUtil.getAccelLimit(m_limits, prev, target);
         // At full speed, both a and accelLimit are around zero.
         if (a < accelLimit) {
-            return 1.0;
+            a = accelLimit;
         }
         return Math.min(1, accelLimit / a);
     }
@@ -87,10 +91,9 @@ public class FieldRelativeAccelerationLimiter implements Glassy {
         }
         double accelLimit = m_alphaScale * m_limits.getMaxAngleAccelRad_S2();
         if (a < accelLimit) {
-            return 1.0;
+            a = accelLimit;
         }
         return Math.min(1, accelLimit / a);
-
     }
 
 }
