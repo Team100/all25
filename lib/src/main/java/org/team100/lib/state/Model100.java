@@ -57,11 +57,13 @@ public class Model100 {
         return new Model100(m_x * scaler, m_v * scaler);
     }
 
+    /** position and velocity are both within (the same) tolerance */
     public boolean near(Model100 other, double tolerance) {
         return MathUtil.isNear(m_x, other.m_x, tolerance) &&
                 MathUtil.isNear(m_v, other.m_v, tolerance);
     }
 
+    /** position is within xtolerance, velocity is within vtolerance. */
     public boolean near(Model100 other, double xTolerance, double vTolerance) {
         return MathUtil.isNear(m_x, other.m_x, xTolerance) &&
                 MathUtil.isNear(m_v, other.m_v, vTolerance);

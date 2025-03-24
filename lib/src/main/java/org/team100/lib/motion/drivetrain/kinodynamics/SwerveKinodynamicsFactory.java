@@ -178,6 +178,21 @@ public class SwerveKinodynamicsFactory {
                 () -> 0.3); // vcg m
     }
 
+    public static SwerveKinodynamics likeComp25() {
+        return new SwerveKinodynamics(
+                3, // max vel m/s
+                10, // stall m/s/s
+                5, // max accel m/s/s
+                25, // max decel m/s/s
+                40, // max module steering rate rad/s
+                120, // max module steering accel rad/s/s
+                0.590, // front track m
+                0.590, // back track m
+                0.590, // wheelbase m
+                0.295275, // front offset m
+                () -> 0.5); // m NOTE VERY HIGH
+    }
+
     public static SwerveKinodynamics forTest2() {
         return new SwerveKinodynamics(
                 2, // vel m/s

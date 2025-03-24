@@ -49,17 +49,18 @@ public class FieldRelativeCapsizeLimiter implements Glassy {
         double a = accel.norm();
         if (a < 1e-6) {
             // Zero acceleration.
-            return target;
+            a = 0;
         }
         double scale = scale(a);
-        return prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
+        m_log_scale.log(() -> scale);
+        FieldRelativeVelocity result = prev.plus(accel.times(scale).integrate(TimedRobot100.LOOP_PERIOD_S));
+        if (DEBUG)
+            Util.printf("FieldRelativeCapsizeLimiter prev %s target %s accel %s scale %5.2f result %s\n",
+                    prev, target, accel, scale, result);
+        return result;
     }
 
     double scale(double a) {
-        double scale = Math.min(1, limits.getMaxCapsizeAccelM_S2() / a);
-        m_log_scale.log(() -> scale);
-        if (DEBUG)
-            Util.printf("FieldRelativeCapsizeLimiter scale %.5f\n", scale);
-        return scale;
+        return Math.min(1, limits.getMaxCapsizeAccelM_S2() / a);
     }
 }
