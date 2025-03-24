@@ -54,7 +54,7 @@ public class Maker {
     public Command embark() {
         final SwerveController holonomicController = SwerveControllerFactory.ridiculous(m_logger);
 
-        final HolonomicProfile profile = new HolonomicProfile(
+        final HolonomicProfile profile =  HolonomicProfile.trapezoidal(
                 m_kinodynamics.getMaxDriveVelocityM_S(),
                 m_kinodynamics.getMaxDriveAccelerationM_S2(),
                 0.01, // 1 cm

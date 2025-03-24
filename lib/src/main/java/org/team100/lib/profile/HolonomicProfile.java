@@ -23,28 +23,53 @@ public class HolonomicProfile {
     private static final double ETA_TOLERANCE = 0.02;
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
-    private final TrapezoidProfile100 px;
-    private final TrapezoidProfile100 py;
-    private final TrapezoidProfile100 ptheta;
+    private final Profile100 px;
+    private final Profile100 py;
+    private final Profile100 ptheta;
 
-    private TrapezoidProfile100 ppx;
-    private TrapezoidProfile100 ppy;
-    private TrapezoidProfile100 pptheta;
+    private Profile100 ppx;
+    private Profile100 ppy;
+    private Profile100 pptheta;
 
     public HolonomicProfile(
+            Profile100 px,
+            Profile100 py,
+            Profile100 ptheta) {
+        this.px = px;
+        this.py = py;
+        this.ptheta = ptheta;
+        ppx = px;
+        ppy = py;
+        pptheta = ptheta;
+    }
+
+    /**
+     * Holonomic profile using three TrapezoidProfile100 instances.
+     */
+    public static HolonomicProfile trapezoidal(
             double maxXYVel,
             double maxXYAccel,
             double xyTolerance,
             double maxAngularVel,
             double maxAngularAccel,
             double angularTolerance) {
-        px = new TrapezoidProfile100(maxXYVel, maxXYAccel, xyTolerance);
-        py = new TrapezoidProfile100(maxXYVel, maxXYAccel, xyTolerance);
-        ptheta = new TrapezoidProfile100(maxAngularVel, maxAngularAccel, angularTolerance);
-        // default scale is 1.
-        ppx = px;
-        ppy = py;
-        pptheta = ptheta;
+        return new HolonomicProfile(
+                new TrapezoidProfile100(maxXYVel, maxXYAccel, xyTolerance),
+                new TrapezoidProfile100(maxXYVel, maxXYAccel, xyTolerance),
+                new TrapezoidProfile100(maxAngularVel, maxAngularAccel, angularTolerance));
+    }
+
+    public static HolonomicProfile currentLimitedExponential(
+            double maxXYVel,
+            double limitedXYAccel,
+            double stallXYAccel,
+            double maxAngularVel,
+            double limitedAlpha,
+            double stallAlpha) {
+        return new HolonomicProfile(
+                new CurrentLimitedExponentialProfile(maxXYVel, limitedXYAccel, stallXYAccel),
+                new CurrentLimitedExponentialProfile(maxXYVel, limitedXYAccel, stallXYAccel),
+                new CurrentLimitedExponentialProfile(maxXYVel, limitedAlpha, stallAlpha));
     }
 
     /** Reset the scale factors. */

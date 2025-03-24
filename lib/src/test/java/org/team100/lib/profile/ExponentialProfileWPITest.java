@@ -8,10 +8,14 @@ import org.team100.lib.util.Util;
 public class ExponentialProfileWPITest {
     private static final boolean DEBUG = false;
 
+    /**
+     * Just to see what it looks like.
+     */
     @Test
     void testRun() {
-        // just to see what it looks like.
-        ExponentialProfileWPI profile = new ExponentialProfileWPI(2, 5);
+        double maxVel = 2;
+        double maxAccel = 10;
+        ExponentialProfileWPI profile = new ExponentialProfileWPI(maxVel, maxAccel);
         Control100 sample = new Control100(0, 0);
         final Model100 end = new Model100(3, 0);
         double tt = 0;

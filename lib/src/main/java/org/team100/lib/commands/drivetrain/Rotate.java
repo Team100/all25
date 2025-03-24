@@ -1,7 +1,7 @@
 package org.team100.lib.commands.drivetrain;
 
-import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.ReferenceController;
+import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
@@ -43,7 +43,7 @@ public class Rotate extends Command implements Glassy {
         m_controller = controller;
         m_swerveKinodynamics = swerveKinodynamics;
         m_target = new Rotation2d(targetAngleRadians);
-        m_profile = new HolonomicProfile(
+        m_profile = HolonomicProfile.trapezoidal(
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                 m_swerveKinodynamics.getMaxDriveAccelerationM_S2(),
                 0.01,
