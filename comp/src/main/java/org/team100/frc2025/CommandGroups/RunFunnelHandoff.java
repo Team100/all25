@@ -20,10 +20,10 @@ public class RunFunnelHandoff extends SequentialCommandGroup100 {
             Funnel funnel,
             CoralTunnel tunnel,
             AlgaeGrip grip) {
-        super(logger);
+        super(logger, "RunFunnelHandoff");
         addCommands(
-                new PrepareFunnelHandoff(logger, wrist, elevator),
-                new ParallelCommandGroup100(logger.child("handoff"),
+                new PrepareFunnelHandoff(m_logger, wrist, elevator),
+                new ParallelCommandGroup100(m_logger, "handoff",
                         new RunFunnel(funnel),
                         new RunCoralTunnel(tunnel, 1),
                         new SetWristDutyCycle(wrist, -0.15, false)));

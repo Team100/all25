@@ -36,9 +36,9 @@ public class ScoreCoral extends SequentialCommandGroup100 {
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
             DoubleConsumer heedRadiusM) {
-        super(logger);
+        super(logger, "ScoreCoral");
         addCommands(
-                new ParallelDeadlineGroup100(logger.child("embark"),
+                new ParallelDeadlineGroup100(m_logger,  "embark",
                         new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
                         new SetElevator(elevator, 8, true),
                         new SetWrist(wrist, 0.4, true)),
@@ -46,14 +46,14 @@ public class ScoreCoral extends SequentialCommandGroup100 {
                 new SelectCommand<>(
                         Map.of(
                                 ScoringPosition.L1,
-                                new ScoreL1(logger),
+                                new ScoreL1(m_logger),
                                 ScoringPosition.L2,
-                                new ScoreL2(logger, wrist, elevator, tunnel, targetSector, destination, height,
+                                new ScoreL2(m_logger, wrist, elevator, tunnel, targetSector, destination, height,
                                         controller, profile, m_drive, heedRadiusM),
                                 ScoringPosition.L3,
-                                new ScoreL3(logger, wrist, elevator),
+                                new ScoreL3(m_logger, wrist, elevator),
                                 ScoringPosition.L4,
-                                new ScoreL4(logger, wrist, elevator)),
+                                new ScoreL4(m_logger, wrist, elevator)),
                         height)
 
         // new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile,

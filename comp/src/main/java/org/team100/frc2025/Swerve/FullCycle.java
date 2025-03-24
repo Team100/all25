@@ -6,6 +6,7 @@ import java.util.function.DoubleConsumer;
 import org.team100.frc2025.FieldConstants;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -18,13 +19,12 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * An example of a "full auto" strategy, running a sequence of commands. Put
  * this inside a RepeatCommand to run it continuously.
  */
-public class FullCycle extends SequentialCommandGroup implements Glassy {
+public class FullCycle extends SequentialCommandGroup100 implements Glassy {
     private static final double maxVelocityM_S = 2.0;
     private static final double maxAccelM_S_S = 2;
     private static final Pose2d waypoint0 = new Pose2d(6, 2, Rotation2d.kZero);
@@ -39,6 +39,7 @@ public class FullCycle extends SequentialCommandGroup implements Glassy {
             SwerveKinodynamics kinodynamics,
             SwerveController controller,
             HolonomicProfile profile) {
+        super(parent, "FullCycle");
         TrajectoryPlanner planner = new TrajectoryPlanner(
                 List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
 

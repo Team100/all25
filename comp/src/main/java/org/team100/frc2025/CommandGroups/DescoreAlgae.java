@@ -38,25 +38,25 @@ public class DescoreAlgae extends SequentialCommandGroup100 {
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
             DoubleConsumer heedRadiusM) {
-        super(logger);
+        super(logger, "Descore Algae");
 
         addCommands(
-                new SetAlgaeDescorePositionPrep(logger, wrist, elevator),
+                new SetAlgaeDescorePositionPrep(m_logger, wrist, elevator),
                 // new IntakeAlgaeGrip(grip, true)
-                new ParallelDeadlineGroup100(logger.child("approach"),
+                new ParallelDeadlineGroup100(m_logger, "approach",
                         new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.4),
                         new SetWrist(wrist, 3.7, true),
                         new SetElevatorPerpetually(elevator, 12)),
-                new ParallelDeadlineGroup100(logger.child("elevate"),
+                new ParallelDeadlineGroup100(m_logger, "elevate",
                         new SetElevator(elevator, 35, false),
                         new SetWrist(wrist, 3.7, true),
                         new IntakeAlgaeGrip(grip, true)),
-                new ParallelDeadlineGroup100(logger.child("pick"),
+                new ParallelDeadlineGroup100(m_logger, "pick",
                         new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.35),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),
                         new SetWrist(wrist, 3.7, true)),
-                new ParallelCommandGroup100(logger.child("retreat"),
+                new ParallelCommandGroup100(m_logger, "retreat",
                         new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.75),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),

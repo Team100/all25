@@ -18,11 +18,11 @@ public class GrabAlgaeL2Dumb extends SequentialCommandGroup100 {
             Wrist2 wrist,
             Elevator elevator,
             AlgaeGrip grip) {
-        super(logger);
+        super(logger, "GrabAlgaeL2Dumb");
         addCommands(
                 // new SetAlgaeDescorePositionPrep(wrist, elevator),
                 new CheckWristDanger(wrist),
-                new ParallelDeadlineGroup100(logger.child("grabL2"),
+                new ParallelDeadlineGroup100(m_logger, "grabL2",
                         new SetElevator(elevator, 23, true),
                         new SetWrist(wrist, 3.7, true),
                         new IntakeAlgaeGrip(grip, true)));

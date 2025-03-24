@@ -13,10 +13,10 @@ import org.team100.lib.experiments.Experiments;
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.EnumLogger;
 import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -101,7 +101,7 @@ public class VisionDataProvider24 implements Glassy {
     // LOGGERS
     private final EnumLogger m_log_alliance;
     private final DoubleLogger m_log_heedRadius;
-    private final StringLogger m_log_rotation_source;
+    private final BooleanLogger m_log_using_gyro;
     private final DoubleLogger m_log_tag_error;
     private final Pose2dLogger m_log_pose;
     /**
@@ -160,7 +160,7 @@ public class VisionDataProvider24 implements Glassy {
 
         m_log_alliance = child.enumLogger(Level.TRACE, "alliance");
         m_log_heedRadius = child.doubleLogger(Level.TRACE, "heed radius");
-        m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation source");
+        m_log_using_gyro = child.booleanLogger(Level.TRACE, "rotation source");
         m_log_tag_error = child.doubleLogger(Level.TRACE, "tag error");
         m_log_pose = child.pose2dLogger(Level.TRACE, "pose");
         m_log_lag = child.doubleLogger(Level.TRACE, "lag");
@@ -330,14 +330,14 @@ public class VisionDataProvider24 implements Glassy {
             if (tagInCamera.getTranslation().getNorm() > kTagRotationBeliefThresholdMeters) {
                 // If the tag is further than the threshold, replace the tag rotation with
                 // a rotation derived from the gyro.
-                m_log_rotation_source.log(() -> "GYRO");
+                m_log_using_gyro.log(() -> true);
                 tagInCamera = PoseEstimationHelper.tagInCamera(
                         cameraInRobot,
                         tagInField,
                         tagInCamera,
                         new Rotation3d(gyroRotation));
             } else {
-                m_log_rotation_source.log(() -> "CAMERA");
+                m_log_using_gyro.log(() -> false);
             }
 
             // given the historical pose, where do we think the tag is?

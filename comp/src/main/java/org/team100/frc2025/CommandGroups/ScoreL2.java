@@ -33,19 +33,19 @@ public class ScoreL2 extends SequentialCommandGroup100 {
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
             DoubleConsumer heedRadiusM) {
-        super(logger);
+        super(logger, "ScoreL2");
         addCommands(
                 new SetWrist(wrist, 0.4, false),
-                new ParallelDeadlineGroup100(logger.child("up"),
+                new ParallelDeadlineGroup100(m_logger, "up",
                         new SetElevator(elevator, 10.5, false),
                         new SetWrist(wrist, 0.4, true)),
-                new ParallelDeadlineGroup100(logger.child("out"),
+                new ParallelDeadlineGroup100(m_logger, "out",
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 10.5)),
-                new ParallelDeadlineGroup100(logger.child("down"),
+                new ParallelDeadlineGroup100(m_logger, "down",
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 4.6)),
-                new ParallelDeadlineGroup100(logger.child("drive"),
+                new ParallelDeadlineGroup100(m_logger, "drive",
                         new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 2),
                         new SetWrist(wrist, 1.2, true),
                         new SetElevatorPerpetually(elevator, 4.6))

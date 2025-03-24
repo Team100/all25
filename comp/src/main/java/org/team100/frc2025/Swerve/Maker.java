@@ -71,7 +71,7 @@ public class Maker {
             SwerveController controller,
             HolonomicProfile profile) {
 
-        return new SequentialCommandGroup100(m_logger.child("test"),
+        return new SequentialCommandGroup100(m_logger, "test",
                 new GoToReefDestination(fieldLog, m_logger, m_drive, controller, m_viz, m_kinodynamics, FieldSector.IJ,
                         ReefDestination.RIGHT, profile),
                 new GoToCoralStation(m_logger, m_drive, controller, m_viz, m_kinodynamics, CoralStation.Left, 0.5),
@@ -83,7 +83,7 @@ public class Maker {
 
         // }
 
-        // return new SequentialCommandGroup(
+        // return new SequentialCommandGroup100(
         // new GoToDestinationDirectly(
         // m_logger,
         // m_drive,
@@ -127,7 +127,7 @@ public class Maker {
 
     }
 
-    // return new SequentialCommandGroup(
+    // return new SequentialCommandGroup100(
     // new GoToFirstPlace(
     // m_logger,
     // m_drive,

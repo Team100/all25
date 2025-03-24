@@ -12,7 +12,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.IntLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.logging.Logging;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
@@ -31,9 +30,7 @@ public class Robot extends TimedRobot100 {
     private final BooleanLogger m_log_ds_AutonomousEnabled;
     private final BooleanLogger m_log_ds_TeleopEnabled;
     private final BooleanLogger m_log_ds_FMSAttached;
-    private final StringLogger m_log_mode;
     private final IntLogger m_log_key_list_size;
-    private final StringLogger m_log_active_auton_routine;
     private final DoubleLogger m_log_voltage;
     private final JvmLogger m_jvmLogger;
     private final DoubleLogger m_log_update;
@@ -46,9 +43,7 @@ public class Robot extends TimedRobot100 {
         m_log_ds_AutonomousEnabled = dsLog.booleanLogger(Level.TRACE, "AutonomousEnabled");
         m_log_ds_TeleopEnabled = dsLog.booleanLogger(Level.TRACE, "TeleopEnabled");
         m_log_ds_FMSAttached = dsLog.booleanLogger(Level.TRACE, "FMSAttached");
-        m_log_mode = m_robotLogger.stringLogger(Level.TRACE, "mode");
         m_log_key_list_size = m_robotLogger.intLogger(Level.TRACE, "key list size");
-        m_log_active_auton_routine = m_robotLogger.stringLogger(Level.COMP, "active auton routine");
         m_log_voltage = m_robotLogger.doubleLogger(Level.TRACE, "voltage");
         m_jvmLogger = new JvmLogger(m_robotLogger);
         m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
@@ -185,27 +180,21 @@ public class Robot extends TimedRobot100 {
 
     @Override
     public void disabledPeriodic() {
-        m_log_mode.log(() -> "disabled");
         int keyListSize = NetworkTableInstance.getDefault().getTable("Vision").getKeys().size();
         m_log_key_list_size.log(() -> keyListSize);
-        // this forces the static initializer to run, so that the widget appears.
-        // m_log_active_auton_routine.log(() -> AutonChooser.routine().name());
     }
 
     @Override
     public void autonomousPeriodic() {
-        m_log_mode.log(() -> "autonomous");
     }
 
     @Override
     public void teleopPeriodic() {
-        m_log_mode.log(() -> "teleop");
         m_log_voltage.log(RobotController::getBatteryVoltage);
     }
 
     @Override
     public void testPeriodic() {
-        m_log_mode.log(() -> "test");
     }
 
     //////////////////////////////////////////////////////////////////////
