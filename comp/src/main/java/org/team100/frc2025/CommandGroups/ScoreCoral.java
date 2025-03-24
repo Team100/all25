@@ -14,7 +14,6 @@ import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
@@ -32,47 +31,30 @@ public class ScoreCoral extends SequentialCommandGroup100 {
             CoralTunnel tunnel,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier,
+            Supplier<ScoringPosition> height,
             SwerveController controller,
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
             DoubleConsumer heedRadiusM) {
-        super(logger);
+        super(logger, "ScoreCoral");
         addCommands(
-                new ParallelDeadlineGroup100(
-                        logger,
-                        new Embark(
-                                m_drive,
-                                heedRadiusM,
-                                SwerveControllerFactory.byIdentity(logger),
-                                profile,
-                                targetSector,
-                                destination,
-                                scoringPositionSupplier),
+                new ParallelDeadlineGroup100(m_logger,  "embark",
+                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
                         new SetElevator(elevator, 8, true),
                         new SetWrist(wrist, 0.4, true)),
 
                 new SelectCommand<>(
                         Map.of(
                                 ScoringPosition.L1,
-                                new ScoreL1(logger),
+                                new ScoreL1(m_logger),
                                 ScoringPosition.L2,
-                                new ScoreL2(logger,
-                                        wrist,
-                                        elevator,
-                                        tunnel,
-                                        targetSector,
-                                        destination,
-                                        scoringPositionSupplier,
-                                        controller,
-                                        profile,
-                                        m_drive,
-                                        heedRadiusM),
+                                new ScoreL2(m_logger, wrist, elevator, tunnel, targetSector, destination, height,
+                                        controller, profile, m_drive, heedRadiusM),
                                 ScoringPosition.L3,
-                                new ScoreL3(logger, wrist, elevator),
+                                new ScoreL3(m_logger, wrist, elevator),
                                 ScoringPosition.L4,
-                                new ScoreL4(logger, wrist, elevator)),
-                        scoringPositionSupplier)
+                                new ScoreL4(m_logger, wrist, elevator)),
+                        height)
 
         // new Embark(m_drive, SwerveControllerFactory.byIdentity(logger), profile,
         // targetSector, destination, scoringPositionSupplier)

@@ -9,8 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 public class SetAlgaeDescorePosition extends SequentialCommandGroup100 {
 
     public SetAlgaeDescorePosition(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
-        super(parent);
-
+        super(parent, "SetAlgaeDescorePosition");
         addCommands(
 
         );

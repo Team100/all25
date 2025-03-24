@@ -36,6 +36,29 @@ class SwerveUtilTest {
     }
 
     @Test
+    void testAccelLimit1() {
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
+        assertEquals(10, limits.getMaxDriveAccelerationM_S2(), kDelta);
+        double accelLimit = SwerveUtil.getAccelLimit(limits,
+                new FieldRelativeVelocity(0, 0, 0),
+                new FieldRelativeVelocity(1, 0, 0));
+        // low speed, current limited.
+        assertEquals(10, accelLimit, kDelta);
+    }
+
+    @Test
+    void testAccelLimit2() {
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
+        assertEquals(10, limits.getMaxDriveAccelerationM_S2(), kDelta);
+        assertEquals(5, limits.getMaxDriveVelocityM_S(), kDelta);
+        double accelLimit = SwerveUtil.getAccelLimit(limits,
+                new FieldRelativeVelocity(4.9, 0, 0),
+                new FieldRelativeVelocity(5, 0, 0));
+        // near top speed, EMF-limited
+        assertEquals(0.2, accelLimit, kDelta);
+    }
+
+    @Test
     void testGetAccelLimit() {
         // this is to figure out why the Oscillate test isn't returning
         // exactly the right result
@@ -81,6 +104,6 @@ class SwerveUtilTest {
 
     @Test
     void testJerkLimit() {
-        
+
     }
 }

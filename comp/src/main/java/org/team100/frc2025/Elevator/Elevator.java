@@ -16,6 +16,8 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.TrapezoidProfile100;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
@@ -29,6 +31,8 @@ public class Elevator extends SubsystemBase implements Glassy {
     private boolean m_isSafe = false;
 
     private ScoringPosition m_targetPosition = ScoringPosition.NONE;
+
+    private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); //elevator height, elevator cg
 
     
     public Elevator(
@@ -56,6 +60,8 @@ public class Elevator extends SubsystemBase implements Glassy {
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100, 0.01); // TODO CHANGE THESE
 
+        table.put(0.0, 0.5);
+        table.put(0.0, 0.5);
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -110,16 +116,11 @@ public class Elevator extends SubsystemBase implements Glassy {
         starboardServo.periodic();
         portServo.periodic();
         m_viz.viz();
-
-        // System.out.println(m_targetPosition);
     }
 
     public void resetElevatorProfile() {
         starboardServo.reset();
         portServo.reset();
-    }
-
-    public void resetWristProfile() {
     }
 
     /**
@@ -137,23 +138,11 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public void setStatic() {
-        // if (getPosition() < .9) {
         starboardServo.setPosition(starboardServo.getPosition().getAsDouble(), 1.3); // 54 max
         portServo.setPosition(portServo.getPosition().getAsDouble(), 1.3); // 54 max
-        // } else if (getPosition() > 1.8) {
-        //     //TODO get these constants
-        //     starboardServo.setPosition(x, 1.7); // 54 max
-        //     portServo.setPosition(x, 1.7); // 54 max
-        // } else {
-        //     //TODO get these constants
-        //     starboardServo.setPosition(x, 1.5); // 54 max
-        //     portServo.setPosition(x, 1.5); // 54 max
-        // }
     }
 
     public void setDutyCycle(double value) {
-        // starboardServo.setPosition(30, 2); //54 max
-        // portServo.setPosition(30, 2); //54 max
         starboardServo.setDutyCycle(value);
         portServo.setDutyCycle(value);
     }
@@ -169,6 +158,13 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.stop();
     }
 
+
+    public double getElevatorCG(){
+        return table.get(getPosition());
+    }
+
+    
+    //DUMB Getters and Setters
     public boolean getSafeCondition(){
         return m_isSafe;
     }

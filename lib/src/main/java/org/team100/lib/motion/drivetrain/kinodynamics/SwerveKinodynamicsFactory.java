@@ -53,7 +53,7 @@ public class SwerveKinodynamicsFactory {
                         0.590, // back track m
                         0.590, // wheelbase m
                         0.295275, // front offset m
-                        () -> 0.5); // vcg m NOTE VERY HIGH
+                        vcg); // vcg m NOTE VERY HIGH
             case SWERVE_TWO:
                 return new SwerveKinodynamics(
                         4, // vel m/s

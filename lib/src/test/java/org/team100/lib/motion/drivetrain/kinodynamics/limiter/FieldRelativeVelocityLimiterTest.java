@@ -16,35 +16,44 @@ public class FieldRelativeVelocityLimiterTest {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     @Test
-    void testAnalyticDesaturation4() {
+    void testDrive() {
         SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(logger, k, () -> 12);
-        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
-        {
-            // verify the sign of the omega clamp
-            assertEquals(14.142, k.getMaxAngleSpeedRad_S(), kDelta);
-            FieldRelativeVelocity s = new FieldRelativeVelocity(0, 0, -20);
-            FieldRelativeVelocity i = l.proportional(s);
-            assertEquals(0, i.x(), kDelta);
-            assertEquals(0, i.y(), kDelta);
-            assertEquals(-14.142, i.theta(), kDelta);
-        }
+        FieldRelativeVelocityLimiter limiter = new FieldRelativeVelocityLimiter(logger, limit);
+        assertEquals(5, k.getMaxDriveVelocityM_S(), kDelta);
+        FieldRelativeVelocity s = new FieldRelativeVelocity(10, 0, 0);
+        FieldRelativeVelocity i = limiter.proportional(s);
+        assertEquals(5, i.x(), kDelta);
+        assertEquals(0, i.y(), kDelta);
+        assertEquals(0, i.theta(), kDelta);
     }
 
     @Test
-    void testPreferRotation() {
+    void testSpin() {
+        SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
+        BatterySagSpeedLimit limit = new BatterySagSpeedLimit(logger, k, () -> 12);
+        FieldRelativeVelocityLimiter limiter = new FieldRelativeVelocityLimiter(logger, limit);
+        assertEquals(14.142, k.getMaxAngleSpeedRad_S(), kDelta);
+        FieldRelativeVelocity target = new FieldRelativeVelocity(0, 0, -20);
+        FieldRelativeVelocity i = limiter.proportional(target);
+        assertEquals(0, i.x(), kDelta);
+        assertEquals(0, i.y(), kDelta);
+        assertEquals(-14.142, i.theta(), kDelta);
+
+    }
+
+    @Test
+    void testMotionless() {
         SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(logger, k, () -> 12);
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
         assertEquals(14.142, k.getMaxAngleSpeedRad_S(), kDelta);
-        {
-            // trivial case works
-            FieldRelativeVelocity t = new FieldRelativeVelocity(0, 0, 0);
-            FieldRelativeVelocity i = l.preferRotation(t);
-            assertEquals(0, i.x(), kDelta);
-            assertEquals(0, i.y(), kDelta);
-            assertEquals(0, i.theta(), kDelta);
-        }
+        FieldRelativeVelocity t = new FieldRelativeVelocity(0, 0, 0);
+        FieldRelativeVelocity i = l.preferRotation(t);
+        assertEquals(0, i.x(), kDelta);
+        assertEquals(0, i.y(), kDelta);
+        assertEquals(0, i.theta(), kDelta);
+
     }
 
     @Test
@@ -54,24 +63,24 @@ public class FieldRelativeVelocityLimiterTest {
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
         {
             // inside the envelope => no change
-            FieldRelativeVelocity t = new FieldRelativeVelocity(1, 0, 1);
-            FieldRelativeVelocity i = l.preferRotation(t);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(1, 0, 1);
+            FieldRelativeVelocity i = l.preferRotation(target);
             assertEquals(1, i.x(), kDelta);
             assertEquals(0, i.y(), kDelta);
             assertEquals(1, i.theta(), kDelta);
         }
         {
             // full v, half omega => half v
-            FieldRelativeVelocity t = new FieldRelativeVelocity(5, 0, 7.05);
-            FieldRelativeVelocity i = l.preferRotation(t);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 7.05);
+            FieldRelativeVelocity i = l.preferRotation(target);
             assertEquals(2.507, i.x(), kDelta);
             assertEquals(0, i.y(), kDelta);
             assertEquals(7.05, i.theta(), kDelta);
         }
         {
             // full v, full omega => zero v, sorry
-            FieldRelativeVelocity t = new FieldRelativeVelocity(5, 0, 14.142);
-            FieldRelativeVelocity i = l.preferRotation(t);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 14.142);
+            FieldRelativeVelocity i = l.preferRotation(target);
             assertEquals(0, i.x(), kDelta);
             assertEquals(0, i.y(), kDelta);
             assertEquals(14.142, i.theta(), kDelta);
@@ -83,9 +92,9 @@ public class FieldRelativeVelocityLimiterTest {
     void testBrownout() {
         SwerveKinodynamics k = SwerveKinodynamicsFactory.forRealisticTest();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(logger, k, () -> 6);
-        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
+        FieldRelativeVelocityLimiter limiter = new FieldRelativeVelocityLimiter(logger, limit);
         FieldRelativeVelocity target = new FieldRelativeVelocity(1, 0, 0);
-        FieldRelativeVelocity limited = l.apply(target);
+        FieldRelativeVelocity limited = limiter.apply(target);
         assertEquals(0, limited.x(), kDelta);
         assertEquals(0, limited.y(), kDelta);
         assertEquals(0, limited.theta(), kDelta);
@@ -99,35 +108,35 @@ public class FieldRelativeVelocityLimiterTest {
         FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
 
         { // both motionless
-            FieldRelativeVelocity speed = new FieldRelativeVelocity(0, 0, 0);
-            assertTrue(speed.angle().isEmpty());
-            FieldRelativeVelocity desaturated = l.apply(speed);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(0, 0, 0);
+            assertTrue(target.angle().isEmpty());
+            FieldRelativeVelocity desaturated = l.apply(target);
             assertTrue(desaturated.angle().isEmpty());
         }
         { // translating ahead
-            FieldRelativeVelocity speed = new FieldRelativeVelocity(10, 0, 0);
-            assertEquals(0, speed.angle().get().getRadians(), kDelta);
-            assertEquals(10, speed.norm(), kDelta);
-            FieldRelativeVelocity desaturated = l.apply(speed);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(10, 0, 0);
+            assertEquals(0, target.angle().get().getRadians(), kDelta);
+            assertEquals(10, target.norm(), kDelta);
+            FieldRelativeVelocity desaturated = l.apply(target);
             assertEquals(0, desaturated.angle().get().getRadians(), kDelta);
             assertEquals(5, desaturated.norm(), kDelta);
         }
         { // translating ahead and spinning
-            FieldRelativeVelocity speed = new FieldRelativeVelocity(10, 0, 10);
-            assertEquals(0, speed.angle().get().getRadians(), kDelta);
-            assertEquals(10, speed.norm(), kDelta);
-            assertEquals(10, speed.theta(), kDelta);
-            FieldRelativeVelocity desaturated = l.apply(speed);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(10, 0, 10);
+            assertEquals(0, target.angle().get().getRadians(), kDelta);
+            assertEquals(10, target.norm(), kDelta);
+            assertEquals(10, target.theta(), kDelta);
+            FieldRelativeVelocity desaturated = l.apply(target);
             assertEquals(0, desaturated.angle().get().getRadians(), kDelta);
             assertEquals(3.694, desaturated.norm(), kDelta);
             assertEquals(3.694, desaturated.theta(), kDelta);
         }
         { // translating 45 to the left and spinning
-            FieldRelativeVelocity speed = new FieldRelativeVelocity(10 / Math.sqrt(2), 10 / Math.sqrt(2), 10);
-            assertEquals(Math.PI / 4, speed.angle().get().getRadians(), kDelta);
-            assertEquals(10, speed.norm(), kDelta);
-            assertEquals(10, speed.theta(), kDelta);
-            FieldRelativeVelocity desaturated = l.apply(speed);
+            FieldRelativeVelocity target = new FieldRelativeVelocity(10 / Math.sqrt(2), 10 / Math.sqrt(2), 10);
+            assertEquals(Math.PI / 4, target.angle().get().getRadians(), kDelta);
+            assertEquals(10, target.norm(), kDelta);
+            assertEquals(10, target.theta(), kDelta);
+            FieldRelativeVelocity desaturated = l.apply(target);
             assertEquals(Math.PI / 4, desaturated.angle().get().getRadians(), kDelta);
             assertEquals(2.612, desaturated.x(), kDelta);
             assertEquals(2.612, desaturated.y(), kDelta);
@@ -141,14 +150,14 @@ public class FieldRelativeVelocityLimiterTest {
     void driveAndSpinLimited() {
         SwerveKinodynamics k = SwerveKinodynamicsFactory.limiting();
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(logger, k, () -> 12);
-        FieldRelativeVelocityLimiter l = new FieldRelativeVelocityLimiter(logger, limit);
+        FieldRelativeVelocityLimiter limiter = new FieldRelativeVelocityLimiter(logger, limit);
         FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 25);
         assertEquals(5, target.x(), kDelta);
         assertEquals(0, target.y(), kDelta);
         assertEquals(25, target.theta(), kDelta);
         // the spin is 5x the drive, as requested.
         // use the target as the previous setpoint
-        FieldRelativeVelocity setpoint = l.apply(target);
+        FieldRelativeVelocity setpoint = limiter.apply(target);
         assertEquals(1.806, setpoint.x(), kDelta);
         assertEquals(0, setpoint.y(), kDelta);
         assertEquals(9.032, setpoint.theta(), kDelta);

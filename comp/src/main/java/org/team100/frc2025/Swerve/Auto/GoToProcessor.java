@@ -22,7 +22,7 @@ public class GoToProcessor extends SequentialCommandGroup100 {
             SwerveController holonomicController,
             HolonomicProfile profile,
             AlgaeGrip algaeGrip) {
-        super(parent);
+        super(parent, "GoToProcessor");
         addCommands(
                 new DriveToPoseWithProfile(fieldLog,
                         () -> new SwerveModel(new Pose2d(6.187, 0.626, new Rotation2d(3 * Math.PI / 2))),

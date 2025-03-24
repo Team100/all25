@@ -1,255 +1,90 @@
 package org.team100.lib.localization;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.geometry.GeometryUtil;
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
-import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 
 /**
  * Static methods used to interpret camera input.
  */
 public class PoseEstimationHelper implements Glassy {
-    private static final boolean DEBUG = false;
-
-    private final StringLogger m_log_rotation_source;
-
-    public PoseEstimationHelper(LoggerFactory parent) {
-        LoggerFactory child = parent.child(this);
-        m_log_rotation_source = child.stringLogger(Level.TRACE, "rotation_source");
-    }
-
     /**
-     * Calculate robot pose.
-     * 
-     * First calculates the distance to the tag. If it's closer than the threshold,
-     * use the camera-derived tag rotation. If it's far, use the gyro.
-     */
-    public Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip,
-            Rotation3d robotRotationInFieldCoordsFromGyro,
-            double thresholdMeters) {
-
-        final Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
-
-        if (tagTranslationInCameraCoords.getNorm() < thresholdMeters) {
-            m_log_rotation_source.log(() -> "CAMERA");
-            return getRobotPoseInFieldCoords(
-                    cameraInRobotCoords,
-                    tagInFieldCoords,
-                    blip);
-        }
-
-        m_log_rotation_source.log(() -> "GYRO");
-
-        return getRobotPoseInFieldCoords(
-                cameraInRobotCoords,
-                tagInFieldCoords,
-                blip,
-                robotRotationInFieldCoordsFromGyro);
-    }
-
-    /**
-     * Calculate robot pose.
-     * 
-     * Given the blip and its corresponding field location, and the camera offset,
-     * return the robot pose in field coordinates.
+     * Invert the camera-to-tag, to get tag-to-camera.
+     * Compose field-to-tag with tag-to-camera, to get field-to-camera.
+     * Invert robot-to-camera, to get camera-to-robot.
+     * Compose field-to-camera with camera-to-robot, to get field-to-robot.
      * 
      * This method trusts the tag rotation calculated by the camera.
+     *
+     * @param cameraInRobot Robot-to-camera, offset from Camera.java
+     * @param tagInField    Field-to-tag, canonical pose from the JSON file
+     * @param tagInCamera   Camera-to-tag, what the camera sees
      */
-    public static Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip) {
-        Transform3d tagInCameraCoords = blipToTransform(blip);
-
-        if (DEBUG) {
-            // This is used for camera offset calibration. Place a tag at a known position,
-            // set the tag rotation belief threshold to a very high number (so this code
-            // executes), observe the offset, and add it to Camera.java, inverted.
-            Transform3d tagInRobot = cameraInRobotCoords.plus(tagInCameraCoords);
-            Util.printf("TAG IN ROBOT %s x %f y %f z%f\n",
-                    tagInRobot.getTranslation(),
-                    tagInRobot.getRotation().getX(),
-                    tagInRobot.getRotation().getY(),
-                    tagInRobot.getRotation().getZ());
-        }
-        Pose3d cameraInFieldCoords = toFieldCoordinates(tagInCameraCoords, tagInFieldCoords);
-        return applyCameraOffset(cameraInFieldCoords, cameraInRobotCoords);
-    }
-
-    public static Transform3d getTransformFromRobotPose(
-            Transform3d cameraInRobotCoords,
-            Pose2d robotPose,
-            Pose3d tagInFieldCoords) {
-        Pose3d cameraInFieldCords = unapplyCameraOffsetCamera(new Pose3d(robotPose), cameraInRobotCoords);
-        Transform3d tagInCameraCords = untoFieldCoordinates(
-                cameraInFieldCords,
-                tagInFieldCoords);
-        Translation3d tagTranslationInCameraCoords = tagInCameraCords.getTranslation();
-        Rotation3d rotationToTagInCameraCoords = tagInCameraCords.getRotation();
-        return translationToBlipTransform3d(tagTranslationInCameraCoords, rotationToTagInCameraCoords);
+    public static Pose3d robotInField(
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d tagInCamera) {
+        return robotInField(cameraInField(tagInField, tagInCamera), cameraInRobot);
     }
 
     /**
-     * Calculate robot pose.
+     * Adjust the tag-in-camera pose using the gyro rotation.
      * 
-     * Given the blip, the heading, the camera offset, and the absolute tag pose,
-     * return the absolute robot pose in field coordinates.
-     * 
-     * This method does not trust the tag rotation from the camera, it uses the gyro
-     * signal instead.
-     * 
-     * @param cameraInRobotCoords                camera offset expressed as a
-     *                                           transform from robot-frame to
-     *                                           camera-frame, e.g.camera 0.5m in
-     *                                           front of the robot center and 0.5m
-     *                                           from the floor would have a
-     *                                           translation (0.5, 0, 0.5)
-     * @param tagInFieldCoords                   tag location expressed as a pose in
-     *                                           field-frame. this should come from
-     *                                           the json
-     * @param blip                               direct from the camera
-     * @param robotRotationInFieldCoordsFromGyro direct from the gyro. note that
-     *                                           drive.getPose() isn't exactly the
-     *                                           gyro reading; it might be better to
-     *                                           use the real gyro than the getPose
-     *                                           method.
+     * @param cameraInRobot Robot-to-camera, offset from Camera.java
+     * @param tagInField    Field-to-tag, canonical pose from the JSON file
+     * @param tagInCamera   Camera-to-tag, ignores rotational component
+     * @param gyroRotation  From the pose buffer
      */
-    public Pose3d getRobotPoseInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Pose3d tagInFieldCoords,
-            Blip24 blip,
-            Rotation3d robotRotationInFieldCoordsFromGyro) {
-
-        Rotation3d cameraRotationInFieldCoords = cameraRotationInFieldCoords(
-                cameraInRobotCoords,
-                robotRotationInFieldCoordsFromGyro);
-
-        Translation3d tagTranslationInCameraCoords = blipToTranslation(blip);
-
-        Rotation3d tagRotationInCameraCoords = tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
-
-        Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
-
-        Pose3d cameraInFieldCoords = toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-
-        return applyCameraOffset(
-                cameraInFieldCoords,
-                cameraInRobotCoords);
+    public static Transform3d tagInCamera(
+            Transform3d cameraInRobot,
+            Pose3d tagInField,
+            Transform3d tagInCamera,
+            Rotation3d gyroRotation) {
+        return new Transform3d(
+                tagInCamera.getTranslation(),
+                tagRotationInCamera(
+                        tagInField.getRotation(),
+                        cameraRotationInField(cameraInRobot, gyroRotation)));
     }
 
     //////////////////////////////
     //
-    // package private below, don't use these.
+    // Package-private below, don't use these.
 
     /**
-     * given the gyro rotation and the camera offset, return the camera absolute
-     * rotation. Package-private for testing.
+     * Given the gyro rotation and the camera offset, return the camera absolute
+     * rotation.
      */
-    static Rotation3d cameraRotationInFieldCoords(
-            Transform3d cameraInRobotCoords,
-            Rotation3d robotRotationInFieldCoordsFromGyro) {
-        return cameraInRobotCoords.getRotation()
-                .rotateBy(robotRotationInFieldCoordsFromGyro);
-    }
-
-    /**
-     * Extract translation and rotation from z-forward blip and return the same
-     * translation and rotation as an NWU x-forward transform. Package-private for
-     * testing.
-     */
-    static Transform3d blipToTransform(Blip24 b) {
-        return new Transform3d(blipToTranslation(b), blipToRotation(b));
-    }
-
-    /**
-     * Extract the translation from a "z-forward" blip and return the same
-     * translation expressed in our usual "x-forward" NWU translation.
-     * It would be possible to also consume the blip rotation matrix, if it were
-     * renormalized, but it's not very accurate, so we don't consume it.
-     * Package-private for testing.
-     */
-    static Translation3d blipToTranslation(Blip24 b) {
-        return GeometryUtil.zForwardToXForward(b.getPose().getTranslation());
-    }
-
-    static Transform3d translationToBlipTransform3d(Translation3d b, Rotation3d w) {
-        return new Transform3d(GeometryUtil.xForwardToZForward(b), GeometryUtil.xForwardToZForward(w));
-    }
-
-    /**
-     * Extract the rotation from the "z forward" blip and return the same rotation
-     * expressed in our usual "x forward" NWU coordinates. Package-private for
-     * testing.
-     */
-    static Rotation3d blipToRotation(Blip24 b) {
-        return GeometryUtil.zForwardToXForward(b.getPose().getRotation());
+    static Rotation3d cameraRotationInField(Transform3d cameraInRobot, Rotation3d gyroRotation) {
+        return cameraInRobot.getRotation().rotateBy(gyroRotation);
     }
 
     /**
      * Because the camera's estimate of tag rotation isn't very accurate, this
      * synthesizes an estimate using the tag rotation in field frame (from json) and
-     * the camera rotation in field frame (from gyro). Package-private for testing.
+     * the camera rotation in field frame (from gyro).
      */
-    static Rotation3d tagRotationInRobotCoordsFromGyro(
-            Rotation3d tagRotationInFieldCoords,
-            Rotation3d cameraRotationInFieldCoords) {
-        return tagRotationInFieldCoords.rotateBy(cameraRotationInFieldCoords.unaryMinus());
+    static Rotation3d tagRotationInCamera(
+            Rotation3d tagRotationInField,
+            Rotation3d cameraRotationInField) {
+        return tagRotationInField.rotateBy(cameraRotationInField.unaryMinus());
     }
 
     /**
-     * Given the tag in camera frame and tag in field frame, return the camera in
-     * field frame. Package-private for testing.
+     * Invert the camera-to-tag, to get tag-to-camera.
+     * Compose field-to-tag with tag-to-camera, to get field-to-camera.
      */
-    static Pose3d toFieldCoordinates(Transform3d tagInCameraCords, Pose3d tagInFieldCords) {
-        // First invert the camera-to-tag transform, obtaining tag-to-camera.
-        Transform3d cameraInTagCords = tagInCameraCords.inverse();
-        // Transform3d cameraInTagCords = tagInCameraCords;
-
-        // Then compose field-to-tag with tag-to-camera to get field-to-camera.
-        return tagInFieldCords.transformBy(cameraInTagCords);
-    }
-
-    static Transform3d untoFieldCoordinates(Pose3d cameraInFieldCoords, Pose3d tagInFieldCords) {
-        Transform3d cameraInTagCords = cameraInFieldCoords.minus(tagInFieldCords);
-        return cameraInTagCords.inverse();
+    static Pose3d cameraInField(Pose3d tagInField, Transform3d tagInCamera) {
+        return tagInField.transformBy(tagInCamera.inverse());
     }
 
     /**
-     * Given the camera in field frame and camera in robot frame, return the robot
-     * in field frame. Package-private for testing.
+     * Invert robot-to-camera, to get camera-to-robot.
+     * Compose field-to-camera with camera-to-robot, to get field-to-robot.
      */
-    static Pose3d applyCameraOffset(Pose3d cameraInFieldCoords, Transform3d cameraInRobotCoords) {
-        Transform3d robotInCameraCoords = cameraInRobotCoords.inverse();
-        return cameraInFieldCoords.transformBy(robotInCameraCoords);
-    }
-
-    static Pose3d unapplyCameraOffsetCamera(Pose3d robotPose, Transform3d cameraInRobotCoords) {
-        return robotPose.transformBy(cameraInRobotCoords);
-    }
-
-    /**
-     * Return a robot relative transform to the blip.
-     */
-    static Transform3d toTarget(Transform3d cameraInRobotCoordinates, Blip24 blip) {
-        Translation3d t = PoseEstimationHelper.blipToTranslation(blip);
-        return cameraInRobotCoordinates.plus(
-                new Transform3d(t, Rotation3d.kZero));
+    static Pose3d robotInField(Pose3d cameraInField, Transform3d cameraInRobot) {
+        return cameraInField.transformBy(cameraInRobot.inverse());
     }
 }

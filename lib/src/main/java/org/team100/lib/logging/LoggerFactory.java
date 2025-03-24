@@ -873,7 +873,7 @@ public class LoggerFactory {
                 return;
             Blip24 val = vals.get();
             m_idLogger.log(val::getId);
-            m_transformLogger.log(val::getPose);
+            m_transformLogger.log(val::getRawPose);
         }
     }
 

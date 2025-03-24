@@ -16,11 +16,11 @@ import edu.wpi.first.math.geometry.Translation3d;
 public enum Camera {
 
     C("10000000a7c673d9",
-            new Transform3d(new Translation3d(0,0,1), new Rotation3d(0, -Math.toRadians(10), 0))),
+            new Transform3d(new Translation3d(0, 0, 1), new Rotation3d(0, -Math.toRadians(10), 0))),
     /**
      * Delta shooter
      */
-    SHOOTER("10000000a7a892c0", 
+    SHOOTER("10000000a7a892c0",
             new Transform3d(
                     new Translation3d(-0.1265, 0.0682, 0.612),
                     new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-2)))),
@@ -45,8 +45,8 @@ public enum Camera {
      */
     GAME_PIECE("1000000013c9c96c",
             new Transform3d(
-                new Translation3d(-0.1265, 0.03, 0.61),
-                new Rotation3d(0, Math.toRadians(31.5), Math.PI))),
+                    new Translation3d(-0.1265, 0.03, 0.61),
+                    new Rotation3d(0, Math.toRadians(31.5), Math.PI))),
 
     /**
      * Camera bot intake
@@ -55,29 +55,27 @@ public enum Camera {
             new Transform3d(
                     new Translation3d(0.183, -0.0889, 0.376),
                     new Rotation3d(Math.toRadians(-2), Math.toRadians(11), 0))),
-                   
+
     /**
-     * Right swerve 
+     * Right swerve
      */
     SWERVE_RIGHT("47403d5eafe002a9",
             new Transform3d(
                     new Translation3d(-0.261, -0.317, 0.217),
-                    new Rotation3d(-0.146, 0.195, -0.508).unaryMinus().plus(new Rotation3d(0, 0, -Math.PI/2)))),
-                    // new Rotation3d(0, 0, 0))),
+                    new Rotation3d(-0.146, 0.195, -0.508).unaryMinus().plus(new Rotation3d(0, 0, -Math.PI / 2)))),
+    // new Rotation3d(0, 0, 0))),
 
-    
     /**
-     * Left swerve 
+     * Left swerve
      */
     SWERVE_LEFT("8132c256f63bbb4e",
             new Transform3d(
                     new Translation3d(-0.241, 0.297, 0.207),
                     // new Rotation3d(0, Math.toRadians(-6), Math.toRadians(60)))),
-                    new Rotation3d(0.07, 0.147, 0.52).unaryMinus().plus(new Rotation3d(0, 0, Math.PI/2)))),
-
+                    new Rotation3d(0.07, 0.147, 0.52).unaryMinus().plus(new Rotation3d(0, 0, Math.PI / 2)))),
 
     /**
-     * Funnel 
+     * Funnel
      */
     FUNNEL("1e5acbaa5a7f9d10",
             new Transform3d(
@@ -85,26 +83,24 @@ public enum Camera {
                     new Rotation3d(0.087, 0.455, 0.216).unaryMinus().plus(new Rotation3d(0, 0, Math.PI)))),
 
     /**
-     * Coral reef left 
+     * Coral reef left
      */
     CORAL_LEFT("8ddb2ed6c49a9bce",
-    new Transform3d(
-            new Translation3d(0.198, 0.284, 0.811),
-            // new Rotation3d(-0.16, Math.toRadians(40), Math.toRadians(-18)))),
-            new Rotation3d(-0.043, -0.705, 0.254).unaryMinus())),      
-            // new Rotation3d(0, 0, 0))),      
+            new Transform3d(
+                    new Translation3d(0.198, 0.284, 0.811),
+                    // new Rotation3d(-0.16, Math.toRadians(40), Math.toRadians(-18)))),
+                    new Rotation3d(-0.043, -0.705, 0.254).unaryMinus())),
+    // new Rotation3d(0, 0, 0))),
 
-
-            /**
-     * Coral reef right 
+    /**
+     * Coral reef right
      */
     CORAL_RIGHT("364f07fb090a3bf7",
-    new Transform3d(
-            new Translation3d(0.215, -0.305, 0.79),
-            // new Rotation3d(0.01, -0.83, -0.199).unaryMinus())),
-            // new Rotation3d(0.020, -0.84, -0.195).unaryMinus())), 
-            new Rotation3d(0.015, -0.915, -0.170).unaryMinus())),      
-     
+            new Transform3d(
+                    new Translation3d(0.215, -0.305, 0.79),
+                    // new Rotation3d(0.01, -0.83, -0.199).unaryMinus())),
+                    // new Rotation3d(0.020, -0.84, -0.195).unaryMinus())),
+                    new Rotation3d(0.015, -0.915, -0.170).unaryMinus())),
 
     TEST1("test1",
             new Transform3d(
@@ -119,12 +115,12 @@ public enum Camera {
     TEST3("test3",
             new Transform3d(
                     new Translation3d(0, 0, 0),
-                    new Rotation3d(0, Math.PI/6, 0))),
+                    new Rotation3d(0, Math.PI / 6, 0))),
 
     TEST4("test4",
             new Transform3d(
                     new Translation3d(0, 0, 0),
-                    new Rotation3d(0, -Math.PI/4, 0))),
+                    new Rotation3d(0, -Math.PI / 4, 0))),
 
     UNKNOWN(null, new Transform3d());
 

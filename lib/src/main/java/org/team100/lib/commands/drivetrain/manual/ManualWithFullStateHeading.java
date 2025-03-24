@@ -9,9 +9,9 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -44,7 +44,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
     private final double[] m_K;
     private final LinearFilter m_outputFilter;
 
-    private final StringLogger m_log_mode;
+    private final BooleanLogger m_log_snap_mode;
     private final DoubleLogger m_log_goal_theta;
     private final Control100Logger m_log_setpoint_theta;
     private final DoubleLogger m_log_measurement_theta;
@@ -78,7 +78,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
         m_K = k;
         m_latch = new HeadingLatch();
         m_outputFilter = LinearFilter.singlePoleIIR(0.01, TimedRobot100.LOOP_PERIOD_S);
-        m_log_mode = child.stringLogger(Level.TRACE, "mode");
+        m_log_snap_mode = child.booleanLogger(Level.TRACE, "snap mode");
         m_log_goal_theta = child.doubleLogger(Level.DEBUG, "goal/theta");
         m_log_setpoint_theta = child.control100Logger(Level.DEBUG, "setpoint/theta");
         m_log_measurement_theta = child.doubleLogger(Level.DEBUG, "measurement/theta");
@@ -137,7 +137,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
             m_thetaSetpoint = null;
-            m_log_mode.log(() -> "free");
+            m_log_snap_mode.log(() -> false);
             return scaled;
         }
 
@@ -165,7 +165,7 @@ public class ManualWithFullStateHeading implements FieldRelativeDriver {
 
         final FieldRelativeVelocity withSnap = new FieldRelativeVelocity(scaled.x(), scaled.y(), omega);
 
-        m_log_mode.log(() -> "snap");
+        m_log_snap_mode.log(() -> true);
         m_log_goal_theta.log(m_goal::getRadians);
         m_log_setpoint_theta.log(() -> m_thetaSetpoint);
         m_log_measurement_theta.log(() -> yawMeasurement);

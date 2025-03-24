@@ -60,10 +60,9 @@ public class FieldRelativeAccelerationLimiter implements Glassy {
         if (DEBUG)
             Util.printf("accel limit prev %s target %s scale %.5f %s\n", prev, target, scale, result);
         return result;
-
     }
 
-    private double cartesianScale(
+    double cartesianScale(
             FieldRelativeVelocity prev,
             FieldRelativeVelocity target,
             FieldRelativeAcceleration accel) {

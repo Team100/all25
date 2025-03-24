@@ -3,9 +3,11 @@ package org.team100.lib.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
@@ -14,7 +16,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 class AllianceCommandTest {
     private String output = "none";
 
-        @Test
+    @BeforeEach
+    void init() {
+        HAL.initialize(500, 0);
+    }
+
+    @Test
     void testInvalid() {
         AllianceCommand c = new AllianceCommand(
                 new InstantCommand(() -> output = "red"),

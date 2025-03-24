@@ -3,9 +3,6 @@ package org.team100.lib.localization;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.TestLoggerFactory;
-import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -47,7 +44,7 @@ class PanTiltOffsetTest {
      */
     @Test
     void testZeroOffset() {
-        Transform3d cameraInRobotCoords = new Transform3d(
+        Transform3d cameraInRobot = new Transform3d(
                 new Translation3d(),
                 new Rotation3d());
 
@@ -56,47 +53,45 @@ class PanTiltOffsetTest {
 
         // we use the camera rotation to fix up the camera input
         // note the order here.
-        Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
+        Rotation3d cameraRotationInField = cameraInRobot.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
 
         // camera input; we ignore the rotation from the camera.
-        Translation3d tagTranslationInCameraCoords = new Translation3d(Math.sqrt(2), 0, 0);
+        Translation3d tagTranslationInCamera = new Translation3d(Math.sqrt(2), 0, 0);
 
         // lookup the tag pose
-        Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
+        Pose3d tagInField = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
+        Rotation3d tagRotationInCamera = PoseEstimationHelper.tagRotationInCamera(
+                tagInField.getRotation(),
+                cameraRotationInField);
 
         // check that the derived tag rotation is correct
-        assertEquals(-Math.PI / 4, tagRotationInCameraCoords.getZ(), kDelta);
+        assertEquals(-Math.PI / 4, tagRotationInCamera.getZ(), kDelta);
 
         // now we have the corrected camera view
-        Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
+        Transform3d tagInCamera = new Transform3d(
+                tagTranslationInCamera,
+                tagRotationInCamera);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInField, tagInCamera);
+        assertEquals(0, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobot.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -104,7 +99,7 @@ class PanTiltOffsetTest {
      */
     @Test
     void testDolly() {
-        Transform3d cameraInRobotCoords = new Transform3d(
+        Transform3d cameraInRobot = new Transform3d(
                 new Translation3d(-0.5, 0, 0),
                 new Rotation3d());
 
@@ -113,49 +108,47 @@ class PanTiltOffsetTest {
 
         // we use the camera rotation to fix up the camera input
         // note the order here.
-        Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
+        Rotation3d cameraRotationInField = cameraInRobot.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
 
         // camera input; we ignore the rotation from the camera.
         // because the camera happens to be pointing at the tag, the distance is simply
         // longer by the amount of the offset
-        Translation3d tagTranslationInCameraCoords = new Translation3d(Math.sqrt(2) + 0.5, 0, 0);
+        Translation3d tagTranslationInCamera = new Translation3d(Math.sqrt(2) + 0.5, 0, 0);
 
         // lookup the tag pose
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCamera = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
+                cameraRotationInField);
 
         // check that the derived tag rotation is correct
-        assertEquals(-Math.PI / 4, tagRotationInCameraCoords.getZ(), kDelta);
+        assertEquals(-Math.PI / 4, tagRotationInCamera.getZ(), kDelta);
 
         // now we have the corrected camera view
-        Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
+        Transform3d tagInCamera = new Transform3d(
+                tagTranslationInCamera,
+                tagRotationInCamera);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(-Math.sqrt(2) / 4, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(-Math.sqrt(2) / 4, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCamera);
+        assertEquals(-Math.sqrt(2) / 4, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(-Math.sqrt(2) / 4, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobot.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -163,7 +156,7 @@ class PanTiltOffsetTest {
      */
     @Test
     void testPan() {
-        Transform3d cameraInRobotCoords = new Transform3d(
+        Transform3d cameraInRobot = new Transform3d(
                 new Translation3d(),
                 new Rotation3d(0, 0, Math.PI / 4));
 
@@ -172,50 +165,48 @@ class PanTiltOffsetTest {
 
         // we use the camera rotation to fix up the camera input
         // note the order here.
-        Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
+        Rotation3d cameraRotationInField = cameraInRobot.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
 
         // camera input; we ignore the rotation from the camera.
         // because of the pan, the translation is different.
-        Translation3d tagTranslationInCameraCoords = new Translation3d(1, -1, 0);
+        Translation3d tagTranslationInCamera = new Translation3d(1, -1, 0);
 
         // lookup the tag pose
-        Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
+        Pose3d tagInField = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
+        Rotation3d tagRotationInCamera = PoseEstimationHelper.tagRotationInCamera(
+                tagInField.getRotation(),
+                cameraRotationInField);
 
         // check that the derived tag rotation is correct
         // because of the pan, the rotation is different.
-        assertEquals(-Math.PI / 2, tagRotationInCameraCoords.getZ(), kDelta);
+        assertEquals(-Math.PI / 2, tagRotationInCamera.getZ(), kDelta);
 
         // now we have the corrected camera view
         Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
+                tagTranslationInCamera,
+                tagRotationInCamera);
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be at the origin but looking 90 degrees left
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 2, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInField, tagInCameraCoords);
+        assertEquals(0, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 2, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobot.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -223,7 +214,7 @@ class PanTiltOffsetTest {
      */
     @Test
     void testTruck() {
-        Transform3d cameraInRobotCoords = new Transform3d(
+        Transform3d cameraInRobot = new Transform3d(
                 new Translation3d(0, Math.sqrt(2), 0),
                 new Rotation3d(0, 0, 0));
 
@@ -232,50 +223,48 @@ class PanTiltOffsetTest {
 
         // we use the camera rotation to fix up the camera input
         // note the order here.
-        Rotation3d cameraRotationInFieldCoords = cameraInRobotCoords.getRotation()
+        Rotation3d cameraRotationInField = cameraInRobot.getRotation()
                 .plus(robotRotationInFieldCoordsFromGyro);
 
         // camera input; we ignore the rotation from the camera.
         // because of the truck, the translation is different.
-        Translation3d tagTranslationInCameraCoords = new Translation3d(Math.sqrt(2), -Math.sqrt(2), 0);
+        Translation3d tagTranslationInCamera = new Translation3d(Math.sqrt(2), -Math.sqrt(2), 0);
 
         // lookup the tag pose
-        Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
+        Pose3d tagInField = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
-                tagInFieldCoords.getRotation(),
-                cameraRotationInFieldCoords);
+        Rotation3d tagRotationInCamera = PoseEstimationHelper.tagRotationInCamera(
+                tagInField.getRotation(),
+                cameraRotationInField);
 
         // check that the derived tag rotation is correct
         // because of the pan, the rotation is different.
-        assertEquals(-Math.PI / 4, tagRotationInCameraCoords.getZ(), kDelta);
+        assertEquals(-Math.PI / 4, tagRotationInCamera.getZ(), kDelta);
 
         // now we have the corrected camera view
         Transform3d tagInCameraCoords = new Transform3d(
-                tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
+                tagTranslationInCamera,
+                tagRotationInCamera);
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be moved to the left
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(-1, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(1, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInField, tagInCameraCoords);
+        assertEquals(-1, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(1, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobot.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -303,7 +292,7 @@ class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -318,24 +307,22 @@ class PanTiltOffsetTest {
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be moved to the left
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(2, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-Math.PI / 4, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCameraCoords);
+        assertEquals(0, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(2, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(-Math.PI / 4, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -369,45 +356,43 @@ class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCamera = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
         // do we get the right tag rotation?
         // negative roll in camera frame, not sure this is right.
-        assertEquals(-0.615, tagRotationInCameraCoords.getX(), kDelta);
+        assertEquals(-0.615, tagRotationInCamera.getX(), kDelta);
         // positive pitch in camera frame, not sure this is right.
-        assertEquals(0.524, tagRotationInCameraCoords.getY(), kDelta);
+        assertEquals(0.524, tagRotationInCamera.getY(), kDelta);
         // negative yaw in camera frame, not sure this is right.
-        assertEquals(-0.955, tagRotationInCameraCoords.getZ(), kDelta);
+        assertEquals(-0.955, tagRotationInCamera.getZ(), kDelta);
 
         // now we have the corrected camera view
         Transform3d tagInCameraCoords = new Transform3d(
                 tagTranslationInCameraCoords,
-                tagRotationInCameraCoords);
+                tagRotationInCamera);
 
         // apply the inverted camera transform to the tag to get the camera pose
         // should be at the origin, panned like the robot, and tilted 45 deg up
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCameraCoords);
+        assertEquals(0, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
         // upward tilt
-        assertEquals(-Math.PI / 4, cameraInFieldCoords.getRotation().getY(), kDelta);
+        assertEquals(-Math.PI / 4, cameraInField.getRotation().getY(), kDelta);
         // same yaw as robot
-        assertEquals(Math.PI / 4, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        assertEquals(Math.PI / 4, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -444,7 +429,7 @@ class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 1, 0, new Rotation3d(0, 0, 0));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -460,24 +445,22 @@ class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(-1, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(1, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(-Math.PI / 4, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCameraCoords);
+        assertEquals(-1, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(1, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(0, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(-Math.PI / 4, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -517,7 +500,7 @@ class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -533,24 +516,22 @@ class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(2, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(4, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(1, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(-Math.PI / 4, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-Math.PI, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCameraCoords);
+        assertEquals(2, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(4, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(1, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(-Math.PI / 4, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(-Math.PI, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(3, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(3, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(3, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(-3.0 * Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     /**
@@ -570,7 +551,7 @@ class PanTiltOffsetTest {
                         new Rotation3d(Math.PI / 4, 0, 0)));
 
         // Translation3d blipTranslation = VisionDataProvider.blipToTranslation(blip);
-        Translation3d tagTranslationInCameraCoords = PoseEstimationHelper.blipToTranslation(blip);
+        Translation3d tagTranslationInCameraCoords = blip.blipToTransform().getTranslation();
 
         assertEquals(Math.sqrt(2) / 2, tagTranslationInCameraCoords.getX(), kDelta);
         assertEquals(0, tagTranslationInCameraCoords.getY(), kDelta);
@@ -600,7 +581,7 @@ class PanTiltOffsetTest {
         Pose3d tagInFieldCoords = new Pose3d(1, 4, 1, new Rotation3d(0, 0, Math.PI));
 
         // don't trust the camera-derived rotation, calculate it instead from the gyro
-        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInRobotCoordsFromGyro(
+        Rotation3d tagRotationInCameraCoords = PoseEstimationHelper.tagRotationInCamera(
                 tagInFieldCoords.getRotation(),
                 cameraRotationInFieldCoords);
 
@@ -616,24 +597,22 @@ class PanTiltOffsetTest {
                 tagRotationInCameraCoords);
 
         // apply the inverted camera transform to the tag to get the camera pose
-        Pose3d cameraInFieldCoords = PoseEstimationHelper.toFieldCoordinates(
-                tagInCameraCoords,
-                tagInFieldCoords);
-        assertEquals(2, cameraInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(4, cameraInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(1, cameraInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, cameraInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(-Math.PI / 4, cameraInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-Math.PI, cameraInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d cameraInField = PoseEstimationHelper.cameraInField(tagInFieldCoords, tagInCameraCoords);
+        assertEquals(2, cameraInField.getTranslation().getX(), kDelta);
+        assertEquals(4, cameraInField.getTranslation().getY(), kDelta);
+        assertEquals(1, cameraInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, cameraInField.getRotation().getX(), kDelta);
+        assertEquals(-Math.PI / 4, cameraInField.getRotation().getY(), kDelta);
+        assertEquals(-Math.PI, cameraInField.getRotation().getZ(), kDelta);
 
         // now apply the camera offset to get the robot pose.
-        Pose3d robotInFieldCoords = cameraInFieldCoords.transformBy(cameraInRobotCoords.inverse());
-        assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(3, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = cameraInField.transformBy(cameraInRobotCoords.inverse());
+        assertEquals(3, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(3, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(-3.0 * Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     // configuration: camera offset
@@ -681,20 +660,25 @@ class PanTiltOffsetTest {
         Rotation3d robotRotationInFieldCoordsFromGyro = new Rotation3d(0, 0, -3.0 * Math.PI / 4.0);
 
         // CALCULATIONS
-        LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
-        PoseEstimationHelper helper = new PoseEstimationHelper(logger);
-        Pose3d robotInFieldCoords = helper.getRobotPoseInFieldCoords(
+        Transform3d tagInCameraCoords = blip.blipToTransform();
+
+        Transform3d tagInCamera = PoseEstimationHelper.tagInCamera(
                 cameraInRobotCoords,
                 tagInFieldCoords,
-                blip,
+                tagInCameraCoords,
                 robotRotationInFieldCoordsFromGyro);
 
-        assertEquals(3, robotInFieldCoords.getTranslation().getX(), kDelta);
-        assertEquals(3, robotInFieldCoords.getTranslation().getY(), kDelta);
-        assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-        assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-        assertEquals(-3.0 * Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+        Pose3d robotInField = PoseEstimationHelper.robotInField(
+                cameraInRobotCoords,
+                tagInFieldCoords,
+                tagInCamera);
+
+        assertEquals(3, robotInField.getTranslation().getX(), kDelta);
+        assertEquals(3, robotInField.getTranslation().getY(), kDelta);
+        assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+        assertEquals(0, robotInField.getRotation().getX(), kDelta);
+        assertEquals(0, robotInField.getRotation().getY(), kDelta);
+        assertEquals(-3.0 * Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
     }
 
     @Test
@@ -718,26 +702,28 @@ class PanTiltOffsetTest {
                             new Translation3d(0, 0, Math.sqrt(2)),
                             new Rotation3d(0, Math.PI / 4, 0)));
 
-            Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
+            Transform3d tagInCameraCoords = blip.blipToTransform();
+
+            Pose3d robotInField = PoseEstimationHelper.robotInField(
                     cameraInRobotCoords,
                     tagInFieldCoords,
-                    blip);
+                    tagInCameraCoords);
 
-            assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-            assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-            assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-            assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-            assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-            assertEquals(Math.PI / 4, robotInFieldCoords.getRotation().getZ(), kDelta);
+            assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+            assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+            assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+            assertEquals(0, robotInField.getRotation().getX(), kDelta);
+            assertEquals(0, robotInField.getRotation().getY(), kDelta);
+            assertEquals(Math.PI / 4, robotInField.getRotation().getZ(), kDelta);
         }
         {
             // camera tilt
-            final Transform3d cameraInRobotCoords = new Transform3d(
+            final Transform3d cameraInRobot = new Transform3d(
                     new Translation3d(0, 0, 0),
                     new Rotation3d(0, -Math.PI / 4, 0)); // tilt 45 up
 
             // tag facing 0, at 1,0,1
-            final Pose3d tagInFieldCoords = new Pose3d(1, 0, 1, new Rotation3d(0, 0, 0));
+            final Pose3d tagInField = new Pose3d(1, 0, 1, new Rotation3d(0, 0, 0));
 
             // unit-square-diagonal range
             // tag tilts away, we're looking up at it in camera frame = -x rot
@@ -745,17 +731,20 @@ class PanTiltOffsetTest {
                     new Transform3d(
                             new Translation3d(0, 0, Math.sqrt(2)),
                             new Rotation3d(-Math.PI / 4, 0, 0)));
-            Pose3d robotInFieldCoords = PoseEstimationHelper.getRobotPoseInFieldCoords(
-                    cameraInRobotCoords,
-                    tagInFieldCoords,
-                    blip);
 
-            assertEquals(0, robotInFieldCoords.getTranslation().getX(), kDelta);
-            assertEquals(0, robotInFieldCoords.getTranslation().getY(), kDelta);
-            assertEquals(0, robotInFieldCoords.getTranslation().getZ(), kDelta);
-            assertEquals(0, robotInFieldCoords.getRotation().getX(), kDelta);
-            assertEquals(0, robotInFieldCoords.getRotation().getY(), kDelta);
-            assertEquals(0, robotInFieldCoords.getRotation().getZ(), kDelta);
+            Transform3d tagInCamera = blip.blipToTransform();
+
+            Pose3d robotInField = PoseEstimationHelper.robotInField(
+                    cameraInRobot,
+                    tagInField,
+                    tagInCamera);
+
+            assertEquals(0, robotInField.getTranslation().getX(), kDelta);
+            assertEquals(0, robotInField.getTranslation().getY(), kDelta);
+            assertEquals(0, robotInField.getTranslation().getZ(), kDelta);
+            assertEquals(0, robotInField.getRotation().getX(), kDelta);
+            assertEquals(0, robotInField.getRotation().getY(), kDelta);
+            assertEquals(0, robotInField.getRotation().getZ(), kDelta);
         }
     }
 

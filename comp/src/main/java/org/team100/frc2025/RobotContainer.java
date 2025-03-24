@@ -48,6 +48,7 @@ import org.team100.lib.commands.drivetrain.manual.ManualWithFullStateHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
 import org.team100.lib.commands.drivetrain.manual.SimpleManualModuleStates;
+import org.team100.lib.config.Camera;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.config.Identity;
 import org.team100.lib.controller.drivetrain.FullStateSwerveController;
@@ -167,7 +168,6 @@ public class RobotContainer implements Glassy {
             // m_leds.setFront(LEDIndicator.State.ORANGE);
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
-            m_leds = null;
             m_elevator = new Elevator(elevatorLog, 2, 19);
             m_wrist = new Wrist2(elevatorLog, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
@@ -187,16 +187,6 @@ public class RobotContainer implements Glassy {
             m_wrist = new Wrist2(elevatorLog, 9);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
-            m_leds = null;
-        }
-
-        if (RobotBase.isReal()) {
-            // Real robots get an empty simulated tag detector.
-            m_simulatedTagDetector = () -> {
-            };
-        } else {
-            // In simulation, we want the real simulated tag detector.
-            m_simulatedTagDetector = new SimulatedTagDetector()::periodic;
         }
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
@@ -221,11 +211,14 @@ public class RobotContainer implements Glassy {
                 Pose2d.kZero,
                 Takt.get());
 
-        final AprilTagFieldLayoutWithCorrectOrientation m_layout = new AprilTagFieldLayoutWithCorrectOrientation();
+        final AprilTagFieldLayoutWithCorrectOrientation layout = new AprilTagFieldLayoutWithCorrectOrientation();
+
         final VisionDataProvider24 visionDataProvider = new VisionDataProvider24(
                 driveLog,
-                m_layout,
+                layout,
                 poseEstimator);
+
+        m_leds = new LEDIndicator(0, visionDataProvider::getPoseAgeSec);
 
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
@@ -242,6 +235,24 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider::update,
                 limiter);
+
+        if (RobotBase.isReal()) {
+            // Real robots get an empty simulated tag detector.
+            m_simulatedTagDetector = () -> {
+            };
+        } else {
+            // In simulation, we want the real simulated tag detector.
+            SimulatedTagDetector sim = new SimulatedTagDetector(
+                    List.of(
+                            Camera.SWERVE_LEFT,
+                            Camera.SWERVE_RIGHT,
+                            Camera.FUNNEL,
+                            Camera.CORAL_LEFT,
+                            Camera.CORAL_RIGHT),
+                    layout,
+                    (timestampS) -> poseEstimator.get(timestampS).pose());
+            m_simulatedTagDetector = sim::periodic;
+        }
 
         ///////////////////////////
         //
@@ -304,14 +315,14 @@ public class RobotContainer implements Glassy {
 
         // m_drive.setDefaultCommand(new DriveAdjustCoral(driverControl::verySlow,
         // m_drive, () -> false, driver));
+
         m_drive.setDefaultCommand(driveManually);
-
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
-
         m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
+
         // DRIVER BUTTONS
         final HolonomicProfile profile = new HolonomicProfile(
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
@@ -332,31 +343,6 @@ public class RobotContainer implements Glassy {
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
-
-        // whileTrue(operatorControl::elevate, new SetElevatorPerpetually(m_elevator,
-        // 10));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT,
-        // buttons::scoringPosition, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new ScoreCoral(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, FieldSector.AB, ReefDestination.LEFT, () ->
-        // ScoringPosition.L2, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new DescoreAlgae(coralSequence, m_wrist,
-        // m_elevator, m_tunnel, m_grip, FieldSector.AB, ReefDestination.CENTER, () ->
-        // ScoringPosition.L4, holonomicController, profile, m_drive));
-        // whileTrue(driverControl::driveToTag, new RunFunnelHandoff(m_elevator,
-        // m_wrist, m_funnel, m_tunnel));
-        // whileTrue(driverControl::driveToObject, new ScoreBarge(m_elevator, m_wrist,
-        // m_grip));
-        // whileTrue(driverControl::driveToTag, new PartRedSea(m_wrist, m_elevator));
-        // whileTrue(driverControl::driveToTag, new ScoreBarge(m_elevator, m_wrist,
-        // m_grip));
-
-        // whileTrue(driverControl::driveToTag, buttons::a, new
-        // ScoreCoralHesitantly(coralSequence, m_wrist, m_elevator, m_tunnel,
-        // FieldSector.AB, ReefDestination.LEFT, buttons::scoringPosition,
-        // holonomicController, profile, m_drive, driverControl::verySlow,
-        // buttons::red3, driver));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -392,8 +378,7 @@ public class RobotContainer implements Glassy {
                         m_drive, visionDataProvider::setHeedRadiusM));
 
         whileTrue(driverControl::driveToTag, buttons::g,
-                new ScoreCoral(
-                        coralSequence, m_wrist, m_elevator, m_tunnel,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
                         FieldSector.GH, ReefDestination.LEFT,
                         buttons::scoringPosition, holonomicController, profile,
                         m_drive, visionDataProvider::setHeedRadiusM));
@@ -436,9 +421,6 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
-        // whileTrue(driverControl::fullCycle, new Coral2Auto(logger, m_wrist,
-        // m_elevator, m_funnel, m_tunnel, m_grip, holonomicController, profile,
-        // m_drive, m_swerveKinodynamics, viz ));
         whileTrue(driverControl::fullCycle, new Embark(m_drive,
                 visionDataProvider::setHeedRadiusM,
                 holonomicController, profile, FieldSector.EF,
@@ -451,7 +433,7 @@ public class RobotContainer implements Glassy {
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
         // whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
-        whileTrue(operatorControl::intake, new ReleaseFunnel(m_funnel, m_climber));
+        whileTrue(operatorControl::intake, new ReleaseFunnel(comLog, m_funnel, m_climber));
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
@@ -538,6 +520,7 @@ public class RobotContainer implements Glassy {
     // this keeps the tests from conflicting via the use of simulated HAL ports.
     public void close() {
         m_modules.close();
+        m_leds.close();
     }
 
 }

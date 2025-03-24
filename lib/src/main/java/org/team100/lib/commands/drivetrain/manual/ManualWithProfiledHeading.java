@@ -8,9 +8,9 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
@@ -43,7 +43,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
     private final Feedback100 m_thetaFeedback;
 
     // LOGGERS
-    private final StringLogger m_log_mode;
+    private final BooleanLogger m_log_snap_mode;
     private final DoubleLogger m_log_max_speed;
     private final DoubleLogger m_log_max_accel;
     private final DoubleLogger m_log_goal_theta;
@@ -75,7 +75,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_desiredRotation = desiredRotation;
         m_thetaFeedback = thetaController;
         m_latch = new HeadingLatch();
-        m_log_mode = child.stringLogger(Level.TRACE, "mode");
+        m_log_snap_mode = child.booleanLogger(Level.TRACE, "snap mode");
         m_log_max_speed = child.doubleLogger(Level.TRACE, "maxSpeedRad_S");
         m_log_max_accel = child.doubleLogger(Level.TRACE, "maxAccelRad_S2");
         m_log_goal_theta = child.doubleLogger(Level.TRACE, "goal/theta");
@@ -128,7 +128,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
             m_thetaSetpoint = null;
-            m_log_mode.log(() -> "free");
+            m_log_snap_mode.log(() -> false);
             return control;
         }
 
@@ -167,7 +167,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
         FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(control.x(), control.y(), omega);
 
-        m_log_mode.log(() -> "snap");
+        m_log_snap_mode.log(() -> true);
         m_log_goal_theta.log(m_goal::getRadians);
         m_log_setpoint_theta.log(() -> m_thetaSetpoint);
         m_log_theta_FF.log(() -> thetaFF);

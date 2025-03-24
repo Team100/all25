@@ -6,9 +6,8 @@ import java.util.Map;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -17,20 +16,23 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class ParallelDeadlineGroup100 extends Command {
     private final Map<Command, Boolean> m_commands = new LinkedHashMap<>();
+    private InterruptionBehavior m_interruptBehavior = InterruptionBehavior.kCancelIncoming;
+    private final Map<Command, BooleanLogger> m_log_active = new LinkedHashMap<>();
+    private final LoggerFactory m_logger;
+    private final String m_name;
+
     private boolean m_runWhenDisabled = true;
     private boolean m_finished = true;
     private Command m_deadline;
-    private InterruptionBehavior m_interruptBehavior = InterruptionBehavior.kCancelIncoming;
-    private final StringLogger m_log_active_commands;
 
-    public ParallelDeadlineGroup100(LoggerFactory parent, Command deadline, Command... otherCommands) {
-        m_log_active_commands = parent.stringLogger(Level.TRACE, "active commands");
+    public ParallelDeadlineGroup100(LoggerFactory logger, String name, Command deadline, Command... otherCommands) {
+        m_logger = logger.child(name);
+        m_name = name;
         setDeadline(deadline);
         addCommands(otherCommands);
     }
 
     public final void setDeadline(Command deadline) {
-        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         boolean isAlreadyDeadline = deadline == m_deadline;
         if (isAlreadyDeadline) {
             return;
@@ -56,6 +58,7 @@ public class ParallelDeadlineGroup100 extends Command {
                 throw new IllegalArgumentException(
                         "Multiple commands in a parallel group cannot require the same subsystems");
             }
+            m_log_active.put(command, m_logger.booleanLogger(Level.TRACE, command.getName()));
             m_commands.put(command, false);
             addRequirements(command.getRequirements());
             m_runWhenDisabled &= command.runsWhenDisabled();
@@ -68,39 +71,40 @@ public class ParallelDeadlineGroup100 extends Command {
     @Override
     public final void initialize() {
         for (Map.Entry<Command, Boolean> commandRunning : m_commands.entrySet()) {
-            commandRunning.getKey().initialize();
+            Command cmd = commandRunning.getKey();
+            cmd.initialize();
             commandRunning.setValue(true);
+            m_log_active.get(cmd).log(() -> true);
         }
         m_finished = false;
     }
 
     @Override
     public final void execute() {
-        StringBuilder activeCommands = new StringBuilder();
         for (Map.Entry<Command, Boolean> commandRunning : m_commands.entrySet()) {
             if (!commandRunning.getValue()) {
                 continue;
             }
-            activeCommands.append(":");
-            activeCommands.append(commandRunning.getKey().getName());
-            commandRunning.getKey().execute();
-            if (commandRunning.getKey().isFinished()) {
-                commandRunning.getKey().end(false);
+            Command cmd = commandRunning.getKey();
+            cmd.execute();
+            if (cmd.isFinished()) {
+                cmd.end(false);
                 commandRunning.setValue(false);
-                if (commandRunning.getKey().equals(m_deadline)) {
+                m_log_active.get(cmd).log(() -> false);
+                if (cmd.equals(m_deadline)) {
                     m_finished = true;
                 }
             }
         }
-        m_log_active_commands.log(activeCommands::toString);
     }
 
     @Override
     public final void end(boolean interrupted) {
-        m_log_active_commands.log(() -> "");
         for (Map.Entry<Command, Boolean> commandRunning : m_commands.entrySet()) {
             if (commandRunning.getValue()) {
-                commandRunning.getKey().end(true);
+                Command cmd = commandRunning.getKey();
+                m_log_active.get(cmd).log(() -> false);
+                cmd.end(true);
             }
         }
     }
@@ -121,9 +125,7 @@ public class ParallelDeadlineGroup100 extends Command {
     }
 
     @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-
-        builder.addStringProperty("deadline", m_deadline::getName, null);
+    public String getName() {
+        return m_name;
     }
 }

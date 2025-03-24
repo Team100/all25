@@ -6,7 +6,7 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class ScoreL1 extends SequentialCommandGroup100 {
     public ScoreL1(LoggerFactory parent) {
-        super(parent);
+        super(parent, "ScoreL1");
         addCommands();
     }
 }
