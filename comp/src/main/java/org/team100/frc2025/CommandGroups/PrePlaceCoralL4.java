@@ -29,7 +29,9 @@ public class PrePlaceCoralL4 extends Command {
 
     @Override
     public void execute() {
-        m_elevator.setPosition(m_elevatorGoal);
+        m_elevator.setPosition(m_elevatorGoal); 
+        //if the elevator goal is more than 10 SU (sanjan Units, ~1/5th of full extension)
+        //above current position, move with the wrist tucked in. Could change this here to make it more/less aggresive
         if (m_elevatorGoal - 10 > m_elevator.getPosition()) {
             m_wrist.setAngleValue(0.4);
         } else {
@@ -38,7 +40,7 @@ public class PrePlaceCoralL4 extends Command {
 
         double error = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
 
-        if (error < 0.5) {
+        if (error < 0.5) { 
             count++;
         } else {
             count = 0;
