@@ -7,11 +7,11 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class AlgaeOuttakeGroup extends ParallelCommandGroup100 {
     public AlgaeOuttakeGroup(
-            LoggerFactory parent,
+            LoggerFactory logger,
             AlgaeGrip grip,
             Wrist2 wrist,
             Elevator elevator) {
-        super(parent);
+        super(logger, "AlgaeOuttakeGroup");
         addCommands(
                 new OuttakeAlgaeGrip(grip),
                 new SetWrist(wrist, 3.7, true),

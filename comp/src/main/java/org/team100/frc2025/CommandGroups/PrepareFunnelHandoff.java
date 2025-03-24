@@ -11,19 +11,18 @@ public class PrepareFunnelHandoff extends SequentialCommandGroup100 {
     private final Wrist2 m_wrist;
     private final Elevator m_elevator;
 
-    public PrepareFunnelHandoff(LoggerFactory parent, Wrist2 wrist, Elevator elevator) {
-        super(parent);
+    public PrepareFunnelHandoff(LoggerFactory logger, Wrist2 wrist, Elevator elevator) {
+        super(logger, "PrepareFunnelHandoff");
         m_wrist = wrist;
         m_elevator = elevator;
         addCommands(
-                new ParallelCommandGroup100(
-                        parent,
+                new ParallelCommandGroup100(m_logger, "prep",
                         // new SetWrist(wrist, 0.1, false),
                         new SetWristHandoff(wrist, 0.1),
                         new SetElevatorFunnelHandoff(elevator, 0.1))
-        // new ParallelRaceGroup(new WaitCommand(0.5), new ElevatorDutyCycle(elevator)),
+        // new ParallelRaceGroup100(new WaitCommand(0.5), new ElevatorDutyCycle(elevator)),
         // new SetWristHandoff(wrist, 0.1),
-        // new ParallelRaceGroup(new WaitCommand(0.2), new SetWristDutyCycle(wrist,
+        // new ParallelRaceGroup100(new WaitCommand(0.2), new SetWristDutyCycle(wrist,
         // -0.15, false))
 
         );

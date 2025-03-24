@@ -66,61 +66,24 @@ public class Maker {
                 () -> ScoringPosition.L4);
     }
 
-    public Command test(LoggerFactory parent,
+    public Command test(
             FieldLogger.Log fieldLog,
             SwerveController controller,
             HolonomicProfile profile) {
 
-        return new SequentialCommandGroup100(
-                parent,
-                new GoToReefDestination(
-                        fieldLog,
-                        m_logger,
-                        m_drive,
-                        controller,
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.IJ,
-                        ReefDestination.RIGHT,
-                        profile),
-                new GoToCoralStation(
-                        m_logger,
-                        m_drive,
-                        controller,
-                        m_viz,
-                        m_kinodynamics,
-                        CoralStation.Left,
-                        0.5),
-                new GoToReefDestination(fieldLog,
-                        m_logger,
-                        m_drive,
-                        controller,
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.KL,
-                        ReefDestination.RIGHT,
-                        profile),
-                new GoToCoralStation(
-                        m_logger,
-                        m_drive,
-                        controller,
-                        m_viz,
-                        m_kinodynamics,
-                        CoralStation.Left,
-                        0),
-                new GoToReefDestination(fieldLog,
-                        m_logger,
-                        m_drive,
-                        controller,
-                        m_viz,
-                        m_kinodynamics,
-                        FieldSector.KL,
-                        ReefDestination.LEFT,
-                        profile));
+        return new SequentialCommandGroup100(m_logger, "test",
+                new GoToReefDestination(fieldLog, m_logger, m_drive, controller, m_viz, m_kinodynamics, FieldSector.IJ,
+                        ReefDestination.RIGHT, profile),
+                new GoToCoralStation(m_logger, m_drive, controller, m_viz, m_kinodynamics, CoralStation.Left, 0.5),
+                new GoToReefDestination(fieldLog, m_logger, m_drive, controller, m_viz, m_kinodynamics, FieldSector.KL,
+                        ReefDestination.RIGHT, profile),
+                new GoToCoralStation(m_logger, m_drive, controller, m_viz, m_kinodynamics, CoralStation.Left, 0),
+                new GoToReefDestination(fieldLog, m_logger, m_drive, controller, m_viz, m_kinodynamics, FieldSector.KL,
+                        ReefDestination.LEFT, profile));
 
         // }
 
-        // return new SequentialCommandGroup(
+        // return new SequentialCommandGroup100(
         // new GoToDestinationDirectly(
         // m_logger,
         // m_drive,
@@ -164,7 +127,7 @@ public class Maker {
 
     }
 
-    // return new SequentialCommandGroup(
+    // return new SequentialCommandGroup100(
     // new GoToFirstPlace(
     // m_logger,
     // m_drive,
