@@ -103,8 +103,8 @@ class CoordinatedProfileTest {
         final int maxVel = 1;
         final int maxAccel = 1;
         // two profiles with the same parameters
-        ProfileWPI p1 = new ProfileWPI(maxVel, maxAccel);
-        ProfileWPI p2 = new ProfileWPI(maxVel, maxAccel);
+        TrapezoidProfileWPI p1 = new TrapezoidProfileWPI(maxVel, maxAccel);
+        TrapezoidProfileWPI p2 = new TrapezoidProfileWPI(maxVel, maxAccel);
         // initial state at the origin at rest
         Model100 i1 = new Model100(0, 0);
         Model100 i2 = new Model100(0, 0);
@@ -191,8 +191,8 @@ class CoordinatedProfileTest {
         final int maxVel = 1;
         final int maxAccel = 1;
         // two profiles with the same parameters
-        ProfileWPI p1 = new ProfileWPI(maxVel, maxAccel);
-        ProfileWPI p2 = new ProfileWPI(maxVel, maxAccel);
+        TrapezoidProfileWPI p1 = new TrapezoidProfileWPI(maxVel, maxAccel);
+        TrapezoidProfileWPI p2 = new TrapezoidProfileWPI(maxVel, maxAccel);
         // initial state at the origin at rest
         Model100 i1 = new Model100(0, 0);
         Model100 i2 = new Model100(0, 0);
