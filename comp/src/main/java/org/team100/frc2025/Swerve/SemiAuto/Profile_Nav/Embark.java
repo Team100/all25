@@ -10,7 +10,10 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.field.FieldPoint2024;
+import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
+import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.profile.HolonomicProfile;
@@ -34,19 +37,20 @@ public class Embark extends Command implements Glassy {
     private final DoubleConsumer m_heedRadiusM;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
+    private final FieldSector m_targetSector;
+    private final ReefDestination m_destination;
+    private final Supplier<ScoringPosition> m_scoringPositionSupplier;
+    private final double m_radius;
+
+    private final StringLogger m_log_sector;
+    private final Pose2dLogger m_log_goal;
 
     private Pose2d m_goal;
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
 
-    private FieldSector m_targetSector;
-    private ReefDestination m_destination;
-    private Supplier<ScoringPosition> m_scoringPositionSupplier;
-    private double m_radius;
-
-    private ScoringPosition m_scoringPosition = ScoringPosition.NONE;
-
     public Embark(
+            LoggerFactory logger,
             SwerveDriveSubsystem drive,
             DoubleConsumer heedRadiusM,
             SwerveController controller,
@@ -55,6 +59,7 @@ public class Embark extends Command implements Glassy {
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier) {
         this(
+                logger,
                 drive,
                 heedRadiusM,
                 controller,
@@ -66,6 +71,7 @@ public class Embark extends Command implements Glassy {
     }
 
     public Embark(
+            LoggerFactory logger,
             SwerveDriveSubsystem drive,
             DoubleConsumer heedRadiusM,
             SwerveController controller,
@@ -74,6 +80,9 @@ public class Embark extends Command implements Glassy {
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier,
             double radius) {
+        LoggerFactory child = logger.child(this);
+        m_log_sector = child.stringLogger(Level.TRACE, "sector");
+        m_log_goal = child.pose2dLogger(Level.TRACE, "goal");
         m_drive = drive;
         m_heedRadiusM = heedRadiusM;
         m_controller = controller;
@@ -90,8 +99,9 @@ public class Embark extends Command implements Glassy {
         m_heedRadiusM.accept(kHeedRadiusM);
         Pose2d currentPose = m_drive.getPose();
         FieldSector currentSector = FieldConstants.getSector(currentPose);
-        m_scoringPosition = m_scoringPositionSupplier.get();
-        System.out.println(m_scoringPosition);
+        m_log_sector.log(() -> currentSector.name());
+
+        ScoringPosition scoringPosition = m_scoringPositionSupplier.get();
 
         double radius = 0;
 
@@ -102,15 +112,15 @@ public class Embark extends Command implements Glassy {
                 radius = 1.2;
             }
 
-            if (m_scoringPosition == ScoringPosition.L4) {
+            if (scoringPosition == ScoringPosition.L4) {
                 radius = 1.42;
             }
 
-            if (m_scoringPosition == ScoringPosition.L3) {
+            if (scoringPosition == ScoringPosition.L3) {
                 radius = 1.34;
             }
 
-            if (m_scoringPosition == ScoringPosition.L2) {
+            if (scoringPosition == ScoringPosition.L2) {
                 radius = 1.35;
             }
         }
@@ -119,7 +129,7 @@ public class Embark extends Command implements Glassy {
         Rotation2d heading = FieldConstants.getSectorAngle(m_targetSector).rotateBy(Rotation2d.fromDegrees(180));
 
         m_goal = new Pose2d(destination, heading);
-
+        m_log_goal.log(() -> m_goal);
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
@@ -127,16 +137,10 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void execute() {
-        // updateGoal();
         if (m_goal == null || m_referenceController == null)
             return;
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController.execute();
-        // m_field_log.m_log_target.log(() -> new double[] {
-        // m_goal.getX(),
-        // m_goal.getY(),
-        // m_goal.getRotation().getRadians() });
-
     }
 
     @Override

@@ -20,7 +20,7 @@ public class PreScoreL4Hesitant extends SequentialCommandGroup100 {
         addCommands(
                 new SetWrist(wrist, 0.4, false),
                 new ParallelDeadlineGroup100(m_logger, "up",
-                        new SetElevator(elevator, 45, false),
+                        new SetElevator(m_logger, elevator, 45, false),
                         new SetWrist(wrist, 0.4, true)), // 45
                 new ParallelDeadlineGroup100(m_logger, "out",
                         new SetWrist(wrist, 1.25, true),

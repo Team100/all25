@@ -36,12 +36,12 @@ public class ScoreBarge extends SequentialCommandGroup100 {
                 // new CheckWristDanger(wrist),
                 new ParallelDeadlineGroup100(m_logger, "intake",
                         new SetWrist(wrist, 2.0, false),
-                        new SetElevator(elevator, 54, true),
+                        new SetElevator(m_logger, elevator, 54, true),
                         new IntakeAlgaeGrip(grip, true)),
                 new ParallelDeadlineGroup100(m_logger, "shoot",
                         new OuttakeAlgaeGrip(grip),
                         new SetWrist(wrist, 2.0, true),
-                        new SetElevator(elevator, 54, true)
+                        new SetElevator(m_logger, elevator, 54, true)
 
                 )
         // new IntakeAlgaeGrip(grip, true))

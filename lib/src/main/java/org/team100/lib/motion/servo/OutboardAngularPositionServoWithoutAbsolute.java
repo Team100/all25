@@ -64,10 +64,14 @@ public class OutboardAngularPositionServoWithoutAbsolute implements AngularPosit
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
+        if (position.isEmpty())
             return;
-        m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        // return;
+        m_setpoint = new Control100(position.getAsDouble(), 0);
     }
 
     @Override
@@ -207,7 +211,7 @@ public class OutboardAngularPositionServoWithoutAbsolute implements AngularPosit
     }
 
     @Override
-    public void setStaticTorque(double feedForwardTorqueNm){
+    public void setStaticTorque(double feedForwardTorqueNm) {
 
     }
 }

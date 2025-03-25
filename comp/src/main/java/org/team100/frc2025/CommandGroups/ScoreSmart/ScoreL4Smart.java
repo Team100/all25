@@ -45,7 +45,7 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
         super(logger, "ScoreL4Smart");
         addCommands(
                 new ParallelDeadlineGroup100(m_logger, "drive",
-                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
+                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
                         new SequentialCommandGroup100(m_logger, "out",
                                 new WaitUntilWithinRadius(m_drive),
                                 new SetWrist(wrist, 0.4, false),
@@ -54,10 +54,10 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
                         new SetWrist(wrist, 1.25, false),
                         new SetElevatorPerpetually(elevator, 45)),
                 new ParallelDeadlineGroup100(m_logger, "score",
-                        new SetElevator(elevator, 35, false),
+                        new SetElevator(m_logger, elevator, 35, false),
                         new SetWrist(wrist, 1.25, true)),
                 new ParallelDeadlineGroup100(m_logger, "down",
-                        new SetElevator(elevator, 10, false),
+                        new SetElevator(m_logger, elevator, 10, false),
                         new SetWrist(wrist, 0.5, true))
 
         );

@@ -58,8 +58,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism = mech;
         m_positionSensor = positionSensor;
         m_controller = controller;
-                
-        
+
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.model100Logger(Level.TRACE, "measurement (rad)");
@@ -83,12 +82,14 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty()) {
-            Util.warn("OnboardAngularPositionServo: Broken sensor!");
+        if (position.isEmpty())
             return;
-        }
-        m_controller.init(new Model100(position.getAsDouble(), 0)); //TODO CHANGE THIS
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        // return;
+        m_controller.init(new Model100(position.getAsDouble(), 0));
     }
 
     @Override
