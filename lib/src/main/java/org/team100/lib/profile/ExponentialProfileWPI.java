@@ -50,4 +50,15 @@ public class ExponentialProfileWPI implements Profile100 {
         return m_constraints.maxVelocity();
     }
 
+    @Override
+    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
+        return Profile100.solveForSlowerETA(
+                dt,
+                i,
+                g,
+                eta,
+                etaTolerance,
+                (s) -> new ExponentialProfileWPI(m_constraints.maxVelocity(), s * m_constraints.B));
+    }
+
 }

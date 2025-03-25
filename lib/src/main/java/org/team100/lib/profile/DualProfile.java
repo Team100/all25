@@ -66,4 +66,9 @@ public class DualProfile implements Profile100 {
         return m_slow.getMaxVelocity();
     }
 
+    @Override
+    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
+        throw new UnsupportedOperationException();
+    }
+
 }

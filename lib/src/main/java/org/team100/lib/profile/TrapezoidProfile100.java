@@ -2,7 +2,6 @@ package org.team100.lib.profile;
 
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
-import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
@@ -78,64 +77,19 @@ public class TrapezoidProfile100 implements Profile100 {
         return new TrapezoidProfile100(m_maxVelocity, s * m_maxAcceleration, m_tolerance);
     }
 
-    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
-        return solveForSlowerETA(
-                m_maxVelocity,
-                m_maxAcceleration,
-                m_tolerance,
+    public double solve(
+            double dt,
+            Model100 i,
+            Model100 g,
+            double eta,
+            double etaTolerance) {
+        return Profile100.solveForSlowerETA(
                 dt,
                 i,
                 g,
                 eta,
-                etaTolerance);
-    }
-
-    /**
-     * Return scale factor to make the ETA equal to the desired ETA, by reducing
-     * acceleration.
-     * 
-     * It never returns s > 1, and it also never scales more than 10X, i.e. never
-     * returns s < 0.01.
-     * 
-     * It is very approximate, in order to not run too long. It's very primitive.
-     */
-    public static double solveForSlowerETA(
-            double maxV,
-            double maxA,
-            double tol,
-            double dt,
-            Model100 initial,
-            Model100 goal,
-            double eta,
-            double sTolerance) {
-        final double minS = 0.01;
-        final double maxS = 1.0;
-        return Math100.findRoot(
-                s -> getEtaS(maxV, maxA, tol, dt, initial, goal, eta, s),
-                minS,
-                getEtaS(maxV, maxA, tol, dt, initial, goal, eta, minS),
-                maxS,
-                getEtaS(maxV, maxA, tol, dt, initial, goal, eta, maxS),
-                sTolerance,
-                100);
-    }
-
-    private static double getEtaS(
-            double maxV,
-            double maxA,
-            double tol,
-            double dt,
-            Model100 initial,
-            Model100 goal,
-            double eta,
-            double s) {
-        TrapezoidProfile100 p = new TrapezoidProfile100(
-                maxV,
-                s * maxA,
-                tol);
-        ResultWithETA r = p.calculateWithETA(dt, initial, goal);
-        double etaS = r.etaS();
-        return etaS - eta;
+                etaTolerance,
+                (s) -> new TrapezoidProfile100(m_maxVelocity, s* m_maxAcceleration, m_tolerance));
     }
 
     @Override

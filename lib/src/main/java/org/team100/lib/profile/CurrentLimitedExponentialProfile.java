@@ -35,7 +35,7 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
         m_limitedAccel = limitedAccel;
         m_trapezoid = new TrapezoidProfileWPI(maxVel, limitedAccel);
         m_exponential = new ExponentialProfileWPI(maxVel, stallAccel);
-        m_limit = (1 - m_limitedAccel/m_stallAccel) * maxVel;
+        m_limit = (1 - m_limitedAccel / m_stallAccel) * maxVel;
     }
 
     boolean isAccel(Model100 initial, Control100 setpoint) {
@@ -89,6 +89,21 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
     @Override
     public double getMaxVelocity() {
         return m_maxVel;
+    }
+
+    public double solve(
+            double dt,
+            Model100 i,
+            Model100 g,
+            double eta,
+            double etaTolerance) {
+        return Profile100.solveForSlowerETA(
+                dt,
+                i,
+                g,
+                eta,
+                etaTolerance,
+                (s) -> new CurrentLimitedExponentialProfile(m_maxVel, s * m_limitedAccel, s * m_stallAccel));
     }
 
 }

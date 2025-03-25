@@ -245,11 +245,13 @@ class CoordinatedProfileTest {
         // find the scale parameters for x and y.
 
         // in the X case, the given ETA is the default ETA
-        double sx = TrapezoidProfile100.solveForSlowerETA(
-                maxVel, maxAccel, PROFILE_TOLERANCE, DT, ix, gx, slowETA, kDelta);
+        double sx = Profile100.solveForSlowerETA(
+                DT, ix, gx, slowETA, kDelta,
+                (s) -> new TrapezoidProfile100(maxVel, s * maxAccel, PROFILE_TOLERANCE));
         // in the Y case, it's slower
-        double sy = TrapezoidProfile100.solveForSlowerETA(
-                maxVel, maxAccel, PROFILE_TOLERANCE, DT, iy, gy, slowETA, kDelta);
+        double sy = Profile100.solveForSlowerETA(
+                DT, iy, gy, slowETA, kDelta,
+                (s) -> new TrapezoidProfile100(maxVel, s * maxAccel, PROFILE_TOLERANCE));
 
         // this should be 1.0
         assertEquals(1.0, sx, kDelta);

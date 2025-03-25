@@ -1,8 +1,11 @@
 package org.team100.lib.profile;
 
 import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.Profile100.ResultWithETA;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -18,6 +21,13 @@ import edu.wpi.first.math.MathUtil;
  * resulting paths will not be straight, for rest-to-rest profiles.
  */
 public class HolonomicProfile {
+    private enum Profile {
+        WPI,
+        P100,
+        EXP
+    }
+
+    private static final Profile kProfile = Profile.P100;
     /** For testing */
     private static final boolean DEBUG = false;
     private static final double ETA_TOLERANCE = 0.02;
@@ -31,7 +41,7 @@ public class HolonomicProfile {
     private Profile100 ppy;
     private Profile100 pptheta;
 
-    public HolonomicProfile(
+    private HolonomicProfile(
             Profile100 px,
             Profile100 py,
             Profile100 ptheta) {
@@ -44,8 +54,63 @@ public class HolonomicProfile {
     }
 
     /**
-     * Holonomic profile using three TrapezoidProfile100 instances.
+     * Make a holonomic profile using the kinodynamic absolute maxima, scaled as
+     * specified.
      */
+    public static HolonomicProfile get(
+            LoggerFactory logger,
+            SwerveKinodynamics kinodynamics,
+            double vScale,
+            double aScale,
+            double omegaScale,
+            double alphaScale) {
+        logger.child("HolonomicProfile").stringLogger(Level.TRACE, "profile").log(() -> kProfile.name());
+        switch (kProfile) {
+            case EXP -> {
+                return currentLimitedExponential(
+                        kinodynamics.getMaxDriveVelocityM_S() * vScale,
+                        kinodynamics.getMaxDriveAccelerationM_S2() * aScale,
+                        kinodynamics.getStallAccelerationM_S2() * aScale,
+                        kinodynamics.getMaxAngleSpeedRad_S() * omegaScale,
+                        kinodynamics.getMaxAngleAccelRad_S2() * alphaScale,
+                        kinodynamics.getMaxAngleStallAccelRad_S2() * alphaScale);
+            }
+
+            case WPI -> {
+                return wpi(
+                        kinodynamics.getMaxDriveVelocityM_S() * vScale,
+                        kinodynamics.getMaxDriveAccelerationM_S2() * aScale,
+                        kinodynamics.getMaxAngleSpeedRad_S() * omegaScale,
+                        kinodynamics.getMaxAngleAccelRad_S2() * alphaScale);
+            }
+
+            case P100 -> {
+                return trapezoidal(
+                        kinodynamics.getMaxDriveVelocityM_S() * vScale,
+                        kinodynamics.getMaxDriveAccelerationM_S2() * aScale,
+                        0.05,
+                        kinodynamics.getMaxAngleSpeedRad_S() * omegaScale,
+                        kinodynamics.getMaxAngleAccelRad_S2() * alphaScale,
+                        0.1);
+            }
+
+            default -> {
+                return null;
+            }
+        }
+    }
+
+    public static HolonomicProfile wpi(
+            double maxXYVel,
+            double maxXYAccel,
+            double maxAngularVel,
+            double maxAngularAccel) {
+        return new HolonomicProfile(
+                new TrapezoidProfileWPI(maxXYVel, maxXYAccel),
+                new TrapezoidProfileWPI(maxXYVel, maxXYAccel),
+                new TrapezoidProfileWPI(maxAngularVel, maxAngularAccel));
+    }
+
     public static HolonomicProfile trapezoidal(
             double maxXYVel,
             double maxXYAccel,

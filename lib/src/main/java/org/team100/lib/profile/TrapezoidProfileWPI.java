@@ -47,4 +47,21 @@ public class TrapezoidProfileWPI implements Profile100 {
     public double getMaxVelocity() {
         return m_maxVel;
     }
+
+    public double solve(
+            double dt,
+            Model100 i,
+            Model100 g,
+            double eta,
+            double etaTolerance) {
+        return Profile100.solveForSlowerETA(
+                dt,
+                i,
+                g,
+                eta,
+                etaTolerance,
+                (s) -> new TrapezoidProfileWPI(
+                        m_constraints.maxVelocity,
+                        s * m_constraints.maxAcceleration));
+    }
 }
