@@ -23,10 +23,10 @@ public class ScoreL3 extends SequentialCommandGroup100 {
                         new SetWrist(wrist, 0.9, false),
                         new SetElevatorPerpetually(elevator, 23)),
                 new ParallelDeadlineGroup100(m_logger, "down",
-                        new SetElevator(elevator, 16, false),
+                        new SetElevator(m_logger, elevator, 16, false),
                         new SetWrist(wrist, 0.9, true)),
                 new ParallelDeadlineGroup100(m_logger, "in",
-                        new SetElevator(elevator, 10, false),
+                        new SetElevator(m_logger, elevator, 10, false),
                         new SetWrist(wrist, 0.5, true))
 
         // new ParallelDeadlineGroup100(parent,

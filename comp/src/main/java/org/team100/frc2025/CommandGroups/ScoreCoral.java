@@ -39,8 +39,8 @@ public class ScoreCoral extends SequentialCommandGroup100 {
         super(logger, "ScoreCoral");
         addCommands(
                 new ParallelDeadlineGroup100(m_logger,  "embark",
-                        new Embark(m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
-                        new SetElevator(elevator, 8, true),
+                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
+                        new SetElevator(m_logger, elevator, 8, true),
                         new SetWrist(wrist, 0.4, true)),
 
                 new SelectCommand<>(

@@ -11,7 +11,7 @@ import org.team100.lib.util.Util;
  * Use the ETA to coordinate multiple dimensions.
  */
 public interface Profile100 {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     @FunctionalInterface
     interface ProfileMaker {
