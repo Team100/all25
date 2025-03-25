@@ -10,7 +10,7 @@ import org.team100.lib.util.Util;
  * 
  * Use the ETA to coordinate multiple dimensions.
  */
-public interface Profile100 extends SimpleProfile100{
+public interface Profile100 extends SimpleProfile100 {
     public static final boolean DEBUG = false;
 
     @FunctionalInterface

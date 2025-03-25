@@ -1,5 +1,13 @@
 package org.team100.lib.spline;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N6;
+
 /**
  * One-dimensional quintic spline, representing five derivatives of position.
  * 
@@ -60,6 +68,9 @@ public class Spline1d {
         if (Double.isNaN(ddx1))
             throw new IllegalArgumentException();
 
+        // for derivation of the coefficients, see
+        // https://janhuenermann.com/paper/spline2020.pdf
+
         double a = -6 * x0 - 3 * dx0 - 0.5 * ddx0 + 0.5 * ddx1 - 3 * dx1 + 6 * x1;
         double b = 15 * x0 + 8 * dx0 + 1.5 * ddx0 - ddx1 + 7 * dx1 - 15 * x1;
         double c = -10 * x0 - 6 * dx0 - 1.5 * ddx0 + 0.5 * ddx1 - 4 * dx1 + 10 * x1;
@@ -67,6 +78,45 @@ public class Spline1d {
         double e = dx0;
         double f = x0;
         return new Spline1d(a, b, c, d, e, f);
+    }
+
+    public static Spline1d viaMatrix(
+            double x0,
+            double x1,
+            double dx0,
+            double dx1,
+            double ddx0,
+            double ddx1) {
+        // how to get the quintic spline coefficients.
+        // see https://janhuenermann.com/paper/spline2020.pdf
+        //
+        // the quintic spline and its derivatives are:
+        //
+        // x = c0 + c1 t + c2 t^2 + c3 t^3 + c4 t^4 + c5 t^5
+        // v = c1 + 2 c2 t + 3 c3 t^2 + 4 c4 t^3 + 5 c5 t^4
+        // a = 2 c2 + 6 c3 t + 12 c4 t^2 + 20 c5 t^3
+        //
+        // as a matrix, first three rows are for t=0,
+        // second three rows are t=1
+        // (x0;v0;a0;x1;v1;a1) = A [c0; c1; c2; c3; c4; c5]
+        Matrix<N6, N6> A = MatBuilder.fill(Nat.N6(), Nat.N6(), //
+                1, 0, 0, 0, 0, 0, //
+                0, 1, 0, 0, 0, 0, //
+                0, 0, 2, 0, 0, 0, //
+                1, 1, 1, 1, 1, 1, //
+                0, 1, 2, 3, 4, 5, //
+                0, 0, 2, 6, 12, 20);
+        // so to get the c vector we just invert the matrix
+        Matrix<N6, N6> Ainv = A.inv();
+        Vector<N6> x = VecBuilder.fill(x0, dx0, ddx0, x1, dx1, ddx1);
+        Matrix<N6, N1> c = Ainv.times(x);
+        return new Spline1d(
+                c.get(5, 0),
+                c.get(4, 0),
+                c.get(3, 0),
+                c.get(2, 0),
+                c.get(1, 0),
+                c.get(0, 0));
     }
 
     Spline1d addCoefs(Spline1d other) {
@@ -106,6 +156,13 @@ public class Spline1d {
      */
     public double getJerk(double t) {
         return 60 * a * t * t + 24 * b * t + 6 * c;
+    }
+
+    /**
+     * @return snap of position with respect to parameter, i.e. d^4s/dt^4.
+     */
+    public double getSnap(double t) {
+        return 120 * a * t + 24 * b;
     }
 
     @Override
