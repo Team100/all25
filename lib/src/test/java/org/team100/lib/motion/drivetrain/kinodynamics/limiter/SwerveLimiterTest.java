@@ -4,17 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
+import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.state.Control100;
+import org.team100.lib.state.Model100;
+import org.team100.lib.util.Util;
 
 public class SwerveLimiterTest {
     private static final double kDelta = 0.001;
-    private final static SwerveKinodynamics kKinematicLimits = SwerveKinodynamicsFactory.limiting();
-    LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
+    private static final boolean DEBUG = false;
+    private static final SwerveKinodynamics kKinematicLimits = SwerveKinodynamicsFactory.limiting();
+    private final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     /** The setpoint generator never changes the field-relative course. */
     @Test
@@ -260,5 +267,88 @@ public class SwerveLimiterTest {
         assertEquals(0.146, setpoint.x(), kDelta);
         assertEquals(0.427, setpoint.y(), kDelta);
         assertEquals(0, setpoint.theta(), kDelta);
+    }
+
+    /**
+     * Fixed target accel run.
+     * 
+     * The capsize limiter is applied first, and since the goal is *very* infeasible
+     * the limit is very low initially. Eventually as speed increases, the capsize
+     * limiter scale goes to 1.
+     * 
+     * You can see that the acceleration limiter starts with current limit, then the
+     * back-EMF limit becomes active over 50% speed (the switching point is due to
+     * the configuration, and is probably too low). Because the capsize limiter
+     * limit is slightly higher than the effect of the current limiter, but both are
+     * effectively constant at low speed, the acceleration scale is also initially a
+     * constant.
+     */
+    @Test
+    void testSweep() {
+        SwerveKinodynamics limits = SwerveKinodynamicsFactory.likeComp25();
+        SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
+        // target is infeasible and constant
+        final FieldRelativeVelocity target = new FieldRelativeVelocity(5, 0, 0);
+        // start is motionless
+        FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
+        limiter.updateSetpoint(setpoint);
+        for (int i = 0; i < 100; ++i) {
+            if (DEBUG)
+                Util.printf("i %d setpoint %s target %s\n", i, setpoint, target);
+            setpoint = limiter.apply(target);
+        }
+    }
+
+    /**
+     * Profiled target accel run.
+     * 
+     * The main difference between this test and the test above is that profile is
+     * unaware of back-EMF limits.
+     * 
+     * Below 50% speed, the profile produces feasible setpoints, so neither capsize
+     * nor acceleration limiter do anything.
+     * 
+     * Above 50% speed, the profile setpoints are not feasible, which has two
+     * effects.
+     * 
+     * First, the back-EMF limiter starts to affect the target velocity, making it
+     * fall behind the profile. The position also falls behind, which affects the
+     * lower level controllers.
+     * 
+     * Second, because the target is behind, the desired acceleration starts to
+     * increase (to try to catch up), and the capsize limiter begins to apply.
+     * 
+     * As the profile reaches "cruise," the capsize limiter stops being
+     * active, but the acceleration limiter continues to apply the back-EMF limit.
+     * 
+     * All this is bad: it would be better for the profile to be aware of the motor
+     * physics, and the capsize limit, so that profiles never produced infeasible
+     * setpoints.
+     */
+    @Test
+    void testProfile() {
+        // profile v and a constraints match the limits
+        Profile100 profile = new TrapezoidProfile100(3, 5, 0.01);
+        final Model100 goal = new Model100(5, 0);
+        final Model100 initial = new Model100(0, 0);
+
+        final SwerveKinodynamics limits = SwerveKinodynamicsFactory.likeComp25();
+        final SwerveLimiter limiter = new SwerveLimiter(logger, limits, () -> 12);
+
+        Control100 profileTarget = initial.control();
+        FieldRelativeVelocity target = new FieldRelativeVelocity(profileTarget.v(), 0, 0);
+        // start is motionless
+        FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
+        limiter.updateSetpoint(setpoint);
+        for (int i = 0; i < 81; ++i) {
+            double accelLimit = SwerveUtil.getAccelLimit(limits, setpoint, target);
+
+            profileTarget = profile.calculate(TimedRobot100.LOOP_PERIOD_S, profileTarget.model(), goal);
+            target = new FieldRelativeVelocity(profileTarget.v(), 0, 0);
+            setpoint = limiter.apply(target);
+            if (DEBUG)
+                Util.printf("i %d accelLimit %5.2f setpoint %5.2f target %5.2f\n",
+                        i, accelLimit, setpoint.x(), target.x());
+        }
     }
 }

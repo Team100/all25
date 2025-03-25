@@ -12,7 +12,6 @@ import org.team100.lib.commands.drivetrain.manual.DriveAdjustCoral;
 import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.hid.DriverControl;
@@ -37,20 +36,17 @@ public class ScoreCoralHesitantly extends SequentialCommandGroup100 {
             Supplier<DriverControl.Velocity> twistSupplier,
             Supplier<Boolean> readyToPlace,
             FieldRelativeDriver driver) {
-        super(logger);
+        super(logger, "ScoreCoralHesitantly");
 
         addCommands(
                 new SetElevatorTargetPosition(elevator, scoringPositionSupplier),
-                new EmbarkHesitantly(m_drive, SwerveControllerFactory.byIdentity(logger), profile, targetSector,
-                        destination, elevator),
-
-                new ParallelDeadlineGroup100(logger,
+                new EmbarkHesitantly(m_drive, controller, profile, targetSector, destination, elevator),
+                new ParallelDeadlineGroup100(m_logger, "adjust",
                         new DriveAdjustCoral(twistSupplier, m_drive, readyToPlace, driver),
                         new SelectCommand<>(
-                                Map.of(
-                                        ScoringPosition.L4, new PreScoreL4Hesitant(logger, wrist, elevator)),
+                                Map.of(ScoringPosition.L4, new PreScoreL4Hesitant(m_logger, wrist, elevator)),
                                 elevator::getScoringPosition)),
-                new ScoreL4Hesitantly(logger, wrist, elevator)
+                new ScoreL4Hesitantly(m_logger, wrist, elevator)
 
         );
     }

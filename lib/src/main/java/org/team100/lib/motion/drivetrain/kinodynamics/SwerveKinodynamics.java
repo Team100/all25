@@ -52,6 +52,7 @@ public class SwerveKinodynamics implements Glassy {
     // calculated
     private final double m_maxAngleSpeedRad_S;
     private final double m_maxAngleAccelRad_S2;
+    private final double m_maxAngleStallAccelRad_S2;
     private final Profile100 m_steeringProfile;
     // fulcrum is the distance from the center to the nearest edge.
     private final double m_fulcrum;
@@ -122,6 +123,9 @@ public class SwerveKinodynamics implements Glassy {
         m_maxAngleAccelRad_S2 = 12 * accel * m_radius
                 / (m_fronttrack * m_backtrack + m_wheelbase * m_wheelbase);
 
+        m_maxAngleStallAccelRad_S2 = 12 * m_stallAccelerationM_S2 * m_radius
+                / (m_fronttrack * m_backtrack + m_wheelbase * m_wheelbase);
+
         m_steeringProfile = new TrapezoidProfile100(
                 m_maxSteeringVelocityRad_S,
                 maxSteeringAcceleration,
@@ -143,6 +147,10 @@ public class SwerveKinodynamics implements Glassy {
      */
     public double getStallAccelerationM_S2() {
         return m_stallAccelerationM_S2;
+    }
+
+    public double getMaxAngleStallAccelRad_S2() {
+        return m_maxAngleStallAccelRad_S2;
     }
 
     /**

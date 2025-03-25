@@ -250,7 +250,7 @@ public class RobotContainerParkingLot implements Glassy {
         // viz));
 
         // this should be a field.
-        final DrawSquare m_drawCircle = new DrawSquare(m_drive, controller, viz);
+        final DrawSquare m_drawCircle = new DrawSquare(driveLogger, m_drive, controller, viz);
         whileTrue(() -> false, m_drawCircle);
     }
 

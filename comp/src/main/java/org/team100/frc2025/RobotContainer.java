@@ -15,7 +15,6 @@ import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
 import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Climber.ClimberRotateOverride;
-import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
@@ -26,7 +25,6 @@ import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Funnel.ReleaseFunnel;
-import org.team100.frc2025.Funnel.SetFunnelLatch;
 import org.team100.frc2025.Swerve.Auto.Coral2Auto;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
@@ -44,6 +42,7 @@ import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
 import org.team100.lib.commands.drivetrain.manual.ManualFieldRelativeSpeeds;
+import org.team100.lib.commands.drivetrain.manual.ManualWithBargeAssist;
 import org.team100.lib.commands.drivetrain.manual.ManualWithFullStateHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
@@ -126,7 +125,7 @@ public class RobotContainer implements Glassy {
     final Wrist2 m_wrist;
     final Climber m_climber;
     final Funnel m_funnel;
-    LEDIndicator m_leds;
+    final LEDIndicator m_leds;
 
     final CoralTunnel m_tunnel;
     final AlgaeGrip m_grip;
@@ -168,7 +167,6 @@ public class RobotContainer implements Glassy {
             // m_leds.setFront(LEDIndicator.State.ORANGE);
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
-            m_leds = null;
             m_elevator = new Elevator(elevatorLog, 2, 19);
             m_wrist = new Wrist2(elevatorLog, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
@@ -188,7 +186,6 @@ public class RobotContainer implements Glassy {
             m_wrist = new Wrist2(elevatorLog, 9);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
-            m_leds = null;
         }
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
@@ -219,13 +216,13 @@ public class RobotContainer implements Glassy {
                 driveLog,
                 layout,
                 poseEstimator);
-        
+
         m_leds = new LEDIndicator(0, visionDataProvider::getPoseAgeSec);
 
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
                 m_swerveKinodynamics,
-                m_modules); 
+                m_modules);
 
         SwerveLimiter limiter = new SwerveLimiter(driveLog, m_swerveKinodynamics, RobotController::getBatteryVoltage);
 
@@ -306,6 +303,14 @@ public class RobotContainer implements Glassy {
                         driverControl::target,
                         thetaFeedback));
 
+        driveManually.register("BARGE ASSIST", true,
+                new ManualWithBargeAssist(
+                        manLog,
+                        m_swerveKinodynamics,
+                        driverControl::desiredRotation,
+                        thetaFeedback,
+                        m_drive));
+
         // DEFAULT COMMANDS
         // m_drive.setDefaultCommand(driveManually);
 
@@ -324,15 +329,9 @@ public class RobotContainer implements Glassy {
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
-        
+
         // DRIVER BUTTONS
-        final HolonomicProfile profile = new HolonomicProfile(
-                m_swerveKinodynamics.getMaxDriveVelocityM_S(),
-                m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
-                0.05,
-                m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
-                m_swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
-                0.1);
+        final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
         m_auton = new Coral2Auto(
@@ -345,7 +344,6 @@ public class RobotContainer implements Glassy {
 
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
-        
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -381,8 +379,7 @@ public class RobotContainer implements Glassy {
                         m_drive, visionDataProvider::setHeedRadiusM));
 
         whileTrue(driverControl::driveToTag, buttons::g,
-                new ScoreCoral(
-                        coralSequence, m_wrist, m_elevator, m_tunnel,
+                new ScoreCoral(coralSequence, m_wrist, m_elevator, m_tunnel,
                         FieldSector.GH, ReefDestination.LEFT,
                         buttons::scoringPosition, holonomicController, profile,
                         m_drive, visionDataProvider::setHeedRadiusM));
@@ -437,7 +434,7 @@ public class RobotContainer implements Glassy {
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
         // whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
-        whileTrue(operatorControl::intake, new ReleaseFunnel(m_funnel, m_climber));
+        whileTrue(operatorControl::intake, new ReleaseFunnel(comLog, m_funnel, m_climber));
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
@@ -524,6 +521,7 @@ public class RobotContainer implements Glassy {
     // this keeps the tests from conflicting via the use of simulated HAL ports.
     public void close() {
         m_modules.close();
+        m_leds.close();
     }
 
 }

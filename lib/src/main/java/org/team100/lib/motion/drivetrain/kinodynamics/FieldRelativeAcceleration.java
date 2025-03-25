@@ -49,4 +49,9 @@ public record FieldRelativeAcceleration(double x, double y, double theta) {
         }
         return new FieldRelativeAcceleration(ratio * x, ratio * y, MathUtil.clamp(theta, -maxAlpha, maxAlpha));
     }
+
+    @Override
+    public String toString() {
+        return String.format("(%5.2f, %5.2f, %5.2f)", x, y, theta);
+    }
 }

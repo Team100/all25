@@ -8,7 +8,7 @@ import org.team100.lib.logging.LoggerFactory;
 public class ScoreAlgae extends SequentialCommandGroup100 {
     
     public ScoreAlgae(LoggerFactory parent, Wrist2 wrist, Elevator elevator, AlgaeGrip grip) {
-        super(parent);
+        super(parent, "ScoreAlgae");
 
         addCommands(
         // new RunAlgaeGrip(grip, RunAlgaeGrip.GripState.INTAKE)

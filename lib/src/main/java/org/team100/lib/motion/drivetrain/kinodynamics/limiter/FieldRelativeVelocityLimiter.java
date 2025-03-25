@@ -33,52 +33,75 @@ public class FieldRelativeVelocityLimiter implements Glassy {
     }
 
     /** Maintain translation and rotation proportionality. */
-    FieldRelativeVelocity proportional(FieldRelativeVelocity speeds) {
+    FieldRelativeVelocity proportional(FieldRelativeVelocity target) {
         if (DEBUG)
-            Util.printf("proportional %s\n", speeds);
-        double maxV = m_limits.getMaxDriveVelocityM_S();
-        double maxOmega = m_limits.getMaxAngleSpeedRad_S();
-        double xySpeed = speeds.norm();
-        double xyAngle = Math.atan2(speeds.y(), speeds.x());
+            Util.printf("proportional %s\n", target);
+        final double maxV = m_limits.getMaxDriveVelocityM_S();
+        final double maxOmega = m_limits.getMaxAngleSpeedRad_S();
+        double xySpeed = target.norm();
+
         // this could be negative if xySpeed is too high
         double omegaForSpeed = maxOmega * (1 - xySpeed / maxV);
-        if (Math.abs(speeds.theta()) <= omegaForSpeed) {
+        boolean feasible = Math.abs(target.theta()) <= omegaForSpeed;
+        if (feasible) {
             // omega + xyspeed is feasible
             m_log_scale.log(() -> 1.0);
             if (DEBUG)
-                Util.printf("feasible %s\n", speeds);
-            return speeds;
+                Util.printf("feasible %s\n", target);
+            return target;
         }
+
         if (xySpeed < 1e-12) {
-            // Omega alone is infeasible, so use maxOmega.
-            double scale = Math.abs(maxOmega / speeds.theta());
-            m_log_scale.log(() -> scale);
-            if (DEBUG)
-                Util.printf("max omega %s\n", speeds);
-            return new FieldRelativeVelocity(0, 0, Math.signum(speeds.theta()) * maxOmega);
-        }
-        if (Math.abs(speeds.theta()) < 1e-12) {
-            // Cartesian speed alone is infeasible, so use maxV.
-            double scale = Math.abs(maxV / xySpeed);
-            m_log_scale.log(() -> scale);
-            if (DEBUG)
-                Util.printf("max v %s\n", speeds);
-            return new FieldRelativeVelocity(maxV * Math.cos(xyAngle), maxV * Math.sin(xyAngle), 0);
+            return spinOnly(target, maxOmega);
         }
 
-        double v = maxOmega * xySpeed * maxV / (maxOmega * xySpeed + Math.abs(speeds.theta()) * maxV);
+        if (Math.abs(target.theta()) < 1e-12) {
+            return translateOnly(target, maxV, xySpeed);
+        }
 
+        return proportional(target, maxV, maxOmega, xySpeed);
+    }
+
+    /** Both rotation and translation, scale proportionally. */
+    private FieldRelativeVelocity proportional(
+            FieldRelativeVelocity target,
+            final double maxV,
+            final double maxOmega,
+            double xySpeed) {
+        double v = maxOmega * xySpeed * maxV / (maxOmega * xySpeed + Math.abs(target.theta()) * maxV);
         double scale = v / xySpeed;
-
         m_log_scale.log(() -> scale);
-
         if (DEBUG)
             Util.printf("FieldRelativeVelocityLimiter proportional scale %.5f\n", scale);
-
         return new FieldRelativeVelocity(
-                scale * speeds.x(),
-                scale * speeds.y(),
-                scale * speeds.theta());
+                scale * target.x(),
+                scale * target.y(),
+                scale * target.theta());
+    }
+
+    /** No rotation at all, so use maxV. */
+    private FieldRelativeVelocity translateOnly(FieldRelativeVelocity target, double maxV, double xySpeed) {
+        double xyAngle = Math.atan2(target.y(), target.x());
+        double scale = Math.abs(maxV / xySpeed);
+        m_log_scale.log(() -> scale);
+        if (DEBUG)
+            Util.printf("max v %s\n", target);
+        return new FieldRelativeVelocity(
+                maxV * Math.cos(xyAngle),
+                maxV * Math.sin(xyAngle),
+                0);
+    }
+
+    /** Spinning in place, faster than is possible, so use maxOmega. */
+    private FieldRelativeVelocity spinOnly(FieldRelativeVelocity target, double maxOmega) {
+        double scale = Math.abs(maxOmega / target.theta());
+        m_log_scale.log(() -> scale);
+        if (DEBUG)
+            Util.printf("max omega %s\n", target);
+        return new FieldRelativeVelocity(
+                0,
+                0,
+                Math.signum(target.theta()) * maxOmega);
     }
 
     /** Scales translation to accommodate the rotation. */

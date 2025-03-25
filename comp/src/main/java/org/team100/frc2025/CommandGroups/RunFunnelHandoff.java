@@ -14,16 +14,16 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class RunFunnelHandoff extends SequentialCommandGroup100 {
     public RunFunnelHandoff(
-            LoggerFactory parent,
+            LoggerFactory logger,
             Elevator elevator,
             Wrist2 wrist,
             Funnel funnel,
             CoralTunnel tunnel,
             AlgaeGrip grip) {
-        super(parent);
+        super(logger, "RunFunnelHandoff");
         addCommands(
-                new PrepareFunnelHandoff(parent, wrist, elevator),
-                new ParallelCommandGroup100(parent,
+                new PrepareFunnelHandoff(m_logger, wrist, elevator),
+                new ParallelCommandGroup100(m_logger, "handoff",
                         new RunFunnel(funnel),
                         new RunCoralTunnel(tunnel, 1),
                         new SetWristDutyCycle(wrist, -0.15, false)));
