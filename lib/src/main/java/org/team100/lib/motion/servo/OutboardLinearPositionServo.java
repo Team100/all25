@@ -9,7 +9,7 @@ import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.SimpleProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -19,7 +19,7 @@ import org.team100.lib.state.Model100;
  */
 public class OutboardLinearPositionServo implements LinearPositionServo {
     private final LinearMechanism m_mechanism;
-    private final Profile100 m_profile;
+    private final SimpleProfile100 m_profile;
 
     private Model100 m_goal;
     private Control100 m_setpoint = new Control100(0, 0);
@@ -36,7 +36,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     public OutboardLinearPositionServo(
             LoggerFactory parent,
             LinearMechanism mechanism,
-            Profile100 profile) {
+            SimpleProfile100 profile) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
         m_profile = profile;
@@ -56,7 +56,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // the profile tries to follow that noise. so instead, use zero.
         // OptionalDouble velocity = getVelocity();
         // if (velocity.isEmpty())
-        //     return;
+        // return;
         m_setpoint = new Control100(position.getAsDouble(), 0);
     }
 
