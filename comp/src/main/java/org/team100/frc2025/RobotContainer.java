@@ -42,6 +42,7 @@ import org.team100.lib.commands.drivetrain.manual.DriveManually;
 import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 import org.team100.lib.commands.drivetrain.manual.ManualChassisSpeeds;
 import org.team100.lib.commands.drivetrain.manual.ManualFieldRelativeSpeeds;
+import org.team100.lib.commands.drivetrain.manual.ManualWithBargeAssist;
 import org.team100.lib.commands.drivetrain.manual.ManualWithFullStateHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithProfiledHeading;
 import org.team100.lib.commands.drivetrain.manual.ManualWithTargetLock;
@@ -301,6 +302,14 @@ public class RobotContainer implements Glassy {
                         m_swerveKinodynamics,
                         driverControl::target,
                         thetaFeedback));
+
+        driveManually.register("BARGE ASSIST", true,
+                new ManualWithBargeAssist(
+                        manLog,
+                        m_swerveKinodynamics,
+                        driverControl::desiredRotation,
+                        thetaFeedback,
+                        m_drive));
 
         // DEFAULT COMMANDS
         // m_drive.setDefaultCommand(driveManually);
