@@ -43,7 +43,7 @@ public class SwerveKinodynamicsFactory {
                 // note these measurements were updated jun 24.
                 // 9/24/04, raised steering rate from 20 to 40, accel from 60 to 120.
                 return new SwerveKinodynamics(
-                        3, // max vel m/s
+                        3, //TODO find real max vel m/s @ EPA
                         10, // stall m/s/s
                         5, // max accel m/s/s
                         25, // max decel m/s/s

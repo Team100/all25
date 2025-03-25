@@ -68,7 +68,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15, kPositionTolerance); // TODO CHANGE THESE
 
-        safeLogger = parent.booleanLogger(Level.TRACE, "Wrist Safe Condition");
+        safeLogger = child.booleanLogger(Level.TRACE, "Wrist Safe Condition");
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -90,7 +90,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_wristMech = wristMech;
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 7.5, 0.00, 0.000, false, kPositionTolerance,
+                Feedback100 wristFeedback = new PIDFeedback(child, 7.5, 0.00, 0.000, false, kPositionTolerance,
                         kPositionTolerance);
                 // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false,
                 // kPositionTolerance, kPositionTolerance);
