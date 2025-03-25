@@ -7,7 +7,7 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
-class ProfileWPITest {
+class TrapezoidProfileWPITest {
     private static final boolean actuallyPrint = false;
     private static final double kDelta = 0.001;
 
@@ -21,7 +21,7 @@ class ProfileWPITest {
      */
     @Test
     void testTriangle() {
-        ProfileWPI profileX = new ProfileWPI(5, 2);
+        TrapezoidProfileWPI profileX = new TrapezoidProfileWPI(5, 2);
         Control100 sample = new Control100(0, 0);
         final Model100 end = new Model100(1, 0);
 

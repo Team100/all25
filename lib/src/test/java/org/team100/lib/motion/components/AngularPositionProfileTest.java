@@ -19,7 +19,7 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.ProfileWPI;
+import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
@@ -55,7 +55,7 @@ class AngularPositionProfileTest implements Timeless {
      */
     @Test
     void testTrapezoid() {
-        final Profile100 profile = new ProfileWPI(1, 1);
+        final Profile100 profile = new TrapezoidProfileWPI(1, 1);
         ProfiledController controller = new ProfiledController(
                 profile,
                 feedback2,

@@ -15,7 +15,6 @@ import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
 import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Climber.ClimberRotateOverride;
-import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
@@ -26,7 +25,6 @@ import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Funnel.ReleaseFunnel;
-import org.team100.frc2025.Funnel.SetFunnelLatch;
 import org.team100.frc2025.Swerve.Auto.Coral2Auto;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
@@ -324,13 +322,7 @@ public class RobotContainer implements Glassy {
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
 
         // DRIVER BUTTONS
-        final HolonomicProfile profile = new HolonomicProfile(
-                m_swerveKinodynamics.getMaxDriveVelocityM_S(),
-                m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5,
-                0.05,
-                m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
-                m_swerveKinodynamics.getMaxAngleAccelRad_S2() * 0.2,
-                0.1);
+        final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
         m_auton = new Coral2Auto(

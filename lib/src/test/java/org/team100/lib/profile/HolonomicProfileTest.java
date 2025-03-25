@@ -15,7 +15,7 @@ class HolonomicProfileTest {
 
     @Test
     void test2d() {
-        HolonomicProfile hp = new HolonomicProfile(1, 1, 0.01, 1, 1, 0.01);
+        HolonomicProfile hp = HolonomicProfile.trapezoidal(1, 1, 0.01, 1, 1, 0.01);
         SwerveModel i = new SwerveModel();
         SwerveModel g = new SwerveModel(new Pose2d(1, 5, Rotation2d.kZero));
         hp.solve(i, g);
@@ -29,7 +29,7 @@ class HolonomicProfileTest {
 
     @Test
     void test2dWithEntrySpeed() {
-        HolonomicProfile hp = new HolonomicProfile(1, 1, 0.01, 1, 1, 0.01);
+        HolonomicProfile hp = HolonomicProfile.trapezoidal(1, 1, 0.01, 1, 1, 0.01);
         SwerveModel i = new SwerveModel(new Pose2d(), new FieldRelativeVelocity(1, 0, 0));
         SwerveModel g = new SwerveModel(new Pose2d(0, 1, Rotation2d.kZero));
         hp.solve(i, g);
@@ -47,7 +47,7 @@ class HolonomicProfileTest {
      */
     @Test
     void testSolvePerformance() {
-        HolonomicProfile hp = new HolonomicProfile(1, 1, 0.01, 1, 1, 0.01);
+        HolonomicProfile hp = HolonomicProfile.trapezoidal(1, 1, 0.01, 1, 1, 0.01);
         SwerveModel i = new SwerveModel(new Pose2d(), new FieldRelativeVelocity(1, 0, 0));
         SwerveModel g = new SwerveModel(new Pose2d(0, 1, Rotation2d.kZero));
         int N = 1000000;

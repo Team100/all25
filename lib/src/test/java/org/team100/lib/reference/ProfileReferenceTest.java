@@ -17,7 +17,7 @@ public class ProfileReferenceTest implements Timeless {
     void testSimple() {
         SwerveModel measurement = new SwerveModel(new Pose2d(0, 0, Rotation2d.kZero));
         SwerveModel goal = new SwerveModel(new Pose2d(1, 0, Rotation2d.kZero));
-        HolonomicProfile hp = new HolonomicProfile(1, 1, 0.01, 1, 1, 0.01);
+        HolonomicProfile hp = HolonomicProfile.trapezoidal(1, 1, 0.01, 1, 1, 0.01);
         ProfileReference r = new ProfileReference(hp);
         r.setGoal(goal);
         r.initialize(measurement);

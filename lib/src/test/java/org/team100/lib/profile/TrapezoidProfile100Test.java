@@ -226,13 +226,17 @@ class TrapezoidProfile100Test {
         Model100 initial = new Model100(0, 0);
         Model100 goal = new Model100(1, 0);
         // this this is the default eta above, so s = 1.0.
-        double s = TrapezoidProfile100.solveForSlowerETA(1, 1, 0.01, 0.02, initial, goal, 2, kDelta);
+        double s = Profile100.solveForSlowerETA(0.02, initial, goal, 2, kDelta,
+                (ss) -> new TrapezoidProfile100(1, ss, 0.01));
         assertEquals(1.0, s, kDelta);
-        s = TrapezoidProfile100.solveForSlowerETA(1, 1, 0.01, 0.02, initial, goal, 3, kDelta);
+        s = Profile100.solveForSlowerETA(0.02, initial, goal, 3, kDelta,
+                (ss) -> new TrapezoidProfile100(1, ss, 0.01));
         assertEquals(0.439, s, kDelta);
-        s = TrapezoidProfile100.solveForSlowerETA(1, 1, 0.01, 0.02, initial, goal, 4, kDelta);
+        s = Profile100.solveForSlowerETA(0.02, initial, goal, 4, kDelta,
+                (ss) -> new TrapezoidProfile100(1, ss, 0.01));
         assertEquals(0.242, s, kDelta);
-        s = TrapezoidProfile100.solveForSlowerETA(1, 1, 0.01, 0.02, initial, goal, 8, kDelta);
+        s = Profile100.solveForSlowerETA(0.02, initial, goal, 8, kDelta,
+                (ss) -> new TrapezoidProfile100(1, ss, 0.01));
         assertEquals(0.053, s, kDelta);
     }
 
@@ -261,8 +265,9 @@ class TrapezoidProfile100Test {
         assertEquals(119.200, rx.etaS(), kDelta);
 
         // Util.println("**** then find S for this very same ETA");
-        double s = TrapezoidProfile100.solveForSlowerETA(
-                maxV, maxA, tol, dt, initial, goal, 119.2, kDelta);
+        double s = Profile100.solveForSlowerETA(
+                dt, initial, goal, 119.2, kDelta,
+                (ss) -> new TrapezoidProfile100(maxV, ss * maxA, tol));
 
         // previously the "s" value here was 0.292, not 1.0, even though we're using
         // the very same parameters. Why?
@@ -299,8 +304,9 @@ class TrapezoidProfile100Test {
         assertEquals(606.261, rx.etaS(), kDelta);
 
         // Util.println("**** then find S for this very same ETA");
-        double s = TrapezoidProfile100.solveForSlowerETA(
-                maxV, maxA, tol, dt, initial, goal, 606.261, kDelta);
+        double s = Profile100.solveForSlowerETA(
+                dt, initial, goal, 606.261, kDelta,
+                (ss) -> new TrapezoidProfile100(maxV, ss * maxA, tol));
         // this is correct.
         assertEquals(1, s, kDelta);
     }
@@ -310,7 +316,8 @@ class TrapezoidProfile100Test {
         Model100 initial = new Model100(0, 0);
         Model100 goal = new Model100(0, 0);
         // this this is the default eta above, so s = 1.0.
-        double s = TrapezoidProfile100.solveForSlowerETA(1, 1, 0.01, 0.02, initial, goal, 2, kDelta);
+        double s = Profile100.solveForSlowerETA(0.02, initial, goal, 2, kDelta,
+                (ss) -> new TrapezoidProfile100(1, ss, 0.01));
         assertEquals(1.0, s, kDelta);
     }
 

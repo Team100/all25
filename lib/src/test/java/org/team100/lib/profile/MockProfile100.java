@@ -29,4 +29,9 @@ public class MockProfile100 implements Profile100 {
         return 0;
     }
 
+    @Override
+    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
+        return 1.0;
+    }
+
 }
