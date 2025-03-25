@@ -50,10 +50,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     @Override
     public void reset() {
         m_mechanism.resetEncoderPosition();
-        OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
-            return;
     }
 
     @Override

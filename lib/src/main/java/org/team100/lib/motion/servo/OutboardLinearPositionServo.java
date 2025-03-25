@@ -14,12 +14,13 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 /**
- * Position control using the feedback controller in the motor controller hardware
+ * Position control using the feedback controller in the motor controller
+ * hardware
  */
 public class OutboardLinearPositionServo implements LinearPositionServo {
     private final LinearMechanism m_mechanism;
     private final Profile100 m_profile;
-    
+
     private Model100 m_goal;
     private Control100 m_setpoint = new Control100(0, 0);
 
@@ -27,6 +28,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private final DoubleLogger m_log_ff_torque;
     private final Control100Logger m_log_setpoint;
     private final DoubleLogger m_log_position;
+    private final DoubleLogger m_log_velocity;
 
     // for calculating acceleration
     private double previousSetpoint = 0;
@@ -40,16 +42,22 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_profile = profile;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_position = child.doubleLogger(Level.TRACE, "position (m)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (m)");
-    }  
+        m_log_position = child.doubleLogger(Level.TRACE, "position (m)");
+        m_log_velocity = child.doubleLogger(Level.TRACE, "velocity (m_s)");
+    }
+
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
+        if (position.isEmpty())
             return;
-        m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        //     return;
+        m_setpoint = new Control100(position.getAsDouble(), 0);
     }
 
     @Override
@@ -61,7 +69,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
 
         m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
-        m_log_goal.log( () -> m_goal);
+        m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_setpoint.log(() -> m_setpoint);
     }
@@ -76,7 +84,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         return m_mechanism.getPositionM();
     }
 
-    public void setDutyCycle(double value){
+    public void setDutyCycle(double value) {
         m_mechanism.setDutyCycle(value);
     }
 
@@ -102,8 +110,8 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     @Override
     public void periodic() {
         m_mechanism.periodic();
-
-        m_log_position.log( () -> getPosition().orElse(Double.NaN));
+        m_log_position.log(() -> getPosition().orElse(Double.NaN));
+        m_log_velocity.log(() -> getVelocity().orElse(Double.NaN));
     }
 
     /**

@@ -23,7 +23,8 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final double m_kV;
     // LOGGERS
     private final Model100Logger m_log_goal;
-    private final DoubleLogger m_log_measurement;
+    private final DoubleLogger m_log_position;
+    private final DoubleLogger m_log_velocity;
     private final Control100Logger m_log_setpoint;
     private final DoubleLogger m_log_u_FB;
     private final DoubleLogger m_log_u_FF;
@@ -42,7 +43,8 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         m_kV = kV;
 
         m_log_goal = child.model100Logger(Level.TRACE, "goal (m)");
-        m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (m)");
+        m_log_position = child.doubleLogger(Level.TRACE, "position (m)");
+        m_log_velocity = child.doubleLogger(Level.TRACE, "velocity (m_s)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (m)");
         m_log_u_FB = child.doubleLogger(Level.TRACE, "u_FB (duty cycle)");
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (duty cycle)");
@@ -54,10 +56,14 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
+        if (position.isEmpty())
             return;
-        m_controller.init(new Model100(position.getAsDouble(), velocity.getAsDouble()));
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        // return;
+        m_controller.init(new Model100(position.getAsDouble(), 0));
     }
 
     @Override
@@ -79,7 +85,6 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         m_mechanism.setDutyCycle(u_TOTAL);
 
         m_log_goal.log(() -> goal);
-        m_log_measurement.log(() -> position.getAsDouble());
         m_log_setpoint.log(() -> setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
@@ -116,6 +121,8 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     @Override
     public void periodic() {
         m_mechanism.periodic();
+        m_log_position.log(() -> getPosition().orElse(Double.NaN));
+        m_log_velocity.log(() -> getVelocity().orElse(Double.NaN));
     }
 
 }

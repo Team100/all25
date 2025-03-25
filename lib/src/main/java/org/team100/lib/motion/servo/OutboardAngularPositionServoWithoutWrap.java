@@ -25,7 +25,7 @@ import edu.wpi.first.math.MathUtil;
  * 
  * Must be used with a combined encoder, to "zero" the motor encoder.
  * 
- *  
+ * 
  */
 public class OutboardAngularPositionServoWithoutWrap implements AngularPositionServo {
     private static final double kPositionTolerance = 0.006;
@@ -70,10 +70,14 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
+        if (position.isEmpty())
             return;
-        m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        // return;
+        m_setpoint = new Control100(position.getAsDouble(), 0);
     }
 
     @Override
@@ -108,16 +112,17 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
 
         // choose a goal which is near the measurement
         // goal is [-inf, inf]
-        // m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
-        //         goalVelocityRad_S);
+        // m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) +
+        // measurement,
+        // goalVelocityRad_S);
 
         m_goal = new Model100(goalRad,
                 goalVelocityRad_S);
 
         // setpoint is [-inf,inf], near the measurement
         // m_setpoint = new Control100(
-        //         MathUtil.angleModulus(m_setpoint.x() - measurement) + measurement,
-        //         m_setpoint.v());
+        // MathUtil.angleModulus(m_setpoint.x() - measurement) + measurement,
+        // m_setpoint.v());
 
         m_setpoint = new Control100(
                 m_setpoint.x(),
@@ -164,7 +169,7 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
         OptionalDouble velocityRad_S = getVelocity();
         if (velocityRad_S.isEmpty())
             return false;
-            
+
         double positionError = m_setpoint.x() - positionRad.getAsDouble();
         double velocityError = m_setpoint.v() - velocityRad_S.getAsDouble();
         return Math.abs(positionError) < kPositionTolerance
@@ -221,7 +226,7 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
     }
 
     @Override
-    public void setStaticTorque(double feedForwardTorqueNm){
+    public void setStaticTorque(double feedForwardTorqueNm) {
 
     }
 }
