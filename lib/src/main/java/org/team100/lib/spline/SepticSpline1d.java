@@ -23,8 +23,8 @@ public class SepticSpline1d {
     final double g;
     final double h;
     // max of the underlying spline
-    double maxV;
-    double maxA;
+    public double maxV;
+    public double maxA;
 
     private SepticSpline1d(double a, double b, double c, double d, double e, double f, double g, double h) {
         this.a = a;
