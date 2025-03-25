@@ -10,7 +10,7 @@ import org.team100.lib.util.Util;
  * 
  * Use the ETA to coordinate multiple dimensions.
  */
-public interface Profile100 {
+public interface Profile100 extends SimpleProfile100{
     public static final boolean DEBUG = false;
 
     @FunctionalInterface
@@ -23,13 +23,6 @@ public interface Profile100 {
 
     public static record ResultWithETA(Control100 state, double etaS) {
     }
-
-    /**
-     * Return the control for dt in the future.
-     * 
-     * Note order here, initial first, goal second.
-     */
-    Control100 calculate(double dt, Model100 initial, Model100 goal);
 
     /**
      * Return the control for dt in the future.
