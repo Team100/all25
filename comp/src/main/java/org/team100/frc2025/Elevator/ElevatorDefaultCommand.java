@@ -17,6 +17,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
     private final Wrist2 m_wrist;
     private final AlgaeGrip m_grip;
     private final SwerveDriveSubsystem m_drive;
+    private double m_holdPosition;
 
     public ElevatorDefaultCommand(LoggerFactory logger, Elevator elevator, Wrist2 wrist, AlgaeGrip grip,
             SwerveDriveSubsystem drive) {
@@ -32,12 +33,18 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
     @Override
     public void initialize() {
         m_elevator.resetElevatorProfile();
-
+        m_holdPosition = m_elevator.getPosition();
     }
 
     @Override
     public void execute() {
-
+        
+        if(!m_wrist.getSafeCondition()){
+            // elevator shouldn't move at all
+            m_elevator.setPositionDirectly(m_holdPosition);
+            return;
+        }
+        m_holdPosition = m_elevator.getPosition();
         double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
         m_log_distanceToReef.log(() -> distanceToReef);
         if (distanceToReef > 1.6) {
