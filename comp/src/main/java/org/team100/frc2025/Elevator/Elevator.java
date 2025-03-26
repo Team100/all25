@@ -8,6 +8,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.motion.mechanism.LimitedLinearMechanism;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motion.servo.OutboardLinearPositionServo;
@@ -21,8 +22,8 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
-    private static final double kElevatorReduction = 2; 
-    private static final double kElevatorWheelDiamater = 1; 
+    private static final double kElevatorReduction = 2;
+    private static final double kElevatorWheelDiamater = 1;
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
@@ -32,9 +33,8 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     private ScoringPosition m_targetPosition = ScoringPosition.NONE;
 
-    private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); //elevator height, elevator cg
+    private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); // elevator height, elevator cg
 
-    
     public Elevator(
             LoggerFactory parent,
             int starboardID,
@@ -56,8 +56,10 @@ public class Elevator extends SubsystemBase implements Glassy {
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
+        // 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
+        // 0.05); // TODO CHANGE THESE
         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100, 0.01); // TODO CHANGE THESE
 
         table.put(0.0, 0.5);
@@ -70,21 +72,23 @@ public class Elevator extends SubsystemBase implements Glassy {
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.FORWARD,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
 
-                LinearMechanism starboardMech = new SimpleLinearMechanism(
+                SimpleLinearMechanism starboardMech = new SimpleLinearMechanism(
                         starboardMotor,
                         new Talon6Encoder(starboardLogger, starboardMotor),
                         kElevatorReduction,
                         kElevatorWheelDiamater);
+                LimitedLinearMechanism starboardLimited = new LimitedLinearMechanism(starboardMech, 0.0, 56.0);
 
-                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
+                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardLimited, elevatorProfile);
 
-                LinearMechanism portMech = new SimpleLinearMechanism(
+                SimpleLinearMechanism portMech = new SimpleLinearMechanism(
                         portMotor,
                         new Talon6Encoder(portLogger, portMotor),
                         kElevatorReduction,
                         kElevatorWheelDiamater);
+                LimitedLinearMechanism portLimited = new LimitedLinearMechanism(portMech, 0.0, 56.0);
 
-                portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
+                portServo = new OutboardLinearPositionServo(portLogger, portLimited, elevatorProfile);
 
                 break;
             }
@@ -131,6 +135,12 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     }
 
+    public void setPositionDirectly(double x) {
+        starboardServo.setPositionDirectly(x, 1.3); // 54 max
+        portServo.setPositionDirectly(x, 1.3); // 54 max
+
+    }
+
     public void setPositionNoGravity(double x) {
         starboardServo.setPosition(x, 0); // 54 max
         portServo.setPosition(x, 0); // 54 max
@@ -158,29 +168,25 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.stop();
     }
 
-
-    public double getElevatorCG(){
+    public double getElevatorCG() {
         return table.get(getPosition());
     }
 
-    
-    //DUMB Getters and Setters
-    public boolean getSafeCondition(){
+    // DUMB Getters and Setters
+    public boolean getSafeCondition() {
         return m_isSafe;
     }
 
-    public void setSafeCondition(boolean isSafe){
+    public void setSafeCondition(boolean isSafe) {
         m_isSafe = isSafe;
     }
 
-    public void setTargetScoringPosition(ScoringPosition position){
+    public void setTargetScoringPosition(ScoringPosition position) {
         m_targetPosition = position;
     }
 
-    public ScoringPosition getScoringPosition(){
+    public ScoringPosition getScoringPosition() {
         return m_targetPosition;
     }
-
-
 
 }
