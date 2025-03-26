@@ -31,6 +31,7 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final ElevatorVisualization m_viz;
     private boolean m_isSafe = false;
 
+    private double m_goal;
     private ScoringPosition m_targetPosition = ScoringPosition.NONE;
 
     private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); // elevator height, elevator cg
@@ -56,9 +57,9 @@ public class Elevator extends SubsystemBase implements Glassy {
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(175, 75, 0.01); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(175, 75, 0.01); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
@@ -133,6 +134,7 @@ public class Elevator extends SubsystemBase implements Glassy {
     /**
      */
     public void setPosition(double x) {
+        m_goal = x;
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
 
@@ -145,11 +147,13 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public void setPositionNoGravity(double x) {
+        m_goal = x;
         starboardServo.setPosition(x, 0); // 54 max
         portServo.setPosition(x, 0); // 54 max
 
     }
 
+    //TODO fix this function    
     public void setStatic() {
         starboardServo.setPosition(starboardServo.getPosition().getAsDouble(), 1.3); // 54 max
         portServo.setPosition(portServo.getPosition().getAsDouble(), 1.3); // 54 max
@@ -188,7 +192,11 @@ public class Elevator extends SubsystemBase implements Glassy {
         m_targetPosition = position;
     }
 
-    public ScoringPosition getScoringPosition() {
+    public boolean atGoal(){
+        return Math.abs(m_goal-getPosition()) < 0.1;
+    }
+
+    public ScoringPosition getScoringPosition(){
         return m_targetPosition;
     }
 

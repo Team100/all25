@@ -39,7 +39,6 @@ public class SetElevator extends Command implements Glassy {
     @Override
     public void execute() {
         m_elevator.setPosition(m_value); // 24.5 for l3
-
         double error = Math.abs(m_elevator.getPosition() - m_value);
         m_log_error.log(() -> error);
         if (error < 0.5) {
@@ -67,7 +66,7 @@ public class SetElevator extends Command implements Glassy {
         if (m_perpetual) {
             return false;
         } else {
-            return finished;
+            return m_elevator.atGoal();
         }
     }
 }
