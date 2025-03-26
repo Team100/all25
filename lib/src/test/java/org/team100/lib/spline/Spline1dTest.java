@@ -14,7 +14,7 @@ import edu.wpi.first.math.numbers.N6;
  * 
  */
 public class Spline1dTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** Look at an example */
     @Test

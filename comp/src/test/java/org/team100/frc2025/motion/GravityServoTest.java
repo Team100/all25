@@ -7,6 +7,7 @@ import org.team100.frc2025.Timeless2025;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
@@ -44,7 +45,7 @@ class GravityServoTest implements Timeless2025 {
                 logger,
                 simMech);
 
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
                 profile, 
                 pivotFeedback,
                  MathUtil::angleModulus,

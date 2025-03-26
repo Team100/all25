@@ -4,6 +4,9 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 
+/**
+ * Feedback and feedforward control.
+ */
 public interface SwerveController extends Glassy {
 
     /**
