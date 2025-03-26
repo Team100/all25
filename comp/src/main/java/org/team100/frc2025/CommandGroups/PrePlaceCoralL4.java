@@ -9,7 +9,8 @@ public class PrePlaceCoralL4 extends Command {
     Wrist2 m_wrist;
     Elevator m_elevator;
     double m_elevatorGoal;
-    double count = 0;
+    double countElevator = 0;
+    double countWrist = 0;
     boolean finished = false;
 
     public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue) {
@@ -21,7 +22,8 @@ public class PrePlaceCoralL4 extends Command {
 
     @Override
     public void initialize() {
-        count = 0;
+        countElevator = 0;
+        countWrist = 0;
         finished = false;
         m_wrist.resetWristProfile();
         m_elevator.resetElevatorProfile();
@@ -36,15 +38,22 @@ public class PrePlaceCoralL4 extends Command {
             m_wrist.setAngleValue(1.25);
         }
 
-        double error = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
+        double errorElevator = Math.abs(m_elevator.getPosition() - m_elevatorGoal);
+        double errorWrist = Math.abs(m_wrist.getAngle() - 1.25);
 
-        if (error < 0.5) {
-            count++;
+        if (errorElevator < 0.5) {
+            countElevator++;
         } else {
-            count = 0;
+            countElevator = 0;
         }
 
-        if (count >= 5) {
+        if(errorWrist < 0.05){
+            countWrist++;
+        } else {
+            countWrist = 0;
+        }
+
+        if (countElevator >= 2 && countWrist >= 1) {
             finished = true;
         }
     }

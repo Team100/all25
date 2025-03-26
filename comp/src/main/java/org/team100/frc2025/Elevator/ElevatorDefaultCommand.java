@@ -42,12 +42,28 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         if(!m_wrist.getSafeCondition()){
             // elevator shouldn't move at all
             m_elevator.setPositionDirectly(m_holdPosition);
+
+            double goal = 0;
+            if(!m_grip.hasAlgae()){
+                goal = 0.05;
+            } else {
+                goal = 12;
+            }
+
+            double error = Math.abs(m_elevator.getPosition() - goal);
+            if(error <= 0.3){
+                m_elevator.setSafeCondition(true);
+            } else {
+                m_elevator.setSafeCondition(false);
+            }
+            
             return;
         }
+
         m_holdPosition = m_elevator.getPosition();
         double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
         m_log_distanceToReef.log(() -> distanceToReef);
-        
+
         if (distanceToReef > 1.6) {
 
             if (!m_grip.hasAlgae()) {
@@ -63,11 +79,9 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
 
                 if (error <= 0.3) {
                     m_elevator.setSafeCondition(true);
-                    // m_elevator.setPosition(goal);
 
                 } else {
                     m_elevator.setSafeCondition(false);
-                    // m_elevator.setPosition(goal);
 
                 }
             } else {
@@ -78,14 +92,6 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
                 } else {
                     m_elevator.setStatic();
                 }
-
-                // double error = Math.abs(m_elevator.getPosition() - goal);
-
-                // if(error <= 0.2){
-                // m_elevator.setSafeCondition(true);
-                // } else{
-                // m_elevator.setSafeCondition(false);
-                // }
 
             }
         } else {
