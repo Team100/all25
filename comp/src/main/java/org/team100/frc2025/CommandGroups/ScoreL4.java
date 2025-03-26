@@ -19,9 +19,9 @@ public class ScoreL4 extends SequentialCommandGroup100 {
                 // new ParallelDeadlineGroup100(parent,
                 // new SetElevator(elevator, 45, false),
                 // new SetWrist(wrist, 0.4, true)),//45
-                new ParallelDeadlineGroup100(m_logger, "up",
-                        new SetWrist(wrist, 1.25, false),
-                        new SetElevatorPerpetually(elevator, 45)),
+                // new ParallelDeadlineGroup100(m_logger, "up",
+                //         new SetWrist(wrist, 1.25, false),
+                //         new SetElevatorPerpetually(elevator, 45)),
                 // new ParallelDeadlineGroup100(m_logger, "score",
                 //         new SetElevator(elevator, 35, false),
                 //         new SetWrist(wrist, 1.25, true)),

@@ -59,10 +59,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_positionSensor = positionSensor;
         m_controller = controller;
 
-        m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
+        m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_measurement = child.model100Logger(Level.TRACE, "measurement (rad)");
-        m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
+        m_log_measurement = child.model100Logger(Level.COMP, "measurement (rad)");
+        m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (rad)");
         m_log_u_FB = child.doubleLogger(Level.TRACE, "u_FB (rad_s)");
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (rad_s)");
         m_encoderValue = child.doubleLogger(Level.TRACE, "Encoder Value");

@@ -40,11 +40,11 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
         m_profile = profile;
-        m_log_goal = child.model100Logger(Level.TRACE, "goal (m)");
+        m_log_goal = child.model100Logger(Level.COMP, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (m)");
-        m_log_position = child.doubleLogger(Level.TRACE, "position (m)");
-        m_log_velocity = child.doubleLogger(Level.TRACE, "velocity (m_s)");
+        m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (m)");
+        m_log_position = child.doubleLogger(Level.COMP, "position (m)");
+        m_log_velocity = child.doubleLogger(Level.COMP, "velocity (m_s)");
     }
 
     @Override

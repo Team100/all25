@@ -98,7 +98,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_wristMech = wristMech;
 
-                Feedback100 wristFeedback = new PIDFeedback(parent, 5.0, 0.00, 0.000, false, kPositionTolerance, 0.1);
+                Feedback100 wristFeedback = new PIDFeedback(parent, 5.5, 0.00, 0.000, false, kPositionTolerance, 0.1);
                 // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false,
                 // kPositionTolerance, kPositionTolerance);
 

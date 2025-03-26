@@ -15,9 +15,9 @@ public class ReleaseFunnel extends SequentialCommandGroup100 {
         addCommands(
                 new ParallelRaceGroup100(m_logger, "unlatch",
                         new SetFunnelLatch(funnel, 180, 0),
-                        new WaitCommand(1)),
-                new ParallelRaceGroup100(m_logger, "emerge",
-                        new SetClimber(climber, -1.42),
                         new WaitCommand(1)));
+                // new ParallelRaceGroup100(m_logger, "emerge",
+                //         new SetClimber(climber, -1.42),
+                //         new WaitCommand(1)));
     }
 }

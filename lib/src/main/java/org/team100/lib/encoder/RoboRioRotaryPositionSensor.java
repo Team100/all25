@@ -40,8 +40,8 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
         m_wrapped = wrapped;
         m_positionOffset = Util.inRange(inputOffset, 0.0, 1.0);
         m_drive = drive;
-        m_log_position = child.optionalDoubleLogger(Level.TRACE, "position (rad)");
-        m_log_position_turns = child.doubleLogger(Level.TRACE, "position (turns)");
+        m_log_position = child.optionalDoubleLogger(Level.COMP, "position (rad)");
+        m_log_position_turns = child.doubleLogger(Level.COMP, "position (turns)");
         m_log_position_turns_offset = child.doubleLogger(Level.TRACE, "position (turns-offset)");
         m_log_rate = child.doubleLogger(Level.TRACE, "rate (rad)s)");
     }

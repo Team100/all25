@@ -171,9 +171,9 @@ public abstract class Talon6Motor implements BareMotor {
         m_totalFeedForward = child.doubleLogger(Level.TRACE, "total feedforward (v)");
 
         m_log_position = child.doubleLogger(Level.DEBUG, "position (rev)");
-        m_log_velocity = child.doubleLogger(Level.DEBUG, "velocity (rev_s)");
+        m_log_velocity = child.doubleLogger(Level.COMP, "velocity (rev_s)");
         m_log_accel = child.doubleLogger(Level.TRACE, "accel (rev_s2)");
-        m_log_output = child.doubleLogger(Level.DEBUG, "output [-1,1]");
+        m_log_output = child.doubleLogger(Level.COMP, "output [-1,1]");
         m_log_error = child.doubleLogger(Level.TRACE, "error (rev_s)");
         m_log_supply = child.doubleLogger(Level.DEBUG, "supply current (A)");
         m_log_supplyVoltage = child.doubleLogger(Level.DEBUG, "supply voltage (V)");

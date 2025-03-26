@@ -330,7 +330,7 @@ public class RobotContainer implements Glassy {
         m_drive.setDefaultCommand(driveManually);
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
-        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
+        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
 
@@ -442,7 +442,9 @@ public class RobotContainer implements Glassy {
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
         // whileTrue(operatorControl::intake, new ParallelCommandGroup(new SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
         whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
-        
+        //        whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+
+                
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);
 
