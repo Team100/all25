@@ -35,8 +35,7 @@ public class DriveManually extends Command implements Glassy {
 
     private static final boolean DEBUG = false;
 
-    private static final SendableChooser<String> m_manualModeChooser = new NamedChooser<>("Manual Drive Mode") {
-    };
+    private static final SendableChooser<String> m_manualModeChooser = new NamedChooser<>("Manual Drive Mode");
 
     private Supplier<String> m_mode;
     /**

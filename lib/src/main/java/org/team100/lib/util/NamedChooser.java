@@ -8,17 +8,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /**
  * Makes it easier to set the name of a SendableChooser.
- * 
- * Subclass this to use it.
  */
-public abstract class NamedChooser<T> extends SendableChooser<T> {
+public class NamedChooser<T> extends SendableChooser<T> {
     private static final Set<String> names = new HashSet<>();
 
     /**
      * @param name must be globally unique.
      */
-    protected NamedChooser(String name) {
-        super();
+    public NamedChooser(String name) {
         if (names.contains(name))
             throw new IllegalArgumentException("duplicate named chooser: " + name);
         names.add(name);
@@ -26,5 +23,3 @@ public abstract class NamedChooser<T> extends SendableChooser<T> {
         SendableRegistry.add(this, name);
     }
 }
-
-

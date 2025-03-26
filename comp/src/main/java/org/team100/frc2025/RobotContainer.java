@@ -172,7 +172,7 @@ public class RobotContainer implements Glassy {
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
             m_elevator = new Elevator(elevatorLog, 11, 19);
-            m_wrist = new Wrist2(elevatorLog, 9);
+            m_wrist = new Wrist2(elevatorLog, async, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
             m_grip = new AlgaeGrip(logger, m_tunnel);
@@ -187,7 +187,7 @@ public class RobotContainer implements Glassy {
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_grip = new AlgaeGrip(logger, m_tunnel);
             m_elevator = new Elevator(elevatorLog, 2, 19);
-            m_wrist = new Wrist2(elevatorLog, 9);
+            m_wrist = new Wrist2(elevatorLog, async, 9);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
         }
@@ -330,7 +330,8 @@ public class RobotContainer implements Glassy {
         m_drive.setDefaultCommand(driveManually);
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
-        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
+        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog,
+        // m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
 
@@ -438,13 +439,15 @@ public class RobotContainer implements Glassy {
         whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
         // whileTrue(operatorControl::intake, new SetClimber(m_climber, -1.42));
-        // whileTrue(operatorControl::intake, new ReleaseFunnel(comLog, m_funnel, m_climber));
+        // whileTrue(operatorControl::intake, new ReleaseFunnel(comLog, m_funnel,
+        // m_climber));
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
-        // whileTrue(operatorControl::intake, new ParallelCommandGroup(new SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
+        // whileTrue(operatorControl::intake, new ParallelCommandGroup(new
+        // SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
         whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
-        //        whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        // whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator,
+        // m_wrist, m_funnel, m_tunnel, m_grip));
 
-                
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);
 

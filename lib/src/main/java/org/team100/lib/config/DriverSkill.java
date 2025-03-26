@@ -29,8 +29,7 @@ public class DriverSkill {
         }
     }
 
-    private static final SendableChooser<Level> m_skillChooser = new NamedChooser<>("Driver Skill Level") {
-    };
+    private static final SendableChooser<Level> m_skillChooser = new NamedChooser<>("Driver Skill Level");
 
     static {
         for (Level level : Level.values()) {
