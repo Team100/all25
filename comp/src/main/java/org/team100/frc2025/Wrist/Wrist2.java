@@ -31,6 +31,7 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.CurrentLimitedExponentialProfile;
 import org.team100.lib.profile.ExponentialProfileWPI;
 import org.team100.lib.profile.IncrementalProfile;
+import org.team100.lib.profile.DualProfile;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
@@ -67,10 +68,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     private ProfiledController makeProfiledController(LoggerFactory child) {
         Feedback100 wristFeedback = new PIDFeedback(child,
-                7.5, 0.00, 0.000, false,
-                kPositionTolerance, kPositionTolerance);
+                5.0, 0.0, 0.0, false,
+                kPositionTolerance, 0.1);
         double maxVel = 35;
-        double maxAccel = 15;
+        double maxAccel = 5;
         switch (kProfileChoice) {
             case CURRENT_LIMITED -> {
                 double stallAccel = 60;
@@ -138,13 +139,17 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); // 31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.11); // 31
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
         // kPositionTolerance);
         ProfiledController controller = makeProfiledController(wristLogger);
+        // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 5, kPositionTolerance); // TODO CHANGE THESE
+        // TrapezoidProfile100 wristFastProfile = new TrapezoidProfile100(35, 5, kPositionTolerance); // TODO CHANGE THESE
+        // TrapezoidProfile100 wristSlowProfile = new TrapezoidProfile100(35, 5, kPositionTolerance); // TODO CHANGE THESE
+        // DualProfile wristDualProfile = new DualProfile(wristFastProfile, wristSlowProfile, 0.2);
 
         safeLogger = child.booleanLogger(Level.TRACE, "Wrist Safe Condition");
 
@@ -157,7 +162,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.303515, // 0.346857, //0.317012, //0.227471, //0.188726
+                        0.319279, // 0.346857, //0.317012, //0.227471, //0.188726
                         EncoderDrive.DIRECT,
                         false);
 
@@ -168,9 +173,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_wristMech = wristMech;
 
+
                 // Feedback100 wristFeedback = new PIDFeedback(child, 7.5, 0.00, 0.000, false,
                 // kPositionTolerance,
                 // kPositionTolerance);
+                // Feedback100 wristFeedback = new PIDFeedback(parent, 5.0, 0.00, 0.000, false, kPositionTolerance, 0.1);
                 // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false,
                 // kPositionTolerance, kPositionTolerance);
 
@@ -181,8 +188,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech,
                         encoder, controller);
                 wristServoWithoutGravity.reset();
-
-                wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0); //
+                wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 9.5, -0.366925);
             }
             default -> {
 

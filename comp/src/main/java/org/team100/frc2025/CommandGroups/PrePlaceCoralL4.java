@@ -44,7 +44,7 @@ public class PrePlaceCoralL4 extends Command {
             count = 0;
         }
 
-        if (count >= 10) {
+        if (count >= 5) {
             finished = true;
         }
     }

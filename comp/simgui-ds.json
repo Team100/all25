@@ -1,25 +1,5 @@
 {
-  "Joysticks": {
-    "window": {
-      "visible": false
-    }
-  },
   "Keyboard 0 Settings": {
-    "window": {
-      "visible": true
-    }
-  },
-  "Keyboard 1 Settings": {
-    "window": {
-      "visible": true
-    }
-  },
-  "Keyboard 2 Settings": {
-    "window": {
-      "visible": true
-    }
-  },
-  "Keyboard 3 Settings": {
     "window": {
       "visible": true
     }
