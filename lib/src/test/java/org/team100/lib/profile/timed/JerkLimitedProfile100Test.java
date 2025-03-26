@@ -6,7 +6,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class JerkLimitedProfile100Test {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     @Test
     void testSimple() {

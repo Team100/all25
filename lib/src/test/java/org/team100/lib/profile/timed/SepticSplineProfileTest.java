@@ -6,7 +6,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class SepticSplineProfileTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     @Test
     void testSimple() {

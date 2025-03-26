@@ -49,6 +49,7 @@ public class TimedProfiledController implements ProfiledController {
     public Result calculate(Model100 measurement, Model100 goal) {
         if (m_goal == null || m_goal != goal) {
             m_profile.init(measurement, goal);
+            m_goal = goal;
         }
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
