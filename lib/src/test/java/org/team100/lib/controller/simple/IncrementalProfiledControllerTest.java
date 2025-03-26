@@ -13,7 +13,7 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
-public class ProfiledControllerTest {
+public class IncrementalProfiledControllerTest {
     private static final boolean DEBUG = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
@@ -54,11 +54,11 @@ public class ProfiledControllerTest {
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
-        ProfiledController controller = new ProfiledController(p, f, x -> x, 0.05, 0.05);
+        ProfiledController controller = new IncrementalProfiledController(p, f, x -> x, 0.05, 0.05);
         Model100 measurement = new Model100(0, 0);
         controller.init(measurement);
         Model100 goal = new Model100(0.1, 0);
-        ProfiledController.Result result = controller.calculate(measurement, goal);
+        IncrementalProfiledController.Result result = controller.calculate(measurement, goal);
         // this is for the *next* timestep so there should be non-zero velocity.
         assertEquals(2, result.feedforward().v(), 1e-12);
 
@@ -79,7 +79,7 @@ public class ProfiledControllerTest {
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
-        ProfiledController c = new ProfiledController(p, f, x -> x, 0.05, 0.05);
+        ProfiledController c = new IncrementalProfiledController(p, f, x -> x, 0.05, 0.05);
         final Model100 initial = new Model100(0, 0);
         final Model100 goal = new Model100(1, 0);
 
@@ -110,7 +110,7 @@ public class ProfiledControllerTest {
                         sim.yDot,
                         u_FB);
 
-            ProfiledController.Result result = c.calculate(sim.state(), goal);
+            IncrementalProfiledController.Result result = c.calculate(sim.state(), goal);
             setpointControl = result.feedforward();
             u_FB = result.feedback();
             sim.step(setpointControl.a() + u_FB);

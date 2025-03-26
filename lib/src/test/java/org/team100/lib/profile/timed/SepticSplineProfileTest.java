@@ -10,7 +10,8 @@ public class SepticSplineProfileTest {
 
     @Test
     void testSimple() {
-        SepticSplineProfile p = new SepticSplineProfile(new Model100(), new Model100(1, 0), 2, 6);
+        SepticSplineProfile p = new SepticSplineProfile(2, 6);
+        p.init(new Model100(), new Model100(1, 0));
         for (double t = 0; t < 2; t += 0.01) {
             Control100 c = p.sample(t);
             if (DEBUG)

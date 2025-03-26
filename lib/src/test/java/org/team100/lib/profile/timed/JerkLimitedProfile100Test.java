@@ -10,7 +10,8 @@ public class JerkLimitedProfile100Test {
 
     @Test
     void testSimple() {
-        JerkLimitedProfile100 p = new JerkLimitedProfile100(new Model100(), new Model100(1, 0), 2, 6, 25);
+        JerkLimitedProfile100 p = new JerkLimitedProfile100(2, 6, 25);
+        p.init(new Model100(), new Model100(1, 0));
         for (double t = 0; t < 2; t += 0.01) {
             Control100 c = p.sample(t);
             if (DEBUG)

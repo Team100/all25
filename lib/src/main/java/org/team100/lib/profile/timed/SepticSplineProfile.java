@@ -5,11 +5,23 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 public class SepticSplineProfile implements TimedProfile {
-    private final SepticSpline1d spline;
-    final double duration;
+    private final double vel;
+    private final double acc;
 
-    /** The initial and final accelerations and jerks are zero. */
-    public SepticSplineProfile(Model100 initial, Model100 goal, double vel, double acc) {
+    private SepticSpline1d spline;
+    double duration;
+
+    /**
+     * Specify velocity and acceleration limits.
+     * The initial and final accelerations and jerks are zero.
+     */
+    public SepticSplineProfile(double vel, double acc) {
+        this.vel = vel;
+        this.acc = acc;
+    }
+
+    @Override
+    public void init(Model100 initial, Model100 goal) {
         spline = SepticSpline1d.viaMatrix(
                 initial.x(), goal.x(),
                 initial.v(), goal.v(),

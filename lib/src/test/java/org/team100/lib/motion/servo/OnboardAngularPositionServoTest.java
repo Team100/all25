@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
@@ -39,7 +40,7 @@ public class OnboardAngularPositionServoTest {
         final Feedback100 turningFeedback2 = new PIDFeedback(
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
                 profile,
                 turningFeedback2,
                 MathUtil::angleModulus,

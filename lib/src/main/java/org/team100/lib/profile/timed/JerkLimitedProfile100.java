@@ -8,12 +8,20 @@ import org.team100.lib.state.Model100;
 
 /** Adapter for Roadrunner jerk-limited profiles. */
 public class JerkLimitedProfile100 implements TimedProfile {
-
-    private final MotionProfile m_profile;
+    private final double vel;
+    private final double acc;
+    private final double jerk;
+    private MotionProfile m_profile;
 
     /** You can specify independent limits for velocity, acceleration, and jerk. */
-    public JerkLimitedProfile100(Model100 initial, Model100 goal, double vel, double acc, double jerk) {
+    public JerkLimitedProfile100(double vel, double acc, double jerk) {
+        this.vel = vel;
+        this.acc = acc;
+        this.jerk = jerk;
+    }
 
+    @Override
+    public void init(Model100 initial, Model100 goal) {
         MotionState start = new MotionState(initial.x(), initial.v());
         MotionState end = new MotionState(goal.x(), goal.v());
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
