@@ -130,6 +130,11 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.setPosition(x, 1.3); // 54 max
 
     }
+    public void setPositionDirectly(double x) {
+        starboardServo.setPositionDirectly(x, 1.3); // 54 max
+        portServo.setPositionDirectly(x, 1.3); // 54 max
+
+    }
 
     public void setPositionNoGravity(double x) {
         starboardServo.setPosition(x, 0); // 54 max
