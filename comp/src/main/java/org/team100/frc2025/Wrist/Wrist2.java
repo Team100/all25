@@ -89,8 +89,9 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         kPositionTolerance, kPositionTolerance);
             }
             case JERK_LIMITED -> {
+                double maxJerk = 20;
                 TimedProfile wristProfile = new JerkLimitedProfile100(
-                        maxVel, maxAccel, kPositionTolerance);
+                        maxVel, maxAccel, maxJerk);
                 return new TimedProfiledController(
                         wristProfile, wristFeedback, x -> x,
                         kPositionTolerance, kPositionTolerance);
