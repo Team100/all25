@@ -73,6 +73,17 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_setpoint.log(() -> m_setpoint);
     }
+    public void setPositionDirectly(double goalM, double feedForwardTorqueNm) {
+        m_goal = new Model100(goalM, 0.0);
+
+        m_setpoint =  m_goal.control();
+
+        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
+
+        m_log_goal.log(() -> m_goal);
+        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+        m_log_setpoint.log(() -> m_setpoint);
+    }
 
     @Override
     public void setPosition(double goalM, double feedForwardTorqueNm) {
