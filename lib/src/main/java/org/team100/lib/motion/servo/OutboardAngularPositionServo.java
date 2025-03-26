@@ -25,7 +25,7 @@ import edu.wpi.first.math.MathUtil;
  * 
  * Must be used with a combined encoder, to "zero" the motor encoder.
  * 
- *  
+ * 
  */
 public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kPositionTolerance = 0.05;
@@ -70,10 +70,14 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void reset() {
         OptionalDouble position = getPosition();
-        OptionalDouble velocity = getVelocity();
-        if (position.isEmpty() || velocity.isEmpty())
+        if (position.isEmpty())
             return;
-        m_setpoint = new Control100(position.getAsDouble(), velocity.getAsDouble());
+        // using the current velocity sometimes includes a whole lot of noise, and then
+        // the profile tries to follow that noise. so instead, use zero.
+        // OptionalDouble velocity = getVelocity();
+        // if (velocity.isEmpty())
+        // return;
+        m_setpoint = new Control100(position.getAsDouble(), 0);
     }
 
     @Override
@@ -112,7 +116,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 goalVelocityRad_S);
 
         // m_goal = new Model100(goalRad,
-        //         goalVelocityRad_S);
+        // goalVelocityRad_S);
 
         // setpoint is [-inf,inf], near the measurement
         m_setpoint = new Control100(
@@ -120,8 +124,8 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 m_setpoint.v());
 
         // m_setpoint = new Control100(
-        //         m_setpoint.x(),
-        //         m_setpoint.v());
+        // m_setpoint.x(),
+        // m_setpoint.v());
 
         // finally compute a new setpoint
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
@@ -220,7 +224,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public void setStaticTorque(double feedForwardTorqueNm){
+    public void setStaticTorque(double feedForwardTorqueNm) {
 
     }
 

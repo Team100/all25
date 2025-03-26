@@ -4,26 +4,14 @@
 
 package org.team100.frc2025.Wrist;
 
-import java.util.function.BooleanSupplier;
-
-import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
-import org.team100.lib.config.PIDConstants;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.encoder.CANSparkEncoder;
-import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
-import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motor.BareMotor;
-import org.team100.lib.motor.MotorPhase;
-import org.team100.lib.motor.Neo550CANSparkMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -35,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class AlgaeGrip extends SubsystemBase implements Glassy {
     private static final int currLim = 10;
     private static final double wheelDiameterM = 0.072;
+
+    private final BooleanLogger m_log_hasAlgae;
+
     CoralTunnel m_tunnel;
     // private final BareMotor m_motor;
     // private final Neo550CANSparkMotor rawMotor;
@@ -55,6 +46,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     public AlgaeGrip(LoggerFactory parent, CoralTunnel tunnel) {
         LoggerFactory child = parent.child(this);
+        m_log_hasAlgae = child.booleanLogger(Level.TRACE, "has algae");
         m_tunnel = tunnel;
 
         NetworkTable table = inst.getTable("My Table");
@@ -67,24 +59,25 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         switch (Identity.instance) {
             case COMP_BOT -> {
                 // Neo550CANSparkMotor motor = new Neo550CANSparkMotor(
-                //         child,
-                //         25,
-                //         MotorPhase.FORWARD,
-                //         currLim,
-                //         Feedforward100.makeNeo550(),
-                //         PIDConstants.makePositionPID(0.1));
+                // child,
+                // 25,
+                // MotorPhase.FORWARD,
+                // currLim,
+                // Feedforward100.makeNeo550(),
+                // PIDConstants.makePositionPID(0.1));
                 // m_leftLimitSwitch = motor::getForwardLimitSwitch;
                 // m_rightLimitSwitch = motor::getReverseLimitSwitch;
                 // m_linearMechanism = new SimpleLinearMechanism(
-                //         motor,
-                //         new CANSparkEncoder(child, motor),
-                //         m_5to1 * m_5to1,
-                //         wheelDiameterM);
+                // motor,
+                // new CANSparkEncoder(child, motor),
+                // m_5to1 * m_5to1,
+                // wheelDiameterM);
                 // m_motor = motor;
                 // rawMotor = motor;
 
                 m_motor = new TalonFX(2);
                 if(m_motor==null) return;
+              
                 TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
                 CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -104,10 +97,10 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 // m_leftLimitSwitch = () -> false;
                 // m_rightLimitSwitch = () -> false;
                 // m_linearMechanism = new SimpleLinearMechanism(
-                //         motor,
-                //         new SimulatedBareEncoder(child, motor),
-                //         m_5to1 * m_5to1,
-                //         wheelDiameterM);
+                // motor,
+                // new SimulatedBareEncoder(child, motor),
+                // m_5to1 * m_5to1,
+                // wheelDiameterM);
                 // m_motor = motor;
                 // rawMotor = null;
             }
@@ -126,42 +119,46 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         // m_logLeftLimitSwitch.log(() -> m_leftLimitSwitch.getAsBoolean());
         // m_linearMechanism.periodic();
         // This method will be called once per scheduler run
-        if(m_motor==null) return;
+        if (m_motor == null)
+            return;
         entry1.setDouble(m_motor.getStatorCurrent().getValueAsDouble());
         entry2.setDouble(m_motor.getSupplyCurrent().getValueAsDouble());
 
     }
 
     public boolean hasAlgae() {
-        // return m_tunnel.hasAlgae();
+
+        boolean hasAlgae = m_tunnel.hasAlgae();
+        m_log_hasAlgae.log(() -> hasAlgae);
         return false;
     }
 
     // public void intake() {
-    //     if (!hasAlgae()) {
-    //         position = m_linearMechanism.getPositionM().getAsDouble();
-    //         m_linearMechanism.setDutyCycle(1);
-    //         return;
-    //     }
-    //     // TODO get torque constant
-    //     m_motor.setPosition(position, 0, 0, 0.1);
+    // if (!hasAlgae()) {
+    // position = m_linearMechanism.getPositionM().getAsDouble();
+    // m_linearMechanism.setDutyCycle(1);
+    // return;
+    // }
+    // // TODO get torque constant
+    // m_motor.setPosition(position, 0, 0, 0.1);
     // }
 
-    public double getPosition(){
+    public double getPosition() {
         // return m_linearMechanism.getPositionM().getAsDouble();
         return 0;
     }
 
-    public void setPosition(double pos){
+    public void setPosition(double pos) {
         // m_motor.setPosition(pos, 0, 0, 0.1);
 
     }
 
-
     public void setDutyCycle(double dutyCycle) {
-        if(m_motor==null) return;
-        // m_motor.set(dutyCycle);
+        if (m_motor == null)
+            return;
+        m_motor.set(dutyCycle);
     }
+
     public void stop() {
         // m_motor.setDutyCycle(0);
     }
@@ -180,8 +177,9 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     }
 
-    public void applyLowConfigs(){
-        if(m_motor==null) return;
+    public void applyLowConfigs() {
+        if (m_motor == null)
+            return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
@@ -194,8 +192,9 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         talonFXConfigurator.apply(currentConfigs);
     }
 
-    public void applyHighConfigs(){
-        if(m_motor==null) return;
+    public void applyHighConfigs() {
+        if (m_motor == null)
+            return;
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 

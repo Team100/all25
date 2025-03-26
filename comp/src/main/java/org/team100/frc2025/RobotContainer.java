@@ -329,8 +329,8 @@ public class RobotContainer implements Glassy {
 
         m_drive.setDefaultCommand(driveManually);
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
-        m_wrist.setDefaultCommand(new WristDefaultCommand(m_wrist, m_elevator, m_grip, m_drive));
-        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(m_elevator, m_wrist, m_grip, m_drive));
+        m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
+        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
 
@@ -426,11 +426,11 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
-        whileTrue(driverControl::fullCycle, new Embark(m_drive,
+        whileTrue(driverControl::fullCycle, new Embark(comLog, m_drive,
                 visionDataProvider::setHeedRadiusM,
                 holonomicController, profile, FieldSector.EF,
                 ReefDestination.LEFT, () -> ScoringPosition.L4));
-        whileTrue(driverControl::testTrajectory, new Embark(m_drive,
+        whileTrue(driverControl::testTrajectory, new Embark(comLog, m_drive,
                 visionDataProvider::setHeedRadiusM,
                 holonomicController, profile, FieldSector.AB,
                 ReefDestination.LEFT, () -> ScoringPosition.L4));

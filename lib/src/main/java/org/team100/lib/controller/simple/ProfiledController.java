@@ -3,8 +3,7 @@ package org.team100.lib.controller.simple;
 import java.util.function.DoubleUnaryOperator;
 
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.Profile100.ResultWithETA;
+import org.team100.lib.profile.SimpleProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -37,7 +36,7 @@ public class ProfiledController {
 
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
-    private final Profile100 m_profile;
+    private final SimpleProfile100 m_profile;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
     private final double m_positionTolerance;
@@ -46,7 +45,7 @@ public class ProfiledController {
     private Model100 m_setpoint;
 
     public ProfiledController(
-            Profile100 profile,
+            SimpleProfile100 profile,
             Feedback100 feedback,
             DoubleUnaryOperator modulus,
             double positionTolerance,
@@ -101,9 +100,8 @@ public class ProfiledController {
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        ResultWithETA result = m_profile.calculateWithETA(kDt, m_setpoint, goal);
+        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, goal);
 
-        Control100 u_FF = result.state();
         m_setpoint = u_FF.model();
 
         // 3/5/25 Sanjan added this, but I think it's not correct:

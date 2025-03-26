@@ -25,7 +25,7 @@ public class PartRedSea extends SequentialCommandGroup100 {
                         new WaitCommand(4),
                         new SetClimber(climber, -3)),
                 new ParallelCommandGroup100(m_logger, "elevate",
-                        new SetElevator(elevator, 10, true),
+                        new SetElevator(m_logger, elevator, 10, true),
                         new SetWrist(wrist, 0.5, true)));
     }
 }

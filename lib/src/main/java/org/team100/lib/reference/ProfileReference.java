@@ -12,7 +12,7 @@ public class ProfileReference implements SwerveReference {
     private record References(SwerveModel m_current, SwerveModel m_next) {
     }
 
-    private final HolonomicProfile next;
+    private final HolonomicProfile m_profile;
     private final Memo.CotemporalCache<References> m_references;
 
     private SwerveModel m_goal;
@@ -25,7 +25,7 @@ public class ProfileReference implements SwerveReference {
     private SwerveModel m_next;
 
     public ProfileReference(HolonomicProfile profile) {
-        next = profile;
+        m_profile = profile;
         // this will keep polling until we stop it.
         m_references = Memo.of(() -> refresh(m_next));
     }
@@ -42,7 +42,7 @@ public class ProfileReference implements SwerveReference {
     /** Immediately overwrite the references. */
     @Override
     public void initialize(SwerveModel measurement) {
-        next.solve(measurement, m_goal);
+        m_profile.solve(measurement, m_goal);
         m_references.update(refresh(measurement));
         m_done = false;
     }
@@ -78,10 +78,10 @@ public class ProfileReference implements SwerveReference {
         if (m_goal == null) {
             return current;
         }
-        SwerveModel model = next.calculate(current, m_goal).model();
+        SwerveModel next = m_profile.calculate(current, m_goal).model();
         if (current.near(m_goal, 0.01))
             m_done = true;
-        return model;
+        return next;
     }
 
 }
