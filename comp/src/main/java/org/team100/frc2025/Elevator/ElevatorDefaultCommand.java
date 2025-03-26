@@ -47,6 +47,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         m_holdPosition = m_elevator.getPosition();
         double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
         m_log_distanceToReef.log(() -> distanceToReef);
+        
         if (distanceToReef > 1.6) {
 
             if (!m_grip.hasAlgae()) {
