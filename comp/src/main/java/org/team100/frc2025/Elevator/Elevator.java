@@ -51,16 +51,19 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(6.7);
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(2); //6.7
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(175, 75, 0.01); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
         // 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100, 0.01); // TODO CHANGE THESE
+        //         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100, 0.01); // TODO CHANGE THESE
 
         table.put(0.0, 0.5);
         table.put(0.0, 0.5);

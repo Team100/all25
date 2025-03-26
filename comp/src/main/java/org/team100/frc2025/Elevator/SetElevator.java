@@ -48,8 +48,9 @@ public class SetElevator extends Command implements Glassy {
             count = 0;
         }
 
+
         m_log_count.log(() -> count);
-        if (count >= 10) {
+        if (count >= 5) {
             finished = true;
         }
     }

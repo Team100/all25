@@ -78,8 +78,8 @@ public class LEDIndicator {
         m_frontStrips = new ArrayList<>();
         m_backStrips = new ArrayList<>();
 
-        m_frontStrips.add(new LEDStrip(0, 6));
-        m_backStrips.add(new LEDStrip(6, 12));
+        m_frontStrips.add(new LEDStrip(0, 21));
+        m_backStrips.add(new LEDStrip(21, 40));
 
         int length = Math.max(
                 m_frontStrips.stream().map(LEDStrip::end).reduce(0, Integer::max),
@@ -142,19 +142,19 @@ public class LEDIndicator {
 
         if(m_timeSinceLastPose.get() < 1){
             for (LEDStrip strip : m_frontStrips) {
-                strip.solid(buffer, Color.kBlack);
+                strip.solid(buffer, Color.kGreen);
             }
 
             for (LEDStrip strip : m_backStrips) {
-                strip.solid(buffer, Color.kBlack);
+                strip.solid(buffer, Color.kGreen);
             }
         } else {
             for (LEDStrip strip : m_frontStrips) {
-                strip.solid(buffer, Color.kGreen);
+                strip.solid(buffer, Color.kRed);
             }
 
             for (LEDStrip strip : m_backStrips) {
-                strip.solid(buffer, Color.kGreen);
+                strip.solid(buffer, Color.kRed);
             }
         }
 

@@ -51,8 +51,8 @@ public class OutboardGravityServo implements GravityServoInterface{
             Util.warn("GravityServo: Broken sensor!");
             return;
         }
-        double mechanismPositionRad = optPos.getAsDouble() / 1.16666666667 ;
-        m_correctedPosition.log(() -> mechanismPositionRad);
+        double mechanismPositionRad = optPos.getAsDouble();
+        m_correctedPosition.log(() -> mechanismPositionRad + m_offsetRad);
         final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
 
         m_log_gT.log(() -> gravityTorqueNm);
