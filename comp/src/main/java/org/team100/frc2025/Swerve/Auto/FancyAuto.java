@@ -8,10 +8,8 @@ import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.CommandGroups.ApproachL4;
 import org.team100.frc2025.CommandGroups.PostDropCoralL4;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.SetElevator;
-import org.team100.frc2025.Elevator.SetElevatorPerpetually;
+import org.team100.frc2025.Elevator.SetElevatorNotTimed;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
@@ -52,7 +50,7 @@ public class FancyAuto extends SequentialCommandGroup100 {
                         new SequentialCommandGroup100(m_logger, "getCoralOut",
                                 new ParallelCommandGroup100(m_logger, "coralDown",
                                         new SetWrist(wrist, 0.4, false),
-                                        new SetElevator(m_logger, elevator, 0, false)),
+                                        new SetElevatorNotTimed(m_logger, elevator, 0, false)),
                                 new ApproachL4(m_logger, wrist, elevator))),
                 new PostDropCoralL4(wrist, elevator, 10),
                 new ParallelDeadlineGroup100(m_logger, "pick1",

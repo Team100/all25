@@ -1,7 +1,7 @@
 package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.SetElevator;
+import org.team100.frc2025.Elevator.SetElevatorNotTimed;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelCommandGroup100;
@@ -19,6 +19,6 @@ public class ApproachL4 extends SequentialCommandGroup100 {
                 // new SetWrist(wrist, 0.4, true)),//45
                 new ParallelCommandGroup100(m_logger, "up",
                         new SetWrist(wrist, 1.25, false),
-                        new SetElevator(m_logger,elevator, 45,false)));
+                        new SetElevatorNotTimed(m_logger,elevator, 45,false)));
     }
 }

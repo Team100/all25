@@ -192,7 +192,11 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public boolean atGoal(){
-        return Math.abs(m_goal-getPosition()) < 0.1;
+        return atGoal(.1);
+    }
+
+    public boolean atGoal(double tolerance){
+        return Math.abs(m_goal-getPosition()) < tolerance;
     }
 
     public ScoringPosition getScoringPosition(){
