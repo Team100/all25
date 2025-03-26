@@ -83,7 +83,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 // m_motor = motor;
                 // rawMotor = motor;
 
-                m_motor = new TalonFX(11);
+                m_motor = new TalonFX(2);
                 if(m_motor==null) return;
                 TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
                 CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
@@ -133,7 +133,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     }
 
     public boolean hasAlgae() {
-        return m_tunnel.hasAlgae();
+        // return m_tunnel.hasAlgae();
+        return false;
     }
 
     // public void intake() {
@@ -159,7 +160,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
 
     public void setDutyCycle(double dutyCycle) {
         if(m_motor==null) return;
-        m_motor.set(dutyCycle);
+        // m_motor.set(dutyCycle);
     }
     public void stop() {
         // m_motor.setDutyCycle(0);
