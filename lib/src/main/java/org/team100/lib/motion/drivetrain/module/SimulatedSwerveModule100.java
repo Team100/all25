@@ -3,6 +3,7 @@ package org.team100.lib.motion.drivetrain.module;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
@@ -95,7 +96,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 1);
         Profile100 profile = kinodynamics.getSteeringProfile();
 
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
                 profile, turningPositionFeedback, MathUtil::angleModulus,
                 0.05,0.05);
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(

@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -77,7 +78,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
             return;
         final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         final Model100 goal = new Model100(goalM, goalVelocityM_S);
-        final ProfiledController.Result result = m_controller.calculate(measurement, goal);
+        final IncrementalProfiledController.Result result = m_controller.calculate(measurement, goal);
         final Control100 setpoint = result.feedforward();
         final double u_FF = m_kV * setpoint.v();
         final double u_FB = result.feedback();

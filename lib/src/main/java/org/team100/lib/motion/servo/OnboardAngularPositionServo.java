@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
@@ -128,7 +129,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         // Util.printf("servo measurement %s\n", measurement);
 
-        ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+        IncrementalProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpointRad = result.feedforward();
         if (DEBUG)
             Util.printf("setpoint %s\n", setpointRad);
