@@ -33,10 +33,11 @@ public interface LinearPositionServo extends Glassy {
      */
     void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm);
 
-
     OptionalDouble getPosition();
 
     OptionalDouble getVelocity();
+
+    boolean profileDone();
 
     void stop();
 

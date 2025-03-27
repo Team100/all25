@@ -26,7 +26,7 @@ public interface LinearMechanism {
     OptionalDouble getVelocityM_S();
 
     OptionalDouble getPositionM();
-
+    
     void stop();
 
     void close();

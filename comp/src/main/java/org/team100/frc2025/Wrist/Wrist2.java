@@ -265,6 +265,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         return wristServo.atSetpoint();
     }
 
+    public boolean profileDone() {
+        return wristServo.profileDone();
+    }
+
     public void setWristDutyCycle(double value) {
         m_wristMech.setDutyCycle(value);
     }

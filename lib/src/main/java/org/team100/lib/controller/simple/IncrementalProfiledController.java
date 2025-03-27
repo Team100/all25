@@ -44,6 +44,7 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
     private final Model100Logger m_log_setpoint;
     private final Control100Logger m_log_control;
 
+    private Model100 m_goal;
     private Model100 m_setpoint;
 
     public IncrementalProfiledController(
@@ -91,13 +92,11 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
      */
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
-        // Util.printf("ProfiledController measurement %s goal %s\n", measurement,
-        // goal);
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
 
         // use the goal nearest to the measurement.
-        goal = new Model100(
+        m_goal = new Model100(
                 m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),
                 goal.v());
 
@@ -110,21 +109,26 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, goal);
+        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, m_goal);
         m_log_control.log(() -> u_FF);
 
         m_setpoint = u_FF.model();
         m_log_setpoint.log(() -> m_setpoint);
-
-        // 3/5/25 Sanjan added this, but I think it's not correct:
-        // you can be "at the setpoint" during the middle of the profile
-        // ... i think maybe he was looking for "at goal" but even so,
-        // that should be handled by the caller, not by this class.
-        // if(atSetpoint()){
-        // return new Result(new Control100(0, 0), 0);
-        // }
-
         return new Result(u_FF, u_FB);
+    }
+
+    @Override
+    public boolean profileDone() {
+        // the only way to tell if an incremental profile is done is to compare the
+        // setpoint to the goal.
+        return MathUtil.isNear(
+                m_goal.x(),
+                m_setpoint.x(),
+                m_positionTolerance)
+                && MathUtil.isNear(
+                        m_goal.v(),
+                        m_setpoint.v(),
+                        m_velocityTolerance);
     }
 
     @Override
@@ -152,17 +156,7 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
      */
     @Override
     public boolean atGoal(Model100 goal) {
-        Model100 setpoint = getSetpoint();
-        // Util.printf("setpoint %s\n", setpoint);
-        return atSetpoint()
-                && MathUtil.isNear(
-                        goal.x(),
-                        setpoint.x(),
-                        m_positionTolerance)
-                && MathUtil.isNear(
-                        goal.v(),
-                        setpoint.v(),
-                        m_velocityTolerance);
+        return profileDone() && atSetpoint();
     }
 
     @Override

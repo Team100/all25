@@ -109,6 +109,11 @@ public class SelectProfiledController implements ProfiledController, Glassy {
     }
 
     @Override
+    public boolean profileDone() {
+        return m_selected.profileDone();
+    }
+
+    @Override
     public Model100 getSetpoint() {
         return m_selected.getSetpoint();
     }

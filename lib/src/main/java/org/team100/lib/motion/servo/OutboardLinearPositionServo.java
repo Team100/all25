@@ -13,11 +13,17 @@ import org.team100.lib.profile.IncrementalProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
+import edu.wpi.first.math.MathUtil;
+
 /**
  * Position control using the feedback controller in the motor controller
  * hardware
+ * 
+ * TODO: integrate ProfiledController here.
  */
 public class OutboardLinearPositionServo implements LinearPositionServo {
+    private static final double kPositionTolerance = 0.01;
+    private static final double kVelocityTolerance = 0.01;
     private final LinearMechanism m_mechanism;
     private final IncrementalProfile m_profile;
 
@@ -73,10 +79,11 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_setpoint.log(() -> m_setpoint);
     }
+
     public void setPositionDirectly(double goalM, double feedForwardTorqueNm) {
         m_goal = new Model100(goalM, 0.0);
 
-        m_setpoint =  m_goal.control();
+        m_setpoint = m_goal.control();
 
         m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
@@ -102,6 +109,20 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     @Override
     public OptionalDouble getVelocity() {
         return m_mechanism.getVelocityM_S();
+    }
+
+    @Override
+    public boolean profileDone() {
+        // the only way to tell if an incremental profile is done is to compare the
+        // setpoint to the goal.
+        return MathUtil.isNear(
+                m_goal.x(),
+                m_setpoint.x(),
+                kPositionTolerance)
+                && MathUtil.isNear(
+                        m_goal.v(),
+                        m_setpoint.v(),
+                        kVelocityTolerance);
     }
 
     @Override

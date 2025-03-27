@@ -174,6 +174,11 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
+    @Override
+    public boolean profileDone() {
+        return setpointAtGoal();
+    }
+
     /**
      * Note the setpoint may reflect the curent time, or the next time, depending on
      * whether setPosition has been called during this cycle.

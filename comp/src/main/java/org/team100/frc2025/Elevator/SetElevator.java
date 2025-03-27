@@ -1,6 +1,8 @@
 package org.team100.frc2025.Elevator;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -67,8 +69,10 @@ public class SetElevator extends Command implements Glassy {
     public boolean isFinished() {
         if (m_perpetual) {
             return false;
-        } else {
-            return finished;
         }
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_elevator.profileDone();
+        return finished;
+
     }
 }

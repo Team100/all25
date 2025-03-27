@@ -1,5 +1,8 @@
 package org.team100.frc2025.Wrist;
 
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetWristHandoff extends Command {
@@ -48,8 +51,6 @@ public class SetWristHandoff extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("**************************************I
-        // FINISHED*******************************************");
         m_wrist.setWristDutyCycle(0);
         finished = false;
         count = 0;
@@ -57,8 +58,8 @@ public class SetWristHandoff extends Command {
 
     @Override
     public boolean isFinished() {
-        // return m_wrist.atSetpoint();
-
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_wrist.profileDone();
         return finished;
     }
 }
