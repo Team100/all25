@@ -329,11 +329,15 @@ public class RobotContainer implements Glassy {
 
         m_drive.setDefaultCommand(driveManually);
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
+
+        // m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
+        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
         // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog,
         // m_elevator, m_wrist, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
+        
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
@@ -442,6 +446,11 @@ public class RobotContainer implements Glassy {
         // whileTrue(operatorControl::intake, new ReleaseFunnel(comLog, m_funnel,
         // m_climber));
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
+        // whileTrue(operatorControl::intake, new ParallelCommandGroup(new SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
+        // whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
+        whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        // whileTrue(operatorControl::intake, new SetWrist(m_wrist, 0.8, true));
+                
         // whileTrue(operatorControl::intake, new ParallelCommandGroup(new
         // SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
         whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
