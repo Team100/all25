@@ -23,8 +23,10 @@ public class PrePlaceCoralL3 extends Command {
     public void initialize() {
         count = 0;
         finished = false;
-        m_wrist.resetWristProfile();
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_wrist.resetWristProfile();
+        // m_elevator.resetElevatorProfile();
     }
 
     @Override

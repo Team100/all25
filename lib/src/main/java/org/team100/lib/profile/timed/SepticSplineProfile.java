@@ -3,8 +3,11 @@ package org.team100.lib.profile.timed;
 import org.team100.lib.spline.SepticSpline1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Util;
 
 public class SepticSplineProfile implements TimedProfile {
+    private static final boolean DEBUG = true;
+
     private final double vel;
     private final double acc;
 
@@ -22,6 +25,8 @@ public class SepticSplineProfile implements TimedProfile {
 
     @Override
     public void init(Model100 initial, Model100 goal) {
+        if (DEBUG)
+            Util.printf("INIT initial %s goal %s\n", initial, goal);
         spline = SepticSpline1d.viaMatrix(
                 initial.x(), goal.x(),
                 initial.v(), goal.v(),

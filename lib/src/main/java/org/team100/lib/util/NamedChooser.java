@@ -22,4 +22,10 @@ public class NamedChooser<T> extends SendableChooser<T> {
         SendableRegistry.remove(this);
         SendableRegistry.add(this, name);
     }
+
+    @Override
+    public void close() {
+        names.remove(SendableRegistry.getName(this));
+        super.close();
+    }
 }

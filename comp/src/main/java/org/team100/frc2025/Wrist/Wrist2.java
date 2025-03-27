@@ -73,32 +73,32 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         DoubleUnaryOperator mod = x -> x;
         switch (kProfileChoice) {
             case CURRENT_LIMITED -> {
-                return new IncrementalProfiledController(
+                return new IncrementalProfiledController(child,
                         new CurrentLimitedExponentialProfile(vel, accel, stall),
                         feedback, mod, pTol, vTol);
             }
             case EXPONENTIAL_WPI -> {
-                return new IncrementalProfiledController(
+                return new IncrementalProfiledController(child,
                         new ExponentialProfileWPI(vel, accel),
                         feedback, mod, pTol, vTol);
             }
             case JERK_LIMITED -> {
-                return new TimedProfiledController(
+                return new TimedProfiledController(child,
                         new JerkLimitedProfile100(vel, accel, jerk),
                         feedback, mod, pTol, vTol);
             }
             case SEPTIC -> {
-                return new TimedProfiledController(
+                return new TimedProfiledController(child,
                         new SepticSplineProfile(vel, accel),
                         feedback, mod, pTol, vTol);
             }
             case TRAPEZOID_100 -> {
-                return new IncrementalProfiledController(
+                return new IncrementalProfiledController(child,
                         new TrapezoidProfile100(vel, accel, pTol),
                         feedback, mod, pTol, vTol);
             }
             case TRAPEZOID_WPI -> {
-                return new IncrementalProfiledController(
+                return new IncrementalProfiledController(child,
                         new TrapezoidProfileWPI(vel, accel),
                         feedback, mod, pTol, vTol);
             }
@@ -176,6 +176,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         false);
 
                 m_controller = new SelectProfiledController(
+                        child,
                         "wrist profile",
                         async,
                         wristFeedback,
@@ -221,6 +222,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech);
                 m_controller = new SelectProfiledController(
+                        child,
                         "wrist controller",
                         async,
                         wristFeedback,
@@ -280,8 +282,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         wristServo.setState(control);
     }
 
-    public void setAngleValue(double value) {
-        Control100 control = new Control100(value, 0, 0); // 1.17 for l3
+    public void setAngleValue(double goal) {
+        Control100 control = new Control100(goal, 0, 0); // 1.17 for l3
         wristServo.setState(control);
     }
 

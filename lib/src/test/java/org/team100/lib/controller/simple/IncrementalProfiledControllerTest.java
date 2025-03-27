@@ -54,7 +54,8 @@ public class IncrementalProfiledControllerTest {
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
-        ProfiledController controller = new IncrementalProfiledController(p, f, x -> x, 0.05, 0.05);
+        ProfiledController controller = new IncrementalProfiledController(
+                logger, p, f, x -> x, 0.05, 0.05);
         Model100 measurement = new Model100(0, 0);
         controller.init(measurement);
         Model100 goal = new Model100(0.1, 0);
@@ -79,7 +80,8 @@ public class IncrementalProfiledControllerTest {
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
-        ProfiledController c = new IncrementalProfiledController(p, f, x -> x, 0.05, 0.05);
+        ProfiledController c = new IncrementalProfiledController(
+                logger, p, f, x -> x, 0.05, 0.05);
         final Model100 initial = new Model100(0, 0);
         final Model100 goal = new Model100(1, 0);
 

@@ -33,7 +33,9 @@ public class SetElevator extends Command implements Glassy {
     public void initialize() {
         count = 0;
         finished = false;
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_elevator.resetElevatorProfile();
     }
 
     @Override
@@ -47,7 +49,6 @@ public class SetElevator extends Command implements Glassy {
         } else {
             count = 0;
         }
-
 
         m_log_count.log(() -> count);
         if (count >= 5) {

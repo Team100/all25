@@ -20,11 +20,18 @@ public class SetWrist extends Command {
     public void initialize() {
         finished = false;
         count = 0;
-        m_wrist.resetWristProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_wrist.resetWristProfile();
     }
 
     @Override
     public void execute() {
+        // the timer here can terminate the command while the wrist is in motion.
+        // if you run another SetWrist, or anything else that resets the wrist profile,
+        // it will try to force the velocity to zero.
+        // using the measurement seems bad; what we really want is to just leave the
+        // setpoint alone.
 
         if (!m_perpetual) {
             if (Math.abs(m_wrist.getAngle() - m_angle) < 0.05) {

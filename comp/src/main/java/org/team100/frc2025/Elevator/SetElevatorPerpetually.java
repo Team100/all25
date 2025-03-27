@@ -16,7 +16,9 @@ public class SetElevatorPerpetually extends Command {
 
     @Override
     public void initialize() {
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_elevator.resetElevatorProfile();
         finished = false;
     }
 

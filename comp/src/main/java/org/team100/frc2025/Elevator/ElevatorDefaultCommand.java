@@ -32,6 +32,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
 
     @Override
     public void initialize() {
+        // only the default command resets the profile
         m_elevator.resetElevatorProfile();
         m_holdPosition = m_elevator.getPosition();
     }

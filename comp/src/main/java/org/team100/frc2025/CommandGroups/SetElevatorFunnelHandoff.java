@@ -21,7 +21,9 @@ public class SetElevatorFunnelHandoff extends Command {
     public void initialize() {
         count = 0;
         finished = false;
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_elevator.resetElevatorProfile();
     }
 
     @Override

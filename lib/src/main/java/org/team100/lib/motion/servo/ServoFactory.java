@@ -114,6 +114,7 @@ public class ServoFactory {
                 gearRatio);
         RotaryPositionSensor sensor = new ProxyRotaryPositionSensor(mech);
         ProfiledController controller = new IncrementalProfiledController(
+                parent,
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
                 MathUtil::angleModulus,
@@ -149,6 +150,7 @@ public class ServoFactory {
         // 0, // minimum hard stop
         // 2); // maximum hard stop
         ProfiledController controller = new IncrementalProfiledController(
+                parent,
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
                 MathUtil::angleModulus,

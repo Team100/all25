@@ -46,6 +46,7 @@ class AnglePositionServoProfileTest {
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 feedback2,
                 MathUtil::angleModulus,
