@@ -59,7 +59,7 @@ public class IncrementalProfiledControllerTest {
         Model100 measurement = new Model100(0, 0);
         controller.init(measurement);
         Model100 goal = new Model100(0.1, 0);
-        IncrementalProfiledController.Result result = controller.calculate(measurement, goal);
+        ProfiledController.Result result = controller.calculate(measurement, goal);
         // this is for the *next* timestep so there should be non-zero velocity.
         assertEquals(2, result.feedforward().v(), 1e-12);
 
@@ -112,7 +112,7 @@ public class IncrementalProfiledControllerTest {
                         sim.yDot,
                         u_FB);
 
-            IncrementalProfiledController.Result result = c.calculate(sim.state(), goal);
+            ProfiledController.Result result = c.calculate(sim.state(), goal);
             setpointControl = result.feedforward();
             u_FB = result.feedback();
             sim.step(setpointControl.a() + u_FB);

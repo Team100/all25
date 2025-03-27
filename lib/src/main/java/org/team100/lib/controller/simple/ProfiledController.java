@@ -37,6 +37,13 @@ public interface ProfiledController {
      */
     Result calculate(Model100 measurement, Model100 goal);
 
+    /**
+     * The profile is at the goal. The measurement may not be. This is useful for
+     * chaining actions without waiting for the measurement, e.g. to transition from
+     * "profiled" motion to "hold position" motion using the same goal.
+     */
+    boolean profileDone();
+
     Model100 getSetpoint();
 
     /**

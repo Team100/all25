@@ -31,7 +31,7 @@ public class TimedProfiledControllerTest implements Timeless {
 
         for (int i = 0; i < 100; ++i) {
             stepTime();
-            IncrementalProfiledController.Result result = c.calculate(setpoint, goal);
+            ProfiledController.Result result = c.calculate(setpoint, goal);
             Control100 ff = result.feedforward();
             setpoint = ff.model();
             if (DEBUG)
@@ -53,7 +53,7 @@ public class TimedProfiledControllerTest implements Timeless {
 
         for (int i = 0; i < 100; ++i) {
             stepTime();
-            IncrementalProfiledController.Result result = c.calculate(setpoint, goal);
+            ProfiledController.Result result = c.calculate(setpoint, goal);
             Control100 ff = result.feedforward();
             setpoint = ff.model();
             if (DEBUG)

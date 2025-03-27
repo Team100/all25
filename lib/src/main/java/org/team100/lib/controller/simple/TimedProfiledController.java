@@ -60,20 +60,24 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
+        if (m_setpoint == null)
+            throw new IllegalStateException("Null setpoint!");
+
         if (m_goal == null || !m_goal.near(goal, m_velocityTolerance, m_positionTolerance)) {
             // if the goal has changed noticeably, recalculate.
             // use motionless measurement to avoid injecting velocity noise.
             m_profile.init(new Model100(measurement.x(), 0), goal);
-            m_goal = goal;
+            // use the goal nearest to the measurement.
+            m_goal = new Model100(
+                    m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),
+                    goal.v());
             m_startTimeS = Takt.get();
+        } else {
+            // use the goal nearest to the measurement.
+            m_goal = new Model100(
+                    m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),
+                    goal.v());
         }
-        if (m_setpoint == null)
-            throw new IllegalStateException("Null setpoint!");
-
-        // use the goal nearest to the measurement.
-        goal = new Model100(
-                m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),
-                goal.v());
 
         // adjust the setpoint based on the measurement.
         m_setpoint = new Model100(
@@ -84,15 +88,17 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        double t = progress();
-        Control100 u_FF = m_profile.sample(t);
+        Control100 u_FF = m_profile.sample(progress());
         m_log_control.log(() -> u_FF);
-
         m_setpoint = u_FF.model();
-
         m_log_setpoint.log(() -> m_setpoint);
-
         return new Result(u_FF, u_FB);
+    }
+
+    @Override
+    public boolean profileDone() {
+        // to tell if a timed profile is done, look at the timer.
+        return progress() >= m_profile.duration();
     }
 
     @Override
@@ -102,23 +108,12 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
     @Override
     public boolean atSetpoint() {
-        boolean atSetpoint = m_feedback.atSetpoint();
-        return atSetpoint;
+        return m_feedback.atSetpoint();
     }
 
     @Override
     public boolean atGoal(Model100 goal) {
-        Model100 setpoint = getSetpoint();
-        // Util.printf("setpoint %s\n", setpoint);
-        return atSetpoint()
-                && MathUtil.isNear(
-                        goal.x(),
-                        setpoint.x(),
-                        m_positionTolerance)
-                && MathUtil.isNear(
-                        goal.v(),
-                        setpoint.v(),
-                        m_velocityTolerance);
+        return profileDone() && atSetpoint();
     }
 
     @Override

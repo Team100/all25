@@ -129,6 +129,11 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
+    @Override
+    public boolean profileDone() {
+        return atGoal();
+    }
+
     /**
      * Note this is affected by the setpoint update.
      * 

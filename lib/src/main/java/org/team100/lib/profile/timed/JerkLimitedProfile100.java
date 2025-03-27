@@ -41,4 +41,9 @@ public class JerkLimitedProfile100 implements TimedProfile {
         return new Control100(s.getX(), s.getV(), s.getA());
     }
 
+    @Override
+    public double duration() {
+        return m_profile.duration();
+    }
+
 }

@@ -5,7 +5,7 @@ import org.team100.frc2025.Elevator.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetElevatorBarge extends Command {
-    Elevator m_elevator;
+    private final Elevator m_elevator;
 
     public SetElevatorBarge(Elevator elevator) {
         m_elevator = elevator;

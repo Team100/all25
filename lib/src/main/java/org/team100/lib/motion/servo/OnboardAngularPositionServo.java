@@ -128,7 +128,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
 
-        IncrementalProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+        ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpointRad = result.feedforward();
 
         final double u_FF = setpointRad.v();
@@ -184,6 +184,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         boolean atSetpoint = m_controller.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
+    }
+
+    @Override
+    public boolean profileDone() {
+        return m_controller.profileDone();
     }
 
     @Override

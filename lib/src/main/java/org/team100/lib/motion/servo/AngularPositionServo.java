@@ -65,6 +65,8 @@ public interface AngularPositionServo extends Glassy {
 
     boolean atSetpoint();
 
+    boolean profileDone();
+
     boolean atGoal();
 
     double getGoal();
