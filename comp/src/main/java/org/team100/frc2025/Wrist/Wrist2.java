@@ -23,6 +23,7 @@ import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
+import org.team100.lib.motion.mechanism.LimitedRotaryMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
@@ -194,6 +195,9 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder,
                         25);
 
+                // TODO: what are the correct limits?
+                RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, -0.2, 5);
+
                 m_wristMech = wristMech;
 
                 // Feedback100 wristFeedback = new PIDFeedback(child, 7.5, 0.00, 0.000, false,
@@ -220,6 +224,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
                 RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor,
                         new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
+                        
+                // TODO: real limits
+                RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, -0.2, 5);
+
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech);
                 m_controller = new SelectProfiledController(
                         child,

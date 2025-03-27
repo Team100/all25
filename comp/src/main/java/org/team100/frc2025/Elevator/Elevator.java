@@ -3,6 +3,11 @@ package org.team100.frc2025.Elevator;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.SelectProfiledController;
+import org.team100.lib.controller.simple.ZeroFeedback;
+import org.team100.lib.async.Async;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
@@ -24,9 +29,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase implements Glassy {
     private static final double kElevatorReduction = 2;
     private static final double kElevatorWheelDiamater = 1;
+    private final double kPositionTolerance = 0.02;
+    private final double kVelocityTolerance = 0.01;
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
+
+    private final ProfiledController m_starboardController;
+    private final ProfiledController m_portController;
 
     private final ElevatorVisualization m_viz;
     private boolean m_isSafe = false;
@@ -37,6 +47,7 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     public Elevator(
             LoggerFactory parent,
+            Async async,
             int starboardID,
             int portID) {
 
@@ -51,19 +62,27 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(2); //6.7
+        double maxVel = 35;
+        double maxAccel = 5;
+        double stallAccel = 60;
+        double maxJerk = 20;
+
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(2); // 6.7
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
         // 0.05); // TODO CHANGE THESE
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
-        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
+        // 0.05); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
+        // 0.05); // TODO CHANGE THESE
         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(190, 210, 0.01); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
         // 0.05); // TODO CHANGE THESE
-        //         TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100, 0.01); // TODO CHANGE THESE
+        // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(130, 100,
+        // 0.01); // TODO CHANGE THESE
 
         table.put(0.0, 0.5);
         table.put(0.0, 0.5);
@@ -75,23 +94,64 @@ public class Elevator extends SubsystemBase implements Glassy {
                 Kraken6Motor portMotor = new Kraken6Motor(portMotorLogger, portID, MotorPhase.FORWARD,
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
 
+                Talon6Encoder stbdEncoder = new Talon6Encoder(starboardLogger, starboardMotor);
+
+                // TODO: the port and stbd profiles should be the same, i.e. a single chooser for both.
+                m_starboardController = new SelectProfiledController(
+                        child,
+                        "stbd profile",
+                        async,
+                        new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
+                        x -> x,
+                        () -> stbdEncoder.getPositionRad().orElseThrow(),
+                        maxVel,
+                        maxAccel,
+                        stallAccel,
+                        maxJerk,
+                        kPositionTolerance,
+                        kVelocityTolerance);
+
                 SimpleLinearMechanism starboardMech = new SimpleLinearMechanism(
                         starboardMotor,
-                        new Talon6Encoder(starboardLogger, starboardMotor),
+                        stbdEncoder,
                         kElevatorReduction,
                         kElevatorWheelDiamater);
                 LimitedLinearMechanism starboardLimited = new LimitedLinearMechanism(starboardMech, 0.0, 56.0);
 
-                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardLimited, elevatorProfile);
+                starboardServo = new OutboardLinearPositionServo(
+                        starboardLogger,
+                        starboardLimited,
+                        m_starboardController,
+                        elevatorProfile);
+
+                Talon6Encoder portEncoder = new Talon6Encoder(portLogger, portMotor);
+
+                m_portController = new SelectProfiledController(
+                        child,
+                        "port profile",
+                        async,
+                        new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
+                        x -> x,
+                        () -> portEncoder.getPositionRad().orElseThrow(),
+                        maxVel,
+                        maxAccel,
+                        stallAccel,
+                        maxJerk,
+                        kPositionTolerance,
+                        kVelocityTolerance);
 
                 SimpleLinearMechanism portMech = new SimpleLinearMechanism(
                         portMotor,
-                        new Talon6Encoder(portLogger, portMotor),
+                        portEncoder,
                         kElevatorReduction,
                         kElevatorWheelDiamater);
                 LimitedLinearMechanism portLimited = new LimitedLinearMechanism(portMech, 0.0, 56.0);
 
-                portServo = new OutboardLinearPositionServo(portLogger, portLimited, elevatorProfile);
+                portServo = new OutboardLinearPositionServo(
+                        portLogger,
+                        portLimited,
+                        m_portController,
+                        elevatorProfile);
 
                 break;
             }
@@ -99,18 +159,58 @@ public class Elevator extends SubsystemBase implements Glassy {
                 SimulatedBareMotor starboardMotor = new SimulatedBareMotor(starboardMotorLogger, 100);
                 SimulatedBareMotor portMotor = new SimulatedBareMotor(portMotorLogger, 100);
 
+                SimulatedBareEncoder stbdEncoder = new SimulatedBareEncoder(starboardLogger, starboardMotor);
+
+                m_starboardController = new SelectProfiledController(
+                        child,
+                        "stbd profile",
+                        async,
+                        new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
+                        x -> x,
+                        () -> stbdEncoder.getPositionRad().orElseThrow(),
+                        maxVel,
+                        maxAccel,
+                        stallAccel,
+                        maxJerk,
+                        kPositionTolerance,
+                        kVelocityTolerance);
+
                 LinearMechanism starboardMech = new SimpleLinearMechanism(
                         starboardMotor,
-                        new SimulatedBareEncoder(starboardLogger, starboardMotor),
+                        stbdEncoder,
                         kElevatorReduction,
                         kElevatorWheelDiamater);
+                SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(portLogger, portMotor);
+
+                m_portController = new SelectProfiledController(
+                        child,
+                        "port profile",
+                        async,
+                        new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
+                        x -> x,
+                        () -> portEncoder.getPositionRad().orElseThrow(),
+                        maxVel,
+                        maxAccel,
+                        stallAccel,
+                        maxJerk,
+                        kPositionTolerance,
+                        kVelocityTolerance);
+
                 LinearMechanism portMech = new SimpleLinearMechanism(
                         portMotor,
-                        new SimulatedBareEncoder(portLogger, portMotor),
+                        portEncoder,
                         kElevatorReduction,
                         kElevatorWheelDiamater);
-                starboardServo = new OutboardLinearPositionServo(starboardLogger, starboardMech, elevatorProfile);
-                portServo = new OutboardLinearPositionServo(portLogger, portMech, elevatorProfile);
+                starboardServo = new OutboardLinearPositionServo(
+                        starboardLogger,
+                        starboardMech,
+                        m_starboardController,
+                        elevatorProfile);
+                portServo = new OutboardLinearPositionServo(
+                        portLogger,
+                        portMech,
+                        m_portController,
+                        elevatorProfile);
             }
 
         }

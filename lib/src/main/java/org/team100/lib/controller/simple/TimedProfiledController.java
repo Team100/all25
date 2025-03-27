@@ -3,6 +3,7 @@ package org.team100.lib.controller.simple;
 import java.util.function.DoubleUnaryOperator;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
@@ -11,8 +12,6 @@ import org.team100.lib.profile.timed.TimedProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Takt;
-
-import edu.wpi.first.math.MathUtil;
 
 /**
  * Feedback and feedforward control.
@@ -87,8 +86,8 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         // Feedback compares the current measurement with the current profile.
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
-        // Profile result is for the next time step.
-        Control100 u_FF = m_profile.sample(progress());
+        // Profile result is for the next time step, LOOP_PERIOD from now.
+        Control100 u_FF = m_profile.sample(progress() + TimedRobot100.LOOP_PERIOD_S);
         m_log_control.log(() -> u_FF);
         m_setpoint = u_FF.model();
         m_log_setpoint.log(() -> m_setpoint);
