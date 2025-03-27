@@ -37,6 +37,10 @@ public class PolledEnumChooser<T extends Enum<T>> {
         return m_selected;
     }
 
+    public void close() {
+        m_chooser.close();
+    }
+
     private void update() {
         T selected = m_chooser.getSelected();
         if (selected == null)

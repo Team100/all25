@@ -57,6 +57,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final GravityServoInterface wristServo;
 
     private final RotaryMechanism m_wristMech;
+    private final ProfiledController m_controller;
     private final BooleanLogger safeLogger;
     private final WristVisualization m_viz;
 
@@ -174,8 +175,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         EncoderDrive.DIRECT,
                         false);
 
-                ProfiledController controller = new SelectProfiledController(
-                        child,
+                m_controller = new SelectProfiledController(
+                        "wrist profile",
                         async,
                         wristFeedback,
                         x -> x,
@@ -207,10 +208,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // kPositionTolerance, kPositionTolerance);
 
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech,
-                        encoder, controller);
+                        encoder, m_controller);
                 wristServoWithoutGravity.reset();
                 wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 9.5, -0.366925);
-                controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
+                m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
 
             }
             default -> {
@@ -219,8 +220,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor,
                         new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech);
-                ProfiledController controller = new SelectProfiledController(
-                        child,
+                m_controller = new SelectProfiledController(
+                        "wrist controller",
                         async,
                         wristFeedback,
                         x -> x,
@@ -234,11 +235,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder,
                 // wristMech, false);
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(child, wristMech,
-                        encoder, controller);
+                        encoder, m_controller);
                 wristServo = new OutboardGravityServo(child, wristServoWithoutGravity, 0, 0);
                 m_wristMech = wristMech;
 
-                controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
+                m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
                 // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child,
                 // algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
@@ -301,4 +302,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         wristServo.stop();
     }
 
+    public void close() {
+        m_controller.close();
+    }
 }

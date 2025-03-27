@@ -102,6 +102,11 @@ public class TimedProfiledController implements ProfiledController {
                         m_velocityTolerance);
     }
 
+    @Override
+    public void close() {
+        //
+    }
+
     private double progress() {
         return Takt.get() - m_startTimeS;
     }

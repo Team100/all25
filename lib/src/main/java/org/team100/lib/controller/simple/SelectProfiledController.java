@@ -7,7 +7,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
 import org.team100.lib.async.Async;
-import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.profile.CurrentLimitedExponentialProfile;
 import org.team100.lib.profile.ExponentialProfileWPI;
 import org.team100.lib.profile.TrapezoidProfile100;
@@ -38,7 +37,7 @@ public class SelectProfiledController implements ProfiledController {
     private ProfiledController m_selected;
 
     public SelectProfiledController(
-            LoggerFactory child,
+            String name,
             Async async,
             Feedback100 feedback,
             DoubleUnaryOperator mod,
@@ -78,7 +77,7 @@ public class SelectProfiledController implements ProfiledController {
         m_chooser = new PolledEnumChooser<>(
                 async,
                 ProfileChoice.class,
-                "Profile",
+                name,
                 ProfileChoice.TRAPEZOID_100,
                 this::setDelegate);
     }
@@ -118,5 +117,13 @@ public class SelectProfiledController implements ProfiledController {
     @Override
     public boolean atGoal(Model100 goal) {
         return m_selected.atGoal(goal);
+    }
+
+    @Override
+    public void close() {
+        m_chooser.close();
+        for (ProfiledController c : m_controllers.values()) {
+            c.close();
+        }
     }
 }

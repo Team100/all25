@@ -149,4 +149,9 @@ public class IncrementalProfiledController implements ProfiledController {
                         setpoint.v(),
                         m_velocityTolerance);
     }
+
+    @Override
+    public void close() {
+        //
+    }
 }
