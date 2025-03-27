@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -31,6 +32,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
+    
 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
@@ -106,6 +108,11 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     @Override
     public OptionalDouble getVelocity() {
         return m_mechanism.getVelocityM_S();
+    }
+
+    @Override
+    public boolean profileDone() {
+        return m_controller.profileDone();
     }
 
     @Override

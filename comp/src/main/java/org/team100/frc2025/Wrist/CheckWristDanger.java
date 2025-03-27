@@ -1,5 +1,8 @@
 package org.team100.frc2025.Wrist;
 
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class CheckWristDanger extends Command {
@@ -17,7 +20,9 @@ public class CheckWristDanger extends Command {
     public void initialize() {
         finished = false;
         count = 0;
-        m_wrist.resetWristProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_wrist.resetWristProfile();
     }
 
     @Override
@@ -45,8 +50,6 @@ public class CheckWristDanger extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("**************************************I
-        // FINISHED*******************************************");
         m_wrist.setWristDutyCycle(0);
         finished = false;
         count = 0;
@@ -54,7 +57,8 @@ public class CheckWristDanger extends Command {
 
     @Override
     public boolean isFinished() {
-        // return m_wrist.atSetpoint()
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_wrist.profileDone();
         return finished;
     }
 }

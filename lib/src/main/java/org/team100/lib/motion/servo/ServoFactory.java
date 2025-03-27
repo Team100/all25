@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.ProxyRotaryPositionSensor;
@@ -112,7 +113,8 @@ public class ServoFactory {
                 new CANSparkEncoder(parent, motor),
                 gearRatio);
         RotaryPositionSensor sensor = new ProxyRotaryPositionSensor(mech);
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
+                parent,
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
                 MathUtil::angleModulus,
@@ -147,7 +149,8 @@ public class ServoFactory {
         // the new sim doesn't have hard stops; should it?
         // 0, // minimum hard stop
         // 2); // maximum hard stop
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
+                parent,
                 new TrapezoidProfile100(maxVelocity, maxAccel, 0.05),
                 feedback,
                 MathUtil::angleModulus,

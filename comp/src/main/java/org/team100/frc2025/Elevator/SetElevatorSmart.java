@@ -1,6 +1,8 @@
 package org.team100.frc2025.Elevator;
 
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -22,7 +24,9 @@ public class SetElevatorSmart extends Command {
     @Override
     public void initialize() {
         finished = false;
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_elevator.resetElevatorProfile();
     }
 
     @Override
@@ -46,9 +50,9 @@ public class SetElevatorSmart extends Command {
     public boolean isFinished() {
         if (m_perpetual) {
             return false;
-        } else {
-            return finished;
-
         }
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_elevator.profileDone();
+        return finished;
     }
 }

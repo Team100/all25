@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
@@ -19,8 +20,8 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
@@ -56,7 +57,8 @@ class AngularPositionProfileTest implements Timeless {
     @Test
     void testTrapezoid() {
         final Profile100 profile = new TrapezoidProfileWPI(1, 1);
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 feedback2,
                 MathUtil::angleModulus,
@@ -75,7 +77,8 @@ class AngularPositionProfileTest implements Timeless {
     @Test
     void testProfile() {
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-        ProfiledController controller = new ProfiledController(
+        ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 feedback2,
                 MathUtil::angleModulus,

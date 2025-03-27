@@ -59,7 +59,7 @@ public class Elevator extends SubsystemBase implements Glassy {
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200, 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150, 0.05); // TODO CHANGE THESE
-        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(175, 75, 0.01); // TODO CHANGE THESE
+        TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(190, 210, 0.01); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(200, 200,
         // 0.05); // TODO CHANGE THESE
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(150, 150,
@@ -137,7 +137,10 @@ public class Elevator extends SubsystemBase implements Glassy {
         m_goal = x;
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
+    }
 
+    public boolean profileDone() {
+        return starboardServo.profileDone();
     }
 
     public void setPositionDirectly(double x) {

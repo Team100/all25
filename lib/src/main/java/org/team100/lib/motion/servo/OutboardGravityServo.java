@@ -85,6 +85,11 @@ public class OutboardGravityServo implements GravityServoInterface{
     }
 
     @Override
+    public boolean profileDone() {
+        return m_servo.profileDone();
+    }
+
+    @Override
     public void setStaticTorque(double value) {
         OptionalDouble optPos = getPositionRad();
         if (optPos.isEmpty()) {

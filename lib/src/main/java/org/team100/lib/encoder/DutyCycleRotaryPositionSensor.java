@@ -46,7 +46,7 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
         m_digitalInput = new DigitalInput(channel);
         m_dutyCycle = new DutyCycle(m_digitalInput);
         m_duty = Memo.ofDouble(m_dutyCycle::getOutput);
-        m_log_duty = child.doubleLogger(Level.TRACE, "duty cycle");
+        m_log_duty = child.doubleLogger(Level.COMP, "duty cycle");
         m_log_frequency = child.intLogger(Level.TRACE, "frequency");
         m_log_connected = child.booleanLogger(Level.TRACE, "connected");
         child.intLogger(Level.COMP, "channel").log(() -> channel);

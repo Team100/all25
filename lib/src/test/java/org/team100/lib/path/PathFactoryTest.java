@@ -209,7 +209,8 @@ public class PathFactoryTest {
         List<HolonomicSpline> splines = List.of(s0);
         List<Pose2dWithMotion> motion = PathFactory.parameterizeSplines(splines, 0.001, 0.001, 0.001);
         for (Pose2dWithMotion p : motion) {
-            Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
+            if (DEBUG)
+                Util.printf("%5.3f %5.3f\n", p.getTranslation().getX(), p.getTranslation().getY());
         }
     }
 

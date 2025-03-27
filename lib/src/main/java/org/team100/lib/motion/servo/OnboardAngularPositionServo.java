@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
@@ -35,14 +36,13 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_feedforward_torque;
     private final Model100Logger m_log_measurement;
-    private final Control100Logger m_log_setpoint;
+    private final Control100Logger m_log_control;
     private final DoubleLogger m_log_u_FB;
     private final DoubleLogger m_log_u_FF;
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
     private final DoubleLogger m_encoderValue;
-
     private final BooleanLogger m_log_at_setpoint;
 
     /**
@@ -59,10 +59,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_positionSensor = positionSensor;
         m_controller = controller;
 
-        m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
+        m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_measurement = child.model100Logger(Level.TRACE, "measurement (rad)");
-        m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
+        m_log_measurement = child.model100Logger(Level.COMP, "measurement (rad)");
+        m_log_control = child.control100Logger(Level.COMP, "control (rad)");
         m_log_u_FB = child.doubleLogger(Level.TRACE, "u_FB (rad_s)");
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (rad_s)");
         m_encoderValue = child.doubleLogger(Level.TRACE, "Encoder Value");
@@ -81,6 +81,9 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public void reset() {
+        if (DEBUG) {
+            Util.println("RESET");
+        }
         OptionalDouble position = getPosition();
         if (position.isEmpty())
             return;
@@ -123,15 +126,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         }
         m_goal = new Model100(goalRad, goalVelocityRad_S);
 
-        // Util.printf("servo measurement position %f\n", position.getAsDouble());
-
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        // Util.printf("servo measurement %s\n", measurement);
 
         ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpointRad = result.feedforward();
-        if (DEBUG)
-            Util.printf("setpoint %s\n", setpointRad);
 
         final double u_FF = setpointRad.v();
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
@@ -139,14 +137,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
         final double u_TOTAL = (u_FB) + u_FF;
 
-        // Util.printf("u_TOTAL %f\n", u_TOTAL);
-
         m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
-        m_log_setpoint.log(() -> setpointRad);
+        m_log_control.log(() -> setpointRad);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
@@ -156,8 +152,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
-        if (DEBUG)
-            Util.printf("servo goal %f\n", goalRad);
         setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 
@@ -193,6 +187,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
+    public boolean profileDone() {
+        return m_controller.profileDone();
+    }
+
+    @Override
     public void setEncoderPosition(double positionRad) {
         m_mechanism.setEncoderPosition(positionRad);
     }
@@ -209,7 +208,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             return false;
         }
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        // Util.printf("servo measurement %s goal %s\n", measurement, m_goal);
         return measurement.near(m_goal, kXTolerance, kVTolerance);
     }
 
@@ -236,12 +234,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void periodic() {
-        // m_positionSensor.periodic();
         m_mechanism.periodic();
-        m_log_setpoint.log(() -> m_controller.getSetpoint().control());
-        m_log_goal.log(() -> m_goal);
-
         m_encoderValue.log(() -> getPosition().getAsDouble());
-
     }
 }
