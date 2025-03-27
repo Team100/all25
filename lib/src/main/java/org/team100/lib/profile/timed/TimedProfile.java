@@ -13,4 +13,6 @@ public interface TimedProfile {
 
     Control100 sample(double timeS);
 
+    double duration();
+
 }

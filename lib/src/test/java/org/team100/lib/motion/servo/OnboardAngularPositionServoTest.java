@@ -41,6 +41,7 @@ public class OnboardAngularPositionServoTest {
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 turningFeedback2,
                 MathUtil::angleModulus,

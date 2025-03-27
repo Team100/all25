@@ -1,5 +1,8 @@
 package org.team100.frc2025.Wrist;
 
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetWrist extends Command {
@@ -20,11 +23,18 @@ public class SetWrist extends Command {
     public void initialize() {
         finished = false;
         count = 0;
-        m_wrist.resetWristProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_wrist.resetWristProfile();
     }
 
     @Override
     public void execute() {
+        // the timer here can terminate the command while the wrist is in motion.
+        // if you run another SetWrist, or anything else that resets the wrist profile,
+        // it will try to force the velocity to zero.
+        // using the measurement seems bad; what we really want is to just leave the
+        // setpoint alone.
 
         if (!m_perpetual) {
             if (Math.abs(m_wrist.getAngle() - m_angle) < 0.05) {
@@ -63,8 +73,6 @@ public class SetWrist extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("**************************************I
-        // FINISHED*******************************************");
         m_wrist.setWristDutyCycle(0);
         finished = false;
         count = 0;
@@ -72,10 +80,11 @@ public class SetWrist extends Command {
 
     @Override
     public boolean isFinished() {
-        // return m_wrist.atSetpoint();
         if (m_perpetual) {
             return false;
         }
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_wrist.profileDone();
         return finished;
     }
 }

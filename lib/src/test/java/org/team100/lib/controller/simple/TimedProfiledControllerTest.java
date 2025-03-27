@@ -22,16 +22,16 @@ public class TimedProfiledControllerTest implements Timeless {
         TimedProfile wristProfile = new SepticSplineProfile(35, 15);
         Feedback100 wristFeedback = new PIDFeedback(
                 logger, 7.5, 0.00, 0.000, false, 0.01, 0.01);
-        ProfiledController c = new TimedProfiledController(
+        ProfiledController c = new TimedProfiledController(logger,
                 wristProfile, wristFeedback, x -> x, 0.01, 0.01);
 
         Model100 setpoint = new Model100();
         c.init(setpoint);
         final Model100 goal = new Model100(1, 0);
-            
+
         for (int i = 0; i < 100; ++i) {
             stepTime();
-            IncrementalProfiledController.Result result = c.calculate(setpoint, goal);
+            ProfiledController.Result result = c.calculate(setpoint, goal);
             Control100 ff = result.feedforward();
             setpoint = ff.model();
             if (DEBUG)
@@ -44,16 +44,16 @@ public class TimedProfiledControllerTest implements Timeless {
         TimedProfile wristProfile = new JerkLimitedProfile100(35, 15, 60);
         Feedback100 wristFeedback = new PIDFeedback(
                 logger, 7.5, 0.00, 0.000, false, 0.01, 0.01);
-        ProfiledController c = new TimedProfiledController(
+        ProfiledController c = new TimedProfiledController(logger,
                 wristProfile, wristFeedback, x -> x, 0.01, 0.01);
 
         Model100 setpoint = new Model100();
         c.init(setpoint);
         final Model100 goal = new Model100(1, 0);
-            
+
         for (int i = 0; i < 100; ++i) {
             stepTime();
-            IncrementalProfiledController.Result result = c.calculate(setpoint, goal);
+            ProfiledController.Result result = c.calculate(setpoint, goal);
             Control100 ff = result.feedforward();
             setpoint = ff.model();
             if (DEBUG)

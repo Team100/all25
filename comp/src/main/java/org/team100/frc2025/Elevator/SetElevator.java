@@ -1,6 +1,8 @@
 package org.team100.frc2025.Elevator;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -33,7 +35,9 @@ public class SetElevator extends Command implements Glassy {
     public void initialize() {
         count = 0;
         finished = false;
-        m_elevator.resetElevatorProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_elevator.resetElevatorProfile();
     }
 
     @Override
@@ -47,7 +51,6 @@ public class SetElevator extends Command implements Glassy {
         } else {
             count = 0;
         }
-
 
         m_log_count.log(() -> count);
         if (count >= 5) {
@@ -66,8 +69,10 @@ public class SetElevator extends Command implements Glassy {
     public boolean isFinished() {
         if (m_perpetual) {
             return false;
-        } else {
-            return finished;
         }
+        if (Experiments.instance.enabled(Experiment.UseProfileDone))
+            return finished && m_elevator.profileDone();
+        return finished;
+
     }
 }

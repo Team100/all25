@@ -71,5 +71,9 @@ public enum Experiment {
      * Use pure outboard PID for steering control, rather than the usual profiled
      * motion -- it's faster and less work for the RoboRIO.
      */
-    UnprofiledSteering
+    UnprofiledSteering,
+    /**
+     * End the wrist command when the profile completes, instead of using the timer.
+     */
+    UseProfileDone
 }

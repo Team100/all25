@@ -32,6 +32,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
+    
 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
@@ -78,7 +79,7 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
             return;
         final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         final Model100 goal = new Model100(goalM, goalVelocityM_S);
-        final IncrementalProfiledController.Result result = m_controller.calculate(measurement, goal);
+        final ProfiledController.Result result = m_controller.calculate(measurement, goal);
         final Control100 setpoint = result.feedforward();
         final double u_FF = m_kV * setpoint.v();
         final double u_FB = result.feedback();
@@ -107,6 +108,11 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     @Override
     public OptionalDouble getVelocity() {
         return m_mechanism.getVelocityM_S();
+    }
+
+    @Override
+    public boolean profileDone() {
+        return m_controller.profileDone();
     }
 
     @Override

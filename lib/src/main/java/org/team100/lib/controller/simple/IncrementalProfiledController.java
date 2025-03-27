@@ -2,7 +2,12 @@ package org.team100.lib.controller.simple;
 
 import java.util.function.DoubleUnaryOperator;
 
+import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.logging.Level;
+import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.Control100Logger;
+import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.profile.IncrementalProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -27,7 +32,7 @@ import edu.wpi.first.math.MathUtil;
  * 
  * TODO: dedupe the two profiled controllers.
  */
-public class IncrementalProfiledController implements ProfiledController {
+public class IncrementalProfiledController implements ProfiledController, Glassy {
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
     private final IncrementalProfile m_profile;
@@ -36,19 +41,27 @@ public class IncrementalProfiledController implements ProfiledController {
     private final double m_positionTolerance;
     private final double m_velocityTolerance;
 
+    private final Model100Logger m_log_setpoint;
+    private final Control100Logger m_log_control;
+
+    private Model100 m_goal;
     private Model100 m_setpoint;
 
     public IncrementalProfiledController(
+            LoggerFactory logger,
             IncrementalProfile profile,
             Feedback100 feedback,
             DoubleUnaryOperator modulus,
             double positionTolerance,
             double velocityTolerance) {
+        LoggerFactory child = logger.child(this);
         m_profile = profile;
         m_feedback = feedback;
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
         m_velocityTolerance = velocityTolerance;
+        m_log_setpoint = child.model100Logger(Level.TRACE, "setpoint");
+        m_log_control = child.control100Logger(Level.TRACE, "control");
     }
 
     /**
@@ -59,6 +72,7 @@ public class IncrementalProfiledController implements ProfiledController {
     @Override
     public void init(Model100 measurement) {
         m_setpoint = measurement;
+        m_log_setpoint.log(() -> m_setpoint);
         m_feedback.reset();
     }
 
@@ -78,13 +92,11 @@ public class IncrementalProfiledController implements ProfiledController {
      */
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
-        // Util.printf("ProfiledController measurement %s goal %s\n", measurement,
-        // goal);
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
 
         // use the goal nearest to the measurement.
-        goal = new Model100(
+        m_goal = new Model100(
                 m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),
                 goal.v());
 
@@ -97,19 +109,26 @@ public class IncrementalProfiledController implements ProfiledController {
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, goal);
+        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, m_goal);
+        m_log_control.log(() -> u_FF);
 
         m_setpoint = u_FF.model();
-
-        // 3/5/25 Sanjan added this, but I think it's not correct:
-        // you can be "at the setpoint" during the middle of the profile
-        // ... i think maybe he was looking for "at goal" but even so,
-        // that should be handled by the caller, not by this class.
-        // if(atSetpoint()){
-        // return new Result(new Control100(0, 0), 0);
-        // }
-
+        m_log_setpoint.log(() -> m_setpoint);
         return new Result(u_FF, u_FB);
+    }
+
+    @Override
+    public boolean profileDone() {
+        // the only way to tell if an incremental profile is done is to compare the
+        // setpoint to the goal.
+        return MathUtil.isNear(
+                m_goal.x(),
+                m_setpoint.x(),
+                m_positionTolerance)
+                && MathUtil.isNear(
+                        m_goal.v(),
+                        m_setpoint.v(),
+                        m_velocityTolerance);
     }
 
     @Override
@@ -137,16 +156,11 @@ public class IncrementalProfiledController implements ProfiledController {
      */
     @Override
     public boolean atGoal(Model100 goal) {
-        Model100 setpoint = getSetpoint();
-        // Util.printf("setpoint %s\n", setpoint);
-        return atSetpoint()
-                && MathUtil.isNear(
-                        goal.x(),
-                        setpoint.x(),
-                        m_positionTolerance)
-                && MathUtil.isNear(
-                        goal.v(),
-                        setpoint.v(),
-                        m_velocityTolerance);
+        return profileDone() && atSetpoint();
+    }
+
+    @Override
+    public void close() {
+        //
     }
 }
