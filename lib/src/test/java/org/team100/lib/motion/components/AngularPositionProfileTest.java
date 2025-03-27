@@ -58,6 +58,7 @@ class AngularPositionProfileTest implements Timeless {
     void testTrapezoid() {
         final Profile100 profile = new TrapezoidProfileWPI(1, 1);
         ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 feedback2,
                 MathUtil::angleModulus,
@@ -77,6 +78,7 @@ class AngularPositionProfileTest implements Timeless {
     void testProfile() {
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         ProfiledController controller = new IncrementalProfiledController(
+                logger,
                 profile,
                 feedback2,
                 MathUtil::angleModulus,

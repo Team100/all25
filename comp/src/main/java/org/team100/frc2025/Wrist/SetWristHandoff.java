@@ -18,7 +18,9 @@ public class SetWristHandoff extends Command {
     public void initialize() {
         finished = false;
         count = 0;
-        m_wrist.resetWristProfile();
+        // resetting forces the setpoint velocity to zero, which is not always what we
+        // want
+        // m_wrist.resetWristProfile();
     }
 
     @Override

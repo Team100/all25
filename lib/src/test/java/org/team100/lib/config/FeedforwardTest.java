@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 class FeedforwardTest {
     private static final double kDelta = 0.001;
 
+    @SuppressWarnings("removal")
     @Test
     void testWPI() {
         // current v = 1, want a = 1.

@@ -54,4 +54,9 @@ public interface ProfiledController {
      */
     boolean atGoal(Model100 goal);
 
+    /**
+     * to return resources used within, this is really for tests.
+     */
+    void close();
+
 }

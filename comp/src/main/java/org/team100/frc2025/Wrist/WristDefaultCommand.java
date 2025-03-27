@@ -34,6 +34,9 @@ public class WristDefaultCommand extends Command implements Glassy {
 
     @Override
     public void initialize() {
+        // we *only* reset the profile in the default command.
+        // this sets the setpoint position to the current measurement,
+        // and sets the setpoint velocity to zero.
         m_wrist.resetWristProfile();
         count = 0;
         docked = false;
