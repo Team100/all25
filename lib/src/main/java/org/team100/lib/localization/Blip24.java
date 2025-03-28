@@ -2,7 +2,6 @@ package org.team100.lib.localization;
 
 import org.team100.lib.geometry.GeometryUtil;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;

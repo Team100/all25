@@ -75,5 +75,9 @@ public enum Experiment {
     /**
      * End the wrist command when the profile completes, instead of using the timer.
      */
-    UseProfileDone
+    UseProfileDone,
+    /**
+     * Correct for lash in outboard positional control.
+     */
+    LashCorrection
 }

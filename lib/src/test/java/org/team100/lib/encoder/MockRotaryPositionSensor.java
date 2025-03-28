@@ -17,6 +17,10 @@ public class MockRotaryPositionSensor implements RotaryPositionSensor {
     }
 
     @Override
+    public void periodic() {
+    }
+
+    @Override
     public void close() {
         //
     }
