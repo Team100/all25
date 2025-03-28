@@ -237,8 +237,8 @@ public class WCPSwerveModule100 extends SwerveModule100 {
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
-                mech,
-                true);
+                mech);
+        // true);
 
         AngularPositionServo turningServo = outboardTurningServo(
                 parent,

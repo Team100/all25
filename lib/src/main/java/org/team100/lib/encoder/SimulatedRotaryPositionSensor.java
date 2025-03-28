@@ -1,6 +1,7 @@
 package org.team100.lib.encoder;
 
 import java.util.OptionalDouble;
+import java.util.function.DoubleSupplier;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.MathUtil;
  */
 public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final RotaryMechanism m_mechanism;
+    private final DoubleSupplier m_lash;
     // LOGGERS
     private final DoubleLogger m_log_position;
     private final OptionalDoubleLogger m_log_rate;
@@ -28,9 +30,11 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
 
     public SimulatedRotaryPositionSensor(
             LoggerFactory parent,
-            RotaryMechanism motor) {
+            RotaryMechanism mechanism,
+            DoubleSupplier lash) {
         LoggerFactory child = parent.child(this);
-        m_mechanism = motor;
+        m_mechanism = mechanism;
+        m_lash = lash;
         m_log_position = child.doubleLogger(Level.TRACE, "position");
         m_log_rate = child.optionalDoubleLogger(Level.TRACE, "rate");
     }
@@ -56,7 +60,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_positionRad = MathUtil.angleModulus(m_positionRad);
         m_timeS = nowS;
         m_log_position.log(() -> m_positionRad);
-        return OptionalDouble.of(m_positionRad);
+        return OptionalDouble.of(m_positionRad + m_lash.getAsDouble());
     }
 
     @Override
@@ -67,6 +71,10 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
             return OptionalDouble.empty();
         m_log_rate.log(() -> m_rate);
         return m_rate;
+    }
+
+    @Override
+    public void periodic() {
     }
 
     @Override

@@ -1,9 +1,9 @@
 package org.team100.lib.motion.drivetrain.module;
 
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
@@ -85,7 +85,8 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 1);
         SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
                 parent,
-                turningMech);
+                turningMech,
+                () -> 0);
         Feedback100 turningPositionFeedback = new PIDFeedback(
                 parent,
                 20, // kP
@@ -126,12 +127,13 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 1);
         SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
                 parent,
-                turningMech);
+                turningMech,
+                () -> 0);
         CombinedEncoder combinedEncoder = new CombinedEncoder(
                 parent,
                 turningEncoder,
-                turningMech,
-                false);
+                turningMech);
+        // false);
         UnprofiledOutboardAngularPositionServo turningServo = new UnprofiledOutboardAngularPositionServo(
                 parent,
                 turningMech,

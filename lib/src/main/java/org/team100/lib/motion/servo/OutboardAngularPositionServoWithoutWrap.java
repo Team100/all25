@@ -3,6 +3,8 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.encoder.CombinedEncoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -131,8 +133,13 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
         // finally compute a new setpoint
         m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
 
-        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
+        if (Experiments.instance.enabled(Experiment.LashCorrection)) {
+            double lashError = m_encoder.getError();
+            m_mechanism.setPosition(m_setpoint.x() - lashError, m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
+        } else {
+            m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
+        }
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);

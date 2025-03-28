@@ -177,7 +177,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition,
                         kWristMaximumPosition);
 
-                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech);
+                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech,
+                        () -> 0);
                 m_controller = new SelectProfiledController(
                         child,
                         wristFeedback,

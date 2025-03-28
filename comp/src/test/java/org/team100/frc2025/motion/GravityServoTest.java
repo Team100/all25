@@ -43,7 +43,8 @@ class GravityServoTest implements Timeless2025 {
                 165);
         SimulatedRotaryPositionSensor simEncoder = new SimulatedRotaryPositionSensor(
                 logger,
-                simMech);
+                simMech,
+                () -> 0);
 
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
