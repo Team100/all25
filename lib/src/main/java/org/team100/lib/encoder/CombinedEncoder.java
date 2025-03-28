@@ -150,6 +150,9 @@ public class CombinedEncoder implements RotaryPositionSensor {
      * (Measured = Actual - Error)
      */
     public double getError() {
+        // don't attempt to compute error prior to synchronization.
+        if (!m_synchronized)
+            return 0;
         // The sensor reads the actual position of the mechanism.
         OptionalDouble sensorPosition = getAbsolutePositionRad();
         // The motor reads the position on the other side of the gear lash.
