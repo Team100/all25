@@ -53,6 +53,10 @@ public abstract class DutyCycleRotaryPositionSensor extends RoboRioRotaryPositio
     }
 
     @Override
+    public void periodic() {
+    }
+
+    @Override
     public void close() {
         m_dutyCycle.close();
         m_digitalInput.close();

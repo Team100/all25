@@ -33,6 +33,9 @@ public interface RotaryPositionSensor extends Glassy {
      */
     OptionalDouble getRateRad_S();
 
+    /** Whatever.  Log stuff. */
+    void periodic();
+
     /**
      * Releases the encoder resource, if necessary (e.g. HAL ports).
      */

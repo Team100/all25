@@ -31,6 +31,10 @@ public class ProxyRotaryPositionSensor implements RotaryPositionSensor {
     }
 
     @Override
+    public void periodic() {
+    }
+
+    @Override
     public void close() {
         m_delegate.close();
     }

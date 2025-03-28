@@ -3,8 +3,6 @@ package org.team100.lib.profile.jerk_limited;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.wpi.first.math.MathUtil;
-
 public class MotionProfileBuilder {
     private final List<MotionSegment> segments;
     private MotionState currentState;

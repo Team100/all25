@@ -2,7 +2,6 @@ package org.team100.lib.motion.servo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
@@ -34,7 +33,7 @@ public class OutboardAngularPositionServoWithoutWrapTest {
 
         MockRotaryPositionSensor encoder = new MockRotaryPositionSensor();
 
-        CombinedEncoder combinedEncoder = new CombinedEncoder(log, encoder, wristMech, false);
+        CombinedEncoder combinedEncoder = new CombinedEncoder(log, encoder, wristMech);//, false);
 
         TrapezoidProfile100 wristProfile = new TrapezoidProfile100(50, 50, 0.05);
 

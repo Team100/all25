@@ -50,6 +50,10 @@ public class AnalogTurningEncoder extends RoboRioRotaryPositionSensor {
     }
 
     @Override
+    public void periodic() {
+    }
+
+    @Override
     public void close() {
         m_input.close();
     }
