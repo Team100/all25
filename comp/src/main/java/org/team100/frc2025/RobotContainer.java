@@ -69,6 +69,7 @@ import org.team100.lib.hid.ThirdControl;
 import org.team100.lib.hid.ThirdControlProxy;
 import org.team100.lib.indicator.LEDIndicator;
 import org.team100.lib.localization.AprilTagFieldLayoutWithCorrectOrientation;
+import org.team100.lib.localization.NearStation;
 import org.team100.lib.localization.SimulatedTagDetector;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.localization.VisionDataProvider24;
@@ -428,6 +429,9 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::kl, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
 
         whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        //3/27/25 Marcelo auto run funnel in corners
+        //NearStation run = new NearStation(m_drive:: getPose);
+        //whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
