@@ -34,12 +34,20 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.CurrentLimitedExponentialProfile;
 import org.team100.lib.profile.ExponentialProfileWPI;
+import org.team100.lib.profile.DualProfile;
+import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.TrapezoidProfileWPI;
+import org.team100.lib.profile.IncrementalProfile;
+
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
 import org.team100.lib.profile.timed.SepticSplineProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
+import org.team100.lib.profile.timed.TimedProfile;
+import org.team100.lib.profile.timed.JerkLimitedProfile100;
+import org.team100.lib.profile.timed.SepticSplineProfile;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -60,6 +68,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final ProfiledController m_controller;
     private final BooleanLogger safeLogger;
     private final WristVisualization m_viz;
+
 
     private ProfiledController makeProfiledController(
             LoggerFactory child,
@@ -126,7 +135,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.11); // 31
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.1); // 0.11
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
         Feedback100 wristFeedback = new PIDFeedback(child,
@@ -171,7 +180,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         child,
                         5,
-                        0.319279, // 0.346857, //0.317012, //0.227471, //0.188726
+                        0.135541, // 0.346857, //0.317012, //0.227471, //0.188726
                         EncoderDrive.DIRECT,
                         false);
 

@@ -130,8 +130,8 @@ public class Feedforward100 {
     }
 
     public static Feedforward100 makeKraken6Wrist() {
-        return new Feedforward100(0.06, 0.015, 0.005, 0.005, 0.005, 0.1);
-        // return new Feedforward100(0, 0, 0, 0, 0, 0);
+        // return new Feedforward100(0.14, 0.05, 0.001, 0.005, 0.005, 0.1);
+        return new Feedforward100(0.055, 0.025, 0.015, 0.005, 0.005, 0.1);
 
         
     }
