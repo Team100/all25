@@ -6,7 +6,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class SepticSplineProfile implements TimedProfile {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final double vel;
     private final double acc;

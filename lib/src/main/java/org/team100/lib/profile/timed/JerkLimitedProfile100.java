@@ -9,7 +9,7 @@ import org.team100.lib.util.Util;
 
 /** Adapter for Roadrunner jerk-limited profiles. */
 public class JerkLimitedProfile100 implements TimedProfile {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final double vel;
     private final double acc;

@@ -3,6 +3,7 @@ package org.team100.lib.spline;
 import java.util.List;
 
 import org.team100.lib.util.Math100;
+import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
@@ -38,6 +39,11 @@ public class SepticSpline1d {
         double tv = -720 * b / (5040 * a);
         maxV = Math.abs(getVelocity(tv));
         List<Double> zeros = Math100.solveQuadratic(2520 * a, 720 * b, 120 * c);
+        if (zeros.isEmpty()) {
+            // this should never happen
+            Util.warn("SepticSpline1d: no max accel, defaulting to 1");
+            maxA = 1;
+        }
         maxA = Math.abs(getAcceleration(zeros.get(0)));
     }
 

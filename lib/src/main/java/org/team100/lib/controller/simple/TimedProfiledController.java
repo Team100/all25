@@ -39,14 +39,14 @@ public class TimedProfiledController implements ProfiledController, Glassy {
             DoubleUnaryOperator modulus,
             double positionTolerance,
             double velocityTolerance) {
-        LoggerFactory child = logger.child(this);
         m_profile = profile;
         m_feedback = feedback;
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
         m_velocityTolerance = velocityTolerance;
-        m_log_setpoint = child.model100Logger(Level.TRACE, "setpoint");
-        m_log_control = child.control100Logger(Level.TRACE, "control");
+        // use the parent logger
+        m_log_setpoint = logger.model100Logger(Level.TRACE, "setpoint");
+        m_log_control = logger.control100Logger(Level.TRACE, "control");
     }
 
     @Override
