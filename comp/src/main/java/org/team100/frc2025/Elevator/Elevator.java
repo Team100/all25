@@ -31,7 +31,6 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final ElevatorVisualization m_viz;
     private boolean m_isSafe = false;
 
-    private double m_goal;
     private ScoringPosition m_targetPosition = ScoringPosition.NONE;
 
     private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); // elevator height, elevator cg
@@ -105,6 +104,7 @@ public class Elevator extends SubsystemBase implements Glassy {
                         new SimulatedBareEncoder(starboardLogger, starboardMotor),
                         kElevatorReduction,
                         kElevatorWheelDiamater);
+
                 LinearMechanism portMech = new SimpleLinearMechanism(
                         portMotor,
                         new SimulatedBareEncoder(portLogger, portMotor),
@@ -134,7 +134,6 @@ public class Elevator extends SubsystemBase implements Glassy {
     /**
      */
     public void setPosition(double x) {
-        m_goal = x;
         starboardServo.setPosition(x, 1.3); // 54 max
         portServo.setPosition(x, 1.3); // 54 max
     }
@@ -150,7 +149,6 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public void setPositionNoGravity(double x) {
-        m_goal = x;
         starboardServo.setPosition(x, 0); // 54 max
         portServo.setPosition(x, 0); // 54 max
 
@@ -195,11 +193,11 @@ public class Elevator extends SubsystemBase implements Glassy {
     }
 
     public boolean atGoal(){
-        return atGoal(.1);
+        return atGoal(.1, 0);
     }
 
-    public boolean atGoal(double tolerance){
-        return Math.abs(m_goal-getPosition()) < tolerance;
+    public boolean atGoal(double xTolerance, double vTolerance){
+        return starboardServo.atGoal(xTolerance, vTolerance);
     }
 
     public ScoringPosition getScoringPosition(){

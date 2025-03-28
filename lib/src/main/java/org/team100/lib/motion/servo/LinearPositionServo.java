@@ -39,6 +39,8 @@ public interface LinearPositionServo extends Glassy {
 
     boolean profileDone();
 
+    boolean atGoal(double xTolerance, double vTolerance);
+
     void stop();
 
     void close();

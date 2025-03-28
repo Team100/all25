@@ -160,4 +160,10 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         previousSetpoint = setpoint;
         return accel;
     }
+
+    @Override
+    public boolean atGoal(double xTolerance, double vTolerance) {
+        return Math.abs(m_goal.x() - getPosition().getAsDouble()) < xTolerance &&
+            Math.abs(m_goal.v() - getVelocity().getAsDouble()) < vTolerance;
+    }
 }

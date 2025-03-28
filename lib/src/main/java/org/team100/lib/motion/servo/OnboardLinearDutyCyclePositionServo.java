@@ -32,7 +32,8 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
-    
+
+    private Model100 m_goal;
 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
@@ -78,15 +79,15 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         if (position.isEmpty() || velocity.isEmpty())
             return;
         final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        final Model100 goal = new Model100(goalM, goalVelocityM_S);
-        final ProfiledController.Result result = m_controller.calculate(measurement, goal);
+        m_goal = new Model100(goalM, goalVelocityM_S);
+        final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         final Control100 setpoint = result.feedforward();
         final double u_FF = m_kV * setpoint.v();
         final double u_FB = result.feedback();
         final double u_TOTAL = MathUtil.clamp(u_FF + u_FB, -1.0, 1.0);
         m_mechanism.setDutyCycle(u_TOTAL);
 
-        m_log_goal.log(() -> goal);
+        m_log_goal.log(() -> m_goal);
         m_log_setpoint.log(() -> setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
@@ -132,4 +133,9 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         m_log_velocity.log(() -> getVelocity().orElse(Double.NaN));
     }
 
+    @Override
+    public boolean atGoal(double xTolerance, double vTolerance) {
+        return Math.abs(m_goal.x() - getPosition().getAsDouble()) < xTolerance &&
+            Math.abs(m_goal.v() - getVelocity().getAsDouble()) < vTolerance;
+    }
 }
