@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
-import org.team100.lib.async.Async;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.profile.CurrentLimitedExponentialProfile;
@@ -16,12 +15,14 @@ import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
 import org.team100.lib.profile.timed.SepticSplineProfile;
 import org.team100.lib.state.Model100;
-import org.team100.lib.util.PolledEnumChooser;
+import org.team100.lib.util.Util;
 
 /**
  * Allow on-the-fly selection of profiles using the proxy pattern.
  */
 public class SelectProfiledController implements ProfiledController, Glassy {
+    private static final boolean DEBUG = false;
+
     public enum ProfileChoice {
         TRAPEZOID_100,
         TRAPEZOID_WPI,
@@ -33,15 +34,12 @@ public class SelectProfiledController implements ProfiledController, Glassy {
 
     /** For initializing. */
     private final DoubleSupplier m_measurement;
-    private final PolledEnumChooser<ProfileChoice> m_chooser;
     private final Map<ProfileChoice, ProfiledController> m_controllers;
 
     private ProfiledController m_selected;
 
     public SelectProfiledController(
             LoggerFactory parent,
-            String name,
-            Async async,
             Feedback100 feedback,
             DoubleUnaryOperator mod,
             DoubleSupplier measurement,
@@ -78,19 +76,13 @@ public class SelectProfiledController implements ProfiledController, Glassy {
                         new IncrementalProfiledController(child,
                                 new TrapezoidProfileWPI(vel, accel),
                                 feedback, mod, pTol, vTol)));
-        m_chooser = new PolledEnumChooser<>(
-                async,
-                ProfileChoice.class,
-                name,
-                ProfileChoice.TRAPEZOID_100,
-                this::setDelegate);
-    }
-
-    public ProfileChoice getChoice() {
-        return m_chooser.get();
+        // temporary default
+        setDelegate(ProfileChoice.TRAPEZOID_100);
     }
 
     public void setDelegate(ProfileChoice choice) {
+        if (DEBUG)
+            Util.printf("SelectProfiledController setDelegate %s\n", choice);
         m_selected = m_controllers.get(choice);
         // Must initialize when switching controllers.
         // For safety, use zero velocity.
@@ -130,7 +122,6 @@ public class SelectProfiledController implements ProfiledController, Glassy {
 
     @Override
     public void close() {
-        m_chooser.close();
         for (ProfiledController c : m_controllers.values()) {
             c.close();
         }

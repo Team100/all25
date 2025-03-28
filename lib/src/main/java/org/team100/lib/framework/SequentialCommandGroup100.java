@@ -70,6 +70,7 @@ public class SequentialCommandGroup100 extends Command {
         m_log_active.get(m_currentCommandIndex).log(() -> true);
         currentCommand.execute();
         if (currentCommand.isFinished()) {
+            m_log_active.get(m_currentCommandIndex).log(() -> false);
             currentCommand.end(false);
             m_currentCommandIndex++;
             if (m_currentCommandIndex < m_commands.size()) {
@@ -80,11 +81,11 @@ public class SequentialCommandGroup100 extends Command {
 
     @Override
     public final void end(boolean interrupted) {
-        // m_log_active.get(m_currentCommandIndex).log(() -> false);
         if (interrupted
                 && !m_commands.isEmpty()
                 && m_currentCommandIndex > -1
                 && m_currentCommandIndex < m_commands.size()) {
+            m_log_active.get(m_currentCommandIndex).log(() -> false);
             m_commands.get(m_currentCommandIndex).end(true);
         }
         m_currentCommandIndex = -1;

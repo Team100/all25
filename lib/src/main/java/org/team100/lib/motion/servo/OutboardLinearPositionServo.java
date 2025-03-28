@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -25,7 +26,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private static final double kPositionTolerance = 0.01;
     private static final double kVelocityTolerance = 0.01;
     private final LinearMechanism m_mechanism;
-    private final IncrementalProfile m_profile;
+    private final ProfiledController m_controller;
 
     private Model100 m_goal;
     private Control100 m_setpoint = new Control100(0, 0);
@@ -42,10 +43,10 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     public OutboardLinearPositionServo(
             LoggerFactory parent,
             LinearMechanism mechanism,
-            IncrementalProfile profile) {
+            ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
-        m_profile = profile;
+        m_controller = controller;
         m_log_goal = child.model100Logger(Level.COMP, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (m)");
@@ -64,14 +65,21 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // if (velocity.isEmpty())
         // return;
         m_setpoint = new Control100(position.getAsDouble(), 0);
+        m_controller.init(new Model100(position.getAsDouble(), 0));
     }
 
     @Override
     public void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm) {
-        m_goal = new Model100(goalM, goalVelocityM_S);
 
-        // NOTE: fixed dt here
-        m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
+        final OptionalDouble position = getPosition();
+        final OptionalDouble velocity = getVelocity();
+        if (position.isEmpty() || velocity.isEmpty())
+            return;
+        final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+
+        m_goal = new Model100(goalM, goalVelocityM_S);
+        final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+        m_setpoint = result.feedforward();
 
         m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
@@ -80,7 +88,18 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_log_setpoint.log(() -> m_setpoint);
     }
 
+    /** Set the mechanism to exactly the goal position, without a profile. */
     public void setPositionDirectly(double goalM, double feedForwardTorqueNm) {
+        final OptionalDouble position = getPosition();
+        final OptionalDouble velocity = getVelocity();
+        if (position.isEmpty() || velocity.isEmpty())
+            return;
+        final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+
+        // update the controller even though we don't use the result.
+        @SuppressWarnings("unused")
+        final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+
         m_goal = new Model100(goalM, 0.0);
 
         m_setpoint = m_goal.control();

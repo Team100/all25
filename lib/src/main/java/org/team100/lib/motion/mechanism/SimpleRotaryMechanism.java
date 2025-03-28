@@ -126,7 +126,6 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         m_encoder.periodic();
         m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
         m_log_position.log(() -> getPositionRad().getAsDouble());
-
     }
 
 }
