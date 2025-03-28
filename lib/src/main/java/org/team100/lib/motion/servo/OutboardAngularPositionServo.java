@@ -2,10 +2,10 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
@@ -13,7 +13,6 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -43,7 +42,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private final Control100Logger m_log_setpoint;
     private final OptionalDoubleLogger m_log_position;
 
-    private final Profile100 m_profile;
+    private final ProfiledController m_controller;
     /**
      * Goal "winds up" i.e. it's it's [-inf, inf], not [-pi,pi]
      */
@@ -57,11 +56,11 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
             LoggerFactory parent,
             RotaryMechanism mech,
             CombinedEncoder encoder,
-            Profile100 profile) {
+            ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_encoder = encoder;
-        m_profile = profile;
+        m_controller = controller;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (rad)");
@@ -80,6 +79,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         // if (velocity.isEmpty())
         // return;
         m_setpoint = new Control100(position.getAsDouble(), 0);
+        m_controller.init(new Model100(position.getAsDouble(), 0));
     }
 
     @Override
@@ -130,7 +130,9 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         // m_setpoint.v());
 
         // finally compute a new setpoint
-        m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint.model(), m_goal);
+        final ProfiledController.Result result = m_controller.calculate(
+                m_setpoint.model(), m_goal);
+        m_setpoint = result.feedforward();
 
         if (Experiments.instance.enabled(Experiment.LashCorrection)) {
             double lashError = m_encoder.getError();

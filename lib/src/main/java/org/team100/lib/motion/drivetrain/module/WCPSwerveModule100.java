@@ -2,6 +2,10 @@ package org.team100.lib.motion.drivetrain.module;
 
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.AnalogTurningEncoder;
 import org.team100.lib.encoder.CombinedEncoder;
@@ -26,6 +30,8 @@ import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.Profile100;
+
+import edu.wpi.first.math.MathUtil;
 
 public class WCPSwerveModule100 extends SwerveModule100 {
     // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L212
@@ -258,11 +264,14 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             return new UnprofiledOutboardAngularPositionServo(parent, mech, combinedEncoder);
         }
         Profile100 profile = kinodynamics.getSteeringProfile();
+        Feedback100 feedback = new ZeroFeedback(x -> x, 0.02, 0.02);
+        ProfiledController controller = new IncrementalProfiledController(
+                parent, profile, feedback, MathUtil::angleModulus, 0.05, 0.05);
         return new OutboardAngularPositionServo(
                 parent,
                 mech,
                 combinedEncoder,
-                profile);
+                controller);
     }
 
     private static RotaryPositionSensor turningEncoder(
