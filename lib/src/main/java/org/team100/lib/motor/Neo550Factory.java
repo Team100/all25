@@ -2,10 +2,14 @@ package org.team100.lib.motor;
 
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
+import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.LimitedRotaryMechanism;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
@@ -15,8 +19,8 @@ import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.TrapezoidProfile100;
-import org.team100.lib.logging.LoggerFactory;
 
 public class Neo550Factory {
 
@@ -86,6 +90,10 @@ public class Neo550Factory {
                 Feedforward100.makeNeo550(), PIDConstants.makePositionPID(p));
         RotaryMechanism rotaryMechanism = new LimitedRotaryMechanism(new SimpleRotaryMechanism(moduleLogger, driveMotor,
                 new CANSparkEncoder(moduleLogger, driveMotor), gearRatio), lowerLimit, upperLimit);
+        Profile100 profile = new TrapezoidProfile100(1, 1, 0.01);
+        ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
+        ProfiledController controller = new IncrementalProfiledController(
+                moduleLogger, profile, feedback, x -> x, 0.05, 0.05);
         return new OutboardGravityServo(
                 parent,
                 new OutboardAngularPositionServo(
@@ -95,8 +103,8 @@ public class Neo550Factory {
                                 moduleLogger,
                                 new SimulatedRotaryPositionSensor(moduleLogger, rotaryMechanism, () -> 0),
                                 rotaryMechanism),
-                                // true),
-                        new TrapezoidProfile100(1, 1, 0.01)),
+                        // true),
+                        controller),
                 gravityNm,
                 offsetRad);
     }
@@ -133,6 +141,10 @@ public class Neo550Factory {
         SimulatedBareMotor driveMotor = new SimulatedBareMotor(parent, 5);
         RotaryMechanism rotaryMechanism = new SimpleRotaryMechanism(parent, driveMotor,
                 new SimulatedBareEncoder(parent, driveMotor), 1);
+        Profile100 profile = new TrapezoidProfile100(1, 1, 0.01);
+        ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
+        ProfiledController controller = new IncrementalProfiledController(
+                parent, profile, feedback, x -> x, 0.01, 0.01);
         return new OutboardGravityServo(
                 parent,
                 new OutboardAngularPositionServo(
@@ -142,8 +154,8 @@ public class Neo550Factory {
                                 parent,
                                 new SimulatedRotaryPositionSensor(parent, rotaryMechanism, () -> 0),
                                 rotaryMechanism),
-                                // true),
-                        new TrapezoidProfile100(1, 1, 0.01)),
+                        // true),
+                        controller),
                 1,
                 1);
     }
