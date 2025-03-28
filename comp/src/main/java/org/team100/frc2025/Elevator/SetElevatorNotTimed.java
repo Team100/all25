@@ -44,7 +44,7 @@ public class SetElevatorNotTimed extends Command implements Glassy {
         if (m_perpetual) {
             return false;
         } else {
-            return m_elevator.atGoal();
+            return m_elevator.atGoal() && m_elevator.profileDone();
         }
     }
 }
