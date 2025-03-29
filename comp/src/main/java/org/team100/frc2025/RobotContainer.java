@@ -22,19 +22,20 @@ import org.team100.frc2025.CommandGroups.ScoreBarge;
 import org.team100.frc2025.CommandGroups.ScoreCoral;
 import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
-import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
+
 import org.team100.frc2025.Funnel.ReleaseFunnel;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoRight;
+
+import org.team100.frc2025.Swerve.Auto.Coral2Auto;
+
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.lib.async.Async;
@@ -101,7 +102,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -172,7 +172,7 @@ public class RobotContainer implements Glassy {
             // m_leds.setFront(LEDIndicator.State.ORANGE);
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
-            m_elevator = new Elevator(elevatorLog, 11, 19);
+            m_elevator = new Elevator(elevatorLog, async, 11, 19);
             m_wrist = new Wrist2(elevatorLog, async, 9);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
@@ -187,7 +187,7 @@ public class RobotContainer implements Glassy {
                     .get(() -> 1);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_grip = new AlgaeGrip(logger, m_tunnel);
-            m_elevator = new Elevator(elevatorLog, 2, 19);
+            m_elevator = new Elevator(elevatorLog, async, 2, 19);
             m_wrist = new Wrist2(elevatorLog, async, 9);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
@@ -429,6 +429,9 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::kl, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
 
         whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        //3/27/25 Marcelo auto run funnel in corners
+        //NearStation run = new NearStation(m_drive:: getPose);
+        //whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBarge(comLog, m_elevator, m_wrist, m_grip));
 
@@ -552,6 +555,7 @@ public class RobotContainer implements Glassy {
         m_modules.close();
         m_leds.close();
         m_wrist.close();
+        m_elevator.close();
     }
 
 }

@@ -145,7 +145,8 @@ public class ServoFactory {
                 1);
         RotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
                 parent,
-                mech);
+                mech,
+                () -> 0);
         // the new sim doesn't have hard stops; should it?
         // 0, // minimum hard stop
         // 2); // maximum hard stop

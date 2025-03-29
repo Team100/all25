@@ -112,7 +112,7 @@ public class ArmFactory {
         // limits used to be -1, 1, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor lowerEncoder = new SimulatedRotaryPositionSensor(
-                lowerLogger, lowerMech);
+                lowerLogger, lowerMech, () -> 0);
 
         LoggerFactory upperLogger = parent.child(kUpper);
         SimulatedBareMotor upperMotor = new SimulatedBareMotor(upperLogger, kFreeSpeedRad_S);
@@ -124,7 +124,7 @@ public class ArmFactory {
         // limits used to be 0.1, 2.5, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor upperEncoder = new SimulatedRotaryPositionSensor(
-                upperLogger, upperMech);
+                upperLogger, upperMech, () -> 0);
         return new ArmSubsystem(
                 parent.child(kArm),
                 lowerMech,

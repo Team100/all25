@@ -22,11 +22,11 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
         SimulatedBareMotor motor = new SimulatedBareMotor(log, 100);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(log, motor);
         SimpleRotaryMechanism mech = new SimpleRotaryMechanism(log, motor, encoder, 1);
-        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, mech);
-        CombinedEncoder combinedEncoder = new CombinedEncoder(log, sensor, mech, false);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, mech, () -> 0);
+        CombinedEncoder combinedEncoder = new CombinedEncoder(log, sensor, mech);// , false);
         UnprofiledOutboardAngularPositionServo servo = new UnprofiledOutboardAngularPositionServo(
                 log, mech, combinedEncoder);
-        
+
         servo.reset();
         servo.periodic();
         stepTime();
@@ -49,6 +49,10 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
         // the sensor does trapezoid integration so it's halfway there after one cycle
         assertEquals(0.5, sensor.getPositionRad().getAsDouble(), kDelta);
 
+        servo.periodic();
+        servo.setPosition(1, 0);
+        stepTime();
+        
         servo.periodic();
         servo.setPosition(1, 0);
         stepTime();

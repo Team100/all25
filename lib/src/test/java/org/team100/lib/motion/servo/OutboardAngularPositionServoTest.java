@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
@@ -31,14 +34,16 @@ public class OutboardAngularPositionServoTest {
                 new MockIncrementalBareEncoder(),
                 1);
         final MockRotaryPositionSensor externalEncoder = new MockRotaryPositionSensor();
-        final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech, true);
+        final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech);// , true);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-
+        final ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
+        final ProfiledController controller = new IncrementalProfiledController(
+                logger, profile, feedback, x -> x, 0.01, 0.01);
         final OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
                 logger,
                 mech,
                 combinedEncoder,
-                profile);
+                controller);
         servo.reset();
         // it moves slowly
         servo.setPosition(1, 0);

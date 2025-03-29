@@ -3,6 +3,8 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.encoder.CombinedEncoder;
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -86,8 +88,12 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
                 goalVelocityRad_S);
 
-        m_mechanism.setPosition(m_goal.x(), m_goal.v(), 0, feedForwardTorqueNm);
-
+        if (Experiments.instance.enabled(Experiment.LashCorrection)) {
+            double lashError = m_encoder.getError();
+            m_mechanism.setPosition(m_goal.x() - lashError, m_goal.v(), 0, feedForwardTorqueNm);
+        } else {
+            m_mechanism.setPosition(m_goal.x(), m_goal.v(), 0, feedForwardTorqueNm);
+        }
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);
@@ -174,7 +180,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     }
 
     @Override
-    public void setStaticTorque(double feedForwardTorqueNm){
+    public void setStaticTorque(double feedForwardTorqueNm) {
     }
-    
+
 }

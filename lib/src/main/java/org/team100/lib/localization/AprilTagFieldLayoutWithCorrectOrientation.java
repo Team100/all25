@@ -3,7 +3,6 @@ package org.team100.lib.localization;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

@@ -2,8 +2,10 @@ package org.team100.lib.motion.servo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
@@ -34,15 +36,19 @@ public class OutboardAngularPositionServoWithoutWrapTest {
 
         MockRotaryPositionSensor encoder = new MockRotaryPositionSensor();
 
-        CombinedEncoder combinedEncoder = new CombinedEncoder(log, encoder, wristMech, false);
+        CombinedEncoder combinedEncoder = new CombinedEncoder(log, encoder, wristMech);// , false);
 
         TrapezoidProfile100 wristProfile = new TrapezoidProfile100(50, 50, 0.05);
+        ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.05, 0.05);
+        ProfiledController controller = new IncrementalProfiledController(
+                log, wristProfile, feedback, x -> x, 0.05, 0.05);
 
         // the servo does not actually use the encoder measurement for anything; it
         // passes
         // the position command to the motor, and uses the profile feedforward.
-        AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServoWithoutWrap(log, wristMech,
-                combinedEncoder, wristProfile);
+        AngularPositionServo wristServoWithoutGravity = new OutboardAngularPositionServoWithoutWrap(
+                log, wristMech,
+                combinedEncoder, controller);
 
         OutboardGravityServo wristServo = new OutboardGravityServo(log, wristServoWithoutGravity, 4, 0);
 
