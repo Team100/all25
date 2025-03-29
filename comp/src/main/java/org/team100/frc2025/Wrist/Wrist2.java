@@ -40,6 +40,8 @@ import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
+    private static final int GEAR_RATIO = 25;
+
     // true: use the outboard servo, give the motor position
     // false: use the onboard servo, give the motor velocity
     private static final boolean OUTBOARD_SERVO = true;
@@ -149,8 +151,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor, internalWristEncoder,
-                        25);
+                RotaryMechanism wristMech = new SimpleRotaryMechanism(
+                        wristLogger,
+                        wristMotor,
+                        internalWristEncoder,
+                        GEAR_RATIO);
 
                 // TODO: what are the correct limits?
                 RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition, 4);
@@ -188,8 +193,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
             default -> {
 
                 SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(wristLogger, wristMotor,
-                        new SimulatedBareEncoder(wristLogger, wristMotor), 10.5);
+                SimulatedBareEncoder encoder0 = new SimulatedBareEncoder(wristLogger, wristMotor);
+                RotaryMechanism wristMech = new SimpleRotaryMechanism(
+                        wristLogger,
+                        wristMotor,
+                        encoder0,
+                        GEAR_RATIO);
 
                 RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition,
                         kWristMaximumPosition);

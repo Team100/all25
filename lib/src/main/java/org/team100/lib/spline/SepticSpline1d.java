@@ -15,6 +15,15 @@ import edu.wpi.first.math.numbers.N8;
 
 /** 7th order spline allows control of jerk. */
 public class SepticSpline1d {
+    public static class SplineException extends RuntimeException {
+        public SplineException(String msg) {
+            super(msg);
+        }
+        public SplineException(RuntimeException ex) {
+            super(ex);
+        }
+    }
+
     final double a;
     final double b;
     final double c;
@@ -28,6 +37,18 @@ public class SepticSpline1d {
     public double maxA;
 
     private SepticSpline1d(double a, double b, double c, double d, double e, double f, double g, double h) {
+        if (Double.isNaN(a))
+            throw new SplineException("a");
+        if (Double.isNaN(b))
+            throw new SplineException("b");
+        if (Double.isNaN(c))
+            throw new SplineException("c");
+        if (Double.isNaN(d))
+            throw new SplineException("d");
+        if (Double.isNaN(e))
+            throw new SplineException("e");
+        if (Double.isNaN(f))
+            throw new SplineException("f");
         this.a = a;
         this.b = b;
         this.c = c;
@@ -41,8 +62,8 @@ public class SepticSpline1d {
         List<Double> zeros = Math100.solveQuadratic(2520 * a, 720 * b, 120 * c);
         if (zeros.isEmpty()) {
             // this should never happen
-            Util.warn("SepticSpline1d: no max accel, defaulting to 1");
-            maxA = 1;
+            throw new SplineException(
+                    String.format("SepticSpline1d: no max accel %f %f %f", a, b, c));
         }
         maxA = Math.abs(getAcceleration(zeros.get(0)));
     }
@@ -82,15 +103,21 @@ public class SepticSpline1d {
         Matrix<N8, N8> Ainv = A.inv();
         Vector<N8> x = VecBuilder.fill(x0, dx0, ddx0, dddx0, x1, dx1, ddx1, dddx1);
         Matrix<N8, N1> c = Ainv.times(x);
-        return new SepticSpline1d(
-                c.get(7, 0),
-                c.get(6, 0),
-                c.get(5, 0),
-                c.get(4, 0),
-                c.get(3, 0),
-                c.get(2, 0),
-                c.get(1, 0),
-                c.get(0, 0));
+        try {
+            return new SepticSpline1d(
+                    c.get(7, 0),
+                    c.get(6, 0),
+                    c.get(5, 0),
+                    c.get(4, 0),
+                    c.get(3, 0),
+                    c.get(2, 0),
+                    c.get(1, 0),
+                    c.get(0, 0));
+        } catch (SplineException ex) {
+            Util.warnf("Spline error x0 %f x1 %f dx0 %f dx1 %f ddx0 %f ddx1 %f dddx0 %f dddx1 %f\n",
+                    x0, x1, dx0, dx1, ddx0, ddx1, dddx0, dddx1);
+            throw new SplineException(ex);
+        }
     }
 
     /**

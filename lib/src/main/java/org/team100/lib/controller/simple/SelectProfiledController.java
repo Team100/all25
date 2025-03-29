@@ -92,6 +92,8 @@ public class SelectProfiledController implements ProfiledController, Glassy {
 
     @Override
     public void init(Model100 measurement) {
+        if (DEBUG)
+            Util.printf("SelectProfiledController init\n");
         m_selected.init(measurement);
     }
 
