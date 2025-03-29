@@ -26,8 +26,8 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-public class Coral2Auto extends SequentialCommandGroup100 {
-    public Coral2Auto(
+public class Coral2AutoLeft extends SequentialCommandGroup100 {
+    public Coral2AutoLeft(
             LoggerFactory logger,
             Wrist2 wrist, Elevator elevator,
             Funnel funnel,

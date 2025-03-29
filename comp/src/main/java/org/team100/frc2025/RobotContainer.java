@@ -24,7 +24,13 @@ import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
+
+import org.team100.frc2025.Funnel.ReleaseFunnel;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoRight;
+
 import org.team100.frc2025.Swerve.Auto.Coral2Auto;
+
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
@@ -326,7 +332,7 @@ public class RobotContainer implements Glassy {
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
 
         // m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
-        // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
+        m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
         // m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog,
         // m_elevator, m_wrist, m_grip, m_drive));
@@ -338,7 +344,7 @@ public class RobotContainer implements Glassy {
         final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
-        m_auton = new Coral2Auto(
+        m_auton = new Coral2AutoLeft(
                 logger, m_wrist,
                 m_elevator, m_funnel,
                 m_tunnel, m_grip,
@@ -446,13 +452,20 @@ public class RobotContainer implements Glassy {
         // whileTrue(operatorControl::intake, new SetFunnelLatch(m_funnel, 180, 0));
         // whileTrue(operatorControl::intake, new ParallelCommandGroup(new SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
         // whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
-        whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        // whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         // whileTrue(operatorControl::intake, new SetWrist(m_wrist, 0.8, true));
-                
+        whileTrue(operatorControl::intake, new Coral2AutoRight(
+          logger, m_wrist,
+          m_elevator, m_funnel,
+          m_tunnel, m_grip,
+          autoController, profile,
+          m_drive, visionDataProvider::setHeedRadiusM,
+          m_swerveKinodynamics, viz));
+
         // whileTrue(operatorControl::intake, new ParallelCommandGroup(new
         // SetWrist(m_wrist, 0.8, true), new SetElevator(m_elevator, 45, true)));
-        whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
-        // whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator,
+        // whileTrue(operatorControl::intake, new ScoreL4(logger, m_wrist, m_elevator));
+        // whileTrue(operatorControl::intake, new RunFunnelHandoff(comLog, m_elevator));
         // m_wrist, m_funnel, m_tunnel, m_grip));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();

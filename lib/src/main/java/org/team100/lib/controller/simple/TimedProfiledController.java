@@ -57,6 +57,10 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         if (DEBUG)
             Util.printf("TimedProfiledController init\n");
         m_startTimeS = Takt.get();
+        
+        // if(m_setpoint != null && !m_setpoint.near(measurement, 0.1, 0.1)){
+            m_goal = null;
+        // }
         m_setpoint = measurement;
         m_log_setpoint.log(() -> m_setpoint);
         m_feedback.reset();

@@ -18,11 +18,14 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
     private final AlgaeGrip m_grip;
     private final SwerveDriveSubsystem m_drive;
     private double m_holdPosition;
+    private final DoubleLogger m_log_holdPosition;
 
     public ElevatorDefaultCommand(LoggerFactory logger, Elevator elevator, Wrist2 wrist, AlgaeGrip grip,
             SwerveDriveSubsystem drive) {
         LoggerFactory child = logger.child(this);
         m_log_distanceToReef = child.doubleLogger(Level.TRACE, "distance to reef (m)");
+        m_log_holdPosition = child.doubleLogger(Level.TRACE, "hold position (m)");
+
         m_elevator = elevator;
         m_wrist = wrist;
         m_grip = grip;
@@ -39,7 +42,9 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
 
     @Override
     public void execute() {
-        
+        double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
+        m_log_distanceToReef.log(() -> distanceToReef);
+
         if(!m_wrist.getSafeCondition()){
             // elevator shouldn't move at all
             m_elevator.setPositionDirectly(m_holdPosition);
@@ -61,11 +66,15 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
             return;
         }
 
-        m_holdPosition = m_elevator.getPosition();
-        double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
-        m_log_distanceToReef.log(() -> distanceToReef);
+        if(distanceToReef < 1.6){
+            m_elevator.setPositionDirectly(m_holdPosition);
+            return;
+        }
 
-        if (distanceToReef > 1.6) {
+
+        m_holdPosition = m_elevator.getPosition();
+
+        // if (distanceToReef > 1.6) {
 
             if (!m_grip.hasAlgae()) {
                 double goal = 0.05;
@@ -95,9 +104,9 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
                 }
 
             }
-        } else {
-            m_elevator.setStatic();
-        }
+        // } else {
+        //     m_elevator.setPositionDirectly(m_holdPosition);
+        // }
     }
 
     @Override
