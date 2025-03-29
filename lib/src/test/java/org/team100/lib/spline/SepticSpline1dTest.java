@@ -1,10 +1,12 @@
 package org.team100.lib.spline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.spline.SepticSpline1d.SplineException;
 import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
@@ -17,6 +19,15 @@ public class SepticSpline1dTest {
 
     private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
+
+    /** Start and end the same => freak out */
+    @Test
+    void testNaN() {
+        assertThrows(
+                SplineException.class,
+                () -> SepticSpline1d.viaMatrix(Double.NaN, 0, 0, 0, 0, 0, 0, 0));
+
+    }
 
     /** Look at an example */
     @Test

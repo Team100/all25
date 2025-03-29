@@ -70,6 +70,8 @@ public abstract class Navigator extends Command implements Planner2025 {
     public final void end(boolean interrupted) {
         m_drive.stop();
         m_viz.clear();
+
+        System.out.println("I FINISHED");
     }
 
     @Override

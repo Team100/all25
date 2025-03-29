@@ -5,6 +5,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.team100.lib.experiments.Experiment;
+import org.team100.lib.experiments.Experiments;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -13,6 +16,7 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.util.Memo;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 
 /**
  * Proxies an absolute sensor and an incremental sensor.
@@ -43,6 +47,8 @@ public class CombinedEncoder implements RotaryPositionSensor {
     private final OptionalDoubleLogger m_log_combined;
     // for synchronization one-shot delayed task
     private final ScheduledExecutorService m_synchronizer;
+    private final LinearFilter m_errorFilter;
+
     // private final boolean m_wrapped;
     private boolean m_synchronized;
 
@@ -68,6 +74,7 @@ public class CombinedEncoder implements RotaryPositionSensor {
         // the duty cycle encoder seems to produce slightly-wrong values immediately
         // upon startup, so wait a bit before doing the synchronization
         m_synchronized = false;
+        m_errorFilter = LinearFilter.singlePoleIIR(0.05, TimedRobot100.LOOP_PERIOD_S);
         m_synchronizer = Executors.newSingleThreadScheduledExecutor();
         m_synchronizer.schedule(this::sync, 3, TimeUnit.SECONDS);
     }
@@ -150,6 +157,13 @@ public class CombinedEncoder implements RotaryPositionSensor {
      * (Measured = Actual - Error)
      */
     public double getError() {
+        if (Experiments.instance.enabled(Experiment.LashFilter)) {
+            return filteredError();
+        }
+        return getRawError();
+    }
+
+    private double getRawError() {
         // don't attempt to compute error prior to synchronization.
         if (!m_synchronized)
             return 0;
@@ -162,6 +176,10 @@ public class CombinedEncoder implements RotaryPositionSensor {
             return 0;
         }
         return sensorPosition.getAsDouble() - motorPosition.getAsDouble();
+    }
+
+    private double filteredError() {
+        return m_errorFilter.calculate(getRawError());
     }
 
     public void periodic() {

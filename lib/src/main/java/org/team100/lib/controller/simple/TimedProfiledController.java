@@ -12,6 +12,7 @@ import org.team100.lib.profile.timed.TimedProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Takt;
+import org.team100.lib.util.Util;
 
 /**
  * Feedback and feedforward control.
@@ -19,6 +20,8 @@ import org.team100.lib.util.Takt;
  * TODO: dedupe the two profiled controllers.
  */
 public class TimedProfiledController implements ProfiledController, Glassy {
+    private static final boolean DEBUG = false;
+
     private final TimedProfile m_profile;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
@@ -51,7 +54,13 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
     @Override
     public void init(Model100 measurement) {
+        if (DEBUG)
+            Util.printf("TimedProfiledController init\n");
         m_startTimeS = Takt.get();
+        
+        // if(m_setpoint != null && !m_setpoint.near(measurement, 0.1, 0.1)){
+            m_goal = null;
+        // }
         m_setpoint = measurement;
         m_log_setpoint.log(() -> m_setpoint);
         m_feedback.reset();
@@ -59,6 +68,8 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
+        if (DEBUG)
+            Util.printf("TimedProfiledController calculate measurement %s goal %s\n", measurement, goal);
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
 
