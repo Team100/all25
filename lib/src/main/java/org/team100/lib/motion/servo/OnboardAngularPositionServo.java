@@ -81,7 +81,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void reset() {
         if (DEBUG) {
-            Util.println("RESET");
+            Util.println("OnboardAngularPositionServo reset");
         }
         OptionalDouble position = getPosition();
         if (position.isEmpty())

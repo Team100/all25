@@ -3,6 +3,7 @@ package org.team100.lib.motor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
+import org.team100.lib.spline.SepticSpline1d.SplineException;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Memo.DoubleCache;
 import org.team100.lib.util.Takt;
@@ -14,17 +15,14 @@ public class SimulatedBareMotor implements BareMotor {
     private static final boolean DEBUG = false;
 
     private final double m_freeSpeedRad_S;
-    // LOGGERS
+
     private final DoubleLogger m_log_duty;
     private final DoubleLogger m_log_velocity;
+    private final DoubleCache m_velocityCache;
+    private final DoubleCache m_positionCache;
 
     private double m_velocity = 0;
-
     private double m_position = 0;
-
-    private DoubleCache m_velocityCache;
-    private DoubleCache m_positionCache;
-
     private double m_time = Takt.get();
 
     public SimulatedBareMotor(LoggerFactory parent, double freeSpeedRad_S) {
@@ -54,7 +52,10 @@ public class SimulatedBareMotor implements BareMotor {
         // this is also in the simulated encoder
         double now = Takt.get();
         double dt = now - m_time;
-
+        if (dt < 1e-6) {
+            // calling twice in the same cycle => nothing happens
+            return;
+        }
         if (DEBUG)
             Util.printf("motor set pos %f v %f dt %f now %f m_time %f\n", m_position, velocityRad_S, dt, now, m_time);
         m_position += velocityRad_S * dt;
@@ -67,6 +68,10 @@ public class SimulatedBareMotor implements BareMotor {
     public void setPosition(double position, double velocity, double accel, double torque) {
         double now = Takt.get();
         double dt = now - m_time;
+        if (dt < 1e-6) {
+            // calling twice in the same cycle => nothing happens
+            return;
+        }
         double dx = position - m_position;
         m_velocity = dx / dt;
         m_position = position;
@@ -103,12 +108,17 @@ public class SimulatedBareMotor implements BareMotor {
     }
 
     public double getPositionRad() {
-        return m_positionCache.getAsDouble();
+        double pos = m_positionCache.getAsDouble();
+        if (Double.isNaN(pos))
+            throw new SplineException("motor pos");
+        return pos;
     }
 
     /** resets the caches, so the new value is immediately available. */
     @Override
     public void setEncoderPositionRad(double positionRad) {
+        if (Double.isNaN(positionRad))
+            throw new SplineException("motor set position");
         m_position = positionRad;
         m_positionCache.reset();
         m_velocityCache.reset();

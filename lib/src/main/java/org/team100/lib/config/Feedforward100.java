@@ -133,7 +133,6 @@ public class Feedforward100 {
         return new Feedforward100(0.137, 0.0085, 0.002, 0.11, 0.11, 0.1);
         // return new Feedforward100(0.055, 0.025, 0.015, 0.005, 0.005, 0.1);
 
-        
     }
 
     public static Feedforward100 makeKraken6WristWithLowerKd() {
@@ -146,12 +145,18 @@ public class Feedforward100 {
     }
 
     /**
+     * Uses kA all the time, because the resulting feedforward had a strange "tooth"
+     * in it, maybe because of the use of the measured velocity rather than the
+     * setpoint velocity?
+     * 
+     * TODO: make kD actually work?
      * Uses kA when speed and accel are in the same direction.
      * Uses kD when speed and accel are opposite.
      */
     public double accelFFVolts(double currentMotorRev_S, double motorRev_S_S) {
-        // if ((currentMotorRev_S >= 0 && motorRev_S_S >= 0) || (currentMotorRev_S <= 0 && motorRev_S_S <= 0))
-        //     return kA * motorRev_S_S;
+        // if ((currentMotorRev_S >= 0 && motorRev_S_S >= 0) || (currentMotorRev_S <= 0
+        // && motorRev_S_S <= 0))
+        // return kA * motorRev_S_S;
         // return kD * motorRev_S_S;
         return kA * motorRev_S_S;
     }

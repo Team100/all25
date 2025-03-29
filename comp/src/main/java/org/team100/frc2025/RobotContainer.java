@@ -20,17 +20,12 @@ import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreBarge;
 import org.team100.frc2025.CommandGroups.ScoreCoral;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
-
-import org.team100.frc2025.Funnel.ReleaseFunnel;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoRight;
-
-import org.team100.frc2025.Swerve.Auto.Coral2Auto;
-
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;

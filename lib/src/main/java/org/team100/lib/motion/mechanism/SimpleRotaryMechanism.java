@@ -95,7 +95,7 @@ public class SimpleRotaryMechanism implements RotaryMechanism, Glassy {
         OptionalDouble positionRad = m_encoder.getPositionRad();
         if (positionRad.isEmpty())
             return OptionalDouble.empty();
-        return OptionalDouble.of(  (positionRad.getAsDouble() / m_gearRatio));
+        return OptionalDouble.of(positionRad.getAsDouble() / m_gearRatio);
     }
 
     @Override

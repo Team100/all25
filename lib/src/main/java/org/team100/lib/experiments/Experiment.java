@@ -79,5 +79,9 @@ public enum Experiment {
     /**
      * Correct for lash in outboard positional control.
      */
-    LashCorrection
+    LashCorrection,
+    /**
+     * Low-pass filter the lash-correction error
+     */
+    LashFilter
 }
