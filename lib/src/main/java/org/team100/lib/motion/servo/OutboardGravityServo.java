@@ -8,6 +8,8 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.state.Control100;
 import org.team100.lib.util.Util;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 /**
  * Wraps an angular position servo, supplying it with the correct feed forward
  * torque for gravity compensation.
@@ -19,7 +21,10 @@ public class OutboardGravityServo implements GravityServoInterface{
     /** Offset from horizontal */
     private final double m_offsetRad; // = 0.0;
     private final DoubleLogger m_log_gT;
+    private final DoubleLogger m_log_springT;
+
     private final DoubleLogger m_correctedPosition;
+    private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); // elevator height, elevator cg
 
     public OutboardGravityServo(
             LoggerFactory parent,
@@ -31,6 +36,13 @@ public class OutboardGravityServo implements GravityServoInterface{
         m_gravityNm = gravityNm;
         m_offsetRad = offsetRad;
         m_log_gT = child.doubleLogger(Level.TRACE, "gravity torque (Nm)");
+        m_log_springT = child.doubleLogger(Level.TRACE, "spring torque (Nm)");
+        table.put(-0.113302, -10.0);
+        table.put(0.34, -6.2);
+        table.put(0.677192, -5.0);
+        table.put(0.784419, -4.0);
+        table.put(0.921020, -3.0);
+        table.put(1.734179, -1.0);
         m_correctedPosition = child.doubleLogger(Level.TRACE, "corrected position (rad)");
     }
 
@@ -54,9 +66,13 @@ public class OutboardGravityServo implements GravityServoInterface{
         double mechanismPositionRad = optPos.getAsDouble();
         m_correctedPosition.log(() -> mechanismPositionRad + m_offsetRad);
         final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
+        // final double springTorqueNm = -6.2 + 2.85 * mechanismPositionRad; 
+        final double springTorqueNm = table.get(mechanismPositionRad); 
+        // final double springTorqueNm = -10; 
 
         m_log_gT.log(() -> gravityTorqueNm);
-        m_servo.setPositionWithVelocity(goal.x(), goal.v(), gravityTorqueNm);
+        m_log_springT.log(() -> springTorqueNm);
+        m_servo.setPositionWithVelocity(goal.x(), goal.v(), gravityTorqueNm  + springTorqueNm);
     }
 
     @Override

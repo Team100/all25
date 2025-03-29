@@ -38,7 +38,7 @@ public class PostDropCoralL4 extends Command {
     public void execute() {
         m_elevator.setPosition(m_elevatorGoal);
 
-        if (Math.abs(m_elevator.getPosition() - initialElevatorPosition) > 0.5) {
+        if (Math.abs(m_elevator.getPosition() - initialElevatorPosition) > 0.1) {
             m_wrist.setAngleValue(0.4);
         } else {
             m_wrist.setAngleValue(1.25);

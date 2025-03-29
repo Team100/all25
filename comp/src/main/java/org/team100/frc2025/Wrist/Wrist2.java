@@ -5,6 +5,10 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.Feedback100;
+
+import org.team100.lib.controller.simple.FullStateFeedback;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.SelectProfiledController;
 import org.team100.lib.controller.simple.SelectProfiledController.ProfileChoice;
@@ -73,26 +77,27 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.1); // 0.11
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); //0.3
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
+
         Feedback100 wristFeedback;
         if (OUTBOARD_SERVO) {
             // feedback is outboard: this just logs the error.
             wristFeedback = new ZeroFeedback(x -> x,
                     kPositionTolerance, 0.1);
         } else {
-            wristFeedback = new PIDFeedback(wristLogger,
-                    5.0, 0.0, 0.0, false,
-                    kPositionTolerance, 0.1);
+            wristFeedback = new FullStateFeedback(wristLogger,
+                     3.0, 0.10, x -> x, 0.05, 0.05);
         }
-        // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
-        // kPositionTolerance);
 
-        double maxVel = 35;
-        double maxAccel = 5;
+        // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
+        // kPositionTolerance); 
+
+        double maxVel = 40;
+        double maxAccel = 40;
         double stallAccel = 60;
-        double maxJerk = 20;
+        double maxJerk = 50;
 
         // ProfiledController controller = makeProfiledController(
         // wristLogger,
@@ -143,9 +148,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         maxAccel,
                         stallAccel,
                         maxJerk,
-                        kPositionTolerance,
-                        kVelocityTolerance);
+                        0.1,
+                        0.05);
                 m_profileChooser.register(m_controller::setDelegate);
+
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
@@ -181,7 +187,9 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 }
 
                 wristServoWithoutGravity.reset();
-                wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 9.5, -0.366925);
+
+                wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 9.0, -0.451230);
+
                 m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
 
             }
