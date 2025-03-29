@@ -5,6 +5,7 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 
@@ -20,11 +21,15 @@ public class WristDefaultCommand extends Command implements Glassy {
 
     private double count = 0;
     private boolean docked = false;
+    private double m_holdPosition;
+    private final DoubleLogger m_log_holdPosition;
 
     public WristDefaultCommand(LoggerFactory logger, Wrist2 wrist, Elevator elevator, AlgaeGrip grip,
             SwerveDriveSubsystem drive) {
         LoggerFactory child = logger.child(this);
         m_log_activity = child.stringLogger(Level.TRACE, "activity");
+        m_log_holdPosition = child.doubleLogger(Level.TRACE, "hold position (m)");
+
         m_elevator = elevator;
         m_wrist = wrist;
         m_grip = grip;
@@ -40,12 +45,23 @@ public class WristDefaultCommand extends Command implements Glassy {
         m_wrist.resetWristProfile();
         count = 0;
         docked = false;
+        m_holdPosition = m_wrist.getAngle();
     }
 
     @Override
     public void execute() {
+        m_log_holdPosition.log(() -> m_holdPosition);
         double distanceToReef = FieldConstants.getDistanceToReefCenter(m_drive.getPose().getTranslation());
-        if (distanceToReef > 1.6) {
+        if(distanceToReef < 1.6){
+            m_wrist.setAngleValue(m_holdPosition);
+            m_log_activity.log(() -> "far away");
+            return;
+        }
+
+        m_holdPosition = m_wrist.getAngle();
+
+
+        // if (distanceToReef > 1.6) {
             if (!m_grip.hasAlgae()) {
                 m_log_activity.log(() -> "no algae");
                 if (m_elevator.getPosition() > 17.5) {
@@ -88,10 +104,13 @@ public class WristDefaultCommand extends Command implements Glassy {
                     m_wrist.setSafeCondition(true);
                 }
             }
-        } else {
-            m_log_activity.log(() -> "far away");
-            m_wrist.stop();
-        }
+        // } else {
+            // m_log_activity.log(() -> "far away");
+        //     // m_wrist.stop();
+        //     m_wrist.setAngleValue(0.5);
+        // }
+
+        // m_wrist.setAngleValue(0.4);
     }
 
     @Override

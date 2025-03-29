@@ -9,7 +9,7 @@ import org.team100.lib.util.Util;
 
 /** Adapter for Roadrunner jerk-limited profiles. */
 public class JerkLimitedProfile100 implements TimedProfile {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final double vel;
     private final double acc;
@@ -25,8 +25,8 @@ public class JerkLimitedProfile100 implements TimedProfile {
 
     @Override
     public void init(Model100 initial, Model100 goal) {
-        if (DEBUG)
-            Util.printf("INIT initial %s goal %s\n", initial, goal);
+        // if (DEBUG)
+        Util.printf("INIT initial %s goal %s\n", initial, goal);
         MotionState start = new MotionState(initial.x(), initial.v());
         MotionState end = new MotionState(goal.x(), goal.v());
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
