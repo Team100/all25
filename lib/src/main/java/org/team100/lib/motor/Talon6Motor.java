@@ -214,6 +214,9 @@ public abstract class Talon6Motor implements BareMotor {
 
         final double frictionFFVolts = m_ff.frictionFFVolts(currentMotorRev_S, motorRev_S);
         final double velocityFFVolts = m_ff.velocityFFVolts(motorRev_S);
+        //
+        // TODO: use setpoint velocity instead of measured velocity here
+        //
         final double accelFFVolts = m_ff.accelFFVolts(currentMotorRev_S, motorRev_S2);
         final double torqueFFVolts = getTorqueFFVolts(motorTorqueNm);
 
