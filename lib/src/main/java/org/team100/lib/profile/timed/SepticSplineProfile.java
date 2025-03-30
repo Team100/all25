@@ -1,7 +1,6 @@
 package org.team100.lib.profile.timed;
 
 import org.team100.lib.spline.SepticSpline1d;
-import org.team100.lib.spline.SepticSpline1d.SplineException;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -12,7 +11,7 @@ public class SepticSplineProfile implements TimedProfile {
     private final double vel;
     private final double acc;
 
-    private SepticSpline1d m_spline;
+    SepticSpline1d m_spline;
     private double m_duration;
 
     /**
@@ -28,10 +27,28 @@ public class SepticSplineProfile implements TimedProfile {
     public void init(Model100 initial, Model100 goal) {
         if (DEBUG)
             Util.printf("SepticSplineProfile init initial %s goal %s\n", initial, goal);
+
+        double x0 = initial.x();
+        double x1 = goal.x();
+        double dx0 = initial.v();
+        double dx1 = goal.v();
+        double ddx0 = 0;
+        double ddx1 = 0;
+        double dddx0 = 0;
+        double dddx1 = 0;
+
+        init(x0, x1, dx0, dx1, ddx0, ddx1, dddx0, dddx1);
+    }
+
+    void init(
+            double x0, double x1,
+            double dx0, double dx1,
+            double ddx0, double ddx1,
+            double dddx0, double dddx1) {
         m_spline = SepticSpline1d.viaMatrix(
-                initial.x(), goal.x(),
-                initial.v(), goal.v(),
-                0, 0, 0, 0);
+                x0, x1,
+                dx0, dx1,
+                ddx0, ddx1, dddx0, dddx1);
         double vScale = m_spline.maxV / vel;
         double aScale = Math.sqrt(m_spline.maxA) / Math.sqrt(acc);
         m_duration = Math.max(vScale, aScale);

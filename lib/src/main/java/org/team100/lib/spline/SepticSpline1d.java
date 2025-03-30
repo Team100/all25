@@ -1,8 +1,5 @@
 package org.team100.lib.spline;
 
-import java.util.List;
-
-import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MatBuilder;
@@ -19,6 +16,7 @@ public class SepticSpline1d {
         public SplineException(String msg) {
             super(msg);
         }
+
         public SplineException(RuntimeException ex) {
             super(ex);
         }
@@ -33,8 +31,8 @@ public class SepticSpline1d {
     final double g;
     final double h;
     // max of the underlying spline
-    public double maxV;
-    public double maxA;
+    public final double maxV;
+    public final double maxA;
 
     private SepticSpline1d(double a, double b, double c, double d, double e, double f, double g, double h) {
         if (Double.isNaN(a))
@@ -57,15 +55,8 @@ public class SepticSpline1d {
         this.f = f;
         this.g = g;
         this.h = h;
-        double tv = -720 * b / (5040 * a);
-        maxV = Math.abs(getVelocity(tv));
-        List<Double> zeros = Math100.solveQuadratic(2520 * a, 720 * b, 120 * c);
-        if (zeros.isEmpty()) {
-            // this should never happen
-            throw new SplineException(
-                    String.format("SepticSpline1d: no max accel %f %f %f", a, b, c));
-        }
-        maxA = Math.abs(getAcceleration(zeros.get(0)));
+        maxV = scanV();
+        maxA = scanA();
     }
 
     public static SepticSpline1d viaMatrix(
@@ -190,7 +181,24 @@ public class SepticSpline1d {
     public double getPop(double t) {
         return 5040.0 * a * t +
                 720.0 * b;
+    }
 
+    double scanV() {
+        double maxV = 0;
+        for (double t = 0; t <= 1.0; t += 0.001) {
+            double v = getVelocity(t);
+            maxV = Math.max(maxV, Math.abs(v));
+        }
+        return maxV;
+    }
+
+    double scanA() {
+        double maxA = 0;
+        for (double t = 0; t <= 1.0; t += 0.001) {
+            double a = getAcceleration(t);
+            maxA = Math.max(maxA, Math.abs(a));
+        }
+        return maxA;
     }
 
 }
