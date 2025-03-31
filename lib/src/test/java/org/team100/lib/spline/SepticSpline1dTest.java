@@ -16,7 +16,6 @@ import org.team100.lib.util.Util;
  * 
  */
 public class SepticSpline1dTest {
-
     private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
 
@@ -26,7 +25,121 @@ public class SepticSpline1dTest {
         assertThrows(
                 SplineException.class,
                 () -> SepticSpline1d.viaMatrix(Double.NaN, 0, 0, 0, 0, 0, 0, 0));
+    }
 
+    void scan(SepticSpline1d spline) {
+        for (double t = 0; t <= 1.0; t += 0.001) {
+            double x = spline.getPosition(t);
+            double v = spline.getVelocity(t);
+            double a = spline.getAcceleration(t);
+            if (DEBUG)
+                Util.printf("%12.6f  %12.6f  %12.6f  %12.6f\n", t, x, v, a);
+        }
+    }
+
+    double scanV(SepticSpline1d spline) {
+        double maxV = 0;
+        for (double t = 0; t <= 1.0; t += 0.001) {
+            double v = spline.getVelocity(t);
+            maxV = Math.max(maxV, Math.abs(v));
+        }
+        return maxV;
+    }
+
+    double scanA(SepticSpline1d spline) {
+        double maxA = 0;
+        for (double t = 0; t <= 1.0; t += 0.001) {
+            double a = spline.getAcceleration(t);
+            maxA = Math.max(maxA, Math.abs(a));
+        }
+        return maxA;
+    }
+
+    @Test
+    void testMax1() {
+        SepticSpline1d spline = SepticSpline1d.viaMatrix(0, 1, 0, 0, 0, 0, 0, 0);
+        // check initials
+        assertEquals(0, spline.getPosition(0), kDelta);
+        assertEquals(0, spline.getVelocity(0), kDelta);
+        assertEquals(0, spline.getAcceleration(0), kDelta);
+        assertEquals(0, spline.getJerk(0), kDelta);
+        // check finals
+        assertEquals(1, spline.getPosition(1), kDelta);
+        assertEquals(0, spline.getVelocity(1), kDelta);
+        assertEquals(0, spline.getAcceleration(1), kDelta);
+        assertEquals(0, spline.getJerk(1), kDelta);
+        // true values
+        assertEquals(2.187, scanV(spline), kDelta);
+        assertEquals(7.513, scanA(spline), kDelta);
+        // what the spline thinks
+        assertEquals(2.187, spline.maxV, kDelta);
+        assertEquals(7.513, spline.maxA, kDelta);
+    }
+
+    @Test
+    void testMax2() {
+        // initial velocity
+        SepticSpline1d spline = SepticSpline1d.viaMatrix(0, 1, 1, 0, 0, 0, 0, 0);
+        // check initials
+        assertEquals(0, spline.getPosition(0), kDelta);
+        assertEquals(1, spline.getVelocity(0), kDelta);
+        assertEquals(0, spline.getAcceleration(0), kDelta);
+        assertEquals(0, spline.getJerk(0), kDelta);
+        // check finals
+        assertEquals(1, spline.getPosition(1), kDelta);
+        assertEquals(0, spline.getVelocity(1), kDelta);
+        assertEquals(0, spline.getAcceleration(1), kDelta);
+        assertEquals(0, spline.getJerk(1), kDelta);
+        scan(spline);
+        // true values
+        assertEquals(1.66, scanV(spline), kDelta);
+        assertEquals(5.028, scanA(spline), kDelta);
+        // what the spline thinks
+        assertEquals(1.66, spline.maxV, kDelta);
+        assertEquals(5.028, spline.maxA, kDelta);
+    }
+
+    @Test
+    void testMax3() {
+        SepticSpline1d spline = SepticSpline1d.viaMatrix(0, 1, 0, 0, 2, 0, 0, 0);
+        // check initials
+        assertEquals(0, spline.getPosition(0), kDelta);
+        assertEquals(0, spline.getVelocity(0), kDelta);
+        assertEquals(2, spline.getAcceleration(0), kDelta);
+        assertEquals(0, spline.getJerk(0), kDelta);
+        // check finals
+        assertEquals(1, spline.getPosition(1), kDelta);
+        assertEquals(0, spline.getVelocity(1), kDelta);
+        assertEquals(0, spline.getAcceleration(1), kDelta);
+        assertEquals(0, spline.getJerk(1), kDelta);
+        // true values
+        assertEquals(2.071, scanV(spline), kDelta);
+        assertEquals(6.850, scanA(spline), kDelta);
+        // what the spline thinks
+        assertEquals(2.071, spline.maxV, kDelta);
+        assertEquals(6.850, spline.maxA, kDelta);
+    }
+
+    @Test
+    void testMax4() {
+        SepticSpline1d spline = SepticSpline1d.viaMatrix(0, 1, 0, 0, 0, 0, 50, 0);
+        // check initials
+        assertEquals(0, spline.getPosition(0), kDelta);
+        assertEquals(0, spline.getVelocity(0), kDelta);
+        assertEquals(0, spline.getAcceleration(0), kDelta);
+        assertEquals(50, spline.getJerk(0), kDelta);
+        // check finals
+        assertEquals(1, spline.getPosition(1), kDelta);
+        assertEquals(0, spline.getVelocity(1), kDelta);
+        assertEquals(0, spline.getAcceleration(1), kDelta);
+        assertEquals(0, spline.getJerk(1), kDelta);
+        scan(spline);
+        // true values
+        assertEquals(2.085, scanV(spline), kDelta);
+        assertEquals(7.054, scanA(spline), kDelta);
+        // what the spline thinks
+        assertEquals(2.085, spline.maxV, kDelta);
+        assertEquals(7.054, spline.maxA, kDelta);
     }
 
     /** Look at an example */
