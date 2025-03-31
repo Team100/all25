@@ -174,4 +174,19 @@ public class DriverControlProxy implements DriverControl {
         return m_driverControl.button5();
     }
 
+    @Override
+    public boolean feedFunnel() {
+        return m_driverControl.feedFunnel();
+    }
+
+    @Override
+    public boolean useReefLock() {
+        return m_driverControl.useReefLock();
+    }
+
+    @Override
+    public boolean driveWithBargeAssist() {
+        return m_driverControl.driveWithBargeAssist();
+    }
+
 }

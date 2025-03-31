@@ -66,12 +66,12 @@ public class Elevator extends SubsystemBase implements Glassy {
 
 
         // TODO: review these constants
-        final double maxVel = 190;
-        final double maxAccel = 210;
+        final double maxVel = 220; //220
+        final double maxAccel = 200; //240
         final double stallAccel = 1000;
         final double maxJerk = 500;
       
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(1.5); //6.7
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(2.5); //6.7
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,

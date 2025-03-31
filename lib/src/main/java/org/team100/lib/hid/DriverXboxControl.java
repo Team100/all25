@@ -157,7 +157,7 @@ public class DriverXboxControl implements DriverControl {
     private Speed speed() {
         if (m_controller.getLeftBumperButton())
             return Speed.SLOW;
-        if (m_controller.getLeftTriggerAxis() > .9)
+        if (m_controller.getRightTriggerAxis() > .9)
             return Speed.MEDIUM;
         return Speed.NORMAL;
     }
@@ -184,7 +184,7 @@ public class DriverXboxControl implements DriverControl {
 
     @Override
     public boolean fullCycle() {
-        return m_controller.getXButton();
+        return m_controller.getYButton();
     }
 
     @Override
@@ -203,8 +203,26 @@ public class DriverXboxControl implements DriverControl {
     }
 
     @Override
+    public boolean feedFunnel() {
+        return m_controller.getXButton();
+    }
+
+    @Override
     public boolean test() {
         return false;
+    }
+
+    @Override 
+    public boolean useReefLock(){
+        if(m_controller.getLeftTriggerAxis() > 0.9){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean driveWithBargeAssist(){
+        return m_controller.getRightBumperButton();
     }
 
 }

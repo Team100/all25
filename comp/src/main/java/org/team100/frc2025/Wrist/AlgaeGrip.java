@@ -129,8 +129,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     public boolean hasAlgae() {
 
         boolean hasAlgae = m_tunnel.hasAlgae();
-        m_log_hasAlgae.log(() -> hasAlgae);
-        return false;
+        // m_log_hasAlgae.log(() -> hasAlgae);
+        return hasAlgae;
     }
 
     // public void intake() {
@@ -156,7 +156,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     public void setDutyCycle(double dutyCycle) {
         if (m_motor == null)
             return;
-        m_motor.set(dutyCycle);
+        m_motor.set(-dutyCycle);
     }
 
     public void stop() {

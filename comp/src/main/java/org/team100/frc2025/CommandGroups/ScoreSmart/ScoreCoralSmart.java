@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.FieldConstants.ReefPoint;
+import org.team100.frc2025.CommandGroups.ScoreL2;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
@@ -29,12 +31,15 @@ public class ScoreCoralSmart extends SequentialCommandGroup100 {
             SwerveController controller,
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
-            DoubleConsumer heedRadiusM) {
+            DoubleConsumer heedRadiusM,
+            ReefPoint point) {
         super(logger, "ScoreCoralSmart");
         addCommands(
                 new SelectCommand<>(
                         Map.of(
-
+                            ScoringPosition.L4, new ScoreL4Smart(m_logger, wrist, elevator, tunnel, targetSector, destination, scoringPositionSupplier, controller, profile, m_drive, heedRadiusM, point),
+                            ScoringPosition.L3, new ScoreL3Smart(m_logger, wrist, elevator, tunnel, targetSector, destination, scoringPositionSupplier, controller, profile, m_drive, heedRadiusM, point),
+                            ScoringPosition.L2, new ScoreL2Smart(m_logger, wrist, elevator, tunnel, targetSector, destination, scoringPositionSupplier, controller, profile, m_drive, heedRadiusM, point)
                         ),
                         scoringPositionSupplier));
     }

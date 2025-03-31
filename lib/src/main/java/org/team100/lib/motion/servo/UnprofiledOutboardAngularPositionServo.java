@@ -63,6 +63,11 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     public void setEncoderPosition(double value) {
         m_mechanism.setEncoderPosition(value);
     }
+    
+    @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_mechanism.setDutyCycle(dutyCycle);
+    }
 
     /**
      * Sets the goal, updates the setpoint to the "next step" value towards it,

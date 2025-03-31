@@ -34,7 +34,13 @@ public class VKBJoystick implements DriverControl {
 
     @Override
     public boolean fullCycle() {
-        return button(1); // trigger halfway down
+        // return button(1); // trigger halfway down
+        return false;
+    }
+
+    @Override
+    public boolean useReefLock() {
+        return button(0); // trigger halfway down
     }
 
     @Override

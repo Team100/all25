@@ -44,7 +44,7 @@ public class DescoreAlgae extends SequentialCommandGroup100 {
                 new SetAlgaeDescorePositionPrep(m_logger, wrist, elevator),
                 // new IntakeAlgaeGrip(grip, true)
                 new ParallelDeadlineGroup100(m_logger, "approach",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.4),
+                        // new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.4),
                         new SetWrist(wrist, 3.7, true),
                         new SetElevatorPerpetually(elevator, 12)),
                 new ParallelDeadlineGroup100(m_logger, "elevate",
@@ -52,12 +52,12 @@ public class DescoreAlgae extends SequentialCommandGroup100 {
                         new SetWrist(wrist, 3.7, true),
                         new IntakeAlgaeGrip(grip, true)),
                 new ParallelDeadlineGroup100(m_logger, "pick",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.35),
+                        // new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.35),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),
                         new SetWrist(wrist, 3.7, true)),
                 new ParallelCommandGroup100(m_logger, "retreat",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.75),
+                        // new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 1.75),
                         new IntakeAlgaeGrip(grip, true),
                         new SetElevatorPerpetually(elevator, 35),
                         new SetWrist(wrist, 3.7, true))

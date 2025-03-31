@@ -15,7 +15,7 @@ public class ScoreL3 extends SequentialCommandGroup100 {
         super(logger, "ScoreL3");
         addCommands(
                 new SetWrist(wrist, 0.4, false),
-                new PrePlaceCoralL3(wrist, elevator, 23),
+                new PrePlaceCoralL3(wrist, elevator, 23, false),
                 // new ParallelDeadlineGroup100(parent,
                 // new SetElevator(elevator, 23, false), new
                 // SetWrist(wrist, 0.4, true)),

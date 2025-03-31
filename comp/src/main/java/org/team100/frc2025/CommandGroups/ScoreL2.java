@@ -44,11 +44,11 @@ public class ScoreL2 extends SequentialCommandGroup100 {
                         new SetElevatorPerpetually(elevator, 10.5)),
                 new ParallelDeadlineGroup100(m_logger, "down",
                         new SetWrist(wrist, 0.9, false),
-                        new SetElevatorPerpetually(elevator, 4.6)),
-                new ParallelDeadlineGroup100(m_logger, "drive",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 2),
-                        new SetWrist(wrist, 1.2, true),
                         new SetElevatorPerpetually(elevator, 4.6))
+                // new ParallelDeadlineGroup100(m_logger, "drive",
+                //         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, 2),
+                //         new SetWrist(wrist, 1.2, true),
+                //         new SetElevatorPerpetually(elevator, 4.6))
         // new ParallelDeadlineGroup100(logger,
         // new SetElevator(elevator, 6, false), new
         // SetWrist(wrist, 0.9, true))
