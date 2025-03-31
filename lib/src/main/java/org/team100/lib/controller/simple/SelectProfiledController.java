@@ -66,7 +66,7 @@ public class SelectProfiledController implements ProfiledController, Glassy {
                                 feedback, mod, pTol, vTol)),
                 entry(ProfileChoice.SEPTIC,
                         new TimedProfiledController(child,
-                                new SepticSplineProfile(vel, accel),
+                                new SepticSplineProfile(4.5, 10),
                                 feedback, mod, pTol, vTol)),
                 entry(ProfileChoice.TRAPEZOID_100,
                         new IncrementalProfiledController(child,

@@ -28,6 +28,9 @@ public class SepticSplineProfile implements TimedProfile {
 
     @Override
     public void init(Model100 initial, Model100 goal) {
+
+        double adjustedAcceleration = acc;
+
         if (DEBUG)
             Util.printf("SepticSplineProfile init initial %s goal %s\n", initial, goal);
 
@@ -66,6 +69,7 @@ public class SepticSplineProfile implements TimedProfile {
             // Util.printf("sample 0 %s 1 %s\n", m_spline.getPosition(0),
             // m_spline.getPosition(1));
         }
+
     }
 
     @Override

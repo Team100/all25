@@ -13,11 +13,13 @@ public class PrePlaceCoralL3 extends Command {
     double m_elevatorGoal;
     double count = 0;
     boolean finished = false;
+    boolean m_perpetual = false;
 
-    public PrePlaceCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue) {
+    public PrePlaceCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue, boolean perpetual) {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
+        m_perpetual = perpetual;
         addRequirements(m_wrist, m_elevator);
     }
 
@@ -59,8 +61,14 @@ public class PrePlaceCoralL3 extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Experiments.instance.enabled(Experiment.UseProfileDone))
-            return finished && m_wrist.profileDone() && m_elevator.profileDone();
-        return finished;
+        if(!m_perpetual){
+            if (Experiments.instance.enabled(Experiment.UseProfileDone)){
+                return finished && m_wrist.profileDone() && m_elevator.profileDone();
+            }
+            return finished;
+        } else {
+            return false;
+        }
+        
     }
 }

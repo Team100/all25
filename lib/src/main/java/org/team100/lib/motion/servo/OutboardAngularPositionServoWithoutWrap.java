@@ -88,6 +88,11 @@ public class OutboardAngularPositionServoWithoutWrap implements AngularPositionS
     }
 
     @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_mechanism.setDutyCycle(dutyCycle);
+    }
+
+    @Override
     public void setEncoderPosition(double value) {
         m_mechanism.setEncoderPosition(value);
     }

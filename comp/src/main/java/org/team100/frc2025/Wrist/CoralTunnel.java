@@ -32,8 +32,8 @@ public class CoralTunnel extends SubsystemBase implements Glassy {
         LoggerFactory child = parent.child(this);
         int coralCurrentLimit = 20;
 
-        m_logRightLimitSwitch = child.booleanLogger(Level.TRACE, "right");
-        m_logLeftLimitSwitch = child.booleanLogger(Level.TRACE, "left");
+        m_logRightLimitSwitch = child.booleanLogger(Level.COMP, "right");
+        m_logLeftLimitSwitch = child.booleanLogger(Level.COMP, "left");
 
         switch (Identity.instance) {
             case COMP_BOT -> {

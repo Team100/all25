@@ -25,6 +25,8 @@ public interface AngularPositionServo extends Glassy {
      */
     public void setEncoderPosition(double positionRad);
 
+    public void setDutyCycle(double dutyCycle);
+
     void setTorqueLimit(double torqueNm);
 
     /**

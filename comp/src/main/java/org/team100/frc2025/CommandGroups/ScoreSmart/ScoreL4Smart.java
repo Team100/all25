@@ -9,8 +9,11 @@ import java.util.function.Supplier;
 
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.FieldConstants.ReefPoint;
+import org.team100.frc2025.CommandGroups.PostDropCoralL4;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.HoldWristAndElevator;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
 import org.team100.frc2025.Swerve.WaitUntilWithinRadius;
@@ -20,11 +23,14 @@ import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.framework.ParallelCommandGroup100;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
+
+import edu.wpi.first.wpilibj2.command.Command;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -41,24 +47,55 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
             SwerveController controller,
             HolonomicProfile profile,
             SwerveDriveSubsystem m_drive,
-            DoubleConsumer heedRadiusM) {
+            DoubleConsumer heedRadiusM,
+            ReefPoint reefPoint) {
         super(logger, "ScoreL4Smart");
+
+        Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
         addCommands(
-                new ParallelDeadlineGroup100(m_logger, "drive",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height),
+                // new ParallelDeadlineGroup100(m_logger, "drive",
+                //         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
+                //         new SequentialCommandGroup100(m_logger, "out",
+                //                 // new WaitUntilWithinRadius(m_drive),
+                //                 new SetWrist(wrist, 0.4, false),
+                //                 new PrePlaceCoralL4(wrist, elevator, 47, true))),
+                // new ParallelDeadlineGroup100(m_logger, "up",
+                //         new SetWrist(wrist, 1.25, false),
+                //         new SetElevatorPerpetually(elevator, 47)),
+                // new ParallelDeadlineGroup100(m_logger, "score",
+                //         new SetElevator(m_logger, elevator, 40, false),
+                //         new SetWrist(wrist, 1.25, true)),
+                // new ParallelDeadlineGroup100(m_logger, "down",
+                //         new SetElevator(m_logger, elevator, 10, false),
+                //         new SetWrist(wrist, 0.5, true))
+
+
+
+                        // new PostDropCoralL4(wrist, elevator, 10),
+
+
+                new ParallelCommandGroup100(m_logger, "drive",
+                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
+
                         new SequentialCommandGroup100(m_logger, "out",
-                                new WaitUntilWithinRadius(m_drive),
                                 new SetWrist(wrist, 0.4, false),
-                                new PrePlaceCoralL4(wrist, elevator, 45))),
-                new ParallelDeadlineGroup100(m_logger, "up",
-                        new SetWrist(wrist, 1.25, false),
-                        new SetElevatorPerpetually(elevator, 45)),
-                new ParallelDeadlineGroup100(m_logger, "score",
-                        new SetElevator(m_logger, elevator, 35, false),
-                        new SetWrist(wrist, 1.25, true)),
-                new ParallelDeadlineGroup100(m_logger, "down",
-                        new SetElevator(m_logger, elevator, 10, false),
-                        new SetWrist(wrist, 0.5, true))
+                                new PrePlaceCoralL4(wrist, elevator, 47, false, holdingCommand))),
+
+                // new ParallelCommandGroup100(logger, "check if its out", new SetWrist(wrist, 1.25, true), new SetElevator(logger, elevator, 0, isScheduled()))
+                // new SetElevatorAndWrist(elevator, wrist, 47, 1.25),
+                new PostDropCoralL4(wrist, elevator, 10, holdingCommand)
+                
+                // new ParallelDeadlineGroup100(m_logger, "up",
+                //         new SetWrist(wrist, 1.25, false),
+                //         new SetElevatorPerpetually(elevator, 47)),
+                // new ParallelDeadlineGroup100(m_logger, "score",
+                //         new SetElevator(m_logger, elevator, 40, false),
+                //         new SetWrist(wrist, 1.25, true)),
+                // new ParallelDeadlineGroup100(m_logger, "down",
+                //         new SetElevator(m_logger, elevator, 10, false),
+                //         new SetWrist(wrist, 0.5, true))
+
+
 
         );
     }

@@ -23,6 +23,8 @@ public class SwerveLimiter implements Glassy {
     private static final boolean DEBUG = false;
 
     private final DoubleLogger m_log_norm;
+    private final DoubleLogger m_log_normIn;
+
     private final FieldRelativeVelocityLogger m_log_next;
 
     private final FieldRelativeVelocityLimiter m_velocityLimiter;
@@ -35,6 +37,7 @@ public class SwerveLimiter implements Glassy {
     public SwerveLimiter(LoggerFactory parent, SwerveKinodynamics dynamics, DoubleSupplier voltage) {
         LoggerFactory child = parent.child(this);
         m_log_norm = child.doubleLogger(Level.TRACE, "norm");
+        m_log_normIn = child.doubleLogger(Level.TRACE, "norm in");
         m_log_next = child.fieldRelativeVelocityLogger(Level.TRACE, "next");
 
         BatterySagSpeedLimit limit = new BatterySagSpeedLimit(child, dynamics, voltage);
@@ -58,6 +61,7 @@ public class SwerveLimiter implements Glassy {
      */
     public FieldRelativeVelocity apply(FieldRelativeVelocity nextReference) {
         m_log_next.log(() -> nextReference);
+        m_log_normIn.log(nextReference::norm);
         if (DEBUG)
             Util.printf("nextReference %s\n", nextReference);
         if (m_current == null)
