@@ -118,6 +118,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         final TrapezoidProfile100 m_profile = makeProfile(currentVelocity);
 
         final Rotation2d pov = m_desiredRotation.get();
+        
         m_goal = m_latch.latchedRotation(
                 m_profile.getMaxAcceleration(),
                 state.theta(),

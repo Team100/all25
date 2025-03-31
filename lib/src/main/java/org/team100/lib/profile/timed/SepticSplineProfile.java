@@ -7,7 +7,7 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 public class SepticSplineProfile implements TimedProfile {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final double vel;
     private final double acc;
@@ -26,12 +26,19 @@ public class SepticSplineProfile implements TimedProfile {
 
     @Override
     public void init(Model100 initial, Model100 goal) {
+
+        double adjustedAcceleration = acc;
+
         if (DEBUG)
             Util.printf("SepticSplineProfile init initial %s goal %s\n", initial, goal);
+
+        if(goal.x() < initial.x()) {
+            adjustedAcceleration *= -1;
+        }
         m_spline = SepticSpline1d.viaMatrix(
                 initial.x(), goal.x(),
                 initial.v(), goal.v(),
-                0, 0, 0, 0);
+                adjustedAcceleration, 0, 0, 0); //CHANE TO ACC
         double vScale = m_spline.maxV / vel;
         double aScale = Math.sqrt(m_spline.maxA) / Math.sqrt(acc);
         m_duration = Math.max(vScale, aScale);
@@ -41,6 +48,10 @@ public class SepticSplineProfile implements TimedProfile {
             Util.printf("SepticSplineProfile init duration %f\n", m_duration);
         if (DEBUG)
             Util.printf("sample 0 %s 1 %s\n", m_spline.getPosition(0), m_spline.getPosition(1));
+            System.out.println("V SCALE " + vScale);
+            System.out.println("A SCALE " + aScale);
+            System.out.println("MAX SPLINE A" + m_spline.maxA);
+
     }
 
     @Override

@@ -51,9 +51,9 @@ deploy {
                     jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
                     jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
                     // for ethernet
-                    // jvmArgs.add("-Djava.rmi.server.hostname=10.1.0.2")
+                    jvmArgs.add("-Djava.rmi.server.hostname=10.1.0.2")
                     // for USB
-                    jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2")
+                    // jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2")
                 }
                 ////////////////////////
 

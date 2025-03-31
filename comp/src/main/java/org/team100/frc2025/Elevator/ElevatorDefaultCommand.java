@@ -51,7 +51,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
 
             double goal = 0;
             if(!m_grip.hasAlgae()){
-                goal = 0.05;
+                goal = 0.2;
             } else {
                 goal = 12;
             }
@@ -77,7 +77,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         // if (distanceToReef > 1.6) {
 
             if (!m_grip.hasAlgae()) {
-                double goal = 0.05;
+                double goal = 0.2;
 
                 if (m_wrist.getSafeCondition()) {
                     m_elevator.setPositionNoGravity(goal);

@@ -180,6 +180,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_mechanism.setDutyCycle(dutyCycle);
+    }
+
+    @Override
     public boolean atSetpoint() {
         boolean atSetpoint = m_controller.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);

@@ -46,6 +46,21 @@ public class FieldConstants {
 
   }
 
+  public enum ReefPoint {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L
+  }
+
   public enum ReefDestination {
     LEFT,
     RIGHT,

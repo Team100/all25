@@ -74,6 +74,16 @@ public class Feedforward100 {
                 0.5);
     }
 
+    public static Feedforward100 makeClimber() {
+        return new Feedforward100(
+                0.14,
+                0.05,
+                0.05,
+                0.100,
+                0.1,
+                0.0);
+    }
+
     public static Feedforward100 zero() {
         return new Feedforward100(0, 0, 0, 0, 0, 0);
     }

@@ -2,15 +2,17 @@ package org.team100.lib.commands.drivetrain.manual;
 
 import java.util.function.Supplier;
 
+import org.team100.frc2025.FieldConstants;
+import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.lib.commands.drivetrain.HeadingLatch;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.hid.DriverControl;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
+import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
@@ -32,19 +34,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * 
  * The profile depends on robot speed, making rotation the lowest priority.
  */
-public class ManualWithBargeAssist implements FieldRelativeDriver {
+public class ManualWithProfiledReefLock implements FieldRelativeDriver {
     // don't try to go full speed
-    private static final double PROFILE_SPEED = 0.5;
+    private static final double PROFILE_SPEED = 0.6;
     // accelerate gently to avoid upset
-    private static final double PROFILE_ACCEL = 0.1;
+    private static final double PROFILE_ACCEL = 0.5;
     private final SwerveKinodynamics m_swerveKinodynamics;
-    /** Absolute input supplier, null if free */
-    private final Supplier<Rotation2d> m_desiredRotation;
-    private final HeadingLatch m_latch;
-    private final Feedback100 m_thetaFeedback;
     private final SwerveDriveSubsystem m_drive;
+
+    private final Supplier<Boolean> m_lockToReef;
+
+    private final Feedback100 m_thetaFeedback;
+
     // LOGGERS
-    private final StringLogger m_log_mode;
+    private final BooleanLogger m_log_snap_mode;
     private final DoubleLogger m_log_max_speed;
     private final DoubleLogger m_log_max_accel;
     private final DoubleLogger m_log_goal_theta;
@@ -52,7 +55,9 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
     private final DoubleLogger m_log_theta_FF;
     private final DoubleLogger m_log_theta_FB;
     private final DoubleLogger m_log_output_omega;
+    
 
+    
     // package private for testing
     Rotation2d m_goal = null;
     Control100 m_thetaSetpoint = null;
@@ -66,19 +71,18 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
      * @param thetaController
      * @param omegaController
      */
-    public ManualWithBargeAssist(
+    public ManualWithProfiledReefLock(
             LoggerFactory parent,
             SwerveKinodynamics swerveKinodynamics,
-            Supplier<Rotation2d> desiredRotation,
+            Supplier<Boolean> lockToReef,
             Feedback100 thetaController,
             SwerveDriveSubsystem drive) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
-        m_desiredRotation = desiredRotation;
-        m_thetaFeedback = thetaController;
-        m_latch = new HeadingLatch();
+        m_lockToReef = lockToReef;
         m_drive = drive;
-        m_log_mode = child.stringLogger(Level.TRACE, "mode");
+        m_thetaFeedback = thetaController;
+        m_log_snap_mode = child.booleanLogger(Level.TRACE, "snap mode");
         m_log_max_speed = child.doubleLogger(Level.TRACE, "maxSpeedRad_S");
         m_log_max_accel = child.doubleLogger(Level.TRACE, "maxAccelRad_S2");
         m_log_goal_theta = child.doubleLogger(Level.TRACE, "goal/theta");
@@ -92,7 +96,6 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
     public void reset(SwerveModel state) {
         m_thetaSetpoint = state.theta().control();
         m_goal = null;
-        m_latch.unlatch();
         m_thetaFeedback.reset();
     }
 
@@ -115,23 +118,27 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
             final SwerveModel state,
             final DriverControl.Velocity twist1_1) {
         final FieldRelativeVelocity control = clipAndScale(twist1_1);
-
+        // System.out.println("AHHH");
         final double currentVelocity = state.velocity().norm();
 
         final TrapezoidProfile100 m_profile = makeProfile(currentVelocity);
 
-        final Rotation2d pov = m_desiredRotation.get();
-        m_goal = m_latch.latchedRotation(
-                m_profile.getMaxAcceleration(),
-                state.theta(),
-                pov,
-                control.theta());
+        if(m_lockToReef.get()) {
+            Rotation2d rotationToReef = FieldConstants.angleToReefCenter(m_drive.getPose().getTranslation());
+            // m_goal = FieldConstants.getSectorAngle(currentFieldSector).rotateBy(Rotation2d.k180deg);
+            m_goal = rotationToReef;
+            // System.out.println(currentFieldSector);
+        }else{
+            m_goal = null;
+        }
+
+        // m_goal = Rotation2d.fromDegrees(90);
 
         if (m_goal == null) {
             // we're not in snap mode, so it's pure manual
             // in this case there is no setpoint
             m_thetaSetpoint = null;
-            m_log_mode.log(() -> "free");
+            m_log_snap_mode.log(() -> false);
             return control;
         }
 
@@ -168,9 +175,10 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
                 thetaFF + thetaFB,
                 -m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
+                
         FieldRelativeVelocity twistWithSnapM_S = new FieldRelativeVelocity(control.x(), control.y(), omega);
 
-        m_log_mode.log(() -> "snap");
+        m_log_snap_mode.log(() -> true);
         m_log_goal_theta.log(m_goal::getRadians);
         m_log_setpoint_theta.log(() -> m_thetaSetpoint);
         m_log_theta_FF.log(() -> thetaFF);
@@ -184,26 +192,12 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
     public FieldRelativeVelocity clipAndScale(DriverControl.Velocity twist1_1) {
         // clip the input to the unit circle
         final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
-        double scale = 1;
-        if(clipped.x() > 0){
-            double distance = Math.max(0, (Math.abs(7.42 - m_drive.getPose().getX()))); 
-            scale = distance  *scale;
 
-            // scale = Math.pow(Math.E, - 1.5 * distance); 
-
-            // System.out.println("SCALE: " + scale);
-            // System.out.println("DISTANCE: " + distance);
-        } else {
-            scale = 1;
-        }
-       
-        
-
-        DriverControl.Velocity scaled = new DriverControl.Velocity(clipped.x() * scale, clipped.y(), clipped.theta());
+ 
 
         // scale to max in both translation and rotation
         return DriveUtil.scale(
-                scaled,
+                clipped,
                 m_swerveKinodynamics.getMaxDriveVelocityM_S(),
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S());
     }
