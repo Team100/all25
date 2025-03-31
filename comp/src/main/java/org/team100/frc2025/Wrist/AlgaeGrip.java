@@ -15,9 +15,6 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrip extends SubsystemBase implements Glassy {
@@ -38,21 +35,22 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     public double m_holdPosition;
 
     TalonFX m_motor;
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    NetworkTableEntry entry1;
-    NetworkTableEntry entry2;
+    // NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    // NetworkTableEntry entry1;
+    // NetworkTableEntry entry2;
 
     private static final double m_5to1 = 5.2307692308;
+
 
     public AlgaeGrip(LoggerFactory parent, CoralTunnel tunnel) {
         LoggerFactory child = parent.child(this);
         m_log_hasAlgae = child.booleanLogger(Level.TRACE, "has algae");
         m_tunnel = tunnel;
 
-        NetworkTable table = inst.getTable("My Table");
+        // NetworkTable table = inst.getTable("My Table");
 
-        entry1 = table.getEntry("STATOR");
-        entry2 = table.getEntry("SUPPLY");
+        // entry1 = table.getEntry("STATOR");
+        // entry2 = table.getEntry("SUPPLY");
 
         // m_logRightLimitSwitch = child.booleanLogger(Level.TRACE, "right");
         // m_logLeftLimitSwitch = child.booleanLogger(Level.TRACE, "left");
@@ -121,8 +119,8 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         // This method will be called once per scheduler run
         if (m_motor == null)
             return;
-        entry1.setDouble(m_motor.getStatorCurrent().getValueAsDouble());
-        entry2.setDouble(m_motor.getSupplyCurrent().getValueAsDouble());
+        // entry1.setDouble(m_motor.getStatorCurrent().getValueAsDouble());
+        // entry2.setDouble(m_motor.getSupplyCurrent().getValueAsDouble());
 
     }
 
