@@ -136,7 +136,7 @@ public class SepticSpline1d {
                 4 * d * t * t * t +
                 3 * e * t * t +
                 2 * f * t +
-                e;
+                g;
     }
 
     /**

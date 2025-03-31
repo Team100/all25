@@ -5,8 +5,11 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
+/*************************
+ * DO NOT USE
+ *************************/
 public class SepticSplineProfile implements TimedProfile {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final double vel;
     private final double acc;
@@ -40,6 +43,10 @@ public class SepticSplineProfile implements TimedProfile {
         init(x0, x1, dx0, dx1, ddx0, ddx1, dddx0, dddx1);
     }
 
+    // these are spline units not profile units.
+    // we don't know the profile units until we compute the duration.
+    // TODO: just specify the duration, since the spline doesn't
+    // let you adjust the maxima independently anyway.
     void init(
             double x0, double x1,
             double dx0, double dx1,
@@ -54,10 +61,11 @@ public class SepticSplineProfile implements TimedProfile {
         m_duration = Math.max(vScale, aScale);
         if (Double.isNaN(m_duration))
             m_duration = 0;
-        if (DEBUG)
-            Util.printf("SepticSplineProfile init duration %f\n", m_duration);
-        if (DEBUG)
-            Util.printf("sample 0 %s 1 %s\n", m_spline.getPosition(0), m_spline.getPosition(1));
+        if (DEBUG) {
+            // Util.printf("SepticSplineProfile init duration %f\n", m_duration);
+            // Util.printf("sample 0 %s 1 %s\n", m_spline.getPosition(0),
+            // m_spline.getPosition(1));
+        }
     }
 
     @Override
@@ -71,8 +79,11 @@ public class SepticSplineProfile implements TimedProfile {
         }
         double param = getParam(timeS);
         double x = m_spline.getPosition(param);
-        double v = m_duration < 1e-6 ? m_spline.getVelocity(param) : m_spline.getVelocity(param) / m_duration;
+        double v = m_spline.getVelocity(param) / m_duration;
         double a = m_spline.getAcceleration(param) / (m_duration * m_duration);
+        if (DEBUG)
+            Util.printf("%12.6f  %12.6f  %12.6f  %12.6f\n", timeS, x, v, a);
+
         return new Control100(x, v, a);
     }
 
