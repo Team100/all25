@@ -5,10 +5,12 @@ import java.util.function.DoubleConsumer;
 import org.team100.frc2025.FieldConstants.CoralStation;
 import org.team100.frc2025.FieldConstants.FieldSector;
 import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.FieldConstants.ReefPoint;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
@@ -44,7 +46,7 @@ public class Coral2AutoLeft extends SequentialCommandGroup100 {
                 // First Coral
                 new ParallelCommandGroup100(m_logger, "embark1",
                         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.IJ, ReefDestination.RIGHT,
-                                () -> ScoringPosition.L4),
+                                () -> ScoringPosition.L4, ReefPoint.J),
                         new ParallelRaceGroup100(m_logger, "handoff",
                                 new WaitCommand(2),
                                 new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip))),
@@ -58,7 +60,7 @@ public class Coral2AutoLeft extends SequentialCommandGroup100 {
                         new WaitCommand(0.1),
                         new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)),
                 new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL, ReefDestination.LEFT,
-                        () -> ScoringPosition.L4),
+                        () -> ScoringPosition.L4, ReefPoint.L),
                 new ScoreL4(m_logger, wrist, elevator));
     }
 }

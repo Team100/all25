@@ -39,6 +39,12 @@ public class SimulatedJoystick implements DriverControl {
 
     @Override
     public boolean fullCycle() {
+        // return button(1);
+        return false;
+    }
+
+    @Override
+    public boolean useReefLock() {
         return button(1);
     }
 
