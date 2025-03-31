@@ -25,6 +25,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
+    private static final boolean VISUALIZE = false;
     private static final double kElevatorMaximumPosition = 56.0;
     private static final double kElevatorMinimumPosition = 0.0;
     private static final double kElevatorReduction = 2;
@@ -38,7 +39,7 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final SelectProfiledController m_starboardController;
     private final SelectProfiledController m_portController;
 
-    private final ElevatorVisualization m_viz;
+    private final Runnable m_viz;
     private final PolledEnumChooser<ProfileChoice> m_profileChooser;
 
     private boolean m_isSafe = false;
@@ -64,14 +65,13 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorSupplyLimit = 60;
         int elevatorStatorLimit = 90;
 
-
         // TODO: review these constants
         final double maxVel = 190;
         final double maxAccel = 210;
         final double stallAccel = 1000;
         final double maxJerk = 500;
-      
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(1.5); //6.7
+
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(1.5); // 6.7
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
@@ -224,7 +224,12 @@ public class Elevator extends SubsystemBase implements Glassy {
             }
 
         }
-        m_viz = new ElevatorVisualization(this);
+        if (VISUALIZE) {
+            m_viz = new ElevatorVisualization(this);
+        } else {
+            m_viz = () -> {
+            };
+        }
     }
 
     @Override
@@ -232,7 +237,7 @@ public class Elevator extends SubsystemBase implements Glassy {
         // This method will be called once per scheduler run
         starboardServo.periodic();
         portServo.periodic();
-        m_viz.viz();
+        m_viz.run();
     }
 
     public void resetElevatorProfile() {

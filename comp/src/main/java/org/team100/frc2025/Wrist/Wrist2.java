@@ -44,6 +44,7 @@ import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
+    private static final boolean VISUALIZE = false;
     private static final int GEAR_RATIO = 25;
 
     // true: use the outboard servo, give the motor position
@@ -64,7 +65,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final RotaryMechanism m_wristMech;
     private final SelectProfiledController m_controller;
     private final BooleanLogger safeLogger;
-    private final WristVisualization m_viz;
+    private final Runnable m_viz;
     private final PolledEnumChooser<ProfileChoice> m_profileChooser;
 
     public Wrist2(
@@ -79,7 +80,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         int algaeCurrentLimit = 20;
         int coralCurrentLimit = 20;
 
-        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); //0.3
+        PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); // 0.3
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
@@ -90,11 +91,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                     kPositionTolerance, 0.1);
         } else {
             wristFeedback = new FullStateFeedback(wristLogger,
-                     3.0, 0.10, x -> x, 0.05, 0.05);
+                    3.0, 0.10, x -> x, 0.05, 0.05);
         }
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
-        // kPositionTolerance); 
+        // kPositionTolerance);
 
         double maxVel = 40;
         double maxAccel = 40;
@@ -153,7 +154,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         0.1,
                         0.05);
                 m_profileChooser.register(m_controller::setDelegate);
-
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
@@ -246,14 +246,19 @@ public class Wrist2 extends SubsystemBase implements Glassy {
             }
 
         }
-        m_viz = new WristVisualization(this);
+        if (VISUALIZE) {
+            m_viz = new WristVisualization(this);
+        } else {
+            m_viz = () -> {
+            };
+        }
     }
 
     @Override
     public void periodic() {
         wristServo.periodic();
         safeLogger.log(() -> m_isSafe);
-        m_viz.viz();
+        m_viz.run();
     }
 
     public void resetWristProfile() {
