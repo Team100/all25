@@ -244,7 +244,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("*************I FINISHED EMBBARKING********************");
+        // System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

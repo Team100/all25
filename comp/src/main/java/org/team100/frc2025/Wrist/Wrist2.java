@@ -159,7 +159,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_controller = new TimedProfiledController(parent,
                         new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
-                        wristFeedback, x -> x, 0.1, 0.05);
+                        wristFeedback, x -> x, 0.1, 0.1); //WAS 0.05
                 // m_profileChooser.register(m_controller::setDelegate);
 
 

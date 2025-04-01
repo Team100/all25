@@ -47,7 +47,7 @@ public class ScoreBargeSmart extends Command {
     //         m_grip.applyLowConfigs();
     //     }
     // } else {
-      m_elevator.setPosition(20.0);
+      m_elevator.setPosition(57.0);
       m_wrist.setAngleValue(2.0);
 
     //   if(Math.abs(m_elevator.getPosition[]\() - 57) < 0.5){
