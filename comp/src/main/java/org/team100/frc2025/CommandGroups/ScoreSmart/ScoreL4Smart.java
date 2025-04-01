@@ -7,10 +7,6 @@ package org.team100.frc2025.CommandGroups.ScoreSmart;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.FieldConstants.ReefPoint;
-import org.team100.frc2025.CommandGroups.PostDropCoralL4;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.HoldWristAndElevator;
