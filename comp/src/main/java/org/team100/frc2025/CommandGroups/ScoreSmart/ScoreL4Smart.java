@@ -7,6 +7,9 @@ package org.team100.frc2025.CommandGroups.ScoreSmart;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
+import org.team100.frc2025.FieldConstants.FieldSector;
+import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.frc2025.FieldConstants.ReefPoint;
 import org.team100.frc2025.CommandGroups.PostDropCoralL4;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
@@ -33,7 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ScoreL4Smart extends SequentialCommandGroup100 {
     /** Creates a new ScoreL1Smart. */
-    public ScoreL4Smart(LoggerFactory logger,
+    public  ScoreL4Smart(LoggerFactory logger,
             Wrist2 wrist,
             Elevator elevator,
             CoralTunnel tunnel,
@@ -48,28 +51,8 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
         super(logger, "ScoreL4Smart");
 
         Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
+        
         addCommands(
-                // new ParallelDeadlineGroup100(m_logger, "drive",
-                //         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
-                //         new SequentialCommandGroup100(m_logger, "out",
-                //                 // new WaitUntilWithinRadius(m_drive),
-                //                 new SetWrist(wrist, 0.4, false),
-                //                 new PrePlaceCoralL4(wrist, elevator, 47, true))),
-                // new ParallelDeadlineGroup100(m_logger, "up",
-                //         new SetWrist(wrist, 1.25, false),
-                //         new SetElevatorPerpetually(elevator, 47)),
-                // new ParallelDeadlineGroup100(m_logger, "score",
-                //         new SetElevator(m_logger, elevator, 40, false),
-                //         new SetWrist(wrist, 1.25, true)),
-                // new ParallelDeadlineGroup100(m_logger, "down",
-                //         new SetElevator(m_logger, elevator, 10, false),
-                //         new SetWrist(wrist, 0.5, true))
-
-
-
-                        // new PostDropCoralL4(wrist, elevator, 10),
-
-
                 new ParallelCommandGroup100(m_logger, "drive",
                         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
 
@@ -77,20 +60,8 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
                                 new SetWrist(wrist, 0.4, false),
                                 new PrePlaceCoralL4(wrist, elevator, 47, false, holdingCommand))),
 
-                // new ParallelCommandGroup100(logger, "check if its out", new SetWrist(wrist, 1.25, true), new SetElevator(logger, elevator, 0, isScheduled()))
                 // new SetElevatorAndWrist(elevator, wrist, 47, 1.25),
                 new PostDropCoralL4(wrist, elevator, 10, holdingCommand)
-                
-                // new ParallelDeadlineGroup100(m_logger, "up",
-                //         new SetWrist(wrist, 1.25, false),
-                //         new SetElevatorPerpetually(elevator, 47)),
-                // new ParallelDeadlineGroup100(m_logger, "score",
-                //         new SetElevator(m_logger, elevator, 40, false),
-                //         new SetWrist(wrist, 1.25, true)),
-                // new ParallelDeadlineGroup100(m_logger, "down",
-                //         new SetElevator(m_logger, elevator, 10, false),
-                //         new SetWrist(wrist, 0.5, true))
-
 
 
         );

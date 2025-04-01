@@ -186,16 +186,19 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
         final DriverControl.Velocity clipped = DriveUtil.clampTwist(twist1_1, 1.0);
         double scale = 1;
         if(clipped.x() > 0){
-            double distance = Math.max(0, (Math.abs(7.42 - m_drive.getPose().getX()))); 
-            scale = distance  *scale;
-
-            // scale = Math.pow(Math.E, - 1.5 * distance); 
-
-            // System.out.println("SCALE: " + scale);
-            // System.out.println("DISTANCE: " + distance);
+            double distance = 7.42 - m_drive.getPose().getX();
+            scale = distance*scale;
+            
+            if (Math.abs(distance) < 0.05) {
+                scale = 0;
+            } else {
+                scale = distance * scale;
+            }
         } else {
             scale = 1;
         }
+
+        
        
         
 

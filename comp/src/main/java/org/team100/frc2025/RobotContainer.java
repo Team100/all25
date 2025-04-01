@@ -12,6 +12,8 @@ import java.util.function.BooleanSupplier;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
 import org.team100.frc2025.Climber.ClimberRotateOverride;
+import org.team100.frc2025.Climber.SetClimber;
+import org.team100.frc2025.CommandGroups.GoToAndRunFunnel;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
@@ -331,7 +333,7 @@ public class RobotContainer implements Glassy {
             driverControl::driveWithBargeAssist);
 
 
-        m_drive.setDefaultCommand(driveDefault); //driveManually
+        m_drive.setDefaultCommand(driveDefault); //driveDefault
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
@@ -440,6 +442,7 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
 
+        // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
         //3/27/25 Marcelo auto run funnel in corners
         //NearStation run = new NearStation(m_drive:: getPose);
         //whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));

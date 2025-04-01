@@ -52,7 +52,8 @@ public class ScoreL2Smart extends SequentialCommandGroup {
                         new SequentialCommandGroup100(logger, "out",
                                 // new WaitUntilWithinRadius(m_drive),
                                 new SetWrist(wrist, 0.4, false),
-                                new PrePlaceCoralL2(wrist, elevator, 10.5, true))),
+                                new PrePlaceCoralL2(wrist, elevator, 10.5, true))
+        ),
         new ParallelDeadlineGroup100(logger, "score",
                         new SetElevator(logger, elevator, 10.5, false),
                         new SetWrist(wrist, 0.55, true)),

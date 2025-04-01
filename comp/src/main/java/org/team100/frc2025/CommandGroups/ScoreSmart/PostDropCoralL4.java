@@ -1,4 +1,4 @@
-package org.team100.frc2025.CommandGroups;
+package org.team100.frc2025.CommandGroups.ScoreSmart;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
