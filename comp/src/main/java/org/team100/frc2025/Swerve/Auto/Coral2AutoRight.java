@@ -2,15 +2,12 @@ package org.team100.frc2025.Swerve.Auto;
 
 import java.util.function.DoubleConsumer;
 
-import org.team100.frc2025.FieldConstants.CoralStation;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
+
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL3;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
-import org.team100.frc2025.CommandGroups.PostDropCoralL4;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.Elevator.Elevator;
@@ -64,7 +61,7 @@ public class Coral2AutoRight extends SequentialCommandGroup100 {
                         )
                 ),
                 new PostDropCoralL4(wrist, elevator, 10),
-                
+
                 // new ParallelDeadlineGroup100(m_logger, "pick", 
                         new GoToCoralStation(m_logger, m_drive, controller, viz, kinodynamics, CoralStation.Right, 0.5)
                         // new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
