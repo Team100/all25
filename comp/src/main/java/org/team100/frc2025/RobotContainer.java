@@ -133,8 +133,6 @@ public class RobotContainer implements Glassy {
 
     private final ScheduledExecutorService m_initializer;
 
-    // final AlgaeIntake m_intake;
-
     private final Runnable m_simulatedTagDetector;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
@@ -158,9 +156,6 @@ public class RobotContainer implements Glassy {
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
         final ThirdControl buttons = new ThirdControlProxy(async);
-
-        Buttons2025Demo demo = new Buttons2025Demo(buttons);
-        // demo.setup();
 
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);
