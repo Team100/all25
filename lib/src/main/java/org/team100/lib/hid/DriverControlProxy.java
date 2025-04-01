@@ -189,4 +189,9 @@ public class DriverControlProxy implements DriverControl {
         return m_driverControl.driveWithBargeAssist();
     }
 
+    @Override
+    public boolean climb() {
+        return m_driverControl.climb();
+    }
+
 }

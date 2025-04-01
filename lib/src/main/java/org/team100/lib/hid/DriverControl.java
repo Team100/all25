@@ -128,6 +128,11 @@ public interface DriverControl extends Glassy {
         return false;
     }
 
+    default boolean climb(){
+        return false;
+    }
+
+
     default boolean feedFunnel(){
         return false;
     }

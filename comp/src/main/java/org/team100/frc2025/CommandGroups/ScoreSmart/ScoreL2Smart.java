@@ -59,7 +59,7 @@ public class ScoreL2Smart extends SequentialCommandGroup {
                         new SetWrist(wrist, 0.55, true)),
         new ParallelDeadlineGroup100(logger, "down",
                         new SetElevator(logger, elevator, 1.5, false),
-                        new SetWrist(wrist, 0.65, true))
+                        new SetWrist(wrist, 0.70, true))
     );
   }
 }
