@@ -225,4 +225,10 @@ public class DriverXboxControl implements DriverControl {
         return m_controller.getRightBumperButton();
     }
 
+    @Override
+    public boolean climb(){
+        return m_controller.getYButton();
+    }
+
+
 }

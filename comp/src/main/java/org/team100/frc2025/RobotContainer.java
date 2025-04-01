@@ -23,6 +23,7 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
+import org.team100.frc2025.Funnel.ReleaseFunnel;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
@@ -357,6 +358,7 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
         whileTrue(driverControl::feedFunnel,  new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        whileTrue(driverControl::climb,  new SetClimber(m_climber, 0.5));
 
 
         whileTrue(driverControl::driveToTag, buttons::a,
@@ -440,8 +442,8 @@ public class RobotContainer implements Glassy {
 
         whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
-        whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
-
+        // whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
+        whileTrue(buttons::barge, new ReleaseFunnel(logger, m_funnel, m_climber));
         // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
         //3/27/25 Marcelo auto run funnel in corners
         //NearStation run = new NearStation(m_drive:: getPose);
