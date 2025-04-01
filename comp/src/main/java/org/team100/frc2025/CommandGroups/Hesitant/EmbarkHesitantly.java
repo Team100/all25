@@ -1,9 +1,9 @@
 package org.team100.frc2025.CommandGroups.Hesitant;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;

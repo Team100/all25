@@ -3,9 +3,9 @@ package org.team100.frc2025.Swerve.Auto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;

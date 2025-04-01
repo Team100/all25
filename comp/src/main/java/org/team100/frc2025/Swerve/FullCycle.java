@@ -3,7 +3,7 @@ package org.team100.frc2025.Swerve;
 import java.util.List;
 import java.util.function.DoubleConsumer;
 
-import org.team100.frc2025.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.SequentialCommandGroup100;

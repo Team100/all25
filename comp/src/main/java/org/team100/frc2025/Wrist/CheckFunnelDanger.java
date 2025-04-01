@@ -4,8 +4,6 @@
 
 package org.team100.frc2025.Wrist;
 
-import java.io.FileInputStream;
-
 import org.team100.frc2025.Elevator.Elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;

@@ -1,8 +1,8 @@
 package org.team100.frc2025.Swerve.Auto;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;

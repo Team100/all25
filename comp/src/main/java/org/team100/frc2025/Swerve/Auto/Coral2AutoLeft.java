@@ -2,19 +2,18 @@ package org.team100.frc2025.Swerve.Auto;
 
 import java.util.function.DoubleConsumer;
 
-import org.team100.frc2025.FieldConstants.CoralStation;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.FieldConstants.ReefPoint;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
-import org.team100.frc2025.Swerve.SemiAuto.ReefPath;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.commands.drivetrain.FieldConstants.CoralStation;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.framework.ParallelCommandGroup100;

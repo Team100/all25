@@ -2,13 +2,11 @@ package org.team100.frc2025.Swerve;
 
 import java.util.function.DoubleConsumer;
 
-import org.team100.frc2025.FieldConstants.CoralStation;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.Auto.GoToReefDestination;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
-import org.team100.lib.config.ElevatorUtil.ScoringPosition;
+import org.team100.lib.commands.drivetrain.FieldConstants.CoralStation;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.controller.drivetrain.SwerveControllerFactory;
 import org.team100.lib.framework.SequentialCommandGroup100;

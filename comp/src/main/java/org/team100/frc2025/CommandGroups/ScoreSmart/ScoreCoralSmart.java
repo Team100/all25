@@ -4,13 +4,12 @@ import java.util.Map;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.FieldConstants.ReefPoint;
-import org.team100.frc2025.CommandGroups.ScoreL2;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.framework.SequentialCommandGroup100;
