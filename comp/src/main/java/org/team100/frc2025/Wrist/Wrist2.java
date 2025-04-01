@@ -5,14 +5,9 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.Feedback100;
-
 import org.team100.lib.controller.simple.FullStateFeedback;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
-import org.team100.lib.controller.simple.*;
-
-import org.team100.lib.controller.simple.PIDFeedback;
-import org.team100.lib.controller.simple.SelectProfiledController;
-import org.team100.lib.controller.simple.SelectProfiledController.ProfileChoice;
+import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.TimedProfiledController;
 import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
@@ -25,7 +20,6 @@ import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.FieldLogger.Log;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.motion.mechanism.LimitedRotaryMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
@@ -41,7 +35,6 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
-import org.team100.lib.util.PolledEnumChooser;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,7 +62,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final ProfiledController m_controller;
     private final BooleanLogger safeLogger;
     private final Runnable m_viz;
-    private final PolledEnumChooser<ProfileChoice> m_profileChooser;
 
     public Wrist2(
             LoggerFactory parent,
@@ -102,18 +94,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         double maxVel = 40;
         double maxAccel = 40;
-        double stallAccel = 60;
         double maxJerk = 70;
-
-        // ProfiledController controller = makeProfiledController(
-        // wristLogger,
-        // wristFeedback,
-        // maxVel,
-        // maxAccel,
-        // stallAccel,
-        // maxJerk,
-        // kPositionTolerance,
-        // kVelocityTolerance);
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 5,
         // kPositionTolerance); // TODO CHANGE THESE
@@ -125,12 +106,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         // wristSlowProfile, 0.2);
 
         safeLogger = wristLogger.booleanLogger(Level.TRACE, "Wrist Safe Condition");
-
-        m_profileChooser = new PolledEnumChooser<>(
-                async,
-                ProfileChoice.class,
-                "wrist profile",
-                ProfileChoice.JERK_LIMITED);
 
         switch (Identity.instance) {
             case COMP_BOT -> {
@@ -145,26 +120,22 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         EncoderDrive.DIRECT,
                         false);
 
-     
-
-
                 m_controller = new TimedProfiledController(parent,
                         new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
-                        wristFeedback, x -> x, 0.1, 0.1); //WAS 0.05
-
+                        wristFeedback, x -> x, 0.1, 0.1); // WAS 0.05
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(
+                m_wristMech = new SimpleRotaryMechanism(
                         wristLogger,
                         wristMotor,
                         internalWristEncoder,
                         GEAR_RATIO);
 
-                // TODO: what are the correct limits?
-                RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition, 4);
-
-                m_wristMech = wristMech;
+                RotaryMechanism limitedMech = new LimitedRotaryMechanism(
+                        m_wristMech,
+                        kWristMinimumPosition,
+                        kWristMaximumPosition);
 
                 // Feedback100 wristFeedback = new PIDFeedback(child, 7.5, 0.00, 0.000, false,
                 // kPositionTolerance,
@@ -178,7 +149,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // IncrementalProfiledController(wristProfile, wristFeedback, x -> x,
                 // kPositionTolerance, kPositionTolerance);
 
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
+                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, m_wristMech);
 
                 AngularPositionServo wristServoWithoutGravity;
                 if (OUTBOARD_SERVO) {
@@ -209,21 +180,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition,
                         kWristMaximumPosition);
 
-                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech,
+                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(
+                        wristLogger,
+                        wristMech,
                         () -> 0);
 
-                // m_controller = new SelectProfiledController(
-                // wristLogger,
-                // wristFeedback,
-                // x -> x,
-                // () -> encoder.getPositionRad().orElseThrow(),
-                // maxVel,
-                // maxAccel,
-                // stallAccel,
-                // maxJerk,
-                // kPositionTolerance,
-                // kVelocityTolerance);
-                // m_profileChooser.register(m_controller::setDelegate);
                 m_controller = new TimedProfiledController(wristLogger,
                         new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
                         wristFeedback, x -> x, 0.1, 0.05);
@@ -243,8 +204,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 m_wristMech = limitedMech;
 
                 m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
-                // m_algaeMech = Neo550Factory.getNEO550LinearMechanism(getName(), child,
-                // algaeCurrentLimit, algaeID, 1, MotorPhase.FORWARD, 1);
             }
 
         }
@@ -316,6 +275,5 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     public void close() {
         m_controller.close();
-        m_profileChooser.close();
     }
 }
