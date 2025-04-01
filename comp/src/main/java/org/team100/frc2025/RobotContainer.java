@@ -474,7 +474,7 @@ public class RobotContainer implements Glassy {
     }
 
     public void initStuff() {
-        Util.println("******** Pre-initializing some expensive things ... ");
+        Util.println("\n******** Pre-initializing some expensive things ... ");
         double startS = Takt.actual();
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
@@ -492,7 +492,7 @@ public class RobotContainer implements Glassy {
         System.gc();
 
         double endS = Takt.actual();
-        Util.printf("... Initialization ET: %f\n", endS - startS);
+        Util.printf("\n... Initialization ET: %f\n", endS - startS);
     }
 
     public void beforeCommandCycle() {

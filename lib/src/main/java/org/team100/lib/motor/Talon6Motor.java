@@ -19,10 +19,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
 /**
@@ -118,7 +116,8 @@ public abstract class Talon6Motor implements BareMotor {
         // Cache the status signal getters.
         final StatusSignal<Angle> motorPosition = m_motor.getPosition();
         final StatusSignal<AngularVelocity> motorVelocity = m_motor.getVelocity();
-        // final StatusSignal<AngularAcceleration> motorAcceleration = m_motor.getAcceleration();
+        // final StatusSignal<AngularAcceleration> motorAcceleration =
+        // m_motor.getAcceleration();
         final StatusSignal<Double> motorDutyCycle = m_motor.getDutyCycle();
         final StatusSignal<Double> motorClosedLoopError = m_motor.getClosedLoopError();
         final StatusSignal<Current> motorSupplyCurrent = m_motor.getSupplyCurrent();
@@ -256,7 +255,8 @@ public abstract class Talon6Motor implements BareMotor {
      * Motor revolutions wind up, so setting 0 revs and 1 rev are different.
      */
     @Override
-    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorAccelRad_S2, double motorTorqueNm) {
+    public void setPosition(double motorPositionRad, double motorVelocityRad_S, double motorAccelRad_S2,
+            double motorTorqueNm) {
         final double motorRev = motorPositionRad / (2 * Math.PI);
         final double motorRev_S = motorVelocityRad_S / (2 * Math.PI);
         final double motorRev_S2 = motorAccelRad_S2 / (2 * Math.PI);
@@ -287,7 +287,6 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_torque_FF.log(() -> torqueFFVolts);
         m_log_accel_FF.log(() -> accelFFVolts);
         m_totalFeedForward.log(() -> kFFVolts);
-
 
         log();
     }
@@ -370,19 +369,15 @@ public abstract class Talon6Motor implements BareMotor {
         m_log_stator.log(m_stator);
         // m_log_torque.log(this::getMotorTorque);
         // m_log_temp.log(m_temp);
-        // if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
-        // Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
-        // m_motor.getDeviceID(),
-        // m_supplyVoltage.getAsDouble(),
-        // RobotController.getBatteryVoltage());
     }
 
     // private double getMotorTorque() {
-    //     // I looked into latency compensation of this signal but it doesn't seem
-    //     // possible. latency compensation requires a signal and its time derivative,
-    //     // e.g. position and velocity, or yaw and angular velocity. There doesn't seem
-    //     // to be such a thing for current.
-    //     return m_torque.getAsDouble() * kTNm_amp();
+    // // I looked into latency compensation of this signal but it doesn't seem
+    // // possible. latency compensation requires a signal and its time derivative,
+    // // e.g. position and velocity, or yaw and angular velocity. There doesn't
+    // seem
+    // // to be such a thing for current.
+    // return m_torque.getAsDouble() * kTNm_amp();
     // }
 
     @Override
