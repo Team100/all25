@@ -43,14 +43,14 @@ public abstract class Talon6Motor implements BareMotor {
     /** position is latency-compensated. */
     protected final DoubleCache m_position;
     protected final DoubleCache m_velocity;
-    protected final DoubleCache m_acceleration;
+    // protected final DoubleCache m_acceleration;
     protected final DoubleCache m_dutyCycle;
     protected final DoubleCache m_error;
     protected final DoubleCache m_supply;
     protected final DoubleCache m_supplyVoltage;
     protected final DoubleCache m_stator;
-    protected final DoubleCache m_temp;
-    protected final DoubleCache m_torque;
+    // protected final DoubleCache m_temp;
+    // protected final DoubleCache m_torque;
 
     // caching the control requests saves allocation
     private final VelocityVoltage m_velocityVoltage;
@@ -71,14 +71,14 @@ public abstract class Talon6Motor implements BareMotor {
     private final DoubleLogger m_log_torque_FF;
     private final DoubleLogger m_log_position;
     private final DoubleLogger m_log_velocity;
-    private final DoubleLogger m_log_accel;
+    // private final DoubleLogger m_log_accel;
     private final DoubleLogger m_log_output;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_supply;
     private final DoubleLogger m_log_supplyVoltage;
     private final DoubleLogger m_log_stator;
-    private final DoubleLogger m_log_torque;
-    private final DoubleLogger m_log_temp;
+    // private final DoubleLogger m_log_torque;
+    // private final DoubleLogger m_log_temp;
 
     protected Talon6Motor(
             LoggerFactory parent,
@@ -118,26 +118,26 @@ public abstract class Talon6Motor implements BareMotor {
         // Cache the status signal getters.
         final StatusSignal<Angle> motorPosition = m_motor.getPosition();
         final StatusSignal<AngularVelocity> motorVelocity = m_motor.getVelocity();
-        final StatusSignal<AngularAcceleration> motorAcceleration = m_motor.getAcceleration();
+        // final StatusSignal<AngularAcceleration> motorAcceleration = m_motor.getAcceleration();
         final StatusSignal<Double> motorDutyCycle = m_motor.getDutyCycle();
         final StatusSignal<Double> motorClosedLoopError = m_motor.getClosedLoopError();
         final StatusSignal<Current> motorSupplyCurrent = m_motor.getSupplyCurrent();
         final StatusSignal<Voltage> motorSupplyVoltage = m_motor.getSupplyVoltage();
         final StatusSignal<Current> motorStatorCurrent = m_motor.getStatorCurrent();
-        final StatusSignal<Temperature> motorDeviceTemp = m_motor.getDeviceTemp();
-        final StatusSignal<Current> motorTorqueCurrent = m_motor.getTorqueCurrent();
+        // final StatusSignal<Temperature> motorDeviceTemp = m_motor.getDeviceTemp();
+        // final StatusSignal<Current> motorTorqueCurrent = m_motor.getTorqueCurrent();
 
         // The memoizer refreshes all the signals at once.
         Memo.registerSignal(motorPosition);
         Memo.registerSignal(motorVelocity);
-        Memo.registerSignal(motorAcceleration);
+        // Memo.registerSignal(motorAcceleration);
         Memo.registerSignal(motorDutyCycle);
         Memo.registerSignal(motorClosedLoopError);
         Memo.registerSignal(motorSupplyCurrent);
         Memo.registerSignal(motorSupplyVoltage);
         Memo.registerSignal(motorStatorCurrent);
-        Memo.registerSignal(motorDeviceTemp);
-        Memo.registerSignal(motorTorqueCurrent);
+        // Memo.registerSignal(motorDeviceTemp);
+        // Memo.registerSignal(motorTorqueCurrent);
 
         // None of these need to refresh.
         // this latency compensation uses takt time rather than the real clock.
@@ -152,13 +152,13 @@ public abstract class Talon6Motor implements BareMotor {
                 });
         m_velocity = Memo.ofDouble(() -> motorVelocity.getValueAsDouble());
         m_dutyCycle = Memo.ofDouble(() -> motorDutyCycle.getValueAsDouble());
-        m_acceleration = Memo.ofDouble(() -> motorAcceleration.getValueAsDouble());
+        // m_acceleration = Memo.ofDouble(() -> motorAcceleration.getValueAsDouble());
         m_error = Memo.ofDouble(() -> motorClosedLoopError.getValueAsDouble());
         m_supply = Memo.ofDouble(() -> motorSupplyCurrent.getValueAsDouble());
         m_supplyVoltage = Memo.ofDouble(() -> motorSupplyVoltage.getValueAsDouble());
         m_stator = Memo.ofDouble(() -> motorStatorCurrent.getValueAsDouble());
-        m_temp = Memo.ofDouble(() -> motorDeviceTemp.getValueAsDouble());
-        m_torque = Memo.ofDouble(() -> motorTorqueCurrent.getValueAsDouble());
+        // m_temp = Memo.ofDouble(() -> motorDeviceTemp.getValueAsDouble());
+        // m_torque = Memo.ofDouble(() -> motorTorqueCurrent.getValueAsDouble());
 
         m_log_desired_duty = child.doubleLogger(Level.TRACE, "desired duty cycle [-1,1]");
         m_log_desired_position = child.doubleLogger(Level.DEBUG, "desired position (rev)");
@@ -172,14 +172,14 @@ public abstract class Talon6Motor implements BareMotor {
 
         m_log_position = child.doubleLogger(Level.DEBUG, "position (rev)");
         m_log_velocity = child.doubleLogger(Level.COMP, "velocity (rev_s)");
-        m_log_accel = child.doubleLogger(Level.TRACE, "accel (rev_s2)");
+        // m_log_accel = child.doubleLogger(Level.TRACE, "accel (rev_s2)");
         m_log_output = child.doubleLogger(Level.COMP, "output [-1,1]");
         m_log_error = child.doubleLogger(Level.TRACE, "error (rev_s)");
         m_log_supply = child.doubleLogger(Level.DEBUG, "supply current (A)");
         m_log_supplyVoltage = child.doubleLogger(Level.DEBUG, "supply voltage (V)");
         m_log_stator = child.doubleLogger(Level.TRACE, "stator current (A)");
-        m_log_torque = child.doubleLogger(Level.TRACE, "torque (Nm)");
-        m_log_temp = child.doubleLogger(Level.TRACE, "temperature (C)");
+        // m_log_torque = child.doubleLogger(Level.TRACE, "torque (Nm)");
+        // m_log_temp = child.doubleLogger(Level.TRACE, "temperature (C)");
 
         child.intLogger(Level.TRACE, "Device ID").log(() -> canId);
     }
@@ -362,14 +362,14 @@ public abstract class Talon6Motor implements BareMotor {
     protected void log() {
         m_log_position.log(m_position);
         m_log_velocity.log(m_velocity);
-        m_log_accel.log(m_acceleration);
+        // m_log_accel.log(m_acceleration);
         m_log_output.log(m_dutyCycle);
         m_log_error.log(m_error);
         m_log_supply.log(m_supply);
         m_log_supplyVoltage.log(m_supplyVoltage);
         m_log_stator.log(m_stator);
-        m_log_torque.log(this::getMotorTorque);
-        m_log_temp.log(m_temp);
+        // m_log_torque.log(this::getMotorTorque);
+        // m_log_temp.log(m_temp);
         // if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
         // Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
         // m_motor.getDeviceID(),
@@ -377,13 +377,13 @@ public abstract class Talon6Motor implements BareMotor {
         // RobotController.getBatteryVoltage());
     }
 
-    private double getMotorTorque() {
-        // I looked into latency compensation of this signal but it doesn't seem
-        // possible. latency compensation requires a signal and its time derivative,
-        // e.g. position and velocity, or yaw and angular velocity. There doesn't seem
-        // to be such a thing for current.
-        return m_torque.getAsDouble() * kTNm_amp();
-    }
+    // private double getMotorTorque() {
+    //     // I looked into latency compensation of this signal but it doesn't seem
+    //     // possible. latency compensation requires a signal and its time derivative,
+    //     // e.g. position and velocity, or yaw and angular velocity. There doesn't seem
+    //     // to be such a thing for current.
+    //     return m_torque.getAsDouble() * kTNm_amp();
+    // }
 
     @Override
     public void periodic() {

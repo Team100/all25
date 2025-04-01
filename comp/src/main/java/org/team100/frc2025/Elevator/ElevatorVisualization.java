@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
-public class ElevatorVisualization {
+public class ElevatorVisualization implements Runnable {
     private static final double kScale = 2.0;
 
     private final Elevator m_elevator;
@@ -55,7 +55,8 @@ public class ElevatorVisualization {
         SmartDashboard.putData("Elevator", m_mechanism);
     }
 
-    public void viz() {
+    @Override
+    public void run() {
         if (Logging.instance().getLevel().admit(Level.TRACE)) {
             double position = m_elevator.getPosition();
             double stage1Position = Math.max(5, kScale * (position - 23.5));
@@ -66,5 +67,4 @@ public class ElevatorVisualization {
             carriageRoot.setPosition(35, kScale * (position) + 5);
         }
     }
-
 }

@@ -9,42 +9,33 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
-import org.team100.frc2025.FieldConstants.ReefPoint;
 import org.team100.frc2025.Climber.Climber;
 import org.team100.frc2025.Climber.ClimberDefault;
-import org.team100.frc2025.Climber.ClimberRotate;
 import org.team100.frc2025.Climber.ClimberRotateOverride;
 import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.GoToAndRunFunnel;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
-import org.team100.frc2025.CommandGroups.ScoreBarge;
 import org.team100.frc2025.CommandGroups.ScoreBargeSmart;
-// import org.team100.frc2025.CommandGroups.ScoreCoral;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.CommandGroups.ScoreSmart.ScoreCoralSmart;
-import org.team100.frc2025.CommandGroups.ScoreSmart.ScoreL4Smart;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
-import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
-import org.team100.frc2025.Swerve.Auto.Coral2AutoRight;
-import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
 import org.team100.lib.commands.Buttons2025Demo;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.commands.drivetrain.ResetPose;
 import org.team100.lib.commands.drivetrain.SetRotation;
 import org.team100.lib.commands.drivetrain.manual.DriveManually;
@@ -108,8 +99,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -146,8 +135,6 @@ public class RobotContainer implements Glassy {
 
     private final ScheduledExecutorService m_initializer;
 
-    // final AlgaeIntake m_intake;
-
     private final Runnable m_simulatedTagDetector;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
@@ -171,9 +158,6 @@ public class RobotContainer implements Glassy {
         final DriverControl driverControl = new DriverControlProxy(logger, async);
         final OperatorControl operatorControl = new OperatorControlProxy(async);
         final ThirdControl buttons = new ThirdControlProxy(async);
-
-        Buttons2025Demo demo = new Buttons2025Demo(buttons);
-        // demo.setup();
 
         if (Identity.instance.equals(Identity.COMP_BOT)) {
             // m_leds = new LEDIndicator(0);

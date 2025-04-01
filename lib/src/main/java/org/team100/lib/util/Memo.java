@@ -1,11 +1,12 @@
 package org.team100.lib.util;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 
 /**
  * Cache a supplier until reset().
@@ -58,7 +59,10 @@ public class Memo {
     /** Should be run in Robot.robotPeriodic(). */
     public static void resetAll() {
         if (!signals.isEmpty()) {
-            BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
+            StatusCode result = BaseStatusSignal.refreshAll(signals.toArray(new BaseStatusSignal[0]));
+            if (result != StatusCode.OK) {
+                Util.warnf("RefreshAll failed: %s: %s\n", result.toString(), result.getDescription());
+            }
         }
         for (CotemporalCache<?> r : resetters) {
             r.reset();

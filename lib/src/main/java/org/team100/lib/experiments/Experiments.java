@@ -29,13 +29,11 @@ public class Experiments implements Glassy {
     private final Set<Experiment> globalExperiments = Set.of(
             Experiment.AvoidVisionJitter,
             Experiment.HeedVision,
-            Experiment.ReduceCrossTrackError,
-            Experiment.UseSetpointGenerator);
+            Experiment.ReduceCrossTrackError);
 
     /** These experiments are enabled on specific robot types. */
     private final Map<Identity, Set<Experiment>> experimentsByIdentity = Map.of(
-            Identity.COMP_BOT, Set.of(
-                    Experiment.UseSetpointGenerator));
+            Identity.COMP_BOT, Set.of());
 
     /** Computed for the actual identity used. */
     private final Set<Experiment> m_experiments;

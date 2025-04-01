@@ -2,9 +2,7 @@ package org.team100.lib.commands.drivetrain.manual;
 
 import java.util.function.Supplier;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.lib.commands.drivetrain.HeadingLatch;
+import org.team100.lib.commands.drivetrain.FieldConstants;
 import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.hid.DriverControl;
