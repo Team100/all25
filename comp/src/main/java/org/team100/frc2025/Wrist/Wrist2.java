@@ -36,7 +36,6 @@ import org.team100.lib.profile.timed.JerkLimitedProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
-import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
@@ -50,7 +49,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private static final double kWristMinimumPosition = -0.5;
     private static final double kWristMaximumPosition = 4;
 
-    private LaserCan lc;
+    // private LaserCan lc;
 
     private boolean m_isSafe = false;
 
