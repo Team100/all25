@@ -311,7 +311,7 @@ public class VisionDataProvider24 implements Glassy {
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldCoordsOptional.isPresent()) {
-                // this should never happen
+                // This shouldn't happen, but it does.
                 Util.warnf("VisionDataProvider24: no tag for id %d\n", blip.getId());
                 continue;
             }

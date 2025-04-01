@@ -12,12 +12,11 @@ import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.Neo550CANSparkMotor;
 
-import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralTunnel extends SubsystemBase implements Glassy {
     // private final LinearMechanism m_coralMech;
-    private LaserCan laserCAN;
+    // private LaserCan laserCAN;
 
     private final Neo550CANSparkMotor m_motor;
 

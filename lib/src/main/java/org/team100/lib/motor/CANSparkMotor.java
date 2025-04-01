@@ -7,7 +7,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Memo.DoubleCache;
-import org.team100.lib.util.Util;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -17,8 +16,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.wpilibj.RobotController;
 
 public abstract class CANSparkMotor implements BareMotor {
     protected final Feedforward100 m_ff;
@@ -33,7 +30,7 @@ public abstract class CANSparkMotor implements BareMotor {
     private final DoubleCache m_current;
     private final DoubleCache m_supplyVoltage;
     private final DoubleCache m_output;
-    private final DoubleCache m_temp;
+    // private final DoubleCache m_temp;
     // LOGGERS
     private final DoubleLogger m_log_desired_position;
     private final DoubleLogger m_log_desired_speed;
@@ -48,8 +45,8 @@ public abstract class CANSparkMotor implements BareMotor {
     private final DoubleLogger m_log_rpm;
     private final DoubleLogger m_log_current;
     private final DoubleLogger m_log_supplyVoltage;
-    private final DoubleLogger m_log_torque;
-    private final DoubleLogger m_log_temp;
+    // private final DoubleLogger m_log_torque;
+    // private final DoubleLogger m_log_temp;
 
     protected CANSparkMotor(
             LoggerFactory parent,
@@ -83,7 +80,7 @@ public abstract class CANSparkMotor implements BareMotor {
         m_current = Memo.ofDouble(m_motor::getOutputCurrent);
         m_supplyVoltage = Memo.ofDouble(m_motor::getBusVoltage);
         m_output = Memo.ofDouble(m_motor::getAppliedOutput);
-        m_temp = Memo.ofDouble(m_motor::getMotorTemperature);
+        // m_temp = Memo.ofDouble(m_motor::getMotorTemperature);
         // LOGGERS
         child.intLogger(Level.TRACE, "Device ID").log(m_motor::getDeviceId);
         m_log_desired_position = child.doubleLogger(Level.DEBUG, "desired position (rev)");
@@ -99,8 +96,8 @@ public abstract class CANSparkMotor implements BareMotor {
         m_log_rpm = child.doubleLogger(Level.TRACE, "velocity (RPM)");
         m_log_current = child.doubleLogger(Level.DEBUG, "current (A)");
         m_log_supplyVoltage = child.doubleLogger(Level.DEBUG, "voltage (V)");
-        m_log_torque = child.doubleLogger(Level.TRACE, "torque (Nm)");
-        m_log_temp = child.doubleLogger(Level.TRACE, "temperature (C)");
+        // m_log_torque = child.doubleLogger(Level.TRACE, "torque (Nm)");
+        // m_log_temp = child.doubleLogger(Level.TRACE, "temperature (C)");
     }
 
     @Override
@@ -213,9 +210,9 @@ public abstract class CANSparkMotor implements BareMotor {
      * 
      * @return torque in Nm
      */
-    public double getMotorTorque() {
-        return m_current.getAsDouble() * kTNm_amp();
-    }
+    // public double getMotorTorque() {
+    //     return m_current.getAsDouble() * kTNm_amp();
+    // }
 
     /**
      * Value is updated in Robot.robotPeriodic().
@@ -258,13 +255,8 @@ public abstract class CANSparkMotor implements BareMotor {
         m_log_current.log(m_current);
         m_log_supplyVoltage.log(m_supplyVoltage);
         m_log_duty.log(m_output);
-        m_log_torque.log(this::getMotorTorque);
-        m_log_temp.log(m_temp);
-        if (RobotController.getBatteryVoltage() - m_supplyVoltage.getAsDouble() > 1)
-            Util.warnf("Motor voltage %d low, bad connection? motor: %f, battery: %f\n",
-                    m_motor.getDeviceId(),
-                    m_supplyVoltage.getAsDouble(),
-                    RobotController.getBatteryVoltage());
+        // m_log_torque.log(this::getMotorTorque);
+        // m_log_temp.log(m_temp);
     }
 
     @Override

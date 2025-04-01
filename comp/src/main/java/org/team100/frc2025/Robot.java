@@ -17,7 +17,6 @@ import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
-import au.grapplerobotics.CanBridge;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -47,7 +46,7 @@ public class Robot extends TimedRobot100 {
         m_log_voltage = m_robotLogger.doubleLogger(Level.TRACE, "voltage");
         m_jvmLogger = new JvmLogger(m_robotLogger);
         m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
-        CanBridge.runTCP();
+        // CanBridge.runTCP();
     }
 
     ///////////////////////////////////////////////////////////////////////
