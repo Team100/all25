@@ -146,22 +146,21 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         false);
 
                 // m_controller = new SelectProfiledController(
-                //         wristLogger,
-                //         wristFeedback,
-                //         x -> x,
-                //         () -> encoder.getPositionRad().orElseThrow(),
-                //         maxVel,
-                //         maxAccel,
-                //         stallAccel,
-                //         maxJerk,
-                //         0.1,
-                //         0.05);
+                // wristLogger,
+                // wristFeedback,
+                // x -> x,
+                // () -> encoder.getPositionRad().orElseThrow(),
+                // maxVel,
+                // maxAccel,
+                // stallAccel,
+                // maxJerk,
+                // 0.1,
+                // 0.05);
+                // m_profileChooser.register(m_controller::setDelegate);
 
-
-                m_controller = new TimedProfiledController(parent,
+                m_controller = new TimedProfiledController(wristLogger,
                         new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
                         wristFeedback, x -> x, 0.1, 0.05);
-                // m_profileChooser.register(m_controller::setDelegate);
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
@@ -221,18 +220,22 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(wristLogger, wristMech,
                         () -> 0);
-                m_controller = new SelectProfiledController(
-                        wristLogger,
-                        wristFeedback,
-                        x -> x,
-                        () -> encoder.getPositionRad().orElseThrow(),
-                        maxVel,
-                        maxAccel,
-                        stallAccel,
-                        maxJerk,
-                        kPositionTolerance,
-                        kVelocityTolerance);
+
+                // m_controller = new SelectProfiledController(
+                // wristLogger,
+                // wristFeedback,
+                // x -> x,
+                // () -> encoder.getPositionRad().orElseThrow(),
+                // maxVel,
+                // maxAccel,
+                // stallAccel,
+                // maxJerk,
+                // kPositionTolerance,
+                // kVelocityTolerance);
                 // m_profileChooser.register(m_controller::setDelegate);
+                m_controller = new TimedProfiledController(wristLogger,
+                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
+                        wristFeedback, x -> x, 0.1, 0.05);
 
                 CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
 

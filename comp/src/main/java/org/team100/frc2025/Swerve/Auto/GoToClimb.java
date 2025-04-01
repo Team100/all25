@@ -1,8 +1,8 @@
 package org.team100.frc2025.Swerve.Auto;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.BargeDestination;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.BargeDestination;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.FieldLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;

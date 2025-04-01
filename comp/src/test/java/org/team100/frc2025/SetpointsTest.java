@@ -1,8 +1,9 @@
 package org.team100.frc2025;
 
 import org.junit.jupiter.api.Test;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
