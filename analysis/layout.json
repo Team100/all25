@@ -177,11 +177,16 @@
             "/log/Commands/FullStateSwerveController/measurement",
             "/log/Commands/FullStateSwerveController/measurement/x",
             "/log/Commands/FullStateSwerveController/measurement/y",
-            "/log/Commands/FullStateSwerveController/currentReference/y"
+            "/log/Commands/FullStateSwerveController/currentReference/y",
+            "/SmartDashboard",
+            "/SmartDashboard/Log Level",
+            "/log/Commands/DriveManually",
+            "/log/Auto Sequence",
+            "/log/Auto Sequence/FullStateSwerveController/positionError"
           ]
         },
         "tabs": {
-          "selected": 2,
+          "selected": 16,
           "tabs": [
             {
               "type": 0,
@@ -210,7 +215,7 @@
                     "type": "ghost",
                     "logKey": "NT:pose",
                     "logType": "Pose2d",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#00ff00"
                     }
@@ -229,7 +234,7 @@
                     "type": "ghost",
                     "logKey": "NT:tags",
                     "logType": "Pose3d[]",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#ffff00"
                     }
@@ -1123,6 +1128,46 @@
                       "color": "#e5b31b",
                       "size": "normal"
                     }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/x/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/x/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/x m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/velocityError/x m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
                   }
                 ],
                 "rightSources": [
@@ -1145,6 +1190,46 @@
                       "color": "#80588e",
                       "size": "normal"
                     }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/y/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/y/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/y m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/velocityError/y m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
                   }
                 ],
                 "discreteSources": [
@@ -1155,6 +1240,15 @@
                     "visible": true,
                     "options": {
                       "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/At Velocity Reference",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#5f4528"
                     }
                   }
                 ],
@@ -1194,7 +1288,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/update time (s)",
                     "logType": "Number",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "color": "#e5b31b",
                       "size": "normal"
@@ -1226,7 +1320,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/voltage",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#e48b32",
                       "size": "normal"
@@ -1302,7 +1396,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/voltage",
                     "logType": "Number",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "color": "#e48b32",
                       "size": "normal"
@@ -1595,5 +1689,5 @@
     }
   ],
   "satellites": [],
-  "version": "4.1.1"
+  "version": "4.1.5"
 }
