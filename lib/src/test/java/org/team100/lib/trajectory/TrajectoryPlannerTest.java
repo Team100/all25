@@ -65,10 +65,10 @@ class TrajectoryPlannerTest {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
 
         // these are the same as StraightLineTrajectoryTest.
-        List<TimingConstraint> constraints = // new ArrayList<>();
+        List<TimingConstraint> constraints =
                 List.of(
-                        new ConstantConstraint(limits.getMaxDriveVelocityM_S(), limits.getMaxDriveAccelerationM_S2()),
-                        new SwerveDriveDynamicsConstraint(limits),
+                        new ConstantConstraint(1, 1, limits),
+                        new SwerveDriveDynamicsConstraint(limits, 1, 1),
                         new YawRateConstraint(limits, 0.2),
                         new CapsizeAccelerationConstraint(limits, 0.2));
         double start_vel = 1;

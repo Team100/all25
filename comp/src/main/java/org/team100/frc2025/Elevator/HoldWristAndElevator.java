@@ -21,11 +21,15 @@ public class HoldWristAndElevator extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     m_elevator = elevator;
     m_wrist = wrist;
+
+    addRequirements(m_elevator, m_wrist);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    System.out.println("I AM STARTING RIGHT NOW");
+
     initialElevatorValue = m_elevator.getPosition();
     initialWristValue = m_wrist.getAngle();
   }
@@ -39,7 +43,9 @@ public class HoldWristAndElevator extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    System.out.println("I AM FINISHING RIGHT NOW");
+  }
 
   // Returns true when the command should end.
   @Override

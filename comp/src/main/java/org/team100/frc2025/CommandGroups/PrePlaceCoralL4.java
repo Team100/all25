@@ -79,11 +79,14 @@ public class PrePlaceCoralL4 extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        if(!interrupted){
-            if(m_holdingCommand != null){
-                scheduler.schedule(m_holdingCommand);
-            }
-        }
+        // if(!interrupted){
+        //     if(m_holdingCommand != null){
+        //         scheduler.schedule(m_holdingCommand);
+        //     }
+        // }
+        finished = false;
+        countElevator = 0;
+        countWrist = 0;
 
     }
 
@@ -97,6 +100,16 @@ public class PrePlaceCoralL4 extends Command {
         } else {
             return false;
         }
+        
+    }
+
+    public boolean isDone() {
+            if (Experiments.instance.enabled(Experiment.UseProfileDone)){
+                return finished && m_wrist.profileDone();
+            } else{
+                return finished;
+            }
+            
         
     }
 }

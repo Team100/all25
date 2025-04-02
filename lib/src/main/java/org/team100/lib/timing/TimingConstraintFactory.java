@@ -35,8 +35,17 @@ public class TimingConstraintFactory {
 
     /** Maybe unrealistically fast? */
     public List<TimingConstraint> medium() {
-        // note low yaw scale
         return scaled(0.75, 1, 0.75, 0.25);
+    }
+
+    /** Maybe unrealistically fast? */
+    public List<TimingConstraint> auto() {
+        return scaled(0.77, 1.4, 0.75, 0.5);
+    }
+
+    /** see TrajectoryVelocityProfileTest.testAuto() */
+    public List<TimingConstraint> testAuto() {
+        return scaled(1, 1, 1, 1);
     }
 
     /**
@@ -52,10 +61,8 @@ public class TimingConstraintFactory {
             double centripetalScale,
             double yawRateScale) {
         return List.of(
-                new ConstantConstraint(
-                        vScale * m_limits.getMaxDriveVelocityM_S(),
-                        aScale * m_limits.getMaxDriveAccelerationM_S2()),
-                new SwerveDriveDynamicsConstraint(m_limits),
+                new ConstantConstraint(vScale, aScale, m_limits),
+                new SwerveDriveDynamicsConstraint(m_limits, vScale, aScale),
                 new YawRateConstraint(m_limits, yawRateScale),
                 new CapsizeAccelerationConstraint(m_limits, centripetalScale));
     }

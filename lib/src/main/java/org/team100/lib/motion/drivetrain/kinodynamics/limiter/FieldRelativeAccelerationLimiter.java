@@ -75,7 +75,7 @@ public class FieldRelativeAccelerationLimiter implements Glassy {
             // Avoid divide-by-zero.
             return 1.0;
         }
-        double accelLimit = m_cartesianScale * SwerveUtil.getAccelLimit(m_limits, prev, target);
+        double accelLimit = SwerveUtil.getAccelLimit(m_limits, 1, m_cartesianScale, prev, target);
         // At full speed, both a and accelLimit are around zero.
         if (a < accelLimit) {
             a = accelLimit;

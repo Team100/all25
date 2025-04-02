@@ -22,7 +22,9 @@ import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Funnel.ReleaseFunnel;
+import org.team100.frc2025.Swerve.DriveForwardSlowly;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNew;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
@@ -97,6 +99,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -184,8 +187,7 @@ public class RobotContainer implements Glassy {
         }
 
         final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(m_swerveKinodynamics.getMaxDriveVelocityM_S(),
-                        m_swerveKinodynamics.getMaxDriveAccelerationM_S2() * 0.5)));
+                List.of(new ConstantConstraint(1, 0.5, m_swerveKinodynamics)));
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,
@@ -324,39 +326,52 @@ public class RobotContainer implements Glassy {
                 thetaFeedback);
 
         DriveManuallySimple driveDefault = new DriveManuallySimple(
-            driverControl::velocity, 
-            m_drive,
-            new ManualWithProfiledReefLock(manLog, m_swerveKinodynamics, driverControl::useReefLock, thetaFeedback, m_drive), 
-            new ManualWithBargeAssist(manLog, m_swerveKinodynamics, driverControl::desiredRotation, thetaFeedback, m_drive), 
-            driverControl::driveWithBargeAssist);
+                driverControl::velocity,
+                m_drive,
+                new ManualWithProfiledReefLock(manLog, m_swerveKinodynamics, driverControl::useReefLock, thetaFeedback,
+                        m_drive),
+                new ManualWithBargeAssist(manLog, m_swerveKinodynamics, driverControl::desiredRotation, thetaFeedback,
+                        m_drive),
+                driverControl::driveWithBargeAssist);
 
-
-        m_drive.setDefaultCommand(driveDefault); //driveDefault
+        m_drive.setDefaultCommand(driveDefault); // driveDefault
         m_climber.setDefaultCommand(new ClimberDefault(m_climber));
         m_elevator.setDefaultCommand(new ElevatorDefaultCommand(elevatorLog, m_elevator, m_wrist, m_grip, m_drive));
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
-        
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
+
+        // final HolonomicProfile autoProfile = HolonomicProfile.get(driveLog,
+        // m_swerveKinodynamics, 1, 1, 1, 0.2);
+        // final HolonomicProfile autoProfile = HolonomicProfile.trapezoidal(4.5, 10,
+        // 0.05, m_swerveKinodynamics.getMaxAngleSpeedRad_S(),
+        // m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 0.01);
+        final HolonomicProfile autoProfile = HolonomicProfile.currentLimitedExponential(3.5, 7, 20,
+                m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 20);
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
         m_auton = new Coral2AutoLeft(
                 logger, m_wrist,
                 m_elevator, m_funnel,
                 m_tunnel, m_grip,
-                autoController, profile,
+                autoController, autoProfile,
                 m_drive, visionDataProvider::setHeedRadiusM,
                 m_swerveKinodynamics, viz);
-        
-        //Driver/Operator Buttons
+
+        // Driver/Operator Buttons
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
-        whileTrue(driverControl::feedFunnel,  new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
-        whileTrue(driverControl::climb,  new SetClimber(m_climber, 0.5));
+        whileTrue(driverControl::feedFunnel,
+                new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        whileTrue(driverControl::climb,
+                new ParallelCommandGroup(new SetClimber(m_climber, 0.5), new DriveForwardSlowly(m_drive)));
 
+        whileTrue(driverControl::driveToTag,
+                new Coral2AutoLeftNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+                        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -410,7 +425,7 @@ public class RobotContainer implements Glassy {
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
                         FieldSector.IJ, ReefDestination.LEFT,
                         buttons::scoringPosition, holonomicController, profile,
-                        m_drive, visionDataProvider::setHeedRadiusM,ReefPoint.I));
+                        m_drive, visionDataProvider::setHeedRadiusM, ReefPoint.I));
 
         whileTrue(driverControl::driveToTag, buttons::j,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -439,27 +454,33 @@ public class RobotContainer implements Glassy {
 
         whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
-        // whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
+        // whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip,
+        // buttons::red4));
         whileTrue(buttons::barge, new ReleaseFunnel(logger, m_funnel, m_climber));
-        // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist, m_grip, buttons::red4));
-        //3/27/25 Marcelo auto run funnel in corners
-        //NearStation run = new NearStation(m_drive:: getPose);
-        //whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
-   
+        // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist,
+        // m_grip, buttons::red4));
+        // 3/27/25 Marcelo auto run funnel in corners
+        // NearStation run = new NearStation(m_drive:: getPose);
+        // whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator,
+        // m_wrist, m_funnel, m_tunnel, m_grip));
 
-        // whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2, operatorControl::ramp));
+        // whileTrue(operatorControl::elevate, new ClimberRotate(m_climber, 0.2,
+        // operatorControl::ramp));
         whileTrue(operatorControl::downavate, new ClimberRotateOverride(m_climber, 0.2, operatorControl::ramp));
         // whileTrue(operatorControl::intake, new SetClimber(m_climber, 0.54));
-        // whileTrue(operatorControl::intake, 
-        //     new SequentialCommandGroup(
-        //         new SetWrist(m_wrist, 0.4, false), 
-        //         new ParallelCommandGroup(new SetElevator(logger, m_elevator, 30, true), new SetWrist(m_wrist, 0.4, true)
-        //     )
+        // whileTrue(operatorControl::intake,
+        // new SequentialCommandGroup(
+        // new SetWrist(m_wrist, 0.4, false),
+        // new ParallelCommandGroup(new SetElevator(logger, m_elevator, 30, true), new
+        // SetWrist(m_wrist, 0.4, true)
+        // )
         // ));
-        // whileTrue(operatorControl::intake, new ScoreL4Smart(logger, m_wrist, m_elevator, m_tunnel, null, null, null, autoController, profile, m_drive, null, null));
+        // whileTrue(operatorControl::intake, new ScoreL4Smart(logger, m_wrist,
+        // m_elevator, m_tunnel, null, null, null, autoController, profile, m_drive,
+        // null, null));
 
-        whileTrue(operatorControl::intake, 
-                        new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
+        whileTrue(operatorControl::intake,
+                new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
                         FieldSector.AB, ReefDestination.LEFT,
                         () -> ScoringPosition.L4, holonomicController, profile,
                         m_drive, visionDataProvider::setHeedRadiusM, ReefPoint.A));

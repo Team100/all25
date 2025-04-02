@@ -17,7 +17,7 @@ class SwerveDriveDynamicsConstraintTest {
     @Test
     void testVelocity() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forRealisticTest();
-        SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l);
+        SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l, 1, 1);
 
         // motionless
         double m = c.getMaxVelocity(new Pose2dWithMotion(
@@ -44,7 +44,7 @@ class SwerveDriveDynamicsConstraintTest {
     @Test
     void testAccel() {
         SwerveKinodynamics l = SwerveKinodynamicsFactory.forRealisticTest();
-        SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l);
+        SwerveDriveDynamicsConstraint c = new SwerveDriveDynamicsConstraint(l, 1, 1);
         // this is constant
         MinMaxAcceleration m = c.getMinMaxAcceleration(new Pose2dWithMotion(
                 Pose2d.kZero, new Pose2dWithMotion.MotionDirection(0, 0, 0), 0, 0), 0);
