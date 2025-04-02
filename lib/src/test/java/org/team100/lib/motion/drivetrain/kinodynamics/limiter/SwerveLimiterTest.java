@@ -341,7 +341,7 @@ public class SwerveLimiterTest {
         FieldRelativeVelocity setpoint = new FieldRelativeVelocity(0, 0, 0);
         limiter.updateSetpoint(setpoint);
         for (int i = 0; i < 81; ++i) {
-            double accelLimit = SwerveUtil.getAccelLimit(limits, setpoint, target);
+            double accelLimit = SwerveUtil.getAccelLimit(limits, 1, 1, setpoint, target);
 
             profileTarget = profile.calculate(TimedRobot100.LOOP_PERIOD_S, profileTarget.model(), goal);
             target = new FieldRelativeVelocity(profileTarget.v(), 0, 0);

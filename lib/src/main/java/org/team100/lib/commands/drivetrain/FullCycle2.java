@@ -20,10 +20,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
  * this inside a RepeatCommand to run it continuously.
  */
 public class FullCycle2 extends SequentialCommandGroup100 implements Glassy {
-    private static final double maxVelocityM_S = 2.0;
-    private static final double maxAccelM_S_S = 2;
-    private static final Pose2d waypoint0 = new Pose2d(6, 2, Rotation2d.kZero);
-    private static final Pose2d waypoint1 = new Pose2d(2, 2, Rotation2d.kZero);
+    // private static final double maxVelocityM_S = 2.0;
+    // private static final double maxAccelM_S_S = 2;
+    // private static final Pose2d waypoint0 = new Pose2d(6, 2, Rotation2d.kZero);
+    // private static final Pose2d waypoint1 = new Pose2d(2, 2, Rotation2d.kZero);
 
     public FullCycle2(
             LoggerFactory parent,
@@ -33,7 +33,7 @@ public class FullCycle2 extends SequentialCommandGroup100 implements Glassy {
             SwerveController controller) {
         super(parent, "FullCycle2");
         TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(maxVelocityM_S, maxAccelM_S_S)));
+                List.of(new ConstantConstraint(1, 1, kinodynamics)));
 
         // StraightLineTrajectory maker = new StraightLineTrajectory(true, tmaker);
         // Maker makerTrajec = new Maker(parent, drivetrain, factory, kinodynamics,

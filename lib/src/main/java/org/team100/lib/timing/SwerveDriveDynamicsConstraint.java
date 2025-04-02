@@ -1,11 +1,12 @@
 package org.team100.lib.timing;
 
 import java.util.Optional;
+
+import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.kinodynamics.limiter.SwerveUtil;
-import org.team100.lib.geometry.Pose2dWithMotion;
-import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -20,10 +21,17 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  */
 public class SwerveDriveDynamicsConstraint implements TimingConstraint {
     private final SwerveKinodynamics m_limits;
+    private final double vScale;
+    private final double aScale;
 
     /** Use the factory. */
-    public SwerveDriveDynamicsConstraint(SwerveKinodynamics limits) {
+    public SwerveDriveDynamicsConstraint(
+            SwerveKinodynamics limits,
+            double vScale,
+            double aScale) {
         m_limits = limits;
+        this.vScale = vScale;
+        this.aScale = aScale;
     }
 
     /**
@@ -51,9 +59,13 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
         SwerveModuleStates module_states = m_limits.toSwerveModuleStates(chassis_speeds);
         double max_vel = Double.POSITIVE_INFINITY;
         for (SwerveModuleState100 module : module_states.all()) {
-            max_vel = Math.min(max_vel, m_limits.getMaxDriveVelocityM_S() / Math.abs(module.speedMetersPerSecond()));
+            max_vel = Math.min(max_vel, maxV() / Math.abs(module.speedMetersPerSecond()));
         }
         return new NonNegativeDouble(max_vel);
+    }
+
+    private double maxV() {
+        return vScale * m_limits.getMaxDriveVelocityM_S();
     }
 
     /**
@@ -68,10 +80,14 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
         if (Double.isNaN(velocity))
             throw new IllegalArgumentException();
         // min accel is stronger than max accel
-        double minAccel = -m_limits.getMaxDriveDecelerationM_S2();
-        double maxAccel = SwerveUtil.minAccel(m_limits, velocity);
+        double minAccel = -1.0 * maxA();
+        double maxAccel = SwerveUtil.minAccel(m_limits, 1, 1, velocity);
         return new MinMaxAcceleration(
                 minAccel,
                 maxAccel);
+    }
+
+    private double maxA() {
+        return aScale * m_limits.getMaxDriveDecelerationM_S2();
     }
 }
