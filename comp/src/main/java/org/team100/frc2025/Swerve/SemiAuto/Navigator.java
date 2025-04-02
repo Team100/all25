@@ -31,6 +31,8 @@ public abstract class Navigator extends Command implements Planner2025 {
     // used by trajectory()
     protected final TrajectoryPlanner m_planner;
 
+    private boolean ranOnce = false;
+
     // created in initialize()
     protected ReferenceController m_referenceController;
 
@@ -43,12 +45,13 @@ public abstract class Navigator extends Command implements Planner2025 {
         m_drive = drive;
         m_controller = controller;
         m_viz = viz;
-        m_planner = new TrajectoryPlanner(new TimingConstraintFactory(kinodynamics).medium());
+        m_planner = new TrajectoryPlanner(new TimingConstraintFactory(kinodynamics).auto());
         addRequirements(m_drive);
     }
 
     @Override
     public void initialize() {
+        ranOnce = false;
         Trajectory100 trajectory = trajectory(m_drive.getPose());
         m_viz.setViz(trajectory);
 
@@ -63,6 +66,8 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     @Override
     public final void execute() {
+        ranOnce = true;
+        System.out.println("I RANNNNNNNNNNNNNNNNNNNNNNNNN");
         m_referenceController.execute();
     }
 
@@ -70,12 +75,20 @@ public abstract class Navigator extends Command implements Planner2025 {
     public final void end(boolean interrupted) {
         m_drive.stop();
         m_viz.clear();
-
+        ranOnce = false;
         System.out.println("I FINISHED");
     }
 
     @Override
     public final boolean isFinished() {
+        if(m_referenceController == null){
+            return false;
+        } 
+
+        if(ranOnce == false){
+            return false;
+        }
+        
         return m_referenceController.isFinished();
         // return false;
     }

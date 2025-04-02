@@ -89,6 +89,8 @@ public class SequentialCommandGroup100 extends Command {
             m_commands.get(m_currentCommandIndex).end(true);
         }
         m_currentCommandIndex = -1;
+
+        // System.out.println("I AM FINISHING MY COMMAND GROUP 100");
     }
 
     @Override
