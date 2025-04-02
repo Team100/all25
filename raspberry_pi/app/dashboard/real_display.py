@@ -67,15 +67,25 @@ class RealDisplay(Display):
         #     (5, 185),
         # )
 
-        tag_id = tag.getId()
-        self.text(image, f"id {tag_id}", (c_x, c_y))
+        # tag_id = tag.getId()
+        # self.text(image, f"id {tag_id}", (c_x, c_y))
 
         # type the translation into the image, in WPI coords (x-forward)
         t = pose.translation()
         self.text(
             image,
-            f"t: {t.z:6.3f},{-t.x:6.3f},{-t.y:6.3f}",
-            (c_x - 50, c_y + 40),
+            f"X: {t.z:6.3f}",
+            (c_x, c_y),
+        )
+        self.text(
+            image,
+            f"Y: {-t.x:6.3f}",
+            (c_x, c_y + 80),
+        )
+        self.text(
+            image,
+            f"Z: {-t.y:6.3f}",
+            (c_x, c_y + 160),
         )
 
     @override
@@ -86,8 +96,8 @@ class RealDisplay(Display):
     # these are white with black outline
     @override
     def text(self, image: MatLike, msg: str, loc: tuple[int, int]) -> None:
-        putText(image, msg, loc, FONT, 1.5, BLACK, 6)
-        putText(image, msg, loc, FONT, 1.5, WHITE, 2)
+        putText(image, msg, loc, FONT, 3, BLACK, 10)
+        putText(image, msg, loc, FONT, 3, WHITE, 5)
 
     @override
     def put(self, img: MatLike) -> None:

@@ -57,18 +57,21 @@ deploy {
                     //
                     // see https://github.com/Mechanical-Advantage/AdvantageKit/blob/b81ea6295dc903fc0688ecc6dd278c771c9bce7a/template_projects/template/build.gradle#L32
                     //
-                    jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
-                    jvmArgs.add("-XX:GCTimeRatio=5")
-                    jvmArgs.add("-XX:+UseSerialGC")
-                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
+                    // jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
+                    // jvmArgs.add("-XX:GCTimeRatio=5")
+                    // This is actually the default
+                    // jvmArgs.add("-XX:+UseSerialGC")
+                    // jvmArgs.add("-XX:MaxGCPauseMillis=50")
                     //
                     // We want everything compiled, as early as possible.  Not sure which of these will work
                     // jvmArgs.add("-XX:CompileThreshold=1") // JVM 8
-                    jvmArgs.add("-XX:CompileThresholdScaling=0.001") // JVM 17
+                    jvmArgs.add("-XX:CompileThresholdScaling=0.01") // JVM 17
                     // Don't compile in the background, since we have few threads, and want this done fast.
-                    jvmArgs.add("-XX:-BackgroundCompilation")
+                    // This doesn't seem to help
+                    // jvmArgs.add("-XX:-BackgroundCompilation")
                     // Spam the console.
-                    jvmArgs.add("-XX:+PrintCompilation")
+                    // This makes an intolerable amount of output.
+                    // jvmArgs.add("-XX:+PrintCompilation")
                     //
                     // end performance
                     ////////////////////////////////////////

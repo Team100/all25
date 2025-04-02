@@ -103,7 +103,8 @@ public class Robot extends TimedRobot100 {
             // real-time priority for this thread while it's running robotPeriodic.
             // see
             // https://github.com/Mechanical-Advantage/AdvantageKit/blob/a86d21b27034a36d051798e3eaef167076cd302b/template_projects/sources/vision/src/main/java/frc/robot/Robot.java#L90
-            Threads.setCurrentThreadPriority(true, 99);
+            // This seems to interfere with CAN at startup
+            // Threads.setCurrentThreadPriority(true, 99);
 
             // Advance the drumbeat.
             Takt.update();
@@ -134,7 +135,7 @@ public class Robot extends TimedRobot100 {
             }
         } finally {
             // This thread should have low priority when the main loop isn't running.
-            Threads.setCurrentThreadPriority(false, 0);
+            // Threads.setCurrentThreadPriority(false, 0);
         }
     }
 
