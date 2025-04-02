@@ -33,6 +33,9 @@ deploy {
             artifacts {
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
                     ////////////////////////////////////////
+                    //
+                    // for more on jvm args, see https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html
+                    //
                     // PROFILING with VisualVM JMX
                     //
                     // COMMENT THIS OUT FOR COMP
@@ -58,6 +61,14 @@ deploy {
                     jvmArgs.add("-XX:GCTimeRatio=5")
                     jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
+                    //
+                    // We want everything compiled, as early as possible.  Not sure which of these will work
+                    // jvmArgs.add("-XX:CompileThreshold=1") // JVM 8
+                    jvmArgs.add("-XX:CompileThresholdScaling=0.001") // JVM 17
+                    // Don't compile in the background, since we have few threads, and want this done fast.
+                    jvmArgs.add("-XX:-BackgroundCompilation")
+                    // Spam the console.
+                    jvmArgs.add("-XX:+PrintCompilation")
                     //
                     // end performance
                     ////////////////////////////////////////
