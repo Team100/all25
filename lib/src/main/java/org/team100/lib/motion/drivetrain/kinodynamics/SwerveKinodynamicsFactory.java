@@ -178,6 +178,21 @@ public class SwerveKinodynamicsFactory {
                 () -> 0.3); // vcg m
     }
 
+    public static SwerveKinodynamics forTrajectoryTimingTest() {
+        return new SwerveKinodynamics(
+                3.5, // vel m/s
+                20, // stall m/s/s
+                10, // accel m/s/s
+                10, // decel m/s/s
+                20 * Math.PI,
+                20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
+                0.5, // track m
+                0.5, // wheelbase m
+                0.25, // front offset m
+                () -> 0.3); // vcg m
+    }
+
     public static SwerveKinodynamics likeComp25() {
         return new SwerveKinodynamics(
                 3, // max vel m/s

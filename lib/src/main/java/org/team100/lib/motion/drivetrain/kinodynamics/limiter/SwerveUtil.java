@@ -20,12 +20,14 @@ public class SwerveUtil {
      */
     public static double getAccelLimit(
             SwerveKinodynamics m_limits,
+            double vScale,
+            double aScale,
             FieldRelativeVelocity prev,
             FieldRelativeVelocity desired) {
         if (isAccel(prev, desired)) {
-            return minAccel(m_limits, prev.norm());
+            return minAccel(m_limits, vScale, aScale, prev.norm());
         }
-        return m_limits.getMaxDriveDecelerationM_S2();
+        return aScale * m_limits.getMaxDriveDecelerationM_S2();
     }
 
     /**
@@ -33,11 +35,11 @@ public class SwerveUtil {
      * At high speed, accel is limited by back EMF.
      * Note at full speed this can return zero.
      */
-    public static double minAccel(SwerveKinodynamics m_limits, double velocity) {
-        double speedFraction = Math100.limit(velocity / m_limits.getMaxDriveVelocityM_S(), 0, 1);
+    public static double minAccel(SwerveKinodynamics m_limits, double vScale, double aScale, double velocity) {
+        double speedFraction = Math100.limit(velocity / (vScale * m_limits.getMaxDriveVelocityM_S()), 0, 1);
         double backEmfLimit = 1 - speedFraction;
-        double backEmfLimitedAcceleration = backEmfLimit * m_limits.getStallAccelerationM_S2();
-        double currentLimitedAcceleration = m_limits.getMaxDriveAccelerationM_S2();
+        double backEmfLimitedAcceleration = backEmfLimit * aScale * m_limits.getStallAccelerationM_S2();
+        double currentLimitedAcceleration = aScale * m_limits.getMaxDriveAccelerationM_S2();
         if (DEBUG) {
             Util.printf("speedFraction %5.2f backEmfLimitedAcceleration %5.2f currentLimitedAcceleration %5.2f\n",
                     speedFraction, backEmfLimitedAcceleration, currentLimitedAcceleration);
