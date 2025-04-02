@@ -44,7 +44,7 @@ public class SwerveControllerFactory {
     }
 
     public static FullStateSwerveController auto2025LooseTolerance(LoggerFactory log) {
-        return new FullStateSwerveController(log, 2.7, 3.5, 0.025, 0.01, 0.02, 0.1, 1, 1);
+        return new FullStateSwerveController(log, 7.2, 3.5, 0.055, 0.01, 0.02, 0.1, 1, 1);
     }
 
 

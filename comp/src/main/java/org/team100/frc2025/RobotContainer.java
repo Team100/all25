@@ -24,7 +24,9 @@ import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Funnel.ReleaseFunnel;
+import org.team100.frc2025.Swerve.DriveForwardSlowly;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNew;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
@@ -100,6 +102,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -345,12 +348,16 @@ public class RobotContainer implements Glassy {
         // DRIVER BUTTONS
         final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
 
+        // final HolonomicProfile autoProfile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 1, 1, 0.2);
+        // final HolonomicProfile autoProfile = HolonomicProfile.trapezoidal(4.5, 10, 0.05, m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 0.01);
+        final HolonomicProfile autoProfile = HolonomicProfile.currentLimitedExponential(3.5, 7, 20, m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 20);
+
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
         m_auton = new Coral2AutoLeft(
                 logger, m_wrist,
                 m_elevator, m_funnel,
                 m_tunnel, m_grip,
-                autoController, profile,
+                autoController, autoProfile,
                 m_drive, visionDataProvider::setHeedRadiusM,
                 m_swerveKinodynamics, viz);
         
@@ -358,8 +365,9 @@ public class RobotContainer implements Glassy {
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
         onTrue(driverControl::resetRotation180, new SetRotation(m_drive, Rotation2d.kPi));
         whileTrue(driverControl::feedFunnel,  new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
-        whileTrue(driverControl::climb,  new SetClimber(m_climber, 0.5));
+        whileTrue(driverControl::climb,  new ParallelCommandGroup(new SetClimber(m_climber, 0.5), new DriveForwardSlowly(m_drive)));
 
+        whileTrue(driverControl::driveToTag, new Coral2AutoLeftNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController, autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,

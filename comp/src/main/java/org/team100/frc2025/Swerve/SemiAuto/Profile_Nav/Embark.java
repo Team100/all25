@@ -17,6 +17,7 @@ import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReference;
 
@@ -52,8 +53,38 @@ public class Embark extends Command implements Glassy {
     private Pose2d m_goal;
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
+    private SwerveKinodynamics m_kinodynamics;
 
     private ReefPoint m_point;
+
+    private boolean m_perpetual;
+
+    public Embark(
+            LoggerFactory logger,
+            SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
+            SwerveController controller,
+            HolonomicProfile profile,
+            FieldSector targetSector,
+            ReefDestination destination,
+            Supplier<ScoringPosition> scoringPositionSupplier,
+            ReefPoint point,
+            boolean perpetual,
+            SwerveKinodynamics kinodynamics) {
+        this(
+                logger,
+                drive,
+                heedRadiusM,
+                controller,
+                profile,
+                targetSector,
+                destination,
+                scoringPositionSupplier,
+                0,
+                point,
+                perpetual,
+                kinodynamics);
+    }
 
     public Embark(
             LoggerFactory logger,
@@ -75,7 +106,9 @@ public class Embark extends Command implements Glassy {
                 destination,
                 scoringPositionSupplier,
                 0,
-                point);
+                point,
+                false,
+                null);
     }
 
     public Embark(
@@ -88,7 +121,9 @@ public class Embark extends Command implements Glassy {
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier,
             double radius,
-            ReefPoint point) {
+            ReefPoint point,
+            boolean perpetual,
+            SwerveKinodynamics kinodynamics) {
         LoggerFactory child = logger.child(this);
         m_log_sector = child.stringLogger(Level.TRACE, "sector");
         m_log_goal = child.pose2dLogger(Level.TRACE, "goal");
@@ -101,6 +136,8 @@ public class Embark extends Command implements Glassy {
         m_destination = destination;
         m_radius = radius;
         m_point = point;
+        m_perpetual = perpetual;
+        m_kinodynamics = kinodynamics;
         addRequirements(m_drive);
     }
 
@@ -224,6 +261,14 @@ public class Embark extends Command implements Glassy {
 
         m_goal = new Pose2d(destination, heading);
         m_log_goal.log(() -> m_goal);
+
+        // HolonomicProfile myNewProfile;
+        // if(m_kinodynamics != null){
+        //     myNewProfile = HolonomicProfile.trapezoidal(0, 0, 0.05, m_kinodynamics.getMaxAngleSpeedRad_S(), m_kinodynamics.getMaxAngleAccelRad_S2(), 0.01);
+        // } else {
+        //     myNewProfile = m_profile;
+        // }
+        // HolonomicProfile myNewProfile = HolonomicProfile.trapezoidal(0, 0, 0.05, m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 0.01);
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
@@ -239,6 +284,14 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
+        if(m_perpetual){
+            return false;
+        }
+        return m_referenceController != null && m_referenceController.isFinished();
+    }
+
+    
+    public boolean isDone() {
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
