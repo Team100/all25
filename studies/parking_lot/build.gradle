@@ -9,6 +9,11 @@ sourceSets {
             srcDir "../../lib/src/main/java"
         }
     }
+    test {
+        java {
+            srcDir "../../lib/src/test/java"
+        }
+    }
 }
 
 java {
