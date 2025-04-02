@@ -64,8 +64,11 @@ public class LEDIndicator {
      */
     private static final double kFlashDurationSec = 0.2;
 
-    private final AddressableLED led;
-    private final AddressableLEDBuffer buffer;
+    private final AddressableLED m_led;
+    // 4/2/25 avoid the loop setting all the pixels
+    // private final AddressableLEDBuffer m_buffer;
+    private final AddressableLEDBuffer m_greenBuffer;
+    private final AddressableLEDBuffer m_redBuffer;
     private final List<LEDStrip> m_frontStrips;
     private final List<LEDStrip> m_backStrips;
 
@@ -85,11 +88,32 @@ public class LEDIndicator {
                 m_frontStrips.stream().map(LEDStrip::end).reduce(0, Integer::max),
                 m_backStrips.stream().map(LEDStrip::end).reduce(0, Integer::max));
 
-        led = new AddressableLED(port);
-        led.setLength(length);
-        buffer = new AddressableLEDBuffer(length);
-        led.setData(buffer);
-        led.start();
+        m_led = new AddressableLED(port);
+        m_led.setLength(length);
+
+        // m_buffer = new AddressableLEDBuffer(length);
+
+        // buffer flipping is a little quicker than setting the pixels one at a time
+        m_greenBuffer = new AddressableLEDBuffer(length);
+        for (LEDStrip strip : m_frontStrips) {
+            strip.solid(m_greenBuffer, Color.kGreen);
+        }
+        for (LEDStrip strip : m_backStrips) {
+            strip.solid(m_greenBuffer, Color.kGreen);
+        }
+
+        m_redBuffer = new AddressableLEDBuffer(length);
+        for (LEDStrip strip : m_frontStrips) {
+            strip.solid(m_redBuffer, Color.kRed);
+        }
+
+        for (LEDStrip strip : m_backStrips) {
+            strip.solid(m_redBuffer, Color.kRed);
+        }
+
+        m_led.setData(m_redBuffer);
+        // m_led.setData(m_buffer);
+        m_led.start();
 
         m_timeSinceLastPose = timeSinceLastPose;
 
@@ -141,28 +165,30 @@ public class LEDIndicator {
         // }
 
         if(m_timeSinceLastPose.get() < 1){
-            for (LEDStrip strip : m_frontStrips) {
-                strip.solid(buffer, Color.kGreen);
-            }
+            // for (LEDStrip strip : m_frontStrips) {
+            //     strip.solid(m_buffer, Color.kGreen);
+            // }
 
-            for (LEDStrip strip : m_backStrips) {
-                strip.solid(buffer, Color.kGreen);
-            }
+            // for (LEDStrip strip : m_backStrips) {
+            //     strip.solid(m_buffer, Color.kGreen);
+            // }
+            m_led.setData(m_greenBuffer);
         } else {
-            for (LEDStrip strip : m_frontStrips) {
-                strip.solid(buffer, Color.kRed);
-            }
+            // for (LEDStrip strip : m_frontStrips) {
+            //     strip.solid(m_buffer, Color.kRed);
+            // }
 
-            for (LEDStrip strip : m_backStrips) {
-                strip.solid(buffer, Color.kRed);
-            }
+            // for (LEDStrip strip : m_backStrips) {
+            //     strip.solid(m_buffer, Color.kRed);
+            // }
+            m_led.setData(m_redBuffer);
         }
 
         // update the output with the buffer we constructed.
-        led.setData(buffer);
+        // m_led.setData(m_buffer);
     }
 
     public void close() {
-        led.close();
+        m_led.close();
     }
 }

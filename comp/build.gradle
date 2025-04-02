@@ -31,20 +31,12 @@ deploy {
             debug = project.frc.getDebugOrDefault(false)
 
             artifacts {
-                // First part is artifact name, 2nd is artifact type
-                // getTargetTypeClass is a shortcut to get the class type using a string
-
-                //////////////////////////
-                // PROFILING
-                //
-                // TURN THIS OFF FOR COMP
-                //
-                // These are the original lines
-                // frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                // }
-                // These are the new lines
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                    // Enable VisualVM connection
+                    ////////////////////////////////////////
+                    // PROFILING with VisualVM JMX
+                    //
+                    // COMMENT THIS OUT FOR COMP
+                    //
                     jvmArgs.add("-Dcom.sun.management.jmxremote=true")
                     jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
                     jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
@@ -54,8 +46,22 @@ deploy {
                     jvmArgs.add("-Djava.rmi.server.hostname=10.1.0.2")
                     // for USB
                     // jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2")
+                    //
+                    // end profiling
+                    ////////////////////////////////////////
+                    //
+                    // PERFORMANCE
+                    //
+                    // see https://github.com/Mechanical-Advantage/AdvantageKit/blob/b81ea6295dc903fc0688ecc6dd278c771c9bce7a/template_projects/template/build.gradle#L32
+                    //
+                    jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
+                    jvmArgs.add("-XX:GCTimeRatio=5")
+                    jvmArgs.add("-XX:+UseSerialGC")
+                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
+                    //
+                    // end performance
+                    ////////////////////////////////////////
                 }
-                ////////////////////////
 
                 // Static files artifact
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
