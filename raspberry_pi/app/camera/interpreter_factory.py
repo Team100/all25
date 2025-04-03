@@ -55,6 +55,7 @@ class InterpreterFactory:
                 | Identity.FUNNEL
                 | Identity.DEV
                 | Identity.DIST_TEST
+                | Identity.JOELS_TEST
             ):
                 display = RealDisplay(
                     int(scale * size.width),
