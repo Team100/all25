@@ -41,7 +41,7 @@ public class Climber extends SubsystemBase {
                 RotaryMechanism rotaryMechanism = new SimpleRotaryMechanism(child, motor, new Talon6Encoder(child, motor),
                     25 * 3 * 4);
     
-                Profile100 profile100 = new TrapezoidProfile100(30, 30, 0.05);
+                Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
                 PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1 );
     
                 ProfiledController controller = new IncrementalProfiledController(

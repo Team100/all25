@@ -67,7 +67,7 @@ public abstract class Navigator extends Command implements Planner2025 {
     @Override
     public final void execute() {
         ranOnce = true;
-        System.out.println("I RANNNNNNNNNNNNNNNNNNNNNNNNN");
+        // System.out.println("I RANNNNNNNNNNNNNNNNNNNNNNNNN");
         m_referenceController.execute();
     }
 

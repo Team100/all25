@@ -59,6 +59,14 @@ public class PrePlaceCoralL2 extends Command {
     public void end(boolean interrupted) {
     }
 
+    public boolean isDone() {
+            if (Experiments.instance.enabled(Experiment.UseProfileDone)){
+                return finished && m_wrist.profileDone() && m_elevator.profileDone();
+            }
+            return finished;
+        
+    }
+
     @Override
     public boolean isFinished() {
         if(!m_perpetual){

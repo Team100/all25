@@ -58,15 +58,15 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
 
         Embark embarkToI = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.IJ,
                 ReefDestination.LEFT,
-                () -> ScoringPosition.L4, ReefPoint.I, true, kinodynamics);
+                () -> ScoringPosition.L4, ReefPoint.I, true);
 
         Embark embarkToK = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL,
                 ReefDestination.LEFT,
-                () -> ScoringPosition.L4, ReefPoint.K, true, kinodynamics);
+                () -> ScoringPosition.L4, ReefPoint.K, true);
 
         Embark embarkToL = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL,
                 ReefDestination.RIGHT,
-                () -> ScoringPosition.L4, ReefPoint.L, true, kinodynamics);
+                () -> ScoringPosition.L4, ReefPoint.L, true);
 
         GoToCoralStation goToStation1stTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
                                         CoralStation.Left, 0.5);

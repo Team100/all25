@@ -7,6 +7,7 @@ package org.team100.frc2025.CommandGroups.ScoreSmart;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
+import org.team100.frc2025.CommandGroups.DeadlineForEmbarkAndPrePlace;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.HoldWristAndElevator;
@@ -20,12 +21,16 @@ import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.framework.ParallelCommandGroup100;
+import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.profile.HolonomicProfile;
 
+import com.fasterxml.jackson.databind.util.EnumValues;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -47,14 +52,17 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
         super(logger, "ScoreL4Smart");
 
         Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
-        
-        addCommands(
-                new ParallelCommandGroup100(m_logger, "drive",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
 
+        Embark embarkCommand = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint, true);
+        PrePlaceCoralL4 prePlaceCoralL4 = new PrePlaceCoralL4(wrist, elevator, 47, true);
+
+        addCommands(
+                new ParallelDeadlineGroup100(m_logger, "drive",
+                        new DeadlineForEmbarkAndPrePlace(embarkCommand::isDone, prePlaceCoralL4::isDone),
+                        embarkCommand,
                         new SequentialCommandGroup100(m_logger, "out",
                                 new SetWrist(wrist, 0.4, false),
-                                new PrePlaceCoralL4(wrist, elevator, 47, false, holdingCommand))),
+                                prePlaceCoralL4)),
 
                 // new SetElevatorAndWrist(elevator, wrist, 47, 1.25),
                 new PostDropCoralL4(wrist, elevator, 10, holdingCommand)

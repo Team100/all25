@@ -16,6 +16,7 @@ import org.team100.frc2025.Climber.SetClimber;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL2Dumb;
 import org.team100.frc2025.CommandGroups.GrabAlgaeL3Dumb;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
+import org.team100.frc2025.CommandGroups.ScoreBargeSmart;
 import org.team100.frc2025.CommandGroups.ScoreSmart.ScoreCoralSmart;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.ElevatorDefaultCommand;
@@ -367,11 +368,11 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::feedFunnel,
                 new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(driverControl::climb,
-                new ParallelCommandGroup(new SetClimber(m_climber, 0.5), new DriveForwardSlowly(m_drive)));
+                new ParallelCommandGroup(new SetClimber(m_climber, 0.6), new DriveForwardSlowly(m_drive)));
 
-        whileTrue(driverControl::driveToTag,
-                new Coral2AutoLeftNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
-                        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
+        // whileTrue(driverControl::driveToTag,
+        //         new Coral2AutoLeftNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+        //                 autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -454,8 +455,8 @@ public class RobotContainer implements Glassy {
 
         whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
-        // whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip,
-        // buttons::red4));
+        whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip,
+        buttons::red4));
         whileTrue(buttons::barge, new ReleaseFunnel(logger, m_funnel, m_climber));
         // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist,
         // m_grip, buttons::red4));
