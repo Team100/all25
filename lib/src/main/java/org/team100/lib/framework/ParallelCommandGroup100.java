@@ -54,7 +54,7 @@ public class ParallelCommandGroup100 extends Command {
 
     @Override
     public final void initialize() {
-        System.out.println("Parallel Commnd Group 100 starts " + m_name);
+        // System.out.println("Parallel Commnd Group 100 starts " + m_name);
         for (Map.Entry<Command, Boolean> commandRunning : m_commands.entrySet()) {
             Command cmd = commandRunning.getKey();
             cmd.initialize();
