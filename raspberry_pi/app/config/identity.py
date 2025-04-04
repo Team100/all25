@@ -50,6 +50,7 @@ class Identity(Enum):
     # for testing
     DEV = "10000000a7c673d9"  # rpi4 used for development
     FLIPPED = "flipme"  # example for per-identity config
+    JOELS_TEST = "9b297e919a0634e6"
     UNKNOWN = "unknown"
 
     @classmethod

@@ -29,7 +29,7 @@ class CameraFactory:
     def get_num_cameras(identity: Identity) -> int:
         match identity:
             case Identity.UNKNOWN:
-                return 2
+                return 1
             case (
                 Identity.RIGHTAMP
                 | Identity.LEFTAMP
@@ -43,6 +43,7 @@ class CameraFactory:
                 | Identity.FUNNEL
                 | Identity.DEV # has one v2 camera at the moment
                 | Identity.DIST_TEST
+                | Identity.JOELS_TEST
             ):
                 return 1
             case Identity.FLIPPED:
