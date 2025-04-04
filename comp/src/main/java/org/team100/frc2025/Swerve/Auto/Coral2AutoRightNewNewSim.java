@@ -40,9 +40,9 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
+public class Coral2AutoRightNewNewSim extends SequentialCommandGroup100 {
 
-    public Coral2AutoLeftNew(
+    public Coral2AutoRightNewNewSim(
             LoggerFactory logger,
             Wrist2 wrist, Elevator elevator,
             Funnel funnel,
@@ -56,23 +56,23 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
             TrajectoryVisualization viz) {
         super(logger, "Coral2Auto");
 
-        Embark embarkToI = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.IJ,
-                ReefDestination.LEFT,
-                () -> ScoringPosition.L4, ReefPoint.I, true);
-
-        Embark embarkToK = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL,
-                ReefDestination.LEFT,
-                () -> ScoringPosition.L4, ReefPoint.K, true);
-
-        Embark embarkToL = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL,
+        Embark embarkToI = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.EF,
                 ReefDestination.RIGHT,
-                () -> ScoringPosition.L4, ReefPoint.L, true);
+                () -> ScoringPosition.L4, ReefPoint.F, true);
+
+        Embark embarkToK = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.CD,
+                ReefDestination.RIGHT,
+                () -> ScoringPosition.L4, ReefPoint.D, true);
+
+        Embark embarkToL = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.CD,
+                ReefDestination.LEFT,
+                () -> ScoringPosition.L4, ReefPoint.C, true);
 
         GoToCoralStation goToStation1stTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
-                                        CoralStation.Left, 0.5);
+                                        CoralStation.Right, 0.5, true);
 
         GoToCoralStation goToStation2ndTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
-                                        CoralStation.Left, 0.5);
+                                        CoralStation.Right, 0.5, true);
 
         PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, 47, true);
 
@@ -81,10 +81,13 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
         PrePlaceCoralL4 prePlaceCoralL4L = new PrePlaceCoralL4(wrist, elevator, 47, true);
 
        
+        // PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, () -> false);
 
-        PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, goToStation1stTime::isFinished);
+        PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, (goToStation1stTime::isDone));
 
-        PostDropAndReadyFunnel postDropAndReadyFunnelFromK = new PostDropAndReadyFunnel(wrist, elevator, 10, goToStation2ndTime::isFinished);
+        PostDropAndReadyFunnel postDropAndReadyFunnelFromK = new PostDropAndReadyFunnel(wrist, elevator, 10, goToStation2ndTime::isDone);
+
+
 
         addCommands(
 
@@ -92,7 +95,7 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
                 new ParallelDeadlineGroup100(
                         m_logger,
                         "embark1",
-                        new DeadlineForEmbarkAndPrePlace(embarkToI::isDone, prePlaceCoralL4I::isDone),
+                        new DeadlineForEmbarkAndPrePlace(embarkToI::isDone, () -> true),
                         embarkToI,
                         new SequentialCommandGroup100(logger, "handoff then place",
                                 new ParallelRaceGroup100(m_logger, "handoff",
@@ -104,48 +107,49 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
 
                 // Place preload and reload
 
-                new ParallelCommandGroup100(
+                new ParallelDeadlineGroup100(
                         logger,
                         "drive away",
                         postDropAndReadyFunnelFromI,
                         new SequentialCommandGroup100(
                                 logger,
                                 "wait then drive away to pick up",
-                                new WaitForBooleanTrue(postDropAndReadyFunnelFromI::indicateReadyToLeave),
+                                new WaitForBooleanTrue(() -> true),
                                 new ParallelDeadlineGroup100(
                                         logger,
                                         "Pick up",
                                         goToStation1stTime,
                                         new RunFunnel(funnel),
-                                        new RunCoralTunnel(tunnel, 1)))
+                                        new RunCoralTunnel(tunnel, 1))
+                        )
 
                 ),
 
                 //Go to peg K and pre place
  
                 new ParallelDeadlineGroup100(
-                        m_logger,
-                        "embark1",
-                        new DeadlineForEmbarkAndPrePlace(embarkToK::isDone, prePlaceCoralL4K::isDone),
-                        embarkToK,
-                        new SequentialCommandGroup100(logger, "handoff then place",
-                                new ParallelRaceGroup100(m_logger, "handoff",
-                                        new WaitCommand(0.5),
+                    m_logger,
+                    "embark1",
+                    new DeadlineForEmbarkAndPrePlace(embarkToK::isDone, () -> true),
+                    embarkToK,
+                    new SequentialCommandGroup100(logger, "handoff then place",
+                            new ParallelRaceGroup100(m_logger, "handoff",
+                                new WaitCommand(0.5),
                                 new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
-                                ),
-                                new SetWrist(wrist, 0.4, false),
-                                prePlaceCoralL4K)),
+                            ),
+                            new SetWrist(wrist, 0.4, false),
+                            prePlaceCoralL4K)),
 
                 // Place coral and reload
 
-                new ParallelCommandGroup100(
+                new ParallelDeadlineGroup100(
                         logger,
                         "drive away",
                         postDropAndReadyFunnelFromK,
                         new SequentialCommandGroup100(
                                 logger,
                                 "wait then drive away to pick up",
-                                new WaitForBooleanTrue(postDropAndReadyFunnelFromK::indicateReadyToLeave),
+                                new WaitForBooleanTrue(() -> true),
                                 new ParallelDeadlineGroup100(
                                         logger,
                                         "Pick up",
@@ -160,7 +164,7 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
                 new ParallelDeadlineGroup100(
                         m_logger,
                         "embark1",
-                        new DeadlineForEmbarkAndPrePlace(embarkToL::isDone, prePlaceCoralL4L::isDone),
+                        new DeadlineForEmbarkAndPrePlace(embarkToL::isDone, () -> true),
                         embarkToL,
                         new SequentialCommandGroup100(logger, "handoff then place",
                                 new ParallelRaceGroup100(m_logger, "handoff",
@@ -176,6 +180,20 @@ public class Coral2AutoLeftNew extends SequentialCommandGroup100 {
         
 
         );
+
+
+
+
+        // addCommands(
+        //     embarkToI,
+        //     goToStation1stTime,
+        //     embarkToK,
+        //     goToStation2ndTime,
+        //     embarkToL
+        // );
+        
+
+        
 
     }
 }

@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.Auto;
+package org.team100.frc2025.Swerve.AutoOld;
 
 import java.util.function.DoubleConsumer;
 
@@ -11,6 +11,7 @@ import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.HoldWristAndElevator;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;

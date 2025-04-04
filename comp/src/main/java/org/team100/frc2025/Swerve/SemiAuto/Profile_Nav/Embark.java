@@ -266,6 +266,7 @@ public class Embark extends Command implements Glassy {
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
+
     }
 
     @Override
@@ -291,7 +292,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("*************I FINISHED EMBBARKING********************");
+        System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

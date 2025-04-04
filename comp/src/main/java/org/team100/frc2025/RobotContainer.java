@@ -24,8 +24,12 @@ import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.FunnelDefault;
 import org.team100.frc2025.Funnel.ReleaseFunnel;
 import org.team100.frc2025.Swerve.DriveForwardSlowly;
-import org.team100.frc2025.Swerve.Auto.Coral2AutoLeft;
-import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNew;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNewNew;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNewNewSim;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoRightNewNewSim;
+import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
+import org.team100.frc2025.Swerve.AutoOld.Coral2AutoLeft;
+import org.team100.frc2025.Swerve.AutoOld.Coral2AutoLeftNew;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
@@ -34,6 +38,7 @@ import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.lib.async.Async;
 import org.team100.lib.async.AsyncFactory;
+import org.team100.lib.commands.drivetrain.FieldConstants.CoralStation;
 import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
 import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
@@ -354,13 +359,13 @@ public class RobotContainer implements Glassy {
                 m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 20);
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
-        m_auton = new Coral2AutoLeft(
-                logger, m_wrist,
-                m_elevator, m_funnel,
-                m_tunnel, m_grip,
-                autoController, autoProfile,
-                m_drive, visionDataProvider::setHeedRadiusM,
-                m_swerveKinodynamics, viz);
+
+        m_auton = new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz);
+
+
+        whileTrue(driverControl::test, new Coral2AutoRightNewNewSim(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         // Driver/Operator Buttons
         onTrue(driverControl::resetRotation0, new ResetPose(m_drive, new Pose2d()));
@@ -370,9 +375,9 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::climb,
                 new ParallelCommandGroup(new SetClimber(m_climber, 0.6), new DriveForwardSlowly(m_drive)));
 
-        // whileTrue(driverControl::driveToTag,
-        //         new Coral2AutoLeftNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
-        //                 autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
+        whileTrue(driverControl::driveToTag,
+                new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+                        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -458,8 +463,8 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip,
         buttons::red4));
         whileTrue(buttons::barge, new ReleaseFunnel(logger, m_funnel, m_climber));
-        // whileTrue(driverControl::test, new ScoreBargeSmart(m_elevator, m_wrist,
-        // m_grip, buttons::red4));
+
+
         // 3/27/25 Marcelo auto run funnel in corners
         // NearStation run = new NearStation(m_drive:: getPose);
         // whileTrue(run:: closeToStation, new RunFunnelHandoff(comLog, m_elevator,
