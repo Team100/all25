@@ -65,7 +65,7 @@ public class SwerveModuleCollection {
                                 statorLimit,
                                 18,
                                 DriveRatio.MEDIUM, DutyCycleRotaryPositionSensor.class,
-                                54,
+                                55,
                                 0,
                                 0.512104,
                                 kinodynamics,

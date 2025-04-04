@@ -53,7 +53,6 @@ public class Embark extends Command implements Glassy {
     private Pose2d m_goal;
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
-    private SwerveKinodynamics m_kinodynamics;
 
     private ReefPoint m_point;
 
@@ -69,8 +68,7 @@ public class Embark extends Command implements Glassy {
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier,
             ReefPoint point,
-            boolean perpetual,
-            SwerveKinodynamics kinodynamics) {
+            boolean perpetual) {
         this(
                 logger,
                 drive,
@@ -82,8 +80,7 @@ public class Embark extends Command implements Glassy {
                 scoringPositionSupplier,
                 0,
                 point,
-                perpetual,
-                kinodynamics);
+                perpetual);
     }
 
     public Embark(
@@ -107,8 +104,7 @@ public class Embark extends Command implements Glassy {
                 scoringPositionSupplier,
                 0,
                 point,
-                false,
-                null);
+                false);
     }
 
     public Embark(
@@ -122,8 +118,7 @@ public class Embark extends Command implements Glassy {
             Supplier<ScoringPosition> scoringPositionSupplier,
             double radius,
             ReefPoint point,
-            boolean perpetual,
-            SwerveKinodynamics kinodynamics) {
+            boolean perpetual) {
         LoggerFactory child = logger.child(this);
         m_log_sector = child.stringLogger(Level.TRACE, "sector");
         m_log_goal = child.pose2dLogger(Level.TRACE, "goal");
@@ -137,7 +132,6 @@ public class Embark extends Command implements Glassy {
         m_radius = radius;
         m_point = point;
         m_perpetual = perpetual;
-        m_kinodynamics = kinodynamics;
         addRequirements(m_drive);
     }
 
@@ -272,6 +266,7 @@ public class Embark extends Command implements Glassy {
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
+
     }
 
     @Override
@@ -297,7 +292,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        // System.out.println("*************I FINISHED EMBBARKING********************");
+        System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

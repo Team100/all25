@@ -27,6 +27,7 @@ public class DeadlineForEmbarkAndPrePlace extends Command {
   @Override
   public void initialize() {
     finished = false;
+    
     if(m_embarkEnd.get() && m_prePlaceEnd.get()){
         finished = true;
     } else {
@@ -48,7 +49,7 @@ public class DeadlineForEmbarkAndPrePlace extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("I AM AT MY GOAL" + Takt.actual());
+    // System.out.println("DEADLINE FINISHED");
   }
 
   // Returns true when the command should end.

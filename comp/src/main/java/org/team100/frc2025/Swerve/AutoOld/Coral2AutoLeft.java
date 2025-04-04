@@ -1,4 +1,4 @@
-package org.team100.frc2025.Swerve.Auto;
+package org.team100.frc2025.Swerve.AutoOld;
 
 import java.util.function.DoubleConsumer;
 
@@ -11,6 +11,7 @@ import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.HoldWristAndElevator;
 import org.team100.frc2025.Funnel.Funnel;
+import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.CoralTunnel;
@@ -52,13 +53,13 @@ public class Coral2AutoLeft extends SequentialCommandGroup100 {
 
 
         Embark embarkToI = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.IJ, ReefDestination.LEFT,
-        () -> ScoringPosition.L4, ReefPoint.I, true, kinodynamics);
+        () -> ScoringPosition.L4, ReefPoint.I, true);
 
         Embark embarkToK = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL, ReefDestination.LEFT,
-        () -> ScoringPosition.L4, ReefPoint.K, true, kinodynamics);
+        () -> ScoringPosition.L4, ReefPoint.K, true);
 
         Embark embarkToL = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.KL, ReefDestination.RIGHT,
-        () -> ScoringPosition.L4, ReefPoint.L, true, kinodynamics);
+        () -> ScoringPosition.L4, ReefPoint.L, true);
         
         PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, 47, true);
 
