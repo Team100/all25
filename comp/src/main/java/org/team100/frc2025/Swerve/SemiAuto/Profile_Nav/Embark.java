@@ -158,40 +158,40 @@ public class Embark extends Command implements Glassy {
 
                 switch (m_point) {
                     case A:
-                        radius = 1.485;
+                        radius = 1.445;
                         break;
                     case B:
-                        radius = 1.455;
+                        radius = 1.445;
                         break;
                     case C:
-                        radius = 1.430;
+                        radius = 1.445;
                         break;
                     case D:
-                        radius = 1.430;
+                        radius = 1.445;
                         break;
                     case E:
-                        radius = 1.430;
+                        radius = 1.445;
                         break;
                     case F:
-                        radius = 1.430;
+                        radius = 1.445;
                         break;
                     case G:
-                        radius = 1.485;
+                        radius = 1.445;
                         break;
                     case H:
-                        radius = 1.450;
+                        radius = 1.445;
                         break;
                     case I:
-                        radius = 1.450;
+                        radius = 1.445;
                         break;
                     case J:
-                        radius = 1.485;
+                        radius = 1.445;
                         break;
                     case K:
-                        radius = 1.460;
+                        radius = 1.445;
                         break;
                     case L:
-                        radius = 1.485;
+                        radius = 1.445;
                         break;
                     default:
                         break;
@@ -222,7 +222,7 @@ public class Embark extends Command implements Glassy {
                         radius = 1.34;
                         break;
                     case H:
-                        radius = 1.32;
+                        radius = 1.34;
                         break;
                     case I:
                         radius = 1.34;

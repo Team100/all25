@@ -26,6 +26,7 @@ import org.team100.frc2025.Funnel.ReleaseFunnel;
 import org.team100.frc2025.Swerve.DriveForwardSlowly;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNewNew;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoLeftNewNewSim;
+import org.team100.frc2025.Swerve.Auto.Coral2AutoRightNewNew;
 import org.team100.frc2025.Swerve.Auto.Coral2AutoRightNewNewSim;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.AutoOld.Coral2AutoLeft;
@@ -360,6 +361,9 @@ public class RobotContainer implements Glassy {
 
         FullStateSwerveController autoController = SwerveControllerFactory.auto2025LooseTolerance(autoSequence);
 
+        // m_auton = new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+        // autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz);
+
         m_auton = new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
         autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz);
 
@@ -375,9 +379,9 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::climb,
                 new ParallelCommandGroup(new SetClimber(m_climber, 0.6), new DriveForwardSlowly(m_drive)));
 
-        whileTrue(driverControl::driveToTag,
-                new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
-                        autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
+        // whileTrue(driverControl::driveToTag,
+        //         new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel, m_grip, autoController,
+        //                 autoProfile, m_drive, visionDataProvider::setHeedRadiusM, m_swerveKinodynamics, viz));
 
         whileTrue(driverControl::driveToTag, buttons::a,
                 new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
@@ -485,11 +489,11 @@ public class RobotContainer implements Glassy {
         // m_elevator, m_tunnel, null, null, null, autoController, profile, m_drive,
         // null, null));
 
-        whileTrue(operatorControl::intake,
-                new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
-                        FieldSector.AB, ReefDestination.LEFT,
-                        () -> ScoringPosition.L4, holonomicController, profile,
-                        m_drive, visionDataProvider::setHeedRadiusM, ReefPoint.A));
+        // whileTrue(operatorControl::intake,
+        //         new ScoreCoralSmart(coralSequence, m_wrist, m_elevator, m_tunnel,
+        //                 FieldSector.AB, ReefDestination.LEFT,
+        //                 () -> ScoringPosition.L4, holonomicController, profile,
+        //                 m_drive, visionDataProvider::setHeedRadiusM, ReefPoint.A));
 
         m_initializer = Executors.newSingleThreadScheduledExecutor();
         m_initializer.schedule(this::initStuff, 0, TimeUnit.SECONDS);

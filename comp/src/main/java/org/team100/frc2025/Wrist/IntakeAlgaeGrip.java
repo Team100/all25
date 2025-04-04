@@ -37,7 +37,7 @@ public class IntakeAlgaeGrip extends Command {
         //     // m_grip.setPosition(position);
         //     // m_grip.setDutyCycle(0);
         // }
-        m_grip.setDutyCycle(0.5);
+        m_grip.setDutyCycle(0.8);
 
         if(m_grip.hasAlgae()){
             m_grip.applyLowConfigs();

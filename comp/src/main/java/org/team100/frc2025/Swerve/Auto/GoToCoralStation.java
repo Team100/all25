@@ -58,7 +58,7 @@ public class GoToCoralStation extends Navigator {
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
 
-        System.out.println("RUNNING TRAJECTOR");
+        // System.out.println("RUNNING TRAJECTOR");
 
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation;
@@ -67,7 +67,7 @@ public class GoToCoralStation extends Navigator {
         double scaleAdjust = kScale;
 
         if (m_station == CoralStation.Left) {
-            goalTranslation = new Translation2d(1.436928, 6.840616); //1.2 7.0
+            goalTranslation = new Translation2d(1.336928, 6.9540616); //1.2 7.0
             goalRotation = Rotation2d.fromDegrees(-54);
             scaleAdjust *= 1;
 
