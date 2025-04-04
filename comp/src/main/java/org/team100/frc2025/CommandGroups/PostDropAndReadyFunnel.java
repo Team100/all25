@@ -120,6 +120,8 @@ public class PostDropAndReadyFunnel extends Command {
         completelyFinished = false;
         finishedReadyFunnel = false;
         indicateReadyToLeave = false;
+
+        // System.out.println("I ALREADY FINISHED");
     }
 
     @Override
@@ -127,7 +129,7 @@ public class PostDropAndReadyFunnel extends Command {
         // if (Experiments.instance.enabled(Experiment.UseProfileDone))
         //     return completelyFinished && m_wrist.profileDone() && m_elevator.profileDone();
         // return completelyFinished;
-        System.out.println("FINISHE????  " + m_endCondition.get());
+        // System.out.println("FINISHE????  " + m_endCondition.get());
         return m_endCondition.get();
     }
 }

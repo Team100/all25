@@ -7,7 +7,9 @@ package org.team100.frc2025.CommandGroups.ScoreSmart;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
+import org.team100.frc2025.CommandGroups.DeadlineForEmbarkAndPrePlace;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL3;
+import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.HoldWristAndElevator;
 import org.team100.frc2025.Elevator.SetElevator;
@@ -51,13 +53,17 @@ public class ScoreL3Smart extends SequentialCommandGroup100 {
 
         Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
 
+        Embark embarkCommand = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint, true);
+        PrePlaceCoralL3 prePlaceCoralL3 = new PrePlaceCoralL3(wrist, elevator, 23, true);
+
         addCommands(
-                new ParallelCommandGroup100(m_logger, "drive",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint),
+                new ParallelDeadlineGroup100(m_logger, "drive",
+                        new DeadlineForEmbarkAndPrePlace(embarkCommand::isDone, prePlaceCoralL3::isDone),
+                        embarkCommand,
                         new SequentialCommandGroup100(m_logger, "out",
                                 // new WaitUntilWithinRadius(m_drive),
                                 new SetWrist(wrist, 0.4, false),
-                                new PrePlaceCoralL3(wrist, elevator, 23, false, holdingCommand))),
+                                prePlaceCoralL3)),
                 // new ParallelDeadlineGroup100(m_logger, "up",
                 //         new SetWrist(wrist, 0.9, false),
                 //         new SetElevatorPerpetually(elevator, 23)),

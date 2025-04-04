@@ -85,7 +85,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                     kPositionTolerance, 0.1);
         } else {
             wristFeedback = new FullStateFeedback(wristLogger,
-                    3.0, 0.10, x -> x, 0.05, 0.05);
+                    4.0, 0.11, x -> x, 0.05, 0.05);
         }
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
@@ -93,7 +93,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         double maxVel = 40;
         double maxAccel = 40;
-        double maxJerk = 90;
+        double maxJerk = 70;
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 5,
         // kPositionTolerance); // TODO CHANGE THESE

@@ -30,11 +30,27 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     // used by trajectory()
     protected final TrajectoryPlanner m_planner;
+    private boolean m_perpetual = false;
 
     private boolean ranOnce = false;
 
     // created in initialize()
     protected ReferenceController m_referenceController;
+
+    public Navigator(
+            LoggerFactory parent,
+            SwerveDriveSubsystem drive,
+            SwerveController controller,
+            TrajectoryVisualization viz,
+            SwerveKinodynamics kinodynamics,
+            boolean perpetual) {
+        m_drive = drive;
+        m_controller = controller;
+        m_viz = viz;
+        m_planner = new TrajectoryPlanner(new TimingConstraintFactory(kinodynamics).auto());
+        m_perpetual = perpetual;
+        addRequirements(m_drive);
+    } 
 
     public Navigator(
             LoggerFactory parent,
@@ -51,6 +67,7 @@ public abstract class Navigator extends Command implements Planner2025 {
 
     @Override
     public void initialize() {
+        System.out.println("I STARTED TO DRIVE");
         ranOnce = false;
         Trajectory100 trajectory = trajectory(m_drive.getPose());
         m_viz.setViz(trajectory);
@@ -67,7 +84,6 @@ public abstract class Navigator extends Command implements Planner2025 {
     @Override
     public final void execute() {
         ranOnce = true;
-        System.out.println("I RANNNNNNNNNNNNNNNNNNNNNNNNN");
         m_referenceController.execute();
     }
 
@@ -75,17 +91,41 @@ public abstract class Navigator extends Command implements Planner2025 {
     public final void end(boolean interrupted) {
         m_drive.stop();
         m_viz.clear();
-        ranOnce = false;
+
+        // if(!interrupted){
+            ranOnce = false;
+        // }
+
         System.out.println("I FINISHED");
     }
 
     @Override
     public final boolean isFinished() {
+
+        if(m_perpetual){
+            return false;
+        }
+
         if(m_referenceController == null){
             return false;
         } 
 
         if(ranOnce == false){
+            System.out.println(" I AM ALSE FALse fASLE");
+            return false;
+        }
+        
+        return m_referenceController.isFinished();
+        // return false;
+    }
+
+    public final boolean isDone() {
+        if(m_referenceController == null){
+            return false;
+        } 
+
+        if(ranOnce == false){
+            System.out.println(" I AM ALSE FALse fASLE");
             return false;
         }
         

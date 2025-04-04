@@ -27,8 +27,8 @@ public class JerkLimitedProfile100 implements TimedProfile {
 
     @Override
     public void init(Model100 initial, Model100 goal) {
-        if (Logging.instance().getLevel().admit(Level.TRACE))
-            Util.printf("INIT initial %s goal %s\n", initial, goal);
+        // if (Logging.instance().getLevel().admit(Level.TRACE))
+        //     Util.printf("INIT initial %s goal %s\n", initial, goal);
         MotionState start = new MotionState(initial.x(), initial.v());
         MotionState end = new MotionState(goal.x(), goal.v());
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
