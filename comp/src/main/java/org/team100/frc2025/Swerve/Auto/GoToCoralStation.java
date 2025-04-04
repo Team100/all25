@@ -25,6 +25,21 @@ public class GoToCoralStation extends Navigator {
     private double kScale;
     private final CoralStation m_station;
 
+    public GoToCoralStation(
+            LoggerFactory parent,
+            SwerveDriveSubsystem drive,
+            SwerveController hcontroller,
+            TrajectoryVisualization viz,
+            SwerveKinodynamics kinodynamics,
+            CoralStation station,
+            double scale,
+            boolean perpetual) {
+        super(parent, drive, hcontroller, viz, kinodynamics, perpetual);
+        m_station = station;
+        kScale = scale;
+
+    }
+
 
     public GoToCoralStation(
             LoggerFactory parent,
@@ -42,6 +57,8 @@ public class GoToCoralStation extends Navigator {
 
     @Override
     public Trajectory100 trajectory(Pose2d currentPose) {
+
+        System.out.println("RUNNING TRAJECTOR");
 
         Translation2d currTranslation = currentPose.getTranslation();
         Translation2d goalTranslation;
