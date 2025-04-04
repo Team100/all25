@@ -599,9 +599,9 @@ public class LoggerFactory {
 
         FieldRelativeDeltaLogger(Level level, String leaf) {
             m_level = level;
-            m_xLogger = doubleLogger(level, join(leaf, "x m_s"));
-            m_yLogger = doubleLogger(level, join(leaf, "y m_s"));
-            m_thetaLogger = doubleLogger(level, join(leaf, "theta rad_s"));
+            m_xLogger = doubleLogger(level, join(leaf, "x m"));
+            m_yLogger = doubleLogger(level, join(leaf, "y m"));
+            m_thetaLogger = doubleLogger(level, join(leaf, "theta rad"));
         }
 
         public void log(Supplier<FieldRelativeDelta> vals) {

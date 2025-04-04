@@ -127,4 +127,21 @@ public interface DriverControl extends Glassy {
     default boolean button5() {
         return false;
     }
+
+    default boolean climb(){
+        return false;
+    }
+
+
+    default boolean feedFunnel(){
+        return false;
+    }
+
+    default boolean useReefLock(){
+        return false;
+    }
+
+    default boolean driveWithBargeAssist(){
+        return false;
+    }
 }

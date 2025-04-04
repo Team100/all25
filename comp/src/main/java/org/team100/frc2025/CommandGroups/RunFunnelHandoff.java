@@ -4,6 +4,7 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.RunFunnel;
 import org.team100.frc2025.Wrist.AlgaeGrip;
+import org.team100.frc2025.Wrist.CheckFunnelDanger;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.RunCoralTunnel;
 import org.team100.frc2025.Wrist.SetWristDutyCycle;
@@ -22,6 +23,7 @@ public class RunFunnelHandoff extends SequentialCommandGroup100 {
             AlgaeGrip grip) {
         super(logger, "RunFunnelHandoff");
         addCommands(
+                new CheckFunnelDanger(wrist, elevator),
                 new PrepareFunnelHandoff(m_logger, wrist, elevator),
                 new ParallelCommandGroup100(m_logger, "handoff",
                         new RunFunnel(funnel),

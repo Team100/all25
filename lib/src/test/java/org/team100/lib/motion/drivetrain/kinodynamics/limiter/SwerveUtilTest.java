@@ -39,7 +39,7 @@ class SwerveUtilTest {
     void testAccelLimit1() {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
         assertEquals(10, limits.getMaxDriveAccelerationM_S2(), kDelta);
-        double accelLimit = SwerveUtil.getAccelLimit(limits,
+        double accelLimit = SwerveUtil.getAccelLimit(limits, 1, 1,
                 new FieldRelativeVelocity(0, 0, 0),
                 new FieldRelativeVelocity(1, 0, 0));
         // low speed, current limited.
@@ -51,7 +51,7 @@ class SwerveUtilTest {
         SwerveKinodynamics limits = SwerveKinodynamicsFactory.forRealisticTest();
         assertEquals(10, limits.getMaxDriveAccelerationM_S2(), kDelta);
         assertEquals(5, limits.getMaxDriveVelocityM_S(), kDelta);
-        double accelLimit = SwerveUtil.getAccelLimit(limits,
+        double accelLimit = SwerveUtil.getAccelLimit(limits, 1, 1,
                 new FieldRelativeVelocity(4.9, 0, 0),
                 new FieldRelativeVelocity(5, 0, 0));
         // near top speed, EMF-limited
@@ -64,7 +64,7 @@ class SwerveUtilTest {
         // exactly the right result
         SwerveKinodynamics limits = new Fixture().swerveKinodynamics;
         assertEquals(1, limits.getMaxDriveAccelerationM_S2(), kDelta);
-        double accelLimit = SwerveUtil.getAccelLimit(limits,
+        double accelLimit = SwerveUtil.getAccelLimit(limits, 1, 1,
                 new FieldRelativeVelocity(0.92, 0, 0),
                 new FieldRelativeVelocity(0.94, 0, 0));
         assertEquals(0.8, accelLimit, kDelta);
@@ -83,7 +83,7 @@ class SwerveUtilTest {
         assertEquals(1, limits.getMaxDriveVelocityM_S(), kDelta);
         assertEquals(10, limits.getStallAccelerationM_S2(), kDelta);
         // this returns 0.8 which is wrong
-        double accelLimit = SwerveUtil.minAccel(limits, 0.92);
+        double accelLimit = SwerveUtil.minAccel(limits, 1, 1, 0.92);
         assertEquals(0.8, accelLimit, kDelta);
     }
 
@@ -97,7 +97,7 @@ class SwerveUtilTest {
         for (double t = 0; t < 3; t += dt) {
             if (DEBUG)
                 Util.printf("%5.3f %5.3f\n", t, v);
-            double a = SwerveUtil.minAccel(limits, v);
+            double a = SwerveUtil.minAccel(limits, 1, 1, v);
             v += dt * a;
         }
     }

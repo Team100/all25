@@ -17,10 +17,10 @@ import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
-import au.grapplerobotics.CanBridge;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -47,7 +47,9 @@ public class Robot extends TimedRobot100 {
         m_log_voltage = m_robotLogger.doubleLogger(Level.TRACE, "voltage");
         m_jvmLogger = new JvmLogger(m_robotLogger);
         m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
-        CanBridge.runTCP();
+        // 4/2/25 Joel added this to try to avoid doing extra work
+        setNetworkTablesFlushEnabled(false);
+        // CanBridge.runTCP();
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -97,11 +99,50 @@ public class Robot extends TimedRobot100 {
      */
     @Override
     public void robotPeriodic() {
+        try {
+            // real-time priority for this thread while it's running robotPeriodic.
+            // see
+            // https://github.com/Mechanical-Advantage/AdvantageKit/blob/a86d21b27034a36d051798e3eaef167076cd302b/template_projects/sources/vision/src/main/java/frc/robot/Robot.java#L90
+            // This seems to interfere with CAN at startup
+            // Threads.setCurrentThreadPriority(true, 99);
+
+            // Advance the drumbeat.
+            Takt.update();
+
+            // Take all the measurements we can, as soon and quickly as possible.
+            updateCaches();
+
+            // Run one iteration of the command scheduler.
+            CommandScheduler.getInstance().run();
+
+            // Actuate LEDs, do some logging.
+            m_robotContainer.periodic();
+
+            m_log_ds_MatchTime.log(DriverStation::getMatchTime);
+            m_log_ds_AutonomousEnabled.log(DriverStation::isAutonomousEnabled);
+            m_log_ds_TeleopEnabled.log(DriverStation::isTeleopEnabled);
+            m_log_ds_FMSAttached.log(DriverStation::isFMSAttached);
+
+            m_jvmLogger.logGarbageCollectors();
+            m_jvmLogger.logMemoryPools();
+            m_jvmLogger.logMemoryUsage();
+
+            Logging.instance().periodic();
+
+            if (Experiments.instance.enabled(Experiment.FlushOften)) {
+                // Util.warn("FLUSHING EVERY LOOP, DO NOT USE IN COMP");
+                NetworkTableInstance.getDefault().flush();
+            }
+        } finally {
+            // This thread should have low priority when the main loop isn't running.
+            // Threads.setCurrentThreadPriority(false, 0);
+        }
+    }
+
+    /** Update the measurement caches. */
+    private void updateCaches() {
         // Measure how long the update takes prior to the scheduler running.
         double startUpdateS = Takt.actual();
-
-        // Advance the drumbeat.
-        Takt.update();
 
         // Cache instances hold measurements that we want to keep consistent
         // for an entire cycle, but that we want to forget between cycles, so we
@@ -116,26 +157,6 @@ public class Robot extends TimedRobot100 {
         double updateS = endUpdateS - startUpdateS;
         // this is how long it takes to update all the memos
         m_log_update.log(() -> updateS);
-
-        CommandScheduler.getInstance().run();
-        // What is the logical separation?
-        m_robotContainer.periodic();
-
-        m_log_ds_MatchTime.log(DriverStation::getMatchTime);
-        m_log_ds_AutonomousEnabled.log(DriverStation::isAutonomousEnabled);
-        m_log_ds_TeleopEnabled.log(DriverStation::isTeleopEnabled);
-        m_log_ds_FMSAttached.log(DriverStation::isFMSAttached);
-
-        m_jvmLogger.logGarbageCollectors();
-        m_jvmLogger.logMemoryPools();
-        m_jvmLogger.logMemoryUsage();
-
-        Logging.instance().periodic();
-
-        if (Experiments.instance.enabled(Experiment.FlushOften)) {
-            // Util.warn("FLUSHING EVERY LOOP, DO NOT USE IN COMP");
-            NetworkTableInstance.getDefault().flush();
-        }
     }
 
     //////////////////////////////////////////////////////////////////////

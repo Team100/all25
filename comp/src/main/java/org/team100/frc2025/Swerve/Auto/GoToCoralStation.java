@@ -3,9 +3,11 @@ package org.team100.frc2025.Swerve.Auto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.CoralStation;
+import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
+import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.CoralStation;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.logging.LoggerFactory;
@@ -23,6 +25,7 @@ public class GoToCoralStation extends Navigator {
     private double kScale;
     private final CoralStation m_station;
 
+
     public GoToCoralStation(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
@@ -34,6 +37,7 @@ public class GoToCoralStation extends Navigator {
         super(parent, drive, hcontroller, viz, kinodynamics);
         m_station = station;
         kScale = scale;
+
     }
 
     @Override
@@ -46,12 +50,12 @@ public class GoToCoralStation extends Navigator {
         double scaleAdjust = kScale;
 
         if (m_station == CoralStation.Left) {
-            goalTranslation = new Translation2d(1.2, 7.00);
+            goalTranslation = new Translation2d(1.436928, 6.840616); //1.2 7.0
             goalRotation = Rotation2d.fromDegrees(-54);
             scaleAdjust *= 1;
 
         } else {
-            goalTranslation = new Translation2d(1.2, 1.05);
+            goalTranslation = new Translation2d(1.2, 1.05); 
             goalRotation = Rotation2d.fromDegrees(54);
             scaleAdjust *= -1;
         }

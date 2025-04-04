@@ -255,7 +255,9 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     @Override
     public void periodic() {
         // m_poseEstimator.periodic();
-        m_stateSupplier.reset();
+        // 4/2/25 Joel removed this state resetter because it happens earlier in Robot.java
+        // and i think we don't need to do it twice.
+        // m_stateSupplier.reset();
         m_log_state.log(this::getState);
         m_log_turning.log(() -> getPose().getRotation().getDegrees());
         m_log_pose_array.log(

@@ -3,12 +3,11 @@ package org.team100.frc2025.CommandGroups.Hesitant;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
-import org.team100.lib.commands.drivetrain.manual.DriveAdjustCoral;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.manual.FieldRelativeDriver;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -42,7 +41,7 @@ public class ScoreCoralHesitantly extends SequentialCommandGroup100 {
                 new SetElevatorTargetPosition(elevator, scoringPositionSupplier),
                 new EmbarkHesitantly(m_drive, controller, profile, targetSector, destination, elevator),
                 new ParallelDeadlineGroup100(m_logger, "adjust",
-                        new DriveAdjustCoral(twistSupplier, m_drive, readyToPlace, driver),
+                        // new DriveManuallySimple(twistSupplier, m_drive, readyToPlace, driver),
                         new SelectCommand<>(
                                 Map.of(ScoringPosition.L4, new PreScoreL4Hesitant(m_logger, wrist, elevator)),
                                 elevator::getScoringPosition)),

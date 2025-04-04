@@ -149,6 +149,6 @@ class TagDetector(Interpreter):
             # do the drawing (after the NT payload is written)
             # none of this is particularly fast or important for prod.
             fps = req.fps()
-            self.display.text(img, f"FPS {fps:2.0f}", (5, 65))
-            self.display.text(img, f"delay (ms) {delay_us/1000:2.0f}", (5, 105))
+            self.display.text(img, f"FPS {fps:2.0f}", (10, 80))
+            self.display.text(img, f"DELAY (ms) {delay_us/1000:2.0f}", (10, 160))
             self.display.put(img)

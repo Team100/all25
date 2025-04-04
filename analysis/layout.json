@@ -1,13 +1,13 @@
 {
   "hubs": [
     {
-      "x": 838,
-      "y": 166,
-      "width": 1042,
-      "height": 653,
+      "x": -8,
+      "y": -8,
+      "width": 1920,
+      "height": 1032,
       "state": {
         "sidebar": {
-          "width": 287,
+          "width": 327,
           "expanded": [
             "/NT/log/Drive/SwerveDriveSubsystem/state",
             "/NT/log/Coral Sequence/FullStateSwerveController/positionError",
@@ -112,13 +112,81 @@
             "/NT/log/Funnel/Funnel",
             "/NT/log/Funnel/Funnel/Neo550CANSparkMotor",
             "/NT/log/Elevator/Wrist2/Wrist 2 Motor",
-            "/tags",
-            "/tags/0",
-            "/tags/0/translation"
+            "/tags/0/translation",
+            "/log",
+            "/log/Elevator/Wrist2/Wrist 2",
+            "/log/Elevator/Wrist2/OnboardAngularPositionServo",
+            "/log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)",
+            "/log/Elevator/Elevator",
+            "/log/Elevator/Elevator/Port",
+            "/log/Elevator/Elevator/Port/OutboardLinearPositionServo",
+            "/log/Elevator/Elevator/Port/OutboardLinearPositionServo/setpoint (m)",
+            "/log/Elevator/Elevator/Port Motor/Kraken6Motor",
+            "/log/Elevator/Wrist2/Wrist 2/SimpleRotaryMechanism",
+            "/log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)",
+            "/log/Elevator/WristDefaultCommand",
+            "/log/Elevator/Wrist2/OnboardAngularPositionServo/goal (rad)",
+            "/log/Coral Sequence/ScoreCoral",
+            "/log/Coral Sequence/ScoreCoral/ScoreL4",
+            "/log/Auto Sequence/FullStateSwerveController",
+            "/log/Auto Sequence/FullStateSwerveController/currentReference",
+            "/log/Auto Sequence/FullStateSwerveController/currentReference/x",
+            "/log/Auto Sequence/FullStateSwerveController/measurement",
+            "/log/Auto Sequence/FullStateSwerveController/measurement/x",
+            "/log/Commands/FullStateSwerveController",
+            "/log/Auto Sequence/FullStateSwerveController/currentReference/y",
+            "/log/Auto Sequence/FullStateSwerveController/measurement/y",
+            "/log/Auto Sequence/FullStateSwerveController/velocityError",
+            "/log/Robot/duration (s)",
+            "/log/Funnel/Funnel",
+            "/log/Funnel/Funnel/CANSparkEncoder",
+            "/log/Climber/OnboardAngularPositionServo",
+            "/log/Climber/OnboardAngularPositionServo/control (rad)",
+            "/log/Climber/OnboardAngularPositionServo/measurement (rad)",
+            "/log/Climber/AS5048RotaryPositionSensor",
+            "/log/Elevator/Wrist2",
+            "/log/Elevator/Elevator/Port/OutboardLinearPositionServo/goal (m)",
+            "/log/Drive",
+            "/log/Drive/Swerve Modules/Front Left",
+            "/log/Drive/Swerve Modules/Front Left/Drive",
+            "/log/Drive/Swerve Modules/Front Left/Drive/Kraken6Motor",
+            "/log/Drive/Swerve Modules/Front Right",
+            "/log/Drive/Swerve Modules/Front Right/Drive",
+            "/log/Drive/Swerve Modules/Front Right/Drive/Kraken6Motor",
+            "/log/Drive/Swerve Modules/Rear Left",
+            "/log/Drive/Swerve Modules/Rear Left/Drive",
+            "/log/Drive/Swerve Modules/Rear Left/Drive/Kraken6Motor",
+            "/log/Drive/Swerve Modules/Rear Right",
+            "/log/Drive/Swerve Modules/Rear Right/Drive",
+            "/log/Drive/Swerve Modules/Rear Right/Drive/Kraken6Motor",
+            "/log/Robot",
+            "/log/Drive/SwerveLimiter",
+            "/log/Drive/SwerveLimiter/FieldRelativeVelocityLimiter",
+            "/log/Drive/SwerveLimiter/FieldRelativeCapsizeLimiter",
+            "/log/Drive/SwerveLimiter/FieldRelativeAccelerationLimiter",
+            "/log/Drive/SwerveLimiter/BatterySagSpeedLimit",
+            "/log/Drive/SwerveLimiter/next",
+            "/log/Coral Sequence",
+            "/log/Coral Sequence/ScoreCoralSmart/ScoreL4Smart/Embark",
+            "/log/Coral Sequence/ScoreCoralSmart/ScoreL4Smart/Embark/goal",
+            "/log/Coral Sequence/ScoreCoralSmart/ScoreL4Smart/Embark/goal/translation",
+            "/log/Coral Sequence/ScoreCoralSmart",
+            "/log/Commands",
+            "/log/Commands/FullStateSwerveController/currentReference",
+            "/log/Commands/FullStateSwerveController/currentReference/x",
+            "/log/Commands/FullStateSwerveController/measurement",
+            "/log/Commands/FullStateSwerveController/measurement/x",
+            "/log/Commands/FullStateSwerveController/measurement/y",
+            "/log/Commands/FullStateSwerveController/currentReference/y",
+            "/SmartDashboard",
+            "/SmartDashboard/Log Level",
+            "/log/Commands/DriveManually",
+            "/log/Auto Sequence",
+            "/log/Auto Sequence/FullStateSwerveController/positionError"
           ]
         },
         "tabs": {
-          "selected": 1,
+          "selected": 16,
           "tabs": [
             {
               "type": 0,
@@ -161,15 +229,90 @@
                       "color": "#00ff00",
                       "size": "normal"
                     }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "NT:tags",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ffff00"
+                    }
                   }
                 ],
                 "game": "2025 Field (Welded)",
                 "bumpers": "auto",
-                "origin": "blue",
+                "origin": "auto",
                 "orientation": 0,
                 "size": 30
               },
               "controllerUUID": "oi9ny7p3qhnll1c04igx5vuorukkqfcf",
+              "renderer": null,
+              "controlsHeight": 148
+            },
+            {
+              "type": 1,
+              "title": "swerve controller",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Commands/FullStateSwerveController/currentReference/x/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Commands/FullStateSwerveController/measurement/x/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Commands/FullStateSwerveController/measurement/y/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Commands/FullStateSwerveController/currentReference/y/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "eed4rge46meys7erwjrig0e5guykt0x6",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -182,7 +325,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/goal (m)/x",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#2b66a2",
                       "size": "normal"
@@ -214,7 +357,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Elevator/Elevator/Starboard Motor/Kraken6Motor/output [-1,1]",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#80588e",
                       "size": "normal"
@@ -224,7 +367,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Elevator/Wrist2/Wrist 2 Motor/Kraken6Motor/output [-1,1]",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
                       "color": "#e48b32",
                       "size": "normal"
@@ -261,12 +404,118 @@
             },
             {
               "type": 1,
-              "title": "auto",
+              "title": "wrist",
               "controller": {
                 "leftSources": [
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/x/x",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)/a",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/u_FB (rad_s)",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/u_FF (rad_s)",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/u_TOTAL (rad_s)",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "b84qt0su8y0xcm6imkqx07qvkazhvrvd",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "full sequence",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/WristDefaultCommand/hold position (m)",
                     "logType": "Number",
                     "visible": false,
                     "options": {
@@ -276,41 +525,11 @@
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/x m_s",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/goal (rad)/x",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
-                      "color": "#af2437",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/Wrist 2/SimpleRotaryMechanism/position (rad)",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#c0b487",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Robot/JvmLogger/MemoryUsage/heap",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#3b875a",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Robot/JvmLogger/GCCount/Copy",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#d993aa",
+                      "color": "#80588e",
                       "size": "normal"
                     }
                   }
@@ -318,17 +537,186 @@
                 "rightSources": [
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Robot/slack time (s)",
+                    "logKey": "NT:log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/position (m)",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "bold"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/setpoint (m)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Elevator/Port/OutboardLinearPositionServo/goal (m)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Coral Sequence/ScoreCoral/ScoreL4/SetWrist",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Coral Sequence/ScoreCoral/ScoreL4/PrePlaceCoralL4",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Coral Sequence/ScoreCoral/ScoreL4/PostDropCoralL4",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Elevator/WristDefaultCommand/activity",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#5f4528"
+                    }
+                  }
+                ],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "66vep2rakz87mhxnm7lkt9dcl1x2kk9u",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "wrist",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/Controller Position Error (rad)",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/Controller Velocity Error (rad_s)",
                     "logType": "Number",
                     "visible": true,
                     "options": {
                       "color": "#80588e",
                       "size": "normal"
                     }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "ccj1ynvnmba4y97s5d2svqqzvdpy1im4",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "velocities",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Elevator/Port/OutboardLinearPositionServo/setpoint (m)/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Robot/duration (s)/main loop",
+                    "logKey": "NT:log/Elevator/Elevator/Port/OutboardLinearPositionServo/velocity (m_s)",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/v",
                     "logType": "Number",
                     "visible": true,
                     "options": {
@@ -337,6 +725,51 @@
                     }
                   }
                 ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "8kn3pw2qxjs6lcgz5kbkb9vv7zezogy1",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "auto",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/x/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/x m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
                 "discreteSources": [
                   {
                     "type": "stripes",
@@ -460,16 +893,6 @@
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/setpoint (rad)/x",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#5f4528",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
                     "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
                     "logType": "Number",
                     "visible": true,
@@ -490,111 +913,11 @@
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/Position Error ",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#af2437",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/positionError/x m_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#80588e",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
                     "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/u_TOTAL (rad_s)",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#e48b32",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/currentReference/x/v",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#c0b487",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/measurement/x/v",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#858584",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/velocityError/x m_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#3b875a",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/velocityError/y m_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#d993aa",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/velocityError/theta rad_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#5f4528",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/Position Error ",
                     "logType": "Number",
                     "visible": true,
                     "options": {
-                      "color": "#2b66a2",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/u_FB/x m_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#e5b31b",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Coral Sequence/FullStateSwerveController/u_FF/x m_s",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#af2437",
+                      "color": "#e48b32",
                       "size": "normal"
                     }
                   },
@@ -666,21 +989,11 @@
                 "leftSources": [
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Climber/OutboardAngularPositionServoWithoutAbsolute/setpoint (rad)/x",
+                    "logKey": "NT:log/Climber/AS5048RotaryPositionSensor/position (rad)",
                     "logType": "Number",
                     "visible": true,
                     "options": {
                       "color": "#2b66a2",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Climber/OutboardAngularPositionServoWithoutAbsolute/measurement (rad)",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#e5b31b",
                       "size": "normal"
                     }
                   }
@@ -712,72 +1025,6 @@
                 "rightFilter": 0
               },
               "controllerUUID": "98gcz70cobzy7qr1w69wsnudj7p8jj57",
-              "renderer": null,
-              "controlsHeight": 200
-            },
-            {
-              "type": 1,
-              "title": "wrist",
-              "controller": {
-                "leftSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/setpoint (rad)/x",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#2b66a2",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#e5b31b",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "rightSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/Controller Position Error (rad)",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#af2437",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/Controller Velocity Error (rad_s)",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#80588e",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "discreteSources": [],
-                "leftLockedRange": null,
-                "rightLockedRange": null,
-                "leftUnitConversion": {
-                  "type": null,
-                  "factor": 1
-                },
-                "rightUnitConversion": {
-                  "type": null,
-                  "factor": 1
-                },
-                "leftFilter": 0,
-                "rightFilter": 0
-              },
-              "controllerUUID": "ccj1ynvnmba4y97s5d2svqqzvdpy1im4",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -859,36 +1106,24 @@
             },
             {
               "type": 1,
-              "title": "wrist",
+              "title": "auton",
               "controller": {
                 "leftSources": [
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/setpoint (rad)/x",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/x/x",
                     "logType": "Number",
                     "visible": true,
                     "options": {
-                      "color": "#80588e",
+                      "color": "#2b66a2",
                       "size": "normal"
                     }
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/x/x",
                     "logType": "Number",
                     "visible": true,
-                    "options": {
-                      "color": "#3b875a",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "rightSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
-                    "logType": "Number",
-                    "visible": false,
                     "options": {
                       "color": "#e5b31b",
                       "size": "normal"
@@ -896,55 +1131,41 @@
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/AS5048RotaryPositionSensor/duty cycle",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/x/v",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
-                      "color": "#af2437",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "discreteSources": [],
-                "leftLockedRange": null,
-                "rightLockedRange": null,
-                "leftUnitConversion": {
-                  "type": null,
-                  "factor": 1
-                },
-                "rightUnitConversion": {
-                  "type": null,
-                  "factor": 1
-                },
-                "leftFilter": 0,
-                "rightFilter": 0
-              },
-              "controllerUUID": "yfr0ww4fjk1gw03vzqrteupg9q20uqjt",
-              "renderer": null,
-              "controlsHeight": 200
-            },
-            {
-              "type": 1,
-              "title": "full sequence",
-              "controller": {
-                "leftSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/setpoint (rad)/x",
-                    "logType": "Number",
-                    "visible": false,
-                    "options": {
-                      "color": "#80588e",
+                      "color": "#c0b487",
                       "size": "normal"
                     }
                   },
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/x/v",
                     "logType": "Number",
-                    "visible": false,
+                    "visible": true,
                     "options": {
-                      "color": "#e48b32",
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/x m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/velocityError/x m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
                       "size": "normal"
                     }
                   }
@@ -952,26 +1173,85 @@
                 "rightSources": [
                   {
                     "type": "stepped",
-                    "logKey": "NT:log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/position (m)",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#3b875a",
-                      "size": "bold"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/setpoint (m)/x",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/y/x",
                     "logType": "Number",
                     "visible": true,
                     "options": {
                       "color": "#af2437",
                       "size": "normal"
                     }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/y/x",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/currentReference/y/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/measurement/y/v",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/positionError/y m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/velocityError/y m_s",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
                   }
                 ],
-                "discreteSources": [],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/At Position Reference",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32"
+                    }
+                  },
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:log/Auto Sequence/FullStateSwerveController/At Velocity Reference",
+                    "logType": "Boolean",
+                    "visible": true,
+                    "options": {
+                      "color": "#5f4528"
+                    }
+                  }
+                ],
                 "leftLockedRange": null,
                 "rightLockedRange": null,
                 "leftUnitConversion": {
@@ -985,7 +1265,7 @@
                 "leftFilter": 0,
                 "rightFilter": 0
               },
-              "controllerUUID": "66vep2rakz87mhxnm7lkt9dcl1x2kk9u",
+              "controllerUUID": "4bypmpd079if8t7se4ed4w71jycxq82w",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -1008,7 +1288,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/update time (s)",
                     "logType": "Number",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "color": "#e5b31b",
                       "size": "normal"
@@ -1020,7 +1300,7 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/JvmLogger/GCTime_ms/Copy",
                     "logType": "Number",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "color": "#af2437",
                       "size": "normal"
@@ -1030,9 +1310,19 @@
                     "type": "stepped",
                     "logKey": "NT:log/Robot/JvmLogger/MemoryUsage/heap",
                     "logType": "Number",
-                    "visible": true,
+                    "visible": false,
                     "options": {
                       "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/voltage",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
                       "size": "normal"
                     }
                   }
@@ -1052,6 +1342,298 @@
                 "rightFilter": 0
               },
               "controllerUUID": "820dhbhn5ttdwwj8ld6igib2q01na0l0",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "drive",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/Swerve Modules/Front Left/Drive/Kraken6Motor/output [-1,1]",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/Swerve Modules/Front Right/Drive/Kraken6Motor/output [-1,1]",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/Swerve Modules/Rear Left/Drive/Kraken6Motor/output [-1,1]",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/Swerve Modules/Rear Right/Drive/Kraken6Motor/output [-1,1]",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/voltage",
+                    "logType": "Number",
+                    "visible": false,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "jwxqv1g1604vlpi92vin4md8nd4ejbk1",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "limiters",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/FieldRelativeVelocityLimiter/scale",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/FieldRelativeAccelerationLimiter/scale",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/BatterySagSpeedLimit/scale",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/FieldRelativeCapsizeLimiter/scale",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/norm",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Drive/SwerveLimiter/norm in",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "6bugq5jyrjjq8mnxydjf4ynaa3oqixho",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "durations",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/DriverControlProxy",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/Logging",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/main loop",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/OperatorControlProxy",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/PolledEnumChooser",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Robot/duration (s)/ThirdControlProxy",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "8xdv8hqgsia6cbwxok4ld789jevrhtv8",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "funnel",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Funnel/Servo 1 Angle",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:log/Funnel/Servo 2 Angle",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "rightUnitConversion": {
+                  "type": null,
+                  "factor": 1
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "x8fnar92l4vo7vm9cto7hkhsz59ridgv",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -1099,7 +1681,7 @@
               },
               "controllerUUID": "2dwypurxx680puykx9zjh06v9usls6k5",
               "renderer": null,
-              "controlsHeight": 200
+              "controlsHeight": 0
             }
           ]
         }
@@ -1107,5 +1689,5 @@
     }
   ],
   "satellites": [],
-  "version": "4.1.1"
+  "version": "4.1.5"
 }

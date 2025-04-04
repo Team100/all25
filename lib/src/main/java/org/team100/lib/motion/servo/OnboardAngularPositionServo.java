@@ -92,7 +92,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // if (velocity.isEmpty())
         // return;
         m_controller.init(new Model100(position.getAsDouble(), 0));
-        System.out.println("IM BEING RESET TO" + position.getAsDouble() + "***********************************************************");
+        // System.out.println("IM BEING RESET TO" + position.getAsDouble() + "***********************************************************");
     }
 
     @Override
@@ -177,6 +177,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public OptionalDouble getVelocity() {
         return m_positionSensor.getRateRad_S();
+    }
+
+    @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_mechanism.setDutyCycle(dutyCycle);
     }
 
     @Override

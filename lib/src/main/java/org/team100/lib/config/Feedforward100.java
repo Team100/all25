@@ -74,6 +74,16 @@ public class Feedforward100 {
                 0.5);
     }
 
+    public static Feedforward100 makeClimber() {
+        return new Feedforward100(
+                0.14,
+                0.05,
+                0.05,
+                0.100,
+                0.1,
+                0.0);
+    }
+
     public static Feedforward100 zero() {
         return new Feedforward100(0, 0, 0, 0, 0, 0);
     }
@@ -108,7 +118,7 @@ public class Feedforward100 {
     }
 
     public static Feedforward100 makeWCPSwerveDriveKraken6() {
-        return new Feedforward100(0.115, 0.022, 0.007, 0.26, 0.26, 0.06);
+        return new Feedforward100(0.13, 0.022, 0.007, 0.26, 0.26, 0.06); //WAS 0.115
     }
 
     public static Feedforward100 makeAMSwerveDriveFalcon6() {

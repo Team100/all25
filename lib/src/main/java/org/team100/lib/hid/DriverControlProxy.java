@@ -33,7 +33,7 @@ public class DriverControlProxy implements DriverControl {
      */
     public DriverControlProxy(LoggerFactory parent, Async async) {
         m_logger = parent.child(this);
-        m_hidLogger = m_logger.stringLogger(Level.COMP, "HID");
+        m_hidLogger = m_logger.stringLogger(Level.TRACE, "HID");
         refresh();
         async.addPeriodic(this::refresh, kFreq, "DriverControlProxy");
     }
@@ -172,6 +172,26 @@ public class DriverControlProxy implements DriverControl {
     @Override
     public boolean button5() {
         return m_driverControl.button5();
+    }
+
+    @Override
+    public boolean feedFunnel() {
+        return m_driverControl.feedFunnel();
+    }
+
+    @Override
+    public boolean useReefLock() {
+        return m_driverControl.useReefLock();
+    }
+
+    @Override
+    public boolean driveWithBargeAssist() {
+        return m_driverControl.driveWithBargeAssist();
+    }
+
+    @Override
+    public boolean climb() {
+        return m_driverControl.climb();
     }
 
 }

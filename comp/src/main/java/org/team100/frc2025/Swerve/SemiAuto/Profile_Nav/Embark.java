@@ -3,9 +3,10 @@ package org.team100.frc2025.Swerve.SemiAuto.Profile_Nav;
 import java.util.function.DoubleConsumer;
 import java.util.function.Supplier;
 
-import org.team100.frc2025.FieldConstants;
-import org.team100.frc2025.FieldConstants.FieldSector;
-import org.team100.frc2025.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants;
+import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
+import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
@@ -16,6 +17,7 @@ import org.team100.lib.logging.LoggerFactory.Pose2dLogger;
 import org.team100.lib.logging.LoggerFactory.StringLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
+import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReference;
 
@@ -29,9 +31,12 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * If the supplier starts delivering empties, retain the old goal.
  */
+
+
+ //3.6 2.83
 public class Embark extends Command implements Glassy {
     /** While driving to scoring tag, pay attention only to very close tags. */
-    private static final double kHeedRadiusM = 1.5;
+    private static final double kHeedRadiusM = 3;
 
     private final SwerveDriveSubsystem m_drive;
     private final DoubleConsumer m_heedRadiusM;
@@ -48,6 +53,11 @@ public class Embark extends Command implements Glassy {
     private Pose2d m_goal;
     private ProfileReference m_reference;
     private ReferenceController m_referenceController;
+    private SwerveKinodynamics m_kinodynamics;
+
+    private ReefPoint m_point;
+
+    private boolean m_perpetual;
 
     public Embark(
             LoggerFactory logger,
@@ -57,7 +67,10 @@ public class Embark extends Command implements Glassy {
             HolonomicProfile profile,
             FieldSector targetSector,
             ReefDestination destination,
-            Supplier<ScoringPosition> scoringPositionSupplier) {
+            Supplier<ScoringPosition> scoringPositionSupplier,
+            ReefPoint point,
+            boolean perpetual,
+            SwerveKinodynamics kinodynamics) {
         this(
                 logger,
                 drive,
@@ -67,7 +80,10 @@ public class Embark extends Command implements Glassy {
                 targetSector,
                 destination,
                 scoringPositionSupplier,
-                0);
+                0,
+                point,
+                perpetual,
+                kinodynamics);
     }
 
     public Embark(
@@ -79,7 +95,35 @@ public class Embark extends Command implements Glassy {
             FieldSector targetSector,
             ReefDestination destination,
             Supplier<ScoringPosition> scoringPositionSupplier,
-            double radius) {
+            ReefPoint point) {
+        this(
+                logger,
+                drive,
+                heedRadiusM,
+                controller,
+                profile,
+                targetSector,
+                destination,
+                scoringPositionSupplier,
+                0,
+                point,
+                false,
+                null);
+    }
+
+    public Embark(
+            LoggerFactory logger,
+            SwerveDriveSubsystem drive,
+            DoubleConsumer heedRadiusM,
+            SwerveController controller,
+            HolonomicProfile profile,
+            FieldSector targetSector,
+            ReefDestination destination,
+            Supplier<ScoringPosition> scoringPositionSupplier,
+            double radius,
+            ReefPoint point,
+            boolean perpetual,
+            SwerveKinodynamics kinodynamics) {
         LoggerFactory child = logger.child(this);
         m_log_sector = child.stringLogger(Level.TRACE, "sector");
         m_log_goal = child.pose2dLogger(Level.TRACE, "goal");
@@ -91,6 +135,9 @@ public class Embark extends Command implements Glassy {
         m_targetSector = targetSector;
         m_destination = destination;
         m_radius = radius;
+        m_point = point;
+        m_perpetual = perpetual;
+        m_kinodynamics = kinodynamics;
         addRequirements(m_drive);
     }
 
@@ -113,15 +160,99 @@ public class Embark extends Command implements Glassy {
             }
 
             if (scoringPosition == ScoringPosition.L4) {
-                radius = 1.42;
+                radius = 1.485;
+
+                switch (m_point) {
+                    case A:
+                        radius = 1.485;
+                        break;
+                    case B:
+                        radius = 1.455;
+                        break;
+                    case C:
+                        radius = 1.430;
+                        break;
+                    case D:
+                        radius = 1.430;
+                        break;
+                    case E:
+                        radius = 1.430;
+                        break;
+                    case F:
+                        radius = 1.430;
+                        break;
+                    case G:
+                        radius = 1.485;
+                        break;
+                    case H:
+                        radius = 1.450;
+                        break;
+                    case I:
+                        radius = 1.450;
+                        break;
+                    case J:
+                        radius = 1.485;
+                        break;
+                    case K:
+                        radius = 1.460;
+                        break;
+                    case L:
+                        radius = 1.485;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             if (scoringPosition == ScoringPosition.L3) {
-                radius = 1.34;
+                switch (m_point) {
+                    case A:
+                        radius = 1.34;
+                        break;
+                    case B:
+                        radius = 1.34;
+                        break;
+                    case C:
+                        radius = 1.34;
+                        break;
+                    case D:
+                        radius = 1.34;
+                        break;
+                    case E:
+                        radius = 1.34;
+                        break;
+                    case F:
+                        radius = 1.34;
+                        break;
+                    case G:
+                        radius = 1.34;
+                        break;
+                    case H:
+                        radius = 1.32;
+                        break;
+                    case I:
+                        radius = 1.34;
+                        break;
+                    case J:
+                        radius = 1.34;
+                        break;
+                    case K:
+                        radius = 1.34;
+                        break;
+                    case L:
+                        radius = 1.34;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             if (scoringPosition == ScoringPosition.L2) {
-                radius = 1.35;
+                radius = 1.32;
+            }
+
+            if(scoringPosition == ScoringPosition.NONE){
+                radius = 3;
             }
         }
 
@@ -130,6 +261,14 @@ public class Embark extends Command implements Glassy {
 
         m_goal = new Pose2d(destination, heading);
         m_log_goal.log(() -> m_goal);
+
+        // HolonomicProfile myNewProfile;
+        // if(m_kinodynamics != null){
+        //     myNewProfile = HolonomicProfile.trapezoidal(0, 0, 0.05, m_kinodynamics.getMaxAngleSpeedRad_S(), m_kinodynamics.getMaxAngleAccelRad_S2(), 0.01);
+        // } else {
+        //     myNewProfile = m_profile;
+        // }
+        // HolonomicProfile myNewProfile = HolonomicProfile.trapezoidal(0, 0, 0.05, m_swerveKinodynamics.getMaxAngleSpeedRad_S(), m_swerveKinodynamics.getMaxAngleAccelRad_S2(), 0.01);
         m_reference = new ProfileReference(m_profile);
         m_reference.setGoal(new SwerveModel(m_goal));
         m_referenceController = new ReferenceController(m_drive, m_controller, m_reference, false);
@@ -145,12 +284,20 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public boolean isFinished() {
+        if(m_perpetual){
+            return false;
+        }
+        return m_referenceController != null && m_referenceController.isFinished();
+    }
+
+    
+    public boolean isDone() {
         return m_referenceController != null && m_referenceController.isFinished();
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("*************I FINISHED EMBBARKING********************");
+        // System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

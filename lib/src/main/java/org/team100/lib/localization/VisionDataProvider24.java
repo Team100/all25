@@ -31,6 +31,7 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableListenerPoller;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.ValueEventData;
@@ -46,6 +47,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public class VisionDataProvider24 implements Glassy {
     private static final boolean DEBUG = false;
+    /**
+     * Five cameras, 50hz each => 250 hz of updates. Rio runs at 50 hz, so there
+     * should be five messages waiting for us each cycle.
+     */
+    private static final int QUEUE_DEPTH = 10;
     /**
      * If the tag is closer than this threshold, then the camera's estimate of tag
      * rotation might be more accurate than the gyro, so we use the camera's
@@ -151,7 +157,10 @@ public class VisionDataProvider24 implements Glassy {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         m_poller = new NetworkTableListenerPoller(inst);
         m_poller.addListener(
-                new MultiSubscriber(inst, new String[] { "vision" }),
+                new MultiSubscriber(
+                        inst,
+                        new String[] { "vision" },
+                        PubSubOption.pollStorage(QUEUE_DEPTH)),
                 EnumSet.of(NetworkTableEvent.Kind.kValueAll));
         m_pub_tags = inst.getStructArrayTopic("tags", Pose3d.struct).publish();
         m_pub_used_tags = inst.getStructArrayTopic("used tags", Pose3d.struct).publish();
@@ -302,7 +311,7 @@ public class VisionDataProvider24 implements Glassy {
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());
             if (!tagInFieldCoordsOptional.isPresent()) {
-                // this should never happen
+                // This shouldn't happen, but it does.
                 Util.warnf("VisionDataProvider24: no tag for id %d\n", blip.getId());
                 continue;
             }

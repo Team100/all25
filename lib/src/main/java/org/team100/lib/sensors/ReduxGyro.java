@@ -26,6 +26,7 @@ public class ReduxGyro implements Gyro {
     private final Canandgyro m_gyro;
 
     // LOGGERS
+    private final DoubleLogger m_log_age;
     private final Rotation2dLogger m_log_yaw;
     private final DoubleLogger m_log_yaw_rate;
     private final Rotation2dLogger m_log_pitch;
@@ -40,7 +41,7 @@ public class ReduxGyro implements Gyro {
         CanandgyroSettings settings = new CanandgyroSettings();
         settings.setAngularPositionFramePeriod(0.01);
         settings.setAngularVelocityFramePeriod(0.01);
-        
+
         if (!m_gyro.setSettings(settings, 0.1)) {
             Util.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Util.warn("!!                                          !!");
@@ -51,6 +52,7 @@ public class ReduxGyro implements Gyro {
         m_gyro.clearStickyFaults();
         m_gyro.setYaw(0);
 
+        m_log_age = child.doubleLogger(Level.TRACE, "position frame age (s)");
         m_log_yaw = child.rotation2dLogger(Level.TRACE, "Yaw NWU (rad)");
         m_log_yaw_rate = child.doubleLogger(Level.TRACE, "Yaw Rate NWU (rad_s)");
         m_log_pitch = child.rotation2dLogger(Level.TRACE, "Pitch NWU (rad)");
@@ -66,14 +68,15 @@ public class ReduxGyro implements Gyro {
         final double rate = m_gyro.getAngularVelocityYaw();
         double now = Takt.get();
         double dt = now - t;
-        // it's ok if takt is slightly behind the gyro, in case a CAN packet came in
+        m_log_age.log(() -> now - t);
+        // It's ok if takt is slightly behind the gyro, in case a CAN packet came in
         // before we got here.
         if (dt < -0.1) {
-            Util.warnf("Gyro timestamp: %f is much newer than now: %f.", t, now);
             dt = 0;
         }
+        // This seems to happen when the whole robot is running behind.
+        // It's not that harmful, it just means we don't extrapolate.
         if (dt > 0.1) {
-            Util.warnf("Gyro timestamp: %f is much older than now: %f", t, now);
             dt = 0;
         }
         final double correctedYaw = yaw + rate * dt;

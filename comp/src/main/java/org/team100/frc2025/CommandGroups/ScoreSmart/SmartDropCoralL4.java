@@ -1,4 +1,4 @@
-package org.team100.frc2025.CommandGroups;
+package org.team100.frc2025.CommandGroups.ScoreSmart;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
@@ -7,7 +7,7 @@ import org.team100.lib.experiments.Experiments;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class PostDropCoralL4 extends Command {
+public class SmartDropCoralL4 extends Command {
     private final Wrist2 m_wrist;
     private final Elevator m_elevator;
     private final double m_elevatorGoal;
@@ -16,7 +16,7 @@ public class PostDropCoralL4 extends Command {
     private boolean finished = false;
     private double initialElevatorPosition = 0;
 
-    public PostDropCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue) {
+    public SmartDropCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue) {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
@@ -38,7 +38,7 @@ public class PostDropCoralL4 extends Command {
     public void execute() {
         m_elevator.setPosition(m_elevatorGoal);
 
-        if (Math.abs(m_elevator.getPosition() - initialElevatorPosition) > 0.1) {
+        if (Math.abs(m_elevator.getPosition() - initialElevatorPosition) > 1.5) {
             m_wrist.setAngleValue(0.4);
         } else {
             m_wrist.setAngleValue(1.25);

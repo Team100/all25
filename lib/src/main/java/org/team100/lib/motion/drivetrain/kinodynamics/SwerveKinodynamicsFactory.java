@@ -43,7 +43,7 @@ public class SwerveKinodynamicsFactory {
                 // note these measurements were updated jun 24.
                 // 9/24/04, raised steering rate from 20 to 40, accel from 60 to 120.
                 return new SwerveKinodynamics(
-                        3, //TODO find real max vel m/s @ EPA
+                        4.5, //TODO find real max vel m/s @ EPA
                         10, // stall m/s/s
                         5, // max accel m/s/s
                         25, // max decel m/s/s
@@ -169,6 +169,21 @@ public class SwerveKinodynamicsFactory {
                 10, // stall m/s/s
                 10, // accel m/s/s
                 20, // decel m/s/s
+                20 * Math.PI,
+                20 * Math.PI, // steering accel rad/s/s
+                0.5, // track m
+                0.5, // track m
+                0.5, // wheelbase m
+                0.25, // front offset m
+                () -> 0.3); // vcg m
+    }
+
+    public static SwerveKinodynamics forTrajectoryTimingTest() {
+        return new SwerveKinodynamics(
+                3.5, // vel m/s
+                20, // stall m/s/s
+                10, // accel m/s/s
+                10, // decel m/s/s
                 20 * Math.PI,
                 20 * Math.PI, // steering accel rad/s/s
                 0.5, // track m

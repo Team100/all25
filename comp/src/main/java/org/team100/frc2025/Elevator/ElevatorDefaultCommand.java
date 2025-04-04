@@ -1,8 +1,8 @@
 package org.team100.frc2025.Elevator;
 
-import org.team100.frc2025.FieldConstants;
 import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.commands.drivetrain.FieldConstants;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -51,7 +51,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
 
             double goal = 0;
             if(!m_grip.hasAlgae()){
-                goal = 0.05;
+                goal = 0.2;
             } else {
                 goal = 12;
             }
@@ -77,7 +77,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         // if (distanceToReef > 1.6) {
 
             if (!m_grip.hasAlgae()) {
-                double goal = 0.05;
+                double goal = 0.2;
 
                 if (m_wrist.getSafeCondition()) {
                     m_elevator.setPositionNoGravity(goal);

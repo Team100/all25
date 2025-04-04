@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class WristVisualization {
+public class WristVisualization implements Runnable {
     private final Wrist2 m_wrist;
     private final Mechanism2d m_mechanism;
     private final MechanismLigament2d m_ligament;
@@ -25,10 +25,11 @@ public class WristVisualization {
         SmartDashboard.putData("Wrist", m_mechanism);
     }
 
-    public void viz() {
+    @Override
+    public void run() {
         if (Logging.instance().getLevel().admit(Level.TRACE)) {
             double position = m_wrist.getAngle();
-            m_ligament.setAngle(new Rotation2d(1.6 - 1.1*position));
+            m_ligament.setAngle(new Rotation2d(1.6 - 1.1 * position));
         }
     }
 }
