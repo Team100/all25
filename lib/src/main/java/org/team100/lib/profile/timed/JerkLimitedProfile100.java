@@ -34,15 +34,13 @@ public class JerkLimitedProfile100 implements TimedProfile {
 
     @Override
     public void init(Control100 initial, Model100 goal) {
-        // if (Logging.instance().getLevel().admit(Level.TRACE))
-        // Util.printf("INIT initial %s goal %s\n", initial, goal);
         MotionState start = new MotionState(initial.x(), initial.v(), initial.a());
         MotionState end = new MotionState(goal.x(), goal.v());
         // "true" below means "overshoot rather than violating constraints"
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start, end, vel, acc, jerk, overshoot);
         if (DEBUG)
-            Util.printf("profile %s\n", m_profile);
+            Util.printf("init %s goal %s profile %s\n", initial, goal, m_profile);
     }
 
     @Override

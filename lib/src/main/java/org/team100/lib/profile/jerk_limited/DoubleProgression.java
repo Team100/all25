@@ -5,6 +5,7 @@ import java.util.stream.IntStream;
 
 import edu.wpi.first.math.Pair;
 
+// TODO: delete this, use a for loop.
 public class DoubleProgression implements Iterable<Double> {
     private final double start;
     private final double step;
