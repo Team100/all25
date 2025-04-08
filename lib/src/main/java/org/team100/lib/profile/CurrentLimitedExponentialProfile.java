@@ -38,10 +38,11 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
         m_limit = (1 - m_limitedAccel / m_stallAccel) * maxVel;
     }
 
-    boolean isAccel(Model100 initial, Control100 setpoint) {
+    static boolean isAccel(Model100 initial, Control100 setpoint) {
         double initialV = initial.v();
         double setpointV = setpoint.v();
-        boolean isAccel = Math.abs(setpointV) > Math.abs(initialV);
+        boolean isAccel = Math.abs(setpointV) > Math.abs(initialV)
+                && Math.signum(setpointV) == Math.signum(initialV);
         if (DEBUG)
             Util.printf("initial %5.2f setpoint %5.2f isAccel %b\n", initialV, setpointV, isAccel);
         return isAccel;

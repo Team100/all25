@@ -1,5 +1,8 @@
 package org.team100.lib.profile;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -31,6 +34,36 @@ public class CurrentLimitedExponentialProfileTest {
             if (DEBUG)
                 Util.printf("%5.3f %5.3f %5.3f\n", tt, sample.x(), sample.v());
         }
+    }
+
+    @Test
+    void testAccel() {
+        // motionless, doesn't really matter.
+        assertFalse(
+                CurrentLimitedExponentialProfile.isAccel(
+                        new Model100(),
+                        new Control100()));
+        // initial velocity is positive, control is more positive -> accelerating
+        assertTrue(
+                CurrentLimitedExponentialProfile.isAccel(
+                        new Model100(0, 1),
+                        new Control100(0, 1.1, 1)));
+        // initial velocity is positive, control is less positive -> braking
+        assertFalse(
+                CurrentLimitedExponentialProfile.isAccel(
+                        new Model100(0, 1),
+                        new Control100(0, 0.9, -1)));
+        // initial velocity is positive, control is negative -> braking
+        assertFalse(
+                CurrentLimitedExponentialProfile.isAccel(
+                        new Model100(0, 1),
+                        new Control100(0, -0.9, -1)));
+        // initial velocity is positive, control is negative -> braking
+        assertFalse(
+                CurrentLimitedExponentialProfile.isAccel(
+                        new Model100(0, 1),
+                        new Control100(0, -1.1, -1)));
+
     }
 
 }
