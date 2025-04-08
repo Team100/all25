@@ -45,7 +45,32 @@ public class MotionProfileGeneratorTest {
                         t, x, v, a, j);
             }
         }
+    }
 
+    @Test
+    void testMovingEntry() {
+        // an example from 0 to 1, with constraints on derivatives at the ends and along
+        // the path.
+        // see Spline1dTest.testSample()
+        MotionState start = new MotionState(0, 1, 0, 0);
+        MotionState goal = new MotionState(1, 0, 0, 0);
+        double maxVel = 1;
+        double maxAccel = 0.1;
+        double maxJerk = 100;
+        boolean overshoot = false;
+        MotionProfile p = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, maxVel, maxAccel, maxJerk,
+                overshoot);
+        for (double t = 0; t < p.duration(); t += 0.01) {
+            MotionState state = p.get(t);
+            if (DEBUG) {
+                double x = state.getX();
+                double v = state.getV();
+                double a = state.getA();
+                double j = state.getJ();
+                Util.printf("%8.3f %8.3f %8.3f %8.3f %8.3f\n",
+                        t, x, v, a, j);
+            }
+        }
     }
 
     @Test

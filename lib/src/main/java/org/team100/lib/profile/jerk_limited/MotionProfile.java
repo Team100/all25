@@ -1,7 +1,5 @@
 package org.team100.lib.profile.jerk_limited;
 
-
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,6 +85,18 @@ public class MotionProfile {
 
     public List<MotionSegment> getSegments() {
         return segments;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("MotionProfile [\n");
+        for (MotionSegment s : segments) {
+            sb.append(s);
+            sb.append("\n");
+            sb.append("]");
+        }
+        return sb.toString();
     }
 
 }

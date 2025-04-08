@@ -76,7 +76,7 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         if (m_goal == null || !m_goal.near(goal, m_velocityTolerance, m_positionTolerance)) {
             // if the goal has changed noticeably, recalculate.
             // use motionless measurement to avoid injecting velocity noise.
-            m_profile.init(new Model100(measurement.x(), 0), goal);
+            m_profile.init(new Control100(measurement.x(), 0), goal);
             // use the goal nearest to the measurement.
             m_goal = new Model100(
                     m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),

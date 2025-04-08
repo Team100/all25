@@ -1,7 +1,5 @@
 package org.team100.lib.profile.timed;
 
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.Logging;
 import org.team100.lib.profile.jerk_limited.MotionProfile;
 import org.team100.lib.profile.jerk_limited.MotionProfileGenerator;
 import org.team100.lib.profile.jerk_limited.MotionState;
@@ -26,20 +24,23 @@ public class JerkLimitedProfile100 implements TimedProfile {
     }
 
     @Override
-    public void init(Model100 initial, Model100 goal) {
+    public void init(Control100 initial, Model100 goal) {
         // if (Logging.instance().getLevel().admit(Level.TRACE))
-        //     Util.printf("INIT initial %s goal %s\n", initial, goal);
-        MotionState start = new MotionState(initial.x(), initial.v());
+        // Util.printf("INIT initial %s goal %s\n", initial, goal);
+        MotionState start = new MotionState(initial.x(), initial.v(), initial.a());
         MotionState end = new MotionState(goal.x(), goal.v());
+        // "true" below means "overshoot rather than violating constraints"
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
-                start, end, vel, acc, jerk);
+                start, end, vel, acc, jerk, false);
+        if (DEBUG)
+            Util.printf("profile %s\n", m_profile);
     }
 
     @Override
     public Control100 sample(double timeS) {
-        if (DEBUG)
-            Util.printf("time %f\n", timeS);
         MotionState s = m_profile.get(timeS);
+        if (DEBUG)
+            Util.printf("time %f x %f v %f a %f\n", timeS, s.getX(), s.getV(), s.getA());
         return new Control100(s.getX(), s.getV(), s.getA());
     }
 
