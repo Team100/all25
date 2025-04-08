@@ -62,7 +62,7 @@ public class SelectProfiledController implements ProfiledController, Glassy {
                                 feedback, mod, pTol, vTol)),
                 entry(ProfileChoice.JERK_LIMITED,
                         new TimedProfiledController(child,
-                                new JerkLimitedProfile100(vel, accel, jerk),
+                                new JerkLimitedProfile100(vel, accel, jerk, false),
                                 feedback, mod, pTol, vTol)),
                 entry(ProfileChoice.SEPTIC,
                         new TimedProfiledController(child,

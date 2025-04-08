@@ -14,13 +14,22 @@ public class JerkLimitedProfile100 implements TimedProfile {
     private final double vel;
     private final double acc;
     private final double jerk;
+    private final boolean overshoot;
     private MotionProfile m_profile;
 
-    /** You can specify independent limits for velocity, acceleration, and jerk. */
-    public JerkLimitedProfile100(double vel, double acc, double jerk) {
+    /**
+     * You can specify independent limits for velocity, acceleration, and jerk.
+     * 
+     * @param overshoot if a single profile is impossible, true means to use one
+     *                  that overshoots the goal, and a second one that returns to
+     *                  it from the other side. false means to violate the
+     *                  constraints.  you should probably say "true" here.
+     */
+    public JerkLimitedProfile100(double vel, double acc, double jerk, boolean overshoot) {
         this.vel = vel;
         this.acc = acc;
         this.jerk = jerk;
+        this.overshoot = overshoot;
     }
 
     @Override
@@ -31,7 +40,7 @@ public class JerkLimitedProfile100 implements TimedProfile {
         MotionState end = new MotionState(goal.x(), goal.v());
         // "true" below means "overshoot rather than violating constraints"
         m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
-                start, end, vel, acc, jerk, false);
+                start, end, vel, acc, jerk, overshoot);
         if (DEBUG)
             Util.printf("profile %s\n", m_profile);
     }

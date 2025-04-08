@@ -41,7 +41,7 @@ public class TimedProfiledControllerTest implements Timeless {
 
     @Test
     void testJerkLimited() {
-        TimedProfile wristProfile = new JerkLimitedProfile100(35, 15, 60);
+        TimedProfile wristProfile = new JerkLimitedProfile100(35, 15, 60, false);
         Feedback100 wristFeedback = new PIDFeedback(
                 logger, 7.5, 0.00, 0.000, false, 0.01, 0.01);
         ProfiledController c = new TimedProfiledController(logger,

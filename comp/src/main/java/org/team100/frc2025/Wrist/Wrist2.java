@@ -95,15 +95,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         double maxAccel = 40;
         double maxJerk = 70;
 
-        // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 5,
-        // kPositionTolerance); // TODO CHANGE THESE
-        // TrapezoidProfile100 wristFastProfile = new TrapezoidProfile100(35, 5,
-        // kPositionTolerance); // TODO CHANGE THESE
-        // TrapezoidProfile100 wristSlowProfile = new TrapezoidProfile100(35, 5,
-        // kPositionTolerance); // TODO CHANGE THESE
-        // DualProfile wristDualProfile = new DualProfile(wristFastProfile,
-        // wristSlowProfile, 0.2);
-
         safeLogger = wristLogger.booleanLogger(Level.TRACE, "Wrist Safe Condition");
 
         switch (Identity.instance) {
@@ -120,7 +111,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         false);
 
                 m_controller = new TimedProfiledController(parent,
-                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
+                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false),
                         wristFeedback, x -> x, 0.01, 0.01); // WAS 0.05
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
@@ -185,7 +176,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         () -> 0);
 
                 m_controller = new TimedProfiledController(wristLogger,
-                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
+                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false),
                         wristFeedback, x -> x, 0.1, 0.05);
 
                 CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
