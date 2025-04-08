@@ -1,8 +1,8 @@
 package org.team100.lib.profile.timed;
 
-import org.team100.lib.profile.jerk_limited.DynamicProfileGenerator;
-import org.team100.lib.profile.jerk_limited.MotionProfile;
-import org.team100.lib.profile.jerk_limited.MotionState;
+import org.team100.lib.profile.roadrunner.DynamicProfileGenerator;
+import org.team100.lib.profile.roadrunner.MotionProfile;
+import org.team100.lib.profile.roadrunner.MotionState;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -48,8 +48,8 @@ public class TaperedProfile implements TimedProfile {
 
     @Override
     public void init(Control100 initial, Model100 goal) {
-        MotionState start = new MotionState(initial.x(), initial.v(), initial.a());
-        MotionState end = new MotionState(goal.x(), goal.v());
+        MotionState start = new MotionState(initial.x(), initial.v(), initial.a(), 0);
+        MotionState end = new MotionState(goal.x(), goal.v(), 0, 0);
         m_profile = DynamicProfileGenerator.generateMotionProfile(
                 start, end, (s) -> vel, (s) -> {
                     double togo = goal.x() - s;

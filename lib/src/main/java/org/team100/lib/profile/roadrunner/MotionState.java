@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 /**
  * Kinematic state of a motion profile at any given time.
@@ -15,15 +15,7 @@ public class MotionState {
         this.a = a;
         this.j = j;
     }
-
-    public MotionState(double x, double v, double a) {
-        this(x, v, a, 0);
-    }
-
-    public MotionState(double x, double v) {
-        this(x, v, 0);
-    }
-
+    
     /**
      * Returns the [MotionState] at time [t].
      */

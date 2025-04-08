@@ -1,5 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
-
+package org.team100.lib.profile.roadrunner;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,14 +10,15 @@ import edu.wpi.first.wpilibj.Timer;
 public class MotionProfilePerformanceTest {
     @Test
     void testLotsOfThem() {
-        MotionState start = new MotionState(0, 0);
-        MotionState goal = new MotionState(1, 0);
+        MotionState start = new MotionState(0, 0, 0, 0);
+        MotionState goal = new MotionState(1, 0, 0, 0);
 
         Timer timer = new Timer();
         timer.start();
         int count = 1000;
         for (int i = 0; i < count; ++i) {
-            MotionProfile profile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1, 1, 1);
+            MotionProfile profile = JerkLimitedProfileGenerator.generateMotionProfile(
+                    start, goal, 1, 1, 1, false);
             assertNotNull(profile);
         }
         timer.stop();

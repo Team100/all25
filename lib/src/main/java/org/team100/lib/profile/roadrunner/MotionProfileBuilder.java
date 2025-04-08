@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,10 @@ public class MotionProfileBuilder {
     /**
      * Appends a constant-jerk control for the provided duration.
      */
-    MotionProfileBuilder appendJerkControl(double jerk, double dt) {
+    MotionProfileBuilder appendJerkSegment(double jerk, double dt) {
         MotionSegment segment = new MotionSegment(
-                new MotionState(currentState.getX(), currentState.getV(), currentState.getA(), jerk), dt);
+                new MotionState(currentState.getX(), currentState.getV(), currentState.getA(), jerk),
+                dt);
         segments.add(segment);
         currentState = segment.end();
         return this;
@@ -31,8 +32,22 @@ public class MotionProfileBuilder {
     /**
      * Appends a constant-acceleration control for the provided duration.
      */
-    MotionProfileBuilder appendAccelerationControl(double accel, double dt) {
-        MotionSegment segment = new MotionSegment(new MotionState(currentState.getX(), currentState.getV(), accel), dt);
+    MotionProfileBuilder appendAccelerationSegment(double accel, double dt) {
+        MotionSegment segment = new MotionSegment(
+                new MotionState(currentState.getX(), currentState.getV(), accel, 0),
+                dt);
+        segments.add(segment);
+        currentState = segment.end();
+        return this;
+    }
+
+    /**
+     * Appends a constant-velocity control for the provided duration.
+     */
+    MotionProfileBuilder appendVelocitySegment(double dt) {
+        MotionSegment segment = new MotionSegment(
+                new MotionState(currentState.getX(), currentState.getV(), 0, 0),
+                dt);
         segments.add(segment);
         currentState = segment.end();
         return this;
@@ -45,10 +60,10 @@ public class MotionProfileBuilder {
         for (MotionSegment segment : profile.getSegments()) {
             if (Math.abs(segment.getStart().getJ()) < 1e-6) {
                 // constant acceleration
-                appendAccelerationControl(segment.getStart().getA(), segment.getDt());
+                appendAccelerationSegment(segment.getStart().getA(), segment.getDt());
             } else {
                 // constant jerk
-                appendJerkControl(segment.getStart().getJ(), segment.getDt());
+                appendJerkSegment(segment.getStart().getJ(), segment.getDt());
             }
         }
         return this;

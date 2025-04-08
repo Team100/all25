@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,7 +16,7 @@ public class MotionProfileBuilderTest {
     void testBasic() {
         MotionState s = new MotionState(0, 1, 0, 0);
         MotionProfileBuilder b = new MotionProfileBuilder(s);
-        b.appendJerkControl(1, 1);
+        b.appendJerkSegment(1, 1);
         
         MotionProfile p = b.build();
         assertEquals(1, p.duration(), kDelta);
@@ -24,7 +24,7 @@ public class MotionProfileBuilderTest {
         MotionState s0 = p.get(0);
         assertEquals(1, s0.getV(), kDelta);
 
-        MotionProfile p1 = p.plus(p);
+        MotionProfile p1 = p.append(p);
         assertEquals(2, p1.duration(), kDelta);
 
         MotionState s1 = p.get(1);

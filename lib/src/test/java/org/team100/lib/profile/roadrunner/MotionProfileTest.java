@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,6 +12,9 @@ import java.util.List;
 // import com.acmerobotics.roadrunner.profile.MotionSegment;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.profile.roadrunner.MotionProfile;
+import org.team100.lib.profile.roadrunner.MotionSegment;
+import org.team100.lib.profile.roadrunner.MotionState;
 
 public class MotionProfileTest {
     private static final double kDelta = 0.001;
@@ -26,7 +29,7 @@ public class MotionProfileTest {
         MotionState s0 = p.get(0);
         assertEquals(1, s0.getV(), kDelta);
 
-        MotionProfile p1 = p.plus(p);
+        MotionProfile p1 = p.append(p);
         assertEquals(2, p1.duration(), kDelta);
 
         MotionState s1 = p.get(1);

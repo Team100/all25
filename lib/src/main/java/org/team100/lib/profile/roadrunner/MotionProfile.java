@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -76,7 +76,7 @@ public class MotionProfile {
     /**
      * Returns a new motion profile with [other] concatenated.
      */
-    MotionProfile plus(MotionProfile other) {
+    MotionProfile append(MotionProfile other) {
         MotionProfileBuilder builder = new MotionProfileBuilder(start());
         builder.appendProfile(this);
         builder.appendProfile(other);

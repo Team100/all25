@@ -1,4 +1,4 @@
-package org.team100.lib.profile.jerk_limited;
+package org.team100.lib.profile.roadrunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,7 +45,7 @@ public class DynamicProfileGeneratorTest {
         MotionState s0 = p.get(0);
         assertEquals(0, s0.getV(), kDelta);
 
-        MotionProfile p1 = p.plus(p);
+        MotionProfile p1 = p.append(p);
         assertEquals(12, p1.duration(), kDelta);
 
         MotionState s1 = p.get(1);
