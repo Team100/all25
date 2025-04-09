@@ -3,12 +3,9 @@ package org.team100.lib.profile.roadrunner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.profile.roadrunner.DynamicProfileGenerator.EvaluatedConstraint;
 
 public class DynamicProfileGeneratorTest {
     private static final boolean DEBUG = false;
@@ -18,24 +15,14 @@ public class DynamicProfileGeneratorTest {
     void testGenerateMotionProfile() {
         MotionState start = new MotionState(0, 0, 0, 0);
         MotionState goal = new MotionState(5, 0, 0, 0);
-        VelocityConstraint v = new VelocityConstraint() {
 
-            @Override
-            public double get(double s) {
-                return 1;
-            }
-
-        };
-        AccelerationConstraint a = new AccelerationConstraint() {
-
-            @Override
-            public double get(double s) {
-                return 1;
-            }
-
-        };
         double resolution = 1;
-        MotionProfile p = DynamicProfileGenerator.generateMotionProfile(start, goal, v, a, resolution);
+        MotionProfile p = DynamicProfileGenerator.generateMotionProfile(
+                start,
+                goal,
+                (s) -> 1,
+                (s) -> 1,
+                resolution);
 
         assertEquals(7, p.getSegments().size());
         assertEquals(0, p.get(0).x(), kDelta);
@@ -90,7 +77,7 @@ public class DynamicProfileGeneratorTest {
         {
             // v is low, a is negative
             MotionState s0 = new MotionState(0, 0.1, -10, 0);
-            assertThrows(IllegalArgumentException.class, ()-> DynamicProfileGenerator.evolve(s0, 1));
+            assertThrows(IllegalArgumentException.class, () -> DynamicProfileGenerator.evolve(s0, 1));
         }
     }
 
@@ -110,74 +97,12 @@ public class DynamicProfileGeneratorTest {
     }
 
     @Test
-    void testBackwardsPass() {
-        // the current code reuses the forward pass code and reverses the result, which
-        // is confusing.
-        MotionState goal = new MotionState(1.9, 0, 0, 0);
-        int size = 3;
-        double step = 0.3;
-        List<EvaluatedConstraint> constraints = List.of(
-                new EvaluatedConstraint(2, 6),
-                new EvaluatedConstraint(2, 6),
-                new EvaluatedConstraint(2, 6));
-        // forward pass just accelerates forever, like the initial part of the
-        // trapezoid.
-        // note the relocation to zero
-        List<MotionSpan> states = DynamicProfileGenerator.backwardPass(
-                new MotionState(0.0, goal.v(), goal.a(), 0),
-                size, step, constraints, (s) -> 2.0, (s) -> 6.0);
-        assertEquals(4, states.size());
-        verify(states.get(0), 0, 0, 6, 0, 0.3); // full-length segment at max A
-        verify(states.get(1), 0.3, 1.897, 6, 0, 0.033); // short segment to max V
-        verify(states.get(2), 0.333, 2, 0, 0, 0.267);
-        verify(states.get(3), 0.6, 2, 0, 0, 0.3);
-
-        // this replaces the initial state of each pair with the end state
-        List<MotionSpan> states2 = states.stream().map((it) -> {
-            MotionState motionState = it.start();
-            double dx = it.dx();
-            return new MotionSpan(DynamicProfileGenerator.evolve(motionState, dx), dx);
-        }).collect(Collectors.toList());
-        assertEquals(4, states2.size());
-        verify(states2.get(0), 0.3, 1.897, 6, 0, 0.3); // full-length segment at max A
-        verify(states2.get(1), 0.333, 2, 6, 0, 0.033); // short segment to max V
-        verify(states2.get(2), 0.6, 2, 0, 0, 0.267);
-        verify(states2.get(3), 0.9, 2, 0, 0, 0.3);
-
-        // this is the transmogrification that the current code does.
-        // it seems to just shift the position.
-        List<MotionSpan> backwardStates = states2.stream().map((it) -> {
-            MotionState motionState = it.start();
-            double dx = it.dx();
-            return new MotionSpan(new MotionState(
-                    goal.x() - motionState.x(),
-                    motionState.v(),
-                    -motionState.a(),
-                    0), dx);
-        }).collect(Collectors.toList());
-
-        Collections.reverse(backwardStates);
-
-        assertEquals(4, backwardStates.size());
-        // position shifted to goal and reversed, so this
-        // shows max effort from the goal towards the start.
-        verify(backwardStates.get(0), 1, 2, 0, 0, 0.3);
-        verify(backwardStates.get(1), 1.3, 2, 0, 0, 0.267);
-        verify(backwardStates.get(2), 1.567, 2, -6, 0, 0.033);
-        verify(backwardStates.get(3), 1.6, 1.897, -6, 0, 0.3);
-    }
-
-    @Test
     void testComputeBackwards() {
         MotionState goal = new MotionState(1.9, 0, 0, 0);
         int size = 3;
         double step = 0.3;
-        List<EvaluatedConstraint> constraints = List.of(
-                new EvaluatedConstraint(2, 6),
-                new EvaluatedConstraint(2, 6),
-                new EvaluatedConstraint(2, 6));
         List<MotionSpan> backwardStates = DynamicProfileGenerator.computeBackward(
-                goal, (s) -> 2.0, (s) -> 6.0, constraints, step, size);
+                goal, (s) -> 2.0, (s) -> 6.0, step, size);
         assertEquals(4, backwardStates.size());
         verify(backwardStates.get(0), 1, 2, 0, 0, 0.3);
         verify(backwardStates.get(1), 1.3, 2, 0, 0, 0.267);

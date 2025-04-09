@@ -1,7 +1,7 @@
 package org.team100.lib.profile.roadrunner;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.wpi.first.math.MathUtil;
@@ -9,30 +9,22 @@ import edu.wpi.first.math.MathUtil;
 /**
  * Motion profile generator with arbitrary start and end motion states and
  * dynamic constraints.
+ * 
+ * The main issue with this approach is the spatial sampling, which means that
+ * the resulting temporal sampling depends on the profile speed. At low speed,
+ * it can be quite coarse.
  */
 public class DynamicProfileGenerator {
 
-    static class EvaluatedConstraint {
-        double maxVel;
-        double maxAccel;
-
-        public EvaluatedConstraint(double maxVel, double maxAccel) {
-            this.maxVel = maxVel;
-            this.maxAccel = maxAccel;
-        }
-
-    }
-
     /**
      * Generates a motion profile with dynamic maximum velocity and acceleration.
-     * Uses the algorithm described in
-     * section 3.2 of
+     * Uses the algorithm described in section 3.2 of
      * [Sprunk2008.pdf](http://www2.informatik.uni-freiburg.de/~lau/students/Sprunk2008.pdf).
+     *
      * Warning:
      * Profiles may be generated incorrectly if the endpoint velocity/acceleration
-     * values preclude the obedience of the
-     * motion constraints. To protect against this, verify the continuity of the
-     * generated profile or keep the start and
+     * values preclude the obedience of the motion constraints. To protect against
+     * this, verify the continuity of the generated profile or keep the start and
      * goal velocities at 0.
      *
      * @param start                  start motion state
@@ -51,16 +43,8 @@ public class DynamicProfileGenerator {
             return generateMotionProfile(
                     start.flipped(),
                     goal.flipped(),
-                    new VelocityConstraint() {
-                        public double get(double s) {
-                            return velocityConstraint.get(-s);
-                        }
-                    },
-                    new AccelerationConstraint() {
-                        public double get(double s) {
-                            return accelerationConstraint.get(-s);
-                        }
-                    },
+                    (s) -> velocityConstraint.get(-s),
+                    (s) -> accelerationConstraint.get(-s),
                     resolution).flipped();
         }
 
@@ -69,20 +53,14 @@ public class DynamicProfileGenerator {
         // at least two samples are required to have a valid profile
         int samples = Math.max(2, (int) Math.ceil(length / resolution));
 
-        List<EvaluatedConstraint> constraintsList = new ArrayList<>();
-        double x = start.x();
-        double step = length / (samples - 1);
         int size = samples - 1;
-        for (int i = 0; i < size; ++i) {
-            x += step;
-            constraintsList.add(new EvaluatedConstraint(velocityConstraint.get(x), accelerationConstraint.get(x)));
-        }
+        double step = length / size;
 
         List<MotionSpan> forwardStates = computeForward(
                 start, velocityConstraint, accelerationConstraint, step, size);
 
         List<MotionSpan> backwardStates = computeBackward(
-                goal, velocityConstraint, accelerationConstraint, constraintsList, step, size);
+                goal, velocityConstraint, accelerationConstraint, step, size);
 
         List<MotionSpan> finalStates = merge(forwardStates, backwardStates);
 
@@ -94,8 +72,6 @@ public class DynamicProfileGenerator {
      * 
      * Applies maximum acceleration starting at min(last velocity, max vel) on a
      * segment-by-segment basis.
-     * 
-     * @return a list of spans.
      */
     static List<MotionSpan> computeForward(
             MotionState start,
@@ -104,13 +80,11 @@ public class DynamicProfileGenerator {
             double step,
             int size) {
         List<MotionSpan> forwardStates = new ArrayList<>();
-
         MotionState lastState = start;
         for (int i = 0; i < size; ++i) {
             double displacement = start.x() + step * i;
             double maxVel = velocityConstraint.get(displacement);
             double maxAccel = accelerationConstraint.get(displacement);
-
             if (lastState.v() >= maxVel) {
                 // the last velocity exceeds max vel so we just coast
                 MotionState state = new MotionState(displacement, maxVel, 0.0, 0);
@@ -135,96 +109,57 @@ public class DynamicProfileGenerator {
                 }
             }
         }
-
         return forwardStates;
     }
 
-
-    /** compute the backward states */
+    /**
+     * Computes the backward states.
+     * 
+     * Walks backwards from the goal, computing states with maximum decel.
+     */
     static List<MotionSpan> computeBackward(
             MotionState goal,
             VelocityConstraint velocityConstraint,
             AccelerationConstraint accelerationConstraint,
-            List<EvaluatedConstraint> constraintsList,
             double step,
             int size) {
-
-        List<MotionSpan> backwardPass = backwardPass(
-                new MotionState(0.0, goal.v(), goal.a(), 0),
-                size,
-                step,
-                constraintsList,
-                velocityConstraint,
-                accelerationConstraint);
-
-        List<MotionSpan> backwardStates = new ArrayList<>();
-        for (MotionSpan it : backwardPass) {
-            MotionState motionState = it.start();
-            double dx = it.dx();
-            MotionState evolved = evolve(motionState, dx);
-            backwardStates.add(new MotionSpan(
-                    new MotionState(
-                            goal.x() - evolved.x(),
-                            evolved.v(),
-                            -evolved.a(),
-                            0),
-                    dx));
-        }
-
-        Collections.reverse(backwardStates);
-        return backwardStates;
-    }
-
-    static List<MotionSpan> backwardPass(
-            MotionState goal,
-            int size,
-            double dx,
-            List<EvaluatedConstraint> constraintsList,
-            VelocityConstraint vConstraint,
-            AccelerationConstraint aConstraint) {
-        List<EvaluatedConstraint> constraints = new ArrayList<EvaluatedConstraint>(constraintsList);
-        Collections.reverse(constraints);
-
-        List<MotionSpan> backwardStates = new ArrayList<>();
-
-        MotionState lastState = goal;
+        // linkedlist allows efficient addFirst
+        LinkedList<MotionSpan> backwardStates = new LinkedList<>();
+        // going back in time, so this is the "next" state not the "last" state.
+        MotionState nextState = goal;
         for (int i = 0; i < size; ++i) {
-            double displacement = goal.x() + dx * i;
-            EvaluatedConstraint constraint = constraints.get(i);
+            // walk backwards from the goal
+            double displacement = goal.x() - step * i;
             // compute the segment constraints
-            double maxVel = constraint.maxVel;
-            double maxAccel = constraint.maxAccel;
-
-            // double maxVel = vConstraint.get(displacement);
-            // double maxAccel = aConstraint.get(displacement);
-
-            if (lastState.v() >= maxVel) {
+            double maxVel = velocityConstraint.get(displacement);
+            double maxAccel = accelerationConstraint.get(displacement);
+            if (nextState.v() >= maxVel) {
                 // the last velocity exceeds max vel so we just coast
                 MotionState state = new MotionState(displacement, maxVel, 0.0, 0);
-                backwardStates.add(new MotionSpan(state, dx));
-                lastState = evolve(state, dx);
+                // step backwards
+                nextState = devolve(state, step);
+                backwardStates.addFirst(new MotionSpan(nextState, step));
             } else {
                 // compute the final velocity assuming max accel
-                double finalVel = Math.sqrt(lastState.v() * lastState.v() + 2 * maxAccel * dx);
+                double finalVel = Math.sqrt(nextState.v() * nextState.v() + 2 * maxAccel * step);
                 if (finalVel <= maxVel) {
                     // we're still under max vel so we're good
-                    MotionState state = new MotionState(displacement, lastState.v(), maxAccel, 0);
-                    backwardStates.add(new MotionSpan(state, dx));
-                    lastState = evolve(state, dx);
+                    // note negative accel
+                    MotionState state = new MotionState(displacement, nextState.v(), -maxAccel, 0);
+                    nextState = devolve(state, step);
+                    backwardStates.addFirst(new MotionSpan(nextState, step));
                 } else {
                     // we went over max vel so now we split the segment
-                    double accelDx = (maxVel * maxVel - lastState.v() * lastState.v()) / (2 * maxAccel);
-                    MotionState accelState = new MotionState(displacement, lastState.v(), maxAccel, 0);
-                    MotionState coastState = new MotionState(displacement + accelDx, maxVel, 0.0, 0);
-                    backwardStates.add(new MotionSpan(accelState, accelDx));
-                    backwardStates.add(new MotionSpan(coastState, dx - accelDx));
-                    lastState = evolve(coastState, dx - accelDx);
+                    double accelDx = (maxVel * maxVel - nextState.v() * nextState.v()) / (2 * maxAccel);
+                    // note negative accel
+                    MotionState accelState = new MotionState(displacement, nextState.v(), -maxAccel, 0);
+                    MotionState coastState = new MotionState(displacement - accelDx, maxVel, 0.0, 0);
+                    backwardStates.addFirst(new MotionSpan(devolve(accelState, accelDx), accelDx));
+                    nextState = devolve(coastState, step - accelDx);
+                    backwardStates.addFirst(new MotionSpan(nextState, step - accelDx));
                 }
             }
         }
-
-
-        
         return backwardStates;
     }
 
@@ -338,6 +273,18 @@ public class DynamicProfileGenerator {
             return new MotionState(state.x() + dx, 0.0, state.a(), 0);
         }
         return new MotionState(state.x() + dx, Math.sqrt(discriminant), state.a(), 0);
+    }
+
+    /** Backwards in time */
+    static MotionState devolve(MotionState state, double dx) {
+        double discriminant = state.v() * state.v() - 2 * state.a() * dx;
+        if (discriminant < -1e-6) {
+            throw new IllegalArgumentException("state " + state + " does not extend to " + dx);
+        }
+        if (MathUtil.isNear(discriminant, 0.0, 1e-6)) {
+            return new MotionState(state.x() - dx, 0.0, state.a(), 0);
+        }
+        return new MotionState(state.x() - dx, Math.sqrt(discriminant), state.a(), 0);
     }
 
     /**
