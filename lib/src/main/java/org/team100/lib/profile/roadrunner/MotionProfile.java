@@ -24,14 +24,14 @@ public class MotionProfile {
      */
     public MotionState get(double t) {
         if (t < 0.0)
-            return segments.get(0).getStart().stationary();
+            return segments.get(0).start().stationary();
 
         var remainingTime = t;
         for (MotionSegment segment : segments) {
-            if (remainingTime <= segment.getDt()) {
+            if (remainingTime <= segment.dt()) {
                 return segment.get(remainingTime);
             }
-            remainingTime -= segment.getDt();
+            remainingTime -= segment.dt();
         }
 
         return segments.get(segments.size() - 1).end().stationary();
@@ -41,7 +41,7 @@ public class MotionProfile {
      * Returns the duration of the motion profile.
      */
     public double duration() {
-        return segments.stream().map((it) -> it.getDt()).reduce(0.0, Double::sum);
+        return segments.stream().map((it) -> it.dt()).reduce(0.0, Double::sum);
     }
 
     /**
@@ -64,7 +64,7 @@ public class MotionProfile {
      * Returns the start [MotionState].
      */
     public MotionState start() {
-        return segments.get(0).getStart();
+        return segments.get(0).start();
     }
 
     /**

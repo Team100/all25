@@ -58,12 +58,12 @@ public class MotionProfileBuilder {
      */
     MotionProfileBuilder appendProfile(MotionProfile profile) {
         for (MotionSegment segment : profile.getSegments()) {
-            if (Math.abs(segment.getStart().getJ()) < 1e-6) {
+            if (Math.abs(segment.start().getJ()) < 1e-6) {
                 // constant acceleration
-                appendAccelerationSegment(segment.getStart().getA(), segment.getDt());
+                appendAccelerationSegment(segment.start().getA(), segment.dt());
             } else {
                 // constant jerk
-                appendJerkSegment(segment.getStart().getJ(), segment.getDt());
+                appendJerkSegment(segment.start().getJ(), segment.dt());
             }
         }
         return this;

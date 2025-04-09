@@ -1,20 +1,12 @@
 package org.team100.lib.profile.roadrunner;
 
-/** Time-parameterized segment of a profile. */
-public class MotionSegment {
-    private final MotionState start;
-    private final double dt;
-
-    /**
-     * Segment of a motion profile with constant acceleration.
-     *
-     * @param start state at t = 0
-     * @param dt    duration of this segment
-     */
-    public MotionSegment(MotionState start, double dt) {
-        this.start = start;
-        this.dt = dt;
-    }
+/**
+ * Time-parameterized segment of a profile with constant acceleration
+ * 
+ * @param start state at t = 0
+ * @param dt    duration of this segment
+ */
+public record MotionSegment(MotionState start, double dt) {
 
     /**
      * @param t in range [0, duration]
@@ -50,13 +42,5 @@ public class MotionSegment {
 
     public String toString() {
         return String.format("(%s, %f)", start, dt);
-    }
-
-    public MotionState getStart() {
-        return start;
-    }
-
-    public double getDt() {
-        return dt;
     }
 }
