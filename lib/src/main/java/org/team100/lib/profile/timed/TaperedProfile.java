@@ -61,7 +61,7 @@ public class TaperedProfile implements TimedProfile {
     @Override
     public Control100 sample(double timeS) {
         MotionState s = m_profile.get(timeS);
-        return new Control100(s.getX(), s.getV(), s.getA());
+        return new Control100(s.x(), s.v(), s.a());
     }
 
     @Override

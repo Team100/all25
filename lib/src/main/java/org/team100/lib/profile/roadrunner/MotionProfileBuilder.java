@@ -22,7 +22,7 @@ public class MotionProfileBuilder {
      */
     MotionProfileBuilder appendJerkSegment(double jerk, double dt) {
         MotionSegment segment = new MotionSegment(
-                new MotionState(currentState.getX(), currentState.getV(), currentState.getA(), jerk),
+                new MotionState(currentState.x(), currentState.v(), currentState.a(), jerk),
                 dt);
         segments.add(segment);
         currentState = segment.end();
@@ -34,7 +34,7 @@ public class MotionProfileBuilder {
      */
     MotionProfileBuilder appendAccelerationSegment(double accel, double dt) {
         MotionSegment segment = new MotionSegment(
-                new MotionState(currentState.getX(), currentState.getV(), accel, 0),
+                new MotionState(currentState.x(), currentState.v(), accel, 0),
                 dt);
         segments.add(segment);
         currentState = segment.end();
@@ -46,7 +46,7 @@ public class MotionProfileBuilder {
      */
     MotionProfileBuilder appendVelocitySegment(double dt) {
         MotionSegment segment = new MotionSegment(
-                new MotionState(currentState.getX(), currentState.getV(), 0, 0),
+                new MotionState(currentState.x(), currentState.v(), 0, 0),
                 dt);
         segments.add(segment);
         currentState = segment.end();
@@ -58,12 +58,12 @@ public class MotionProfileBuilder {
      */
     MotionProfileBuilder appendProfile(MotionProfile profile) {
         for (MotionSegment segment : profile.getSegments()) {
-            if (Math.abs(segment.start().getJ()) < 1e-6) {
+            if (Math.abs(segment.start().j()) < 1e-6) {
                 // constant acceleration
-                appendAccelerationSegment(segment.start().getA(), segment.dt());
+                appendAccelerationSegment(segment.start().a(), segment.dt());
             } else {
                 // constant jerk
-                appendJerkSegment(segment.start().getJ(), segment.dt());
+                appendJerkSegment(segment.start().j(), segment.dt());
             }
         }
         return this;

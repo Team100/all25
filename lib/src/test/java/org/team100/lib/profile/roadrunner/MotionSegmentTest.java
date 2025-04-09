@@ -17,7 +17,7 @@ public class MotionSegmentTest {
     void testBasic() {
         MotionSegment s = new MotionSegment(new MotionState(0, 1, 0, 0), 1);
         MotionState s1 = s.get(0.5);
-        assertEquals(0.5, s1.getX(), kDelta);
-        assertEquals(1, s1.getV(), kDelta);
+        assertEquals(0.5, s1.x(), kDelta);
+        assertEquals(1, s1.v(), kDelta);
     }
 }

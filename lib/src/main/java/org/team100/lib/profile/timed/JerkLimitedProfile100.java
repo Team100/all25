@@ -47,8 +47,8 @@ public class JerkLimitedProfile100 implements TimedProfile {
     public Control100 sample(double timeS) {
         MotionState s = m_profile.get(timeS);
         if (DEBUG)
-            Util.printf("time %f x %f v %f a %f\n", timeS, s.getX(), s.getV(), s.getA());
-        return new Control100(s.getX(), s.getV(), s.getA());
+            Util.printf("time %f x %f v %f a %f\n", timeS, s.x(), s.v(), s.a());
+        return new Control100(s.x(), s.v(), s.a());
     }
 
     @Override

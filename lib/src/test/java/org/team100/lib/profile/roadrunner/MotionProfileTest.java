@@ -27,13 +27,13 @@ public class MotionProfileTest {
         assertEquals(1, p.duration(), kDelta);
 
         MotionState s0 = p.get(0);
-        assertEquals(1, s0.getV(), kDelta);
+        assertEquals(1, s0.v(), kDelta);
 
         MotionProfile p1 = p.append(p);
         assertEquals(2, p1.duration(), kDelta);
 
         MotionState s1 = p.get(1);
-        assertEquals(1, s1.getV(), kDelta);
+        assertEquals(1, s1.v(), kDelta);
 
     }
     @Test

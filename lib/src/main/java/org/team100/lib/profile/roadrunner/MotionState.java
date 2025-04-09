@@ -3,19 +3,8 @@ package org.team100.lib.profile.roadrunner;
 /**
  * Kinematic state of a motion profile at any given time.
  */
-public class MotionState {
-    private final double x;
-    private final double v;
-    private final double a;
-    private final double j;
+public record MotionState(double x, double v, double a, double j) {
 
-    public MotionState(double x, double v, double a, double j) {
-        this.x = x;
-        this.v = v;
-        this.a = a;
-        this.j = j;
-    }
-    
     /**
      * Returns the [MotionState] at time [t].
      */
@@ -43,21 +32,5 @@ public class MotionState {
 
     public String toString() {
         return String.format("(x=%.3f, v=%.3f, a=%.3f, j=%.3f)", x, v, a, j);
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getV() {
-        return v;
-    }
-
-    public double getA() {
-        return a;
-    }
-
-    public double getJ() {
-        return j;
     }
 }

@@ -16,7 +16,7 @@ public class JerkLimitedProfileGenerator {
             double maxAccel,
             double maxJerk,
             boolean overshoot) {
-        if (goal.getX() < start.getX()) {
+        if (goal.x() < start.x()) {
             // ensure the goal is always after the start; plan the flipped profile otherwise
             return generateMotionProfile(start.flipped(), goal.flipped(), maxVel, maxAccel, maxJerk, overshoot)
                     .flipped();
@@ -39,17 +39,17 @@ public class JerkLimitedProfileGenerator {
         // decel is reversed accel with the goal accel flipped
         MotionProfile decelerationProfile = generateAccelProfile(
                 new MotionState(
-                        goal.getX(),
-                        goal.getV(),
-                        -goal.getA(),
-                        goal.getJ()),
+                        goal.x(),
+                        goal.v(),
+                        -goal.a(),
+                        goal.j()),
                 maxVel,
                 maxAccel,
                 maxJerk)
                 .reversed();
 
         MotionProfile noCoastProfile = accelerationProfile.append(decelerationProfile);
-        double remainingDistance = goal.getX() - noCoastProfile.end().getX();
+        double remainingDistance = goal.x() - noCoastProfile.end().x();
 
         if (remainingDistance >= 0.0) {
             // we just need to add a constant-velocity segment of appropriate duration
@@ -85,7 +85,7 @@ public class JerkLimitedProfileGenerator {
 
             MotionProfile searchProfile = searchAccelProfile.append(searchDecelProfile);
 
-            double error = goal.getX() - searchProfile.end().getX();
+            double error = goal.x() - searchProfile.end().x();
 
             if (Math.abs(error) < 1e-6) {
                 return searchProfile;
@@ -131,14 +131,14 @@ public class JerkLimitedProfileGenerator {
         // compute the duration and velocity of the first segment
         double deltaT1;
         double deltaV1;
-        if (start.getA() > maxAccel) {
+        if (start.a() > maxAccel) {
             // slow down and see where we are
-            deltaT1 = (start.getA() - maxAccel) / maxJerk;
-            deltaV1 = start.getA() * deltaT1 - 0.5 * maxJerk * deltaT1 * deltaT1;
+            deltaT1 = (start.a() - maxAccel) / maxJerk;
+            deltaV1 = start.a() * deltaT1 - 0.5 * maxJerk * deltaT1 * deltaT1;
         } else {
             // otherwise accelerate
-            deltaT1 = (maxAccel - start.getA()) / maxJerk;
-            deltaV1 = start.getA() * deltaT1 + 0.5 * maxJerk * deltaT1 * deltaT1;
+            deltaT1 = (maxAccel - start.a()) / maxJerk;
+            deltaV1 = start.a() * deltaT1 + 0.5 * maxJerk * deltaT1 * deltaT1;
         }
 
         // compute the duration and velocity of the third segment
@@ -146,32 +146,32 @@ public class JerkLimitedProfileGenerator {
         double deltaV3 = maxAccel * deltaT3 - 0.5 * maxJerk * deltaT3 * deltaT3;
 
         // compute the velocity change required in the second segment
-        double deltaV2 = maxVel - start.getV() - deltaV1 - deltaV3;
+        double deltaV2 = maxVel - start.v() - deltaV1 - deltaV3;
 
         if (deltaV2 < 0.0) {
             // there is no constant acceleration phase
             // the second case checks if we're going to exceed max vel
-            if (start.getA() > maxAccel
-                    || (start.getV() - maxVel) > (start.getA() * start.getA()) / (2 * maxJerk)) {
+            if (start.a() > maxAccel
+                    || (start.v() - maxVel) > (start.a() * start.a()) / (2 * maxJerk)) {
                 // problem: we need to cut down on our acceleration but we can't cut our initial
                 // decel
                 // solution: we'll lengthen our initial decel to -max accel and similarly with
                 // our final accel
                 // if this results in an over correction, decel instead to a good accel
-                double newDeltaT1 = (start.getA() + maxAccel) / maxJerk;
-                double newDeltaV1 = start.getA() * newDeltaT1 - 0.5 * maxJerk * newDeltaT1 * newDeltaT1;
+                double newDeltaT1 = (start.a() + maxAccel) / maxJerk;
+                double newDeltaV1 = start.a() * newDeltaT1 - 0.5 * maxJerk * newDeltaT1 * newDeltaT1;
 
-                double newDeltaV2 = maxVel - start.getV() - newDeltaV1 + deltaV3;
+                double newDeltaV2 = maxVel - start.v() - newDeltaV1 + deltaV3;
 
                 if (newDeltaV2 > 0.0) {
                     // we decelerated too much
                     List<Double> roots = Math100.solveQuadratic(
                             -maxJerk,
-                            2 * start.getA(),
-                            start.getV() - maxVel - start.getA() * start.getA() / (2 * maxJerk));
+                            2 * start.a(),
+                            start.v() - maxVel - start.a() * start.a() / (2 * maxJerk));
                     double finalDeltaT1 = roots.stream().filter((it) -> it >= 0.0).min(Double::compare)
                             .orElseThrow();
-                    double finalDeltaT3 = finalDeltaT1 - start.getA() / maxJerk;
+                    double finalDeltaT3 = finalDeltaT1 - start.a() / maxJerk;
 
                     return new MotionProfileBuilder(start)
                             .appendJerkSegment(-maxJerk, finalDeltaT1)
@@ -191,10 +191,10 @@ public class JerkLimitedProfileGenerator {
                 // cut out the constant accel phase and find a shorter delta t1 and delta t3
                 List<Double> roots = Math100.solveQuadratic(
                         maxJerk,
-                        2 * start.getA(),
-                        start.getV() - maxVel + start.getA() * start.getA() / (2 * maxJerk));
+                        2 * start.a(),
+                        start.v() - maxVel + start.a() * start.a() / (2 * maxJerk));
                 double newDeltaT1 = roots.stream().filter((it) -> it >= 0.0).min(Double::compare).orElseThrow();
-                double newDeltaT3 = newDeltaT1 + start.getA() / maxJerk;
+                double newDeltaT3 = newDeltaT1 + start.a() / maxJerk;
 
                 return new MotionProfileBuilder(start)
                         .appendJerkSegment(maxJerk, newDeltaT1)
@@ -206,7 +206,7 @@ public class JerkLimitedProfileGenerator {
             double deltaT2 = deltaV2 / maxAccel;
 
             MotionProfileBuilder builder = new MotionProfileBuilder(start);
-            if (start.getA() > maxAccel) {
+            if (start.a() > maxAccel) {
                 builder.appendJerkSegment(-maxJerk, deltaT1);
             } else {
                 builder.appendJerkSegment(maxJerk, deltaT1);

@@ -15,7 +15,7 @@ public class TrapezoidProfileGenerator {
             double maxVel,
             double maxAccel,
             boolean overshoot) {
-        if (goal.getX() < start.getX()) {
+        if (goal.x() < start.x()) {
             // ensure the goal is always after the start; plan the flipped profile otherwise
             return generateSimpleMotionProfile(start.flipped(), goal.flipped(), maxVel, maxAccel, overshoot)
                     .flipped();
@@ -32,22 +32,22 @@ public class TrapezoidProfileGenerator {
             double maxVel,
             double maxAccel,
             boolean overshoot) {
-        double requiredAccel = (goal.getV() * goal.getV() - start.getV() * start.getV())
-                / (2 * (goal.getX() - start.getX()));
+        double requiredAccel = (goal.v() * goal.v() - start.v() * start.v())
+                / (2 * (goal.x() - start.x()));
 
         MotionProfile accelProfile = unlimitedJerk(start, maxVel, maxAccel);
         MotionProfile decelProfile = unlimitedJerk(
                 new MotionState(
-                        goal.getX(),
-                        goal.getV(),
-                        -goal.getA(),
-                        goal.getJ()),
+                        goal.x(),
+                        goal.v(),
+                        -goal.a(),
+                        goal.j()),
                 maxVel,
                 maxAccel)
                 .reversed();
 
         MotionProfile noCoastProfile = accelProfile.append(decelProfile);
-        double remainingDistance = goal.getX() - noCoastProfile.end().getX();
+        double remainingDistance = goal.x() - noCoastProfile.end().x();
 
         if (remainingDistance >= 0.0) {
             return threeSegment(start, maxVel, accelProfile, decelProfile, remainingDistance);
@@ -62,21 +62,21 @@ public class TrapezoidProfileGenerator {
                 // violate the constraints
                 // TODO: remove this
                 // single segment profile
-                double dt = (goal.getV() - start.getV()) / requiredAccel;
+                double dt = (goal.v() - start.v()) / requiredAccel;
                 return new MotionProfileBuilder(start)
                         .appendAccelerationSegment(requiredAccel, dt)
                         .build();
             }
-        } else if (start.getV() > maxVel && goal.getV() > maxVel) {
+        } else if (start.v() > maxVel && goal.v() > maxVel) {
             // this should not happen. TODO: remove this
             // decel, accel
             List<Double> roots = Math100.solveQuadratic(
                     -maxAccel,
-                    2 * start.getV(),
-                    (goal.getV() * goal.getV() - start.getV() * start.getV()) / (2 * maxAccel) - goal.getX()
-                            + start.getX());
+                    2 * start.v(),
+                    (goal.v() * goal.v() - start.v() * start.v()) / (2 * maxAccel) - goal.x()
+                            + start.x());
             double deltaT1 = roots.stream().filter((it) -> it >= 0.0).min(Double::compare).orElseThrow();
-            double deltaT3 = Math.abs(start.getV() - goal.getV()) / maxAccel + deltaT1;
+            double deltaT3 = Math.abs(start.v() - goal.v()) / maxAccel + deltaT1;
 
             return new MotionProfileBuilder(start)
                     .appendAccelerationSegment(-maxAccel, deltaT1)
@@ -86,11 +86,11 @@ public class TrapezoidProfileGenerator {
             // accel, decel
             List<Double> roots = Math100.solveQuadratic(
                     maxAccel,
-                    2 * start.getV(),
-                    (start.getV() * start.getV() - goal.getV() * goal.getV()) / (2 * maxAccel) - goal.getX()
-                            + start.getX());
+                    2 * start.v(),
+                    (start.v() * start.v() - goal.v() * goal.v()) / (2 * maxAccel) - goal.x()
+                            + start.x());
             double deltaT1 = roots.stream().filter((it) -> it >= 0.0).min(Double::compare).orElseThrow();
-            double deltaT3 = Math.abs(start.getV() - goal.getV()) / maxAccel + deltaT1;
+            double deltaT3 = Math.abs(start.v() - goal.v()) / maxAccel + deltaT1;
 
             return new MotionProfileBuilder(start)
                     .appendAccelerationSegment(maxAccel, deltaT1)
@@ -121,9 +121,9 @@ public class TrapezoidProfileGenerator {
      * Returns a profile with one max-acceleration segment to full velocity.
      */
     static MotionProfile unlimitedJerk(MotionState start, double maxVel, double maxAccel) {
-        double deltaT1 = Math.abs(start.getV() - maxVel) / maxAccel;
+        double deltaT1 = Math.abs(start.v() - maxVel) / maxAccel;
         MotionProfileBuilder builder = new MotionProfileBuilder(start);
-        if (start.getV() > maxVel) {
+        if (start.v() > maxVel) {
             // we need to decelerate
             builder.appendAccelerationSegment(-maxAccel, deltaT1);
         } else {

@@ -29,7 +29,7 @@ public record MotionSegment(MotionState start, double dt) {
      */
     MotionSegment reversed() {
         MotionState end = end();
-        MotionState state = new MotionState(end.getX(), end.getV(), -end.getA(), end.getJ());
+        MotionState state = new MotionState(end.x(), end.v(), -end.a(), end.j());
         return new MotionSegment(state, dt);
     }
 
