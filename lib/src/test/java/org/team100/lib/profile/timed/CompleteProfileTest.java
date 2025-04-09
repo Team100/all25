@@ -19,4 +19,9 @@ public class CompleteProfileTest {
         //         Util.printf("%12.3f %12.3f %12.3f %12.3f\n", t, c.x(), c.v(), c.a());
         // }
     }
+
+    @Test
+    void testKeyInterpolation() {
+        
+    }
 }

@@ -132,11 +132,11 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
 
         // position feedback
         final double u1_pos = m_lowerPosFeedback.calculate(
-                Model100.x(measurement.get().th1),
-                Model100.x(r.th1));
+                new Model100(measurement.get().th1, 0),
+                new Model100(r.th1, 0));
         final double u2_pos = m_upperPosFeedback.calculate(
-                Model100.x(measurement.get().th2),
-                Model100.x(r.th2));
+                new Model100(measurement.get().th2, 0),
+                new Model100(r.th2, 0));
 
         // velocity reference
         final ArmAngles rdot = getThetaVelReference(desiredState, r);
@@ -149,11 +149,11 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
 
         // velocity feedback
         final double u1_vel = m_lowerVelFeedback.calculate(
-                Model100.x(velocityMeasurement.get().th1),
-                Model100.x(rdot.th1));
+                new Model100(velocityMeasurement.get().th1, 0),
+                new Model100(rdot.th1, 0));
         final double u2_vel = m_upperVelFeedback.calculate(
-                Model100.x(velocityMeasurement.get().th2),
-                Model100.x(rdot.th2));
+                new Model100(velocityMeasurement.get().th2, 0),
+                new Model100(rdot.th2, 0));
 
         // u is really velocity
         final double u1 = ff1 + u1_pos + u1_vel;
