@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** Time-parameterized motion profile. */
 public class MotionProfile {
     private final List<MotionSegment> segments;
 
