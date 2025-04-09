@@ -3,6 +3,7 @@ package org.team100.lib.state;
 import java.util.Objects;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.interpolation.Interpolatable;
 
 /**
  * One-dimensional system state, used for system modeling. The model only
@@ -14,7 +15,7 @@ import edu.wpi.first.math.MathUtil;
  * @param x position
  * @param v velocity
  */
-public record Model100(double x, double v) {
+public record Model100(double x, double v) implements Interpolatable<Model100> {
 
     public Model100() {
         this(0, 0);
@@ -53,6 +54,14 @@ public record Model100(double x, double v) {
     }
 
     @Override
+    public Model100 interpolate(Model100 endValue, double t) {
+        return new Model100(
+                MathUtil.interpolate(x, endValue.x, t),
+                MathUtil.interpolate(v, endValue.v, t));
+
+    }
+
+    @Override
     public String toString() {
         return String.format("Model100(X %11.8f V %11.8f)", x, v);
     }
@@ -71,5 +80,4 @@ public record Model100(double x, double v) {
     public int hashCode() {
         return Objects.hash(x, v);
     }
-
 }

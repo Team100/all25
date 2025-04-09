@@ -3,6 +3,7 @@ package org.team100.lib.state;
 import java.util.Objects;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.interpolation.Interpolatable;
 
 /**
  * One-dimensional system state, used for control, so it includes acceleration,
@@ -15,7 +16,7 @@ import edu.wpi.first.math.MathUtil;
  * @param v velocity
  * @param a acceleration
  */
-public record Control100(double x, double v, double a) {
+public record Control100(double x, double v, double a) implements Interpolatable<Control100> {
 
     public Control100(double x, double v) {
         this(x, v, 0);
@@ -47,6 +48,14 @@ public record Control100(double x, double v, double a) {
     public boolean near(Control100 other, double tolerance) {
         return MathUtil.isNear(x, other.x, tolerance) &&
                 MathUtil.isNear(v, other.v, tolerance);
+    }
+
+    @Override
+    public Control100 interpolate(Control100 endValue, double t) {
+        return new Control100(
+                MathUtil.interpolate(x, endValue.x, t),
+                MathUtil.interpolate(v, endValue.v, t),
+                MathUtil.interpolate(a, endValue.a, t));
     }
 
     @Override
