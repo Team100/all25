@@ -9,9 +9,11 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 
 public class CompleteProfileTest {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final double DT = 0.02;
     private static final double kDelta = 0.001;
 
@@ -51,7 +53,7 @@ public class CompleteProfileTest {
 
     /** How does interpolation work? */
     @Test
-    void testKeyInterpolation() {
+    void testKeyInterpolation1() {
         InterpolatingDoubleTreeMap m = new InterpolatingDoubleTreeMap();
         m.put(-1.0, 1.0);
         m.put(1.0, -1.0);
@@ -61,6 +63,25 @@ public class CompleteProfileTest {
         assertEquals(0, m.get(0.0), kDelta);
         assertEquals(-1, m.get(2.0), kDelta);
         assertEquals(-1, m.get(3.0), kDelta);
+    }
 
+    /** What if one of the points is really far away? */
+    @Test
+    void testKeyInterpolation2() {
+        InterpolatingTreeMap<Double, Control100> m = new InterpolatingTreeMap<>(
+                InverseInterpolator.forDouble(),
+                Control100::interpolate);
+                // without this far-away point, the interpolator returns the endpoint at -1.
+        m.put(-384400000.0, new Control100(-384400000, 1, 0));
+        m.put(-1.0, new Control100(-1, 1, 0));
+        m.put(1.0, new Control100(1, -1, 0));
+        m.put(384400000.0, new Control100(384400000, -1, 0));
+        // it takes the endpoint forever
+        assertEquals(-3, m.get(-3.0).x(), kDelta);
+        assertEquals(1, m.get(-3.0).v(), kDelta);
+        assertEquals(-2, m.get(-2.0).x(), kDelta);
+        assertEquals(0, m.get(0.0).x(), kDelta);
+        assertEquals(2, m.get(2.0).x(), kDelta);
+        assertEquals(3, m.get(3.0).x(), kDelta);
     }
 }
