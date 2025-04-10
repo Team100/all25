@@ -20,7 +20,7 @@ public class CompleteProfileTest {
     /** Dump the sliding mode curve */
     @Test
     void testMode() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 0.001);
         if (DEBUG) {
             for (double x = -10; x < 10; x += 0.01) {
                 Control100 sample = p.m_byDistance.get(x);
@@ -31,7 +31,7 @@ public class CompleteProfileTest {
 
     @Test
     void testSimple() {
-        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 0.001);
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.0001);
         final Model100 goal = new Model100(2, 0);
         Control100 c = new Control100();
         double t = 0;
@@ -45,7 +45,7 @@ public class CompleteProfileTest {
 
     @Test
     void testSimple2() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.001);
         final Model100 goal = new Model100(-1, 0);
         Control100 c = new Control100();
         double t = 0;
@@ -59,7 +59,7 @@ public class CompleteProfileTest {
 
     @Test
     void testMovingEntry() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.001);
         final Model100 goal = new Model100(1, 0);
         Control100 c = new Control100(0, -1);
         double t = 0;

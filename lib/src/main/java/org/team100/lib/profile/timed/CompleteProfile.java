@@ -55,6 +55,7 @@ public class CompleteProfile implements IncrementalProfile {
     private final double m_maxA;
     private final double m_maxD;
     private final double m_stallA;
+    private final double m_maxJ;
     private final double m_tolerance;
     final InterpolatingTreeMap<Double, Control100> m_byDistance;
 
@@ -62,15 +63,17 @@ public class CompleteProfile implements IncrementalProfile {
      * 
      * @param maxV      max velocity
      * @param maxA      max acceleration (current-limited, constant)
-     * @param maxD      max decel (usually higher than accel)
+     * @param maxD      max decel (usually higher than accel, only used for goal path)
      * @param maxStallA theoretical stall acceleration, for calculating back-EMF
+     * @param maxJ      max jerk (only used for goal path tapering)
      * @param tolerance this close to the switching surface to be on it
      */
-    public CompleteProfile(double maxV, double maxA, double maxD, double stallA, double tolerance) {
+    public CompleteProfile(double maxV, double maxA, double maxD, double stallA, double maxJ, double tolerance) {
         m_maxV = maxV;
         m_maxA = maxA;
         m_maxD = maxD;
         m_stallA = stallA;
+        m_maxJ = maxJ;
         m_tolerance = tolerance;
         InverseInterpolator<Double> keyInterpolator = InverseInterpolator.forDouble();
         Interpolator<Control100> valueInterpolator = Control100::interpolate;
@@ -96,19 +99,20 @@ public class CompleteProfile implements IncrementalProfile {
                 if (DEBUG)
                     Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
             } else {
-                double v = c.v() - a * DT;
+                double aa = Math.max(a, c.a() - maxJ * DT);
+                double v = c.v() - aa * DT;
                 if (v > maxV) {
                     // maxV is achieved within DT
                     // how long does it take to get there?
-                    double dt = -1.0 * (maxV - c.v()) / a;
+                    double dt = -1.0 * (maxV - c.v()) / aa;
                     // this should be exactly at the corner.
                     c = new Control100(
-                            c.x() - c.v() * dt + 0.5 * a * dt * dt,
+                            c.x() - c.v() * dt + 0.5 * aa * dt * dt,
                             maxV,
-                            a);
+                            aa);
                     m_byDistance.put(c.x(), c);
                     m_byDistance.put(c.x() - 1e-6, new Control100(
-                            c.x() - c.v() * dt + 0.5 * a * dt * dt,
+                            c.x() - c.v() * dt + 0.5 * aa * dt * dt,
                             maxV,
                             0));
                     t += dt;
@@ -116,9 +120,9 @@ public class CompleteProfile implements IncrementalProfile {
                         Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
                 } else {
                     c = new Control100(
-                            c.x() - c.v() * DT + 0.5 * a * DT * DT,
+                            c.x() - c.v() * DT + 0.5 * aa * DT * DT,
                             v,
-                            a);
+                            aa);
                     m_byDistance.put(c.x(), c);
                     t += DT;
                     if (DEBUG)
@@ -142,20 +146,21 @@ public class CompleteProfile implements IncrementalProfile {
                 if (DEBUG)
                     Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
             } else {
-                double v = c.v() - a * DT;
+                double aa = Math.min(a, c.a() + maxJ * DT);
+                double v = c.v() - aa * DT;
                 if (v < -maxV) {
                     // maxV is achieved within DT
                     // how long does it take to ge tthere?
-                    double dt = -1.0 * (-maxV - c.v()) / a;
+                    double dt = -1.0 * (-maxV - c.v()) / aa;
                     // this should be exactly at the corner.
                     c = new Control100(
                             c.x() - c.v() * dt + 0.5 * a * dt * dt,
                             -maxV,
-                            a);
+                            aa);
                     m_byDistance.put(c.x(), c);
                     m_byDistance.put(c.x() + 1e-6,
                             new Control100(
-                                    c.x() - c.v() * dt + 0.5 * a * dt * dt,
+                                    c.x() - c.v() * dt + 0.5 * aa * dt * dt,
                                     -maxV,
                                     0));
                     t += dt;
@@ -163,9 +168,9 @@ public class CompleteProfile implements IncrementalProfile {
                         Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
                 } else {
                     c = new Control100(
-                            c.x() - c.v() * DT + 0.5 * a * DT * DT,
+                            c.x() - c.v() * DT + 0.5 * aa * DT * DT,
                             v,
-                            a);
+                            aa);
                     m_byDistance.put(c.x(), c);
                     t += DT;
                     if (DEBUG)
