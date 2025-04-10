@@ -3,6 +3,7 @@ package org.team100.lib.profile.timed;
 import org.team100.lib.profile.IncrementalProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Math100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
@@ -53,6 +54,7 @@ public class CompleteProfile implements IncrementalProfile {
     private final double m_maxV;
     private final double m_maxA;
     private final double m_maxD;
+    private final double m_stallA;
     private final double m_tolerance;
     final InterpolatingTreeMap<Double, Control100> m_byDistance;
 
@@ -61,12 +63,14 @@ public class CompleteProfile implements IncrementalProfile {
      * @param maxV      max velocity
      * @param maxA      max acceleration (current-limited, constant)
      * @param maxD      max decel (usually higher than accel)
+     * @param maxStallA theoretical stall acceleration, for calculating back-EMF
      * @param tolerance this close to the switching surface to be on it
      */
-    public CompleteProfile(double maxV, double maxA, double maxD, double tolerance) {
+    public CompleteProfile(double maxV, double maxA, double maxD, double stallA, double tolerance) {
         m_maxV = maxV;
         m_maxA = maxA;
         m_maxD = maxD;
+        m_stallA = stallA;
         m_tolerance = tolerance;
         InverseInterpolator<Double> keyInterpolator = InverseInterpolator.forDouble();
         Interpolator<Control100> valueInterpolator = Control100::interpolate;
@@ -80,7 +84,7 @@ public class CompleteProfile implements IncrementalProfile {
         // these are decel profiles so use maxD.
         double a = -maxD;
         double t = 0;
-        for (int i = 1; i < 100; ++i) {
+        for (int i = 1; i < 1000; ++i) {
             if (MathUtil.isNear(c.v(), maxV, tolerance)) {
                 // we're already cruising. keep cruising.
                 c = new Control100(
@@ -126,7 +130,7 @@ public class CompleteProfile implements IncrementalProfile {
         a = maxD;
         t = 0;
         c = new Control100();
-        for (int i = 1; i < 100; ++i) {
+        for (int i = 1; i < 1000; ++i) {
             if (MathUtil.isNear(c.v(), -maxV, tolerance)) {
                 // we're already cruising. keep cruising.
                 c = new Control100(
@@ -185,6 +189,7 @@ public class CompleteProfile implements IncrementalProfile {
                 Util.printf("at goal, togo %s\n", togo);
             return goal.control();
         }
+        double a = accel(setpoint.v());
         Control100 lerp = m_byDistance.get(togo);
         if (DEBUG)
             Util.printf("togo %f lerp %s\n", togo, lerp);
@@ -196,8 +201,12 @@ public class CompleteProfile implements IncrementalProfile {
                 if (DEBUG)
                     Util.println("setpoint velocity is less positive than goal path: speed up");
                 // would the next point be on the other side?
-                double v = setpoint.v() + m_maxA * dt;
-                if (v > lerp.v()) {
+                double v = setpoint.v() + a * dt;
+                if (DEBUG)
+                    Util.printf("switch? v %f lerp v%f lerp a %f a %f\n", v, lerp.v(), lerp.a() * dt, a);
+                if (v > lerp.v() + lerp.a() * dt) {
+                    if (DEBUG)
+                        Util.println("switch");
                     // the next step spans the switching curve, so just take the lerp
                     // (this is a bit conservative compared to the intersection but it's simpler)
                     return new Control100(
@@ -206,9 +215,9 @@ public class CompleteProfile implements IncrementalProfile {
                             lerp.a());
                 }
                 return new Control100(
-                        setpoint.x() + setpoint.v() * dt + 0.5 * m_maxA * dt * dt,
+                        setpoint.x() + setpoint.v() * dt + 0.5 * a * dt * dt,
                         v,
-                        m_maxA);
+                        a);
             } else if (setpoint.v() - m_tolerance < lerp.v()) {
                 if (DEBUG)
                     Util.printf("setpoint is within tolerance of lerp %s\n", lerp);
@@ -228,7 +237,7 @@ public class CompleteProfile implements IncrementalProfile {
                     Util.println("setpoint velocity is more positive than goal path: slow down");
                 // would the next point be on the other side?
 
-                double v = setpoint.v() - m_maxA * dt;
+                double v = setpoint.v() - m_maxD * dt;
                 if (v < lerp.v()) {
                     return new Control100(
                             goal.x() + lerp.x() + lerp.v() * dt + 0.5 * lerp.a() * dt * dt,
@@ -236,9 +245,9 @@ public class CompleteProfile implements IncrementalProfile {
                             lerp.a());
                 }
                 return new Control100(
-                        setpoint.x() + setpoint.v() * dt - 0.5 * m_maxA * dt * dt,
+                        setpoint.x() + setpoint.v() * dt - 0.5 * m_maxD * dt * dt,
                         v,
-                        -m_maxA);
+                        -m_maxD);
             }
         } else {
             if (DEBUG)
@@ -248,9 +257,9 @@ public class CompleteProfile implements IncrementalProfile {
                 if (DEBUG)
                     Util.println("setpoint velocity is less negative than goal path: speed up");
                 return new Control100(
-                        setpoint.x() + setpoint.v() * dt - 0.5 * m_maxA * dt * dt,
-                        setpoint.v() - m_maxA * dt,
-                        -m_maxA);
+                        setpoint.x() + setpoint.v() * dt - 0.5 * a * dt * dt,
+                        setpoint.v() - a * dt,
+                        -a);
             } else if (setpoint.v() + m_tolerance > lerp.v()) {
                 if (DEBUG)
                     Util.println("setpoint is within tolerance of lerp");
@@ -264,11 +273,23 @@ public class CompleteProfile implements IncrementalProfile {
                 if (DEBUG)
                     Util.println("setpoint velocity is more negative than goal path: slow down");
                 return new Control100(
-                        setpoint.x() + setpoint.v() * dt + 0.5 * m_maxA * dt * dt,
-                        setpoint.v() + m_maxA * dt,
-                        m_maxA);
+                        setpoint.x() + setpoint.v() * dt + 0.5 * m_maxD * dt * dt,
+                        setpoint.v() + m_maxD * dt,
+                        m_maxD);
             }
         }
+    }
+
+    double accel(double velocity) {
+        double speedFraction = Math100.limit(velocity / m_maxV, 0, 1);
+        double backEmfLimit = 1 - speedFraction;
+        double backEmfLimitedAcceleration = backEmfLimit * m_stallA;
+        double currentLimitedAcceleration = m_maxA;
+        if (DEBUG) {
+            Util.printf("speedFraction %5.2f backEmfLimitedAcceleration %5.2f currentLimitedAcceleration %5.2f\n",
+                    speedFraction, backEmfLimitedAcceleration, currentLimitedAcceleration);
+        }
+        return Math.min(backEmfLimitedAcceleration, currentLimitedAcceleration);
     }
 
 }
