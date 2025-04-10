@@ -20,7 +20,7 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.NeoCANSparkMotor;
 import org.team100.lib.motor.NeoVortexCANSparkMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
-import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
 
 import edu.wpi.first.math.MathUtil;
 

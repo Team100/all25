@@ -20,8 +20,8 @@ import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 

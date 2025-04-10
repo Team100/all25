@@ -1,4 +1,4 @@
-package org.team100.lib.profile;
+package org.team100.lib.profile.incremental;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.state.Control100;

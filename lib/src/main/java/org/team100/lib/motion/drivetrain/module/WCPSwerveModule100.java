@@ -29,7 +29,7 @@ import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
-import org.team100.lib.profile.Profile100;
+import org.team100.lib.profile.incremental.Profile100;
 
 import edu.wpi.first.math.MathUtil;
 

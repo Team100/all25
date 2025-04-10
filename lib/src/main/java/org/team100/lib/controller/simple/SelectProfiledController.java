@@ -8,10 +8,10 @@ import java.util.function.DoubleUnaryOperator;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.profile.CurrentLimitedExponentialProfile;
-import org.team100.lib.profile.ExponentialProfileWPI;
-import org.team100.lib.profile.TrapezoidProfile100;
-import org.team100.lib.profile.TrapezoidProfileWPI;
+import org.team100.lib.profile.incremental.CurrentLimitedExponentialProfile;
+import org.team100.lib.profile.incremental.ExponentialProfileWPI;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
 import org.team100.lib.profile.timed.SepticSplineProfile;
 import org.team100.lib.state.Model100;

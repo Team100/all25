@@ -1,9 +1,10 @@
-package org.team100.lib.profile;
+package org.team100.lib.profile.incremental;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.profile.incremental.CurrentLimitedExponentialProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;

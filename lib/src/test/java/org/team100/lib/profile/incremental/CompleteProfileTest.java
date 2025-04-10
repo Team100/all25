@@ -1,4 +1,4 @@
-package org.team100.lib.profile.timed;
+package org.team100.lib.profile.incremental;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,7 +17,7 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
  * https://docs.google.com/spreadsheets/d/1VKc6t_AHfW9Ovo8R1cov4UfGLI1Ab3QKrIuhZbfsCR8/edit?gid=2097479642#gid=2097479642
  */
 public class CompleteProfileTest {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final double DT = 0.02;
     private static final double kDelta = 0.001;
 
@@ -34,8 +34,20 @@ public class CompleteProfileTest {
     }
 
     @Test
+    void testInterpolation() {
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 0.001);
+        Control100 c = p.m_byDistance.get(-500.0);
+        // we get back the x coord we provided
+        assertEquals(-500, c.x(), kDelta);
+        // v is always maxv
+        assertEquals(2, c.v(), kDelta);
+        // a is always zero
+        assertEquals(0, c.a(), kDelta);
+    }
+
+    @Test
     void testSimple() {
-        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.0001);
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
         final Model100 goal = new Model100(2, 0);
         Control100 c = new Control100();
         double t = 0;
@@ -48,9 +60,9 @@ public class CompleteProfileTest {
     }
 
     @Test
-    void testSimple2() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.001);
-        final Model100 goal = new Model100(-1, 0);
+    void testSimpleBackward() {
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
+        final Model100 goal = new Model100(-2, 0);
         Control100 c = new Control100();
         double t = 0;
         for (int i = 0; i < 100; ++i) {
@@ -66,6 +78,21 @@ public class CompleteProfileTest {
         CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.001);
         final Model100 goal = new Model100(1, 0);
         Control100 c = new Control100(0, -1);
+        double t = 0;
+        for (int i = 0; i < 100; ++i) {
+            if (DEBUG)
+                Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            c = p.calculate(DT, c.model(), goal);
+            t += DT;
+        }
+    }
+
+    @Test
+    void testUTurn() {
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
+        final Model100 goal = new Model100(0, 0);
+        // to the left and moving to the left
+        Control100 c = new Control100(-2, -2);
         double t = 0;
         for (int i = 0; i < 100; ++i) {
             if (DEBUG)

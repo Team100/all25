@@ -16,8 +16,8 @@ import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.util.Util;
 
 public class OutboardAngularPositionServoTest {
