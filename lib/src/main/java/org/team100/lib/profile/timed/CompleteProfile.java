@@ -52,12 +52,21 @@ public class CompleteProfile implements IncrementalProfile {
 
     private final double m_maxV;
     private final double m_maxA;
+    private final double m_maxD;
     private final double m_tolerance;
     final InterpolatingTreeMap<Double, Control100> m_byDistance;
 
-    public CompleteProfile(double maxV, double maxA, double tolerance) {
+    /**
+     * 
+     * @param maxV      max velocity
+     * @param maxA      max acceleration (current-limited, constant)
+     * @param maxD      max decel (usually higher than accel)
+     * @param tolerance this close to the switching surface to be on it
+     */
+    public CompleteProfile(double maxV, double maxA, double maxD, double tolerance) {
         m_maxV = maxV;
         m_maxA = maxA;
+        m_maxD = maxD;
         m_tolerance = tolerance;
         InverseInterpolator<Double> keyInterpolator = InverseInterpolator.forDouble();
         Interpolator<Control100> valueInterpolator = Control100::interpolate;
@@ -68,7 +77,8 @@ public class CompleteProfile implements IncrementalProfile {
         if (DEBUG)
             Util.printf("%12.4f %12.4f %12.4f %12.4f\n", 0.0, c.x(), c.v(), c.a());
         // control from the left, so deceleration, walking back in time
-        double a = -maxA;
+        // these are decel profiles so use maxD.
+        double a = -maxD;
         double t = 0;
         for (int i = 1; i < 100; ++i) {
             if (MathUtil.isNear(c.v(), maxV, tolerance)) {
@@ -113,7 +123,7 @@ public class CompleteProfile implements IncrementalProfile {
             }
         }
         // control from the right, walking back in time
-        a = maxA;
+        a = maxD;
         t = 0;
         c = new Control100();
         for (int i = 1; i < 100; ++i) {

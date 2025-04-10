@@ -20,7 +20,7 @@ public class CompleteProfileTest {
     /** Dump the sliding mode curve */
     @Test
     void testMode() {
-        CompleteProfile p = new CompleteProfile(2, 6, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.001);
         if (DEBUG) {
             for (double x = -10; x < 10; x += 0.01) {
                 Control100 sample = p.m_byDistance.get(x);
@@ -31,9 +31,37 @@ public class CompleteProfileTest {
 
     @Test
     void testSimple() {
-        CompleteProfile p = new CompleteProfile(2, 6, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.001);
         final Model100 goal = new Model100(1, 0);
         Control100 c = new Control100();
+        double t = 0;
+        for (int i = 0; i < 100; ++i) {
+            if (DEBUG)
+                Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            c = p.calculate(DT, c.model(), goal);
+            t += DT;
+        }
+    }
+
+    @Test
+    void testSimple2() {
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.001);
+        final Model100 goal = new Model100(-1, 0);
+        Control100 c = new Control100();
+        double t = 0;
+        for (int i = 0; i < 100; ++i) {
+            if (DEBUG)
+                Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            c = p.calculate(DT, c.model(), goal);
+            t += DT;
+        }
+    }
+
+    @Test
+    void testMovingEntry() {
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.001);
+        final Model100 goal = new Model100(1, 0);
+        Control100 c = new Control100(0, -1);
         double t = 0;
         for (int i = 0; i < 100; ++i) {
             if (DEBUG)
@@ -46,7 +74,7 @@ public class CompleteProfileTest {
     /** Moving goals are not allowed. */
     @Test
     void testMovingGoal() {
-        CompleteProfile p = new CompleteProfile(2, 6, 0.01);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.01);
         assertThrows(IllegalArgumentException.class,
                 () -> p.calculate(0.02, new Model100(), new Model100(1, 1)));
     }
