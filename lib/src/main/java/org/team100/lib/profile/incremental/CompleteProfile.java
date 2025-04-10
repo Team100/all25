@@ -30,6 +30,10 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
  * curve, and then moving alnog it.
  * 
  * See https://www.desmos.com/calculator/jnc7u3jg11 for useful curves.
+ * 
+ * See
+ * https://docs.google.com/spreadsheets/d/1JdKViVSTEMZ0dRS8broub4P-f0eA6STRHHzoV0U4N5M/edit?gid=2097479642#gid=2097479642
+ * for output of this model
  */
 public class CompleteProfile implements IncrementalProfile {
     private static final boolean DEBUG = false;
