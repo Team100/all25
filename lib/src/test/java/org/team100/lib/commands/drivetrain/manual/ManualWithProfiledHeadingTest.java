@@ -405,7 +405,7 @@ class ManualWithProfiledHeadingTest {
         // which never happens in reality but it should do something less dumb.
 
         for (int i = 0; i < 100; ++i) {
-            u = m_profile.calculate(0.02, u.model(), goalRaw);
+            u = m_profile.calculate(0.02, u, goalRaw);
         }
     }
 

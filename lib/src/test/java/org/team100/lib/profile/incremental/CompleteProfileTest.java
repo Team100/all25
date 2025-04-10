@@ -17,14 +17,14 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
  * https://docs.google.com/spreadsheets/d/1JdKViVSTEMZ0dRS8broub4P-f0eA6STRHHzoV0U4N5M/edit?gid=2097479642#gid=2097479642
  */
 public class CompleteProfileTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double DT = 0.02;
     private static final double kDelta = 0.001;
 
     /** Dump the sliding mode curve */
     @Test
     void testMode() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 50, 0.001);
         if (DEBUG) {
             for (double x = -10; x < 10; x += 0.01) {
                 Control100 sample = p.m_byDistance.get(x);
@@ -35,7 +35,7 @@ public class CompleteProfileTest {
 
     @Test
     void testInterpolation() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 40, 50, 50, 0.001);
         Control100 c = p.m_byDistance.get(-500.0);
         // we get back the x coord we provided
         assertEquals(-500, c.x(), kDelta);
@@ -47,49 +47,49 @@ public class CompleteProfileTest {
 
     @Test
     void testSimple() {
-        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 50, 0.001);
         final Model100 goal = new Model100(2, 0);
         Control100 c = new Control100();
         double t = 0;
         for (int i = 0; i < 200; ++i) {
             if (DEBUG)
                 Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
-            c = p.calculate(DT, c.model(), goal);
+            c = p.calculate(DT, c, goal);
             t += DT;
         }
     }
 
     @Test
     void testSimpleBackward() {
-        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 50, 0.001);
         final Model100 goal = new Model100(-2, 0);
         Control100 c = new Control100();
         double t = 0;
         for (int i = 0; i < 100; ++i) {
             if (DEBUG)
                 Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
-            c = p.calculate(DT, c.model(), goal);
+            c = p.calculate(DT, c, goal);
             t += DT;
         }
     }
 
     @Test
     void testMovingEntry() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 50, 0.001);
         final Model100 goal = new Model100(1, 0);
         Control100 c = new Control100(0, -1);
         double t = 0;
         for (int i = 0; i < 100; ++i) {
             if (DEBUG)
                 Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
-            c = p.calculate(DT, c.model(), goal);
+            c = p.calculate(DT, c, goal);
             t += DT;
         }
     }
 
     @Test
     void testUTurn() {
-        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 0.001);
+        CompleteProfile p = new CompleteProfile(3, 8, 12, 15, 50, 50, 0.001);
         final Model100 goal = new Model100(0, 0);
         // to the left and moving to the left
         Control100 c = new Control100(-2, -2);
@@ -97,7 +97,7 @@ public class CompleteProfileTest {
         for (int i = 0; i < 100; ++i) {
             if (DEBUG)
                 Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
-            c = p.calculate(DT, c.model(), goal);
+            c = p.calculate(DT, c, goal);
             t += DT;
         }
     }
@@ -105,9 +105,9 @@ public class CompleteProfileTest {
     /** Moving goals are not allowed. */
     @Test
     void testMovingGoal() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.01);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 50, 0.01);
         assertThrows(IllegalArgumentException.class,
-                () -> p.calculate(0.02, new Model100(), new Model100(1, 1)));
+                () -> p.calculate(0.02, new Control100(), new Model100(1, 1)));
     }
 
     /** How does interpolation work? */

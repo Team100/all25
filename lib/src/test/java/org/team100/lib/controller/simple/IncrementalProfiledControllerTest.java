@@ -169,7 +169,7 @@ public class IncrementalProfiledControllerTest {
 
             u_FB = feedback.calculate(new Model100(sim.y, sim.yDot), setpointModel);
 
-            ResultWithETA result = profile.calculateWithETA(0.02, setpointModel, goal);
+            ResultWithETA result = profile.calculateWithETA(0.02, setpointModel.control(), goal);
             setpointControl = result.state();
             // this is the setpoint for the next time step
             setpointModel = setpointControl.model();

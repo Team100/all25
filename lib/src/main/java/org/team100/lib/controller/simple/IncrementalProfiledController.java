@@ -109,7 +109,7 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        Control100 u_FF = m_profile.calculate(kDt, m_setpoint, m_goal);
+        Control100 u_FF = m_profile.calculate(kDt, m_setpoint.control(), m_goal);
         m_log_control.log(() -> u_FF);
 
         m_setpoint = u_FF.model();

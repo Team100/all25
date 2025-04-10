@@ -9,13 +9,13 @@ public class MockProfile100 implements Profile100 {
     int count = 0;
 
     @Override
-    public Control100 calculate(double dt, Model100 initial, Model100 goal) {
+    public Control100 calculate(double dt, Control100 initial, Model100 goal) {
         count++;
         return result;
     }
 
     @Override
-    public ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal) {
+    public ResultWithETA calculateWithETA(double dt, Control100 initial, Model100 goal) {
         return new ResultWithETA(result, eta);
     }
 
@@ -30,7 +30,7 @@ public class MockProfile100 implements Profile100 {
     }
 
     @Override
-    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
+    public double solve(double dt, Control100 i, Model100 g, double eta, double etaTolerance) {
         return 1.0;
     }
 

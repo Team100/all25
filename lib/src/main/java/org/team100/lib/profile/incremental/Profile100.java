@@ -28,8 +28,10 @@ public interface Profile100 extends IncrementalProfile {
      * Return the control for dt in the future.
      * 
      * Note order here, initial first, goal second.
+     * 
+     * Initial is a Control100 so we can regulate jerk.
      */
-    ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal);
+    ResultWithETA calculateWithETA(double dt, Control100 initial, Model100 goal);
 
     /**
      * Return a new profile with acceleration scaled by s.
@@ -42,7 +44,7 @@ public interface Profile100 extends IncrementalProfile {
      */
     double solve(
             double dt,
-            Model100 i,
+            Control100 i,
             Model100 g,
             double eta,
             double etaTolerance);
@@ -60,7 +62,7 @@ public interface Profile100 extends IncrementalProfile {
      */
     static double solveForSlowerETA(
             double dt,
-            Model100 initial,
+            Control100 initial,
             Model100 goal,
             double eta,
             double sTolerance,
@@ -83,7 +85,7 @@ public interface Profile100 extends IncrementalProfile {
     /** Calculate the ETA from initial to goal */
     static double getEtaS(
             double dt,
-            Model100 initial,
+            Control100 initial,
             Model100 goal,
             double eta,
             double s,

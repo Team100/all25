@@ -2,8 +2,8 @@ package org.team100.lib.profile.incremental;
 
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
+import org.team100.lib.util.Debug;
 import org.team100.lib.util.Math100;
-import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -11,13 +11,14 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 
 /**
  * A simple profile with all the things we want from a motion profile for
- * mechanisms. There are five parameters:
+ * mechanisms. There are six parameters:
  * 
  * * maximum acceleration
  * * maximum deceleration (typically higher than accel, "plugging")
  * * maximum velocity
  * * "stall" acceleration for calculating back EMF
- * * maximum jerk, for tapering
+ * * maximum jerk for takeoff (optional)
+ * * maximum jerk for landing (optional)
  * 
  * This works by precalculating the "goal" path on instantiation, and
  * calculating the initial path dynamically. When the initial state is close to
@@ -35,8 +36,7 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
  * https://docs.google.com/spreadsheets/d/1JdKViVSTEMZ0dRS8broub4P-f0eA6STRHHzoV0U4N5M/edit?gid=2097479642#gid=2097479642
  * for output of this model
  */
-public class CompleteProfile implements IncrementalProfile {
-    private static final boolean DEBUG = false;
+public class CompleteProfile implements IncrementalProfile, Debug {
     private static final double DT = 0.01;
     // Extends maxV far away.
     private static final double FAR_AWAY = 1000;
@@ -45,34 +45,56 @@ public class CompleteProfile implements IncrementalProfile {
     private final double m_maxA;
     private final double m_maxD;
     private final double m_stallA;
-    private final double m_maxJ;
+    private final double m_takeoffJ;
+    private final double m_landingJ;
     private final double m_tolerance;
     final InterpolatingTreeMap<Double, Control100> m_byDistance;
 
     /**
-     * too-low a tolerance will produce chatter. too-high a tolerance will produce a
+     * Too-low a tolerance will produce chatter. Too-high a tolerance will produce a
      * little hiccup at the goal.
+     * 
+     * Jerk in the middle of the path is unlimited, because it seems complicated to
+     * add a limit there.
      * 
      * @param maxV      max velocity
      * @param maxA      max acceleration (current-limited, for initial path)
      * @param maxD      max decel (higher than accel, only used for goal path)
      * @param maxStallA theoretical stall acceleration, for calculating back-EMF
-     * @param maxJ      max jerk (only used for goal path tapering)
+     * @param takeoffJ  max jerk for takeoff, zero for unlimited
+     * @param landingJ  max jerk for landing, zero for unlimited
      * @param tolerance this close to the switching curve to be on it.
      *                  also used to sense "at goal"
      */
-    public CompleteProfile(double maxV, double maxA, double maxD, double stallA, double maxJ, double tolerance) {
+    public CompleteProfile(
+            double maxV, double maxA, double maxD, double stallA, double takeoffJ, double landingJ, double tolerance) {
+        if (maxV <= 0)
+            throw new IllegalArgumentException("max V must be positive");
+        if (maxA <= 0)
+            throw new IllegalArgumentException("max A must be positive");
+        if (maxD <= 0)
+            throw new IllegalArgumentException("max D must be positive");
+        if (stallA <= 0)
+            throw new IllegalArgumentException("stall A must be positive");
+        if (takeoffJ < 0)
+            throw new IllegalArgumentException("takeoff J may not be negative");
+        if (landingJ < 0)
+            throw new IllegalArgumentException("landing J may not be positive");
+
         m_maxV = maxV;
         m_maxA = maxA;
         m_maxD = maxD;
         m_stallA = stallA;
-        m_maxJ = maxJ;
+        m_takeoffJ = takeoffJ;
+        m_landingJ = landingJ;
         m_tolerance = tolerance;
         m_byDistance = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Control100::interpolate);
         init();
     }
 
-    /** Initialize the goal path. */
+    /**
+     * Initialize the goal path.
+     */
     void init() {
         // This is the goal state, zero control here.
         Control100 control = new Control100();
@@ -129,7 +151,7 @@ public class CompleteProfile implements IncrementalProfile {
     }
 
     @Override
-    public Control100 calculate(double dt, Model100 setpoint, Model100 goal) {
+    public Control100 calculate(double dt, Control100 setpoint, Model100 goal) {
         if (Math.abs(goal.v()) > 1e-6)
             throw new IllegalArgumentException("This profile works only with stationary goals.");
 
@@ -140,7 +162,7 @@ public class CompleteProfile implements IncrementalProfile {
             return goal.control();
         }
 
-        final double maxA = accel(setpoint.v());
+        final double maxA = accel(dt, setpoint);
         final Control100 lerp = m_byDistance.get(togo);
 
         // When imagining how this works, it's good to have the phase space diagram in
@@ -149,44 +171,44 @@ public class CompleteProfile implements IncrementalProfile {
         // clarity.
 
         if (togo < 0) {
-            // goal is to the right
+            debug("goal is to the right");
             if (setpoint.v() < 0) {
-                // we're moving the wrong way (left), so brake.
+                debug("We're moving the wrong way (left), so brake.");
                 return control(dt, setpoint, goal, togo, 1.0, m_maxD);
             }
             if (setpoint.v() + m_tolerance < lerp.v()) {
-                // Setpoint is below the goal path, so push right.
+                debug("Setpoint is below the goal path, so push right.");
                 return control(dt, setpoint, goal, togo, 1.0, maxA);
             }
             if (setpoint.v() - m_tolerance < lerp.v()) {
-                // Setpoint is within tolerance of the goal path
+                debug("Setpoint is within tolerance of the goal path.");
                 return goalPath(dt, setpoint, goal, togo, lerp.a());
             }
-            // Setpoint is above the goal path, so brake.
+            debug("Setpoint is above the goal path, so brake.");
             return control(dt, setpoint, goal, togo, -1.0, m_maxD);
-
         } else {
-            // goal is to the left
+            debug("goal is to the left");
             if (setpoint.v() > 0) {
-                // We're moving the wrong way (right), so brake.
+                debug("We're moving the wrong way (right), so brake.");
                 return control(dt, setpoint, goal, togo, -1.0, m_maxD);
             }
             if (setpoint.v() - m_tolerance > lerp.v()) {
-                // Setpoint is above the goal path, so push left to get there.
+                debug("Setpoint is above the goal path, so push left.");
                 return control(dt, setpoint, goal, togo, -1.0, maxA);
             }
             if (setpoint.v() + m_tolerance > lerp.v()) {
-                // Setpoint is within tolerance of the goal path.
+                debug("Setpoint is within tolerance of the goal path.");
                 return goalPath(dt, setpoint, goal, togo, lerp.a());
             }
-            // Setpoint is below the goal path, so brake.
+            debug("Setpoint is below the goal path, so brake.");
+
             return control(dt, setpoint, goal, togo, 1.0, m_maxD);
         }
     }
 
     private Control100 control(
             double dt,
-            Model100 setpoint,
+            Control100 setpoint,
             Model100 goal,
             double togo,
             double direction,
@@ -207,7 +229,7 @@ public class CompleteProfile implements IncrementalProfile {
      */
     private Control100 goalPath(
             double dt,
-            Model100 setpoint,
+            Control100 setpoint,
             Model100 goal,
             double togo,
             double accel) {
@@ -217,18 +239,21 @@ public class CompleteProfile implements IncrementalProfile {
     }
 
     /**
-     * Acceleration limited by the current limit and by back-EMF
+     * Acceleration limited by the current limit, back-EMF, and the takeoff jerk
+     * limit.
+     * Returns a positive number.
      */
-    double accel(double velocity) {
-        double speedFraction = Math100.limit(Math.abs(velocity) / m_maxV, 0, 1);
+    double accel(double dt, Control100 setpoint) {
+        double speedFraction = Math100.limit(Math.abs(setpoint.v()) / m_maxV, 0, 1);
         double backEmfLimit = 1 - speedFraction;
         double backEmfLimitedAcceleration = backEmfLimit * m_stallA;
         double currentLimitedAcceleration = m_maxA;
-        if (DEBUG) {
-            Util.printf("speedFraction %5.2f backEmfLimitedAcceleration %5.2f currentLimitedAcceleration %5.2f\n",
-                    speedFraction, backEmfLimitedAcceleration, currentLimitedAcceleration);
-        }
-        return Math.min(backEmfLimitedAcceleration, currentLimitedAcceleration);
+        double jerkLimitedAcceleration = Math.abs(setpoint.a()) + m_takeoffJ * dt;
+
+        debug("fraction %5.2f backEmfLimited %5.2f currentLimited %5.2f jerklimited %5.2f\n",
+                speedFraction, backEmfLimitedAcceleration, currentLimitedAcceleration, jerkLimitedAcceleration);
+
+        return Math.min(Math.min(backEmfLimitedAcceleration, currentLimitedAcceleration), jerkLimitedAcceleration);
     }
 
     /**
@@ -236,21 +261,26 @@ public class CompleteProfile implements IncrementalProfile {
      */
     private void put(double t, Control100 c) {
         // t is just for debug
-        if (DEBUG) {
-            Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
-            Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, -c.x(), -c.v(), -c.a());
-        }
+        debug("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+        debug("%12.4f %12.4f %12.4f %12.4f\n", t, -c.x(), -c.v(), -c.a());
         m_byDistance.put(c.x(), c);
         m_byDistance.put(-c.x(), c.mult(-1.0));
     }
 
     /**
      * This is for the "goal path" which is always slowing down, so use the max
-     * decel. It grows at the rate specified by the jerk limit, until we reach the
-     * maximum decel.
+     * decel. The jerk limit affects the "landing".
      */
     private double jerkLimitedAccel(Control100 control) {
-        double jerkLimitedA = Math.max(-m_maxD, control.a() - m_maxJ * DT);
-        return jerkLimitedA;
+        if (m_landingJ < 1e-6) {
+            // zero endJ means no jerk limit
+            return -m_maxD;
+        }
+        return Math.max(-m_maxD, control.a() - m_landingJ * DT);
+    }
+
+    @Override
+    public boolean debug() {
+        return false;
     }
 }

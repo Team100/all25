@@ -21,7 +21,7 @@ public class ExponentialProfileWPITest {
         double tt = 0;
         for (int i = 0; i < 150; ++i) {
             tt += 0.02;
-            sample = profile.calculate(0.02, sample.model(), end);
+            sample = profile.calculate(0.02, sample, end);
             if (DEBUG)
                 Util.printf("%5.3f %5.3f %5.3f\n", tt, sample.x(), sample.v());
         }

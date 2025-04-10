@@ -28,7 +28,7 @@ class TrapezoidProfileWPITest {
         double tt = 0;
         // the first sample is near the starting state
         dump(tt, sample);
-        sample = profileX.calculate(0.02, sample.model(), end);
+        sample = profileX.calculate(0.02, sample, end);
         tt += 0.02;
         dump(tt, sample);
         assertEquals(0, sample.x(), kDelta);
@@ -36,7 +36,7 @@ class TrapezoidProfileWPITest {
 
         // step to the middle of the profile
         for (double t = 0; t < 0.68; t += 0.02) {
-            sample = profileX.calculate(0.02, sample.model(), end);
+            sample = profileX.calculate(0.02, sample, end);
             tt += 0.02;
             dump(tt, sample);
         }
@@ -46,7 +46,7 @@ class TrapezoidProfileWPITest {
 
         // step to the end of the profile .. this was 0.72 before.
         for (double t = 0; t < 0.86; t += 0.02) {
-            sample = profileX.calculate(0.02, sample.model(), end);
+            sample = profileX.calculate(0.02, sample, end);
             tt += 0.02;
             dump(tt, sample);
         }

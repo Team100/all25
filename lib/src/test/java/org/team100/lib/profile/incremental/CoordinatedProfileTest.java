@@ -59,7 +59,7 @@ class CoordinatedProfileTest {
         double max_v = 0;
         for (int i = 0; i < 1000; ++i) {
             // next state
-            s1 = p1.calculate(DT, s1.model(), g1);
+            s1 = p1.calculate(DT, s1, g1);
             total_time += DT;
             max_v = Math.max(max_v, s1.v());
             if (s1.model().near(g1, 0.01)) {
@@ -81,7 +81,7 @@ class CoordinatedProfileTest {
         max_v = 0;
         for (int i = 0; i < 1000; ++i) {
             // next state
-            s2 = p2.calculate(DT, s2.model(), g2);
+            s2 = p2.calculate(DT, s2, g2);
             total_time += DT;
             max_v = Math.max(max_v, s2.v());
             if (s2.model().near(g2, 0.01)) {
@@ -122,7 +122,7 @@ class CoordinatedProfileTest {
         for (int i = 0; i < 1000; ++i) {
             // next state
             // note WPI doesn't produce accel in the profile. :-)
-            s1 = p1.calculate(DT, s1.model(), g1);
+            s1 = p1.calculate(DT, s1, g1);
             total_time += DT;
             max_v = Math.max(max_v, s1.v());
             if (s1.model().near(g1, 0.01)) {
@@ -144,7 +144,7 @@ class CoordinatedProfileTest {
         max_v = 0;
         for (int i = 0; i < 1000; ++i) {
             // next state
-            s2 = p2.calculate(DT, s2.model(), g2);
+            s2 = p2.calculate(DT, s2, g2);
             total_time += DT;
             max_v = Math.max(max_v, s2.v());
             if (s2.model().near(g2, 0.01)) {
@@ -178,12 +178,12 @@ class CoordinatedProfileTest {
         Model100 g2 = new Model100(2, 0);
 
         Model100 s1 = i1;
-        ResultWithETA r = p1.calculateWithETA(DT, s1, g1);
+        ResultWithETA r = p1.calculateWithETA(DT, s1.control(), g1);
         double total_time = r.etaS();
         assertEquals(2.0, total_time, kDelta);
 
         Model100 s2 = i2;
-        r = p2.calculateWithETA(DT, s2, g2);
+        r = p2.calculateWithETA(DT, s2.control(), g2);
         total_time = r.etaS();
         assertEquals(3.0, total_time, kDelta);
     }
@@ -204,12 +204,12 @@ class CoordinatedProfileTest {
         Model100 g2 = new Model100(2, 0);
 
         Model100 s1 = i1;
-        ResultWithETA r = p1.calculateWithETA(DT, s1, g1);
+        ResultWithETA r = p1.calculateWithETA(DT, s1.control(), g1);
         double total_time = r.etaS();
         assertEquals(2.0, total_time, kDelta);
 
         Model100 s2 = i2;
-        r = p2.calculateWithETA(DT, s2, g2);
+        r = p2.calculateWithETA(DT, s2.control(), g2);
         total_time = r.etaS();
         assertEquals(3.0, total_time, kDelta);
     }
@@ -223,9 +223,9 @@ class CoordinatedProfileTest {
         TrapezoidProfile100 px = new TrapezoidProfile100(maxVel, maxAccel, tolerance);
         TrapezoidProfile100 py = new TrapezoidProfile100(maxVel, maxAccel, tolerance);
         // initial x state is moving fast
-        Model100 ix = new Model100(0, 1);
+        Control100 ix = new Control100(0, 1);
         // initial y state is stationary
-        Model100 iy = new Model100(0, 0);
+        Control100 iy = new Control100(0, 0);
         // goal x state is still at the origin (i.e. a "slow and back up" profile)
         Model100 gx = new Model100(0, 0);
         // goal y state is not far
@@ -266,14 +266,14 @@ class CoordinatedProfileTest {
 
         // then run the profiles to see where they end up
 
-        Control100 stateX = ix.control();
-        Control100 stateY = iy.control();
+        Control100 stateX = ix;
+        Control100 stateY = iy;
         @SuppressWarnings("unused")
         double total_time = 0;
         for (int i = 0; i < 1000; ++i) {
             total_time += DT;
-            stateX = px.calculate(DT, stateX.model(), gx);
-            stateY = py.calculate(DT, stateY.model(), gy);
+            stateX = px.calculate(DT, stateX, gx);
+            stateY = py.calculate(DT, stateY, gy);
             if (stateX.model().near(gx, PROFILE_TOLERANCE) && stateY.model().near(gy, PROFILE_TOLERANCE)) {
                 if (PRINT)
                     Util.println("at goal at t " + total_time);

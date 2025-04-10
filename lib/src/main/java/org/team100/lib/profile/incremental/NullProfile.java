@@ -7,13 +7,13 @@ import org.team100.lib.state.Model100;
 public class NullProfile implements Profile100 {
 
     @Override
-    public Control100 calculate(double dt, Model100 initial, Model100 goal) {
-        return initial.control();
+    public Control100 calculate(double dt, Control100 initial, Model100 goal) {
+        return initial;
     }
 
     @Override
-    public ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal) {
-        return new ResultWithETA(initial.control(), 0);
+    public ResultWithETA calculateWithETA(double dt, Control100 initial, Model100 goal) {
+        return new ResultWithETA(initial, 0);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class NullProfile implements Profile100 {
     }
 
     @Override
-    public double solve(double dt, Model100 i, Model100 g, double eta, double etaTolerance) {
+    public double solve(double dt, Control100 i, Model100 g, double eta, double etaTolerance) {
         return 1.0;
     }
 

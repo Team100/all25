@@ -38,7 +38,7 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
         m_limit = (1 - m_limitedAccel / m_stallAccel) * maxVel;
     }
 
-    static boolean isAccel(Model100 initial, Control100 setpoint) {
+    static boolean isAccel(Control100 initial, Control100 setpoint) {
         double initialV = initial.v();
         double setpointV = setpoint.v();
         boolean isAccel = Math.abs(setpointV) > Math.abs(initialV)
@@ -49,7 +49,7 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
     }
 
     @Override
-    public Control100 calculate(double dt, Model100 initial, Model100 goal) {
+    public Control100 calculate(double dt, Control100 initial, Model100 goal) {
         Control100 trapezoid = m_trapezoid.calculate(dt, initial, goal);
         Control100 exponential = m_exponential.calculate(dt, initial, goal);
         if (!isAccel(initial, exponential)) {
@@ -65,7 +65,7 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
     }
 
     @Override
-    public ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal) {
+    public ResultWithETA calculateWithETA(double dt, Control100 initial, Model100 goal) {
         ResultWithETA trapezoid = m_trapezoid.calculateWithETA(dt, initial, goal);
         ResultWithETA exponential = m_exponential.calculateWithETA(dt, initial, goal);
         if (!isAccel(initial, exponential.state())) {
@@ -92,9 +92,10 @@ public class CurrentLimitedExponentialProfile implements Profile100 {
         return m_maxVel;
     }
 
+    @Override
     public double solve(
             double dt,
-            Model100 i,
+            Control100 i,
             Model100 g,
             double eta,
             double etaTolerance) {

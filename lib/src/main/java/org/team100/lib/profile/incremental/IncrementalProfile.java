@@ -10,8 +10,9 @@ import org.team100.lib.state.Model100;
  */
 public interface IncrementalProfile {
     /**
-     * Return the control for dt in the future.
+     * Return the control for dt in the future. The setpoint is a Control100 so that
+     * we can regulate jerk.
      */
-    Control100 calculate(double dt, Model100 setpoint, Model100 goal);
+    Control100 calculate(double dt, Control100 setpoint, Model100 goal);
 
 }

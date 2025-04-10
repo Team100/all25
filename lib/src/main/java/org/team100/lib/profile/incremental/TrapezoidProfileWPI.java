@@ -26,13 +26,13 @@ public class TrapezoidProfileWPI implements Profile100 {
     }
 
     @Override
-    public Control100 calculate(double dt, Model100 initial, Model100 goal) {
+    public Control100 calculate(double dt, Control100 initial, Model100 goal) {
         State result = m_profile.calculate(dt, new State(initial.x(), initial.v()), new State(goal.x(), goal.v()));
         return new Control100(result.position, result.velocity, 0);
     }
 
     @Override
-    public ResultWithETA calculateWithETA(double dt, Model100 initial, Model100 goal) {
+    public ResultWithETA calculateWithETA(double dt, Control100 initial, Model100 goal) {
         Control100 result100 = calculate(dt, initial, goal);
         double eta = m_profile.totalTime();
         return new ResultWithETA(result100, eta);
@@ -48,9 +48,10 @@ public class TrapezoidProfileWPI implements Profile100 {
         return m_maxVel;
     }
 
+    @Override
     public double solve(
             double dt,
-            Model100 i,
+            Control100 i,
             Model100 g,
             double eta,
             double etaTolerance) {

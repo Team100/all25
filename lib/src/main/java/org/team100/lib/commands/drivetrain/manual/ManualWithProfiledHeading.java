@@ -157,7 +157,7 @@ public class ManualWithProfiledHeading implements FieldRelativeDriver {
         m_thetaSetpoint = new Control100(
                 Math100.getMinDistance(yawMeasurement, m_thetaSetpoint.x()),
                 m_thetaSetpoint.v());
-        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goalState);
+        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint, goalState);
 
         // the snap overrides the user input for omega.
         final double thetaFF = m_thetaSetpoint.v();

@@ -120,7 +120,7 @@ public class ManualWithTargetLock implements FieldRelativeDriver {
         m_thetaSetpoint = new Control100(
                 Math100.getMinDistance(yaw, m_thetaSetpoint.x()),
                 m_thetaSetpoint.v());
-        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goal);
+        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint, goal);
 
         // feedforward is for the next time step
         final double thetaFF = m_thetaSetpoint.v();

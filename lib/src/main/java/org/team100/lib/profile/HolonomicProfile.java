@@ -147,9 +147,9 @@ public class HolonomicProfile {
         if (DEBUG) {
             Util.printf("ix %s gx %s\n", i.x(), g.x());
         }
-        ResultWithETA rx = px.calculateWithETA(kDt, i.x(), g.x());
-        ResultWithETA ry = py.calculateWithETA(kDt, i.y(), g.y());
-        ResultWithETA rtheta = ptheta.calculateWithETA(kDt, i.theta(), g.theta());
+        ResultWithETA rx = px.calculateWithETA(kDt, i.x().control(), g.x());
+        ResultWithETA ry = py.calculateWithETA(kDt, i.y().control(), g.y());
+        ResultWithETA rtheta = ptheta.calculateWithETA(kDt, i.theta().control(), g.theta());
         if (DEBUG) {
             Util.printf("rx %.3f ry %.3f rtheta %.3f\n", rx.etaS(), ry.etaS(), rtheta.etaS());
         }
@@ -157,9 +157,9 @@ public class HolonomicProfile {
         slowETA = Math.max(slowETA, ry.etaS());
         slowETA = Math.max(slowETA, rtheta.etaS());
 
-        double sx = px.solve(kDt, i.x(), g.x(), slowETA, ETA_TOLERANCE);
-        double sy = py.solve(kDt, i.y(), g.y(), slowETA, ETA_TOLERANCE);
-        double stheta = ptheta.solve(kDt, i.theta(), g.theta(), slowETA, ETA_TOLERANCE);
+        double sx = px.solve(kDt, i.x().control(), g.x(), slowETA, ETA_TOLERANCE);
+        double sy = py.solve(kDt, i.y().control(), g.y(), slowETA, ETA_TOLERANCE);
+        double stheta = ptheta.solve(kDt, i.theta().control(), g.theta(), slowETA, ETA_TOLERANCE);
 
         if (DEBUG) {
             Util.printf("sx %.3f sy %.3f stheta %.3f\n", sx, sy, stheta);
@@ -180,13 +180,13 @@ public class HolonomicProfile {
         if (DEBUG) {
             Util.printf("initial %s goal %s\n", i, g);
         }
-        Control100 stateX = ppx.calculate(kDt, i.x(), g.x());
-        Control100 stateY = ppy.calculate(kDt, i.y(), g.y());
+        Control100 stateX = ppx.calculate(kDt, i.x().control(), g.x());
+        Control100 stateY = ppy.calculate(kDt, i.y().control(), g.y());
         // theta is periodic; choose a setpoint angle near the goal.
         Model100 theta = new Model100(
                 MathUtil.angleModulus(i.theta().x() - g.theta().x()) + g.theta().x(),
                 i.theta().v());
-        Control100 stateTheta = pptheta.calculate(kDt, theta, g.theta());
+        Control100 stateTheta = pptheta.calculate(kDt, theta.control(), g.theta());
         return new SwerveControl(stateX, stateY, stateTheta);
     }
 }

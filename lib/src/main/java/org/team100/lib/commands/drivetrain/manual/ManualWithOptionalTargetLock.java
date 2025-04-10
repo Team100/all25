@@ -136,7 +136,7 @@ public class ManualWithOptionalTargetLock implements FieldRelativeDriver {
 
         Model100 goal = new Model100(bearing.getRadians(), targetMotion);
 
-        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint.model(), goal);
+        m_thetaSetpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_thetaSetpoint, goal);
 
         // this is user input scaled to m/s and rad/s
 
