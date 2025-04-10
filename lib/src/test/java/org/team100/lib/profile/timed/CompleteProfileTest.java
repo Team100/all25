@@ -12,8 +12,12 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 
+/**
+ * see
+ * https://docs.google.com/spreadsheets/d/1VKc6t_AHfW9Ovo8R1cov4UfGLI1Ab3QKrIuhZbfsCR8/edit?gid=2097479642#gid=2097479642
+ */
 public class CompleteProfileTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double DT = 0.02;
     private static final double kDelta = 0.001;
 
@@ -74,7 +78,7 @@ public class CompleteProfileTest {
     /** Moving goals are not allowed. */
     @Test
     void testMovingGoal() {
-        CompleteProfile p = new CompleteProfile(2, 6, 10, 0.01);
+        CompleteProfile p = new CompleteProfile(2, 6, 10, 30, 50, 0.01);
         assertThrows(IllegalArgumentException.class,
                 () -> p.calculate(0.02, new Model100(), new Model100(1, 1)));
     }
@@ -99,7 +103,7 @@ public class CompleteProfileTest {
         InterpolatingTreeMap<Double, Control100> m = new InterpolatingTreeMap<>(
                 InverseInterpolator.forDouble(),
                 Control100::interpolate);
-                // without this far-away point, the interpolator returns the endpoint at -1.
+        // without this far-away point, the interpolator returns the endpoint at -1.
         m.put(-384400000.0, new Control100(-384400000, 1, 0));
         m.put(-1.0, new Control100(-1, 1, 0));
         m.put(1.0, new Control100(1, -1, 0));

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.util.Util;
 
 public class TrapezoidProfileGeneratorTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
 
     @Test
