@@ -1,5 +1,6 @@
 package org.team100.lib.profile.timed;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -7,31 +8,34 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
-public class CompleteProfileTest {
-    private static final boolean DEBUG = true;
-    private static final double DT = 0.02;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
-    /** Dump the sliding mode surface */
+public class CompleteProfileTest {
+    private static final boolean DEBUG = false;
+    private static final double DT = 0.02;
+    private static final double kDelta = 0.001;
+
+    /** Dump the sliding mode curve */
     @Test
     void testMode() {
-        CompleteProfile p = new CompleteProfile(2, 6, 0.01);
+        CompleteProfile p = new CompleteProfile(2, 6, 0.001);
         if (DEBUG) {
             for (double x = -10; x < 10; x += 0.01) {
                 Control100 sample = p.m_byDistance.get(x);
-                Util.printf("%12.3f %12.3f %12.3f\n", sample.x(), sample.v(), sample.a());
+                Util.printf("%12.4f %12.4f %12.4f\n", sample.x(), sample.v(), sample.a());
             }
         }
     }
 
     @Test
     void testSimple() {
-        CompleteProfile p = new CompleteProfile(2, 6, 0.01);
+        CompleteProfile p = new CompleteProfile(2, 6, 0.001);
         final Model100 goal = new Model100(1, 0);
         Control100 c = new Control100();
         double t = 0;
-        for (int i = 0; i < 300; ++i) {
+        for (int i = 0; i < 100; ++i) {
             if (DEBUG)
-                Util.printf("%12.3f %12.3f %12.3f %12.3f\n", t, c.x(), c.v(), c.a());
+                Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
             c = p.calculate(DT, c.model(), goal);
             t += DT;
         }
@@ -45,8 +49,18 @@ public class CompleteProfileTest {
                 () -> p.calculate(0.02, new Model100(), new Model100(1, 1)));
     }
 
+    /** How does interpolation work? */
     @Test
     void testKeyInterpolation() {
+        InterpolatingDoubleTreeMap m = new InterpolatingDoubleTreeMap();
+        m.put(-1.0, 1.0);
+        m.put(1.0, -1.0);
+        // it takes the endpoint forever
+        assertEquals(1, m.get(-3.0), kDelta);
+        assertEquals(1, m.get(-2.0), kDelta);
+        assertEquals(0, m.get(0.0), kDelta);
+        assertEquals(-1, m.get(2.0), kDelta);
+        assertEquals(-1, m.get(3.0), kDelta);
 
     }
 }

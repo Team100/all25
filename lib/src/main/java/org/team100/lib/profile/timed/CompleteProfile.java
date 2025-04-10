@@ -42,6 +42,8 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
  * 
  * It's similar to a sliding-mode controller: maximum effort to reach a
  * manifold, and then moving alnog it.
+ * 
+ * see https://www.desmos.com/calculator/jnc7u3jg11 for useful curves.
  */
 public class CompleteProfile implements IncrementalProfile {
     private static final boolean DEBUG = true;
@@ -62,24 +64,97 @@ public class CompleteProfile implements IncrementalProfile {
         // this is the goal state, zero control here.
         Control100 c = new Control100();
         m_byDistance.put(0.0, c);
-        // control from the left, walking back in time
+        if (DEBUG)
+            Util.printf("%12.4f %12.4f %12.4f %12.4f\n", 0.0, c.x(), c.v(), c.a());
+        // control from the left, so deceleration, walking back in time
         double a = -maxA;
-        for (int i = 0; i < 100; ++i) {
-            c = new Control100(
-                    c.x() - c.v() * DT - 0.5 * a * DT * DT,
-                    c.v() - a * DT,
-                    a);
-            m_byDistance.put(c.x(), c);
+        double t = 0;
+        for (int i = 1; i < 100; ++i) {
+            // if (MathUtil.isNear(c.v(), maxV, tolerance)) {
+            //     // we're already cruising. keep cruising.
+            //     // this should never happen
+            //     c = new Control100(
+            //             c.x() - maxV * DT,
+            //             maxV,
+            //             0);
+            //     m_byDistance.put(c.x(), c);
+            //     t += DT;
+            //     if (DEBUG)
+            //         Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            // } else {
+                double v = c.v() - a * DT;
+                if (v > maxV) {
+                    // maxV is achieved within DT
+                    // how long does it take to get there?
+                    double dt = -1.0 * (maxV - c.v()) / a;
+                    // this should be exactly at the corner.
+                    c = new Control100(
+                            c.x() - c.v() * dt + 0.5 * a * dt * dt,
+                            maxV,
+                            a);
+                    m_byDistance.put(c.x(), c);
+                    t += dt;
+                    if (DEBUG)
+                        Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+                    // because the treemap returns the endpoints for out-of-range samples, we can
+                    // stop here.
+                    break;
+                } else {
+                    c = new Control100(
+                            c.x() - c.v() * DT + 0.5 * a * DT * DT,
+                            v,
+                            a);
+                    m_byDistance.put(c.x(), c);
+                    t += DT;
+                    if (DEBUG)
+                        Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+                }
+            // }
         }
         // control from the right, walking back in time
         a = maxA;
+        t = 0;
         c = new Control100();
-        for (int i = 0; i < 100; ++i) {
-            c = new Control100(
-                    c.x() - c.v() * DT - 0.5 * a * DT * DT,
-                    c.v() - a * DT,
-                    a);
-            m_byDistance.put(c.x(), c);
+        for (int i = 1; i < 100; ++i) {
+            // if (MathUtil.isNear(c.v(), -maxV, tolerance)) {
+            // // we're already cruising. keep cruising.
+            // c = new Control100(
+            // c.x() + maxV * DT,
+            // -maxV,
+            // 0);
+            // m_byDistance.put(c.x(), c);
+            // t += DT;
+            // if (DEBUG)
+            // Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            // } else {
+            double v = c.v() - a * DT;
+            if (v < -maxV) {
+                // maxV is achieved within DT
+                // how long does it take to ge tthere?
+                double dt = -1.0 * (-maxV - c.v()) / a;
+                // this should be exactly at the corner.
+                c = new Control100(
+                        c.x() - c.v() * dt + 0.5 * a * dt * dt,
+                        -maxV,
+                        a);
+                m_byDistance.put(c.x(), c);
+                t += dt;
+                if (DEBUG)
+                    Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+                // because the treemap returns the endpoints for out-of-range samples, we can
+                // stop here.
+                break;
+            } else {
+                c = new Control100(
+                        c.x() - c.v() * DT + 0.5 * a * DT * DT,
+                        v,
+                        a);
+                m_byDistance.put(c.x(), c);
+                t += DT;
+                if (DEBUG)
+                    Util.printf("%12.4f %12.4f %12.4f %12.4f\n", t, c.x(), c.v(), c.a());
+            }
+            // }
         }
     }
 
@@ -107,9 +182,19 @@ public class CompleteProfile implements IncrementalProfile {
                 // setpoint is below the goal path, go faster to get there.
                 if (DEBUG)
                     Util.println("setpoint velocity is less positive than goal path: speed up");
+                // would the next point be on the other side?
+                double v = setpoint.v() + m_maxA * dt;
+                if (v > lerp.v()) {
+                    // the next step spans the switching curve, so just take the lerp
+                    // (this is a bit conservative compared to the intersection but it's simpler)
+                    return new Control100(
+                            goal.x() + lerp.x() + lerp.v() * dt + 0.5 * lerp.a() * dt * dt,
+                            lerp.v() + lerp.a() * dt,
+                            lerp.a());
+                }
                 return new Control100(
                         setpoint.x() + setpoint.v() * dt + 0.5 * m_maxA * dt * dt,
-                        setpoint.v() + m_maxA * dt,
+                        v,
                         m_maxA);
             } else if (setpoint.v() - m_tolerance < lerp.v()) {
                 if (DEBUG)
@@ -122,9 +207,18 @@ public class CompleteProfile implements IncrementalProfile {
                 // setpoint is above the goal path, slow down to get there.
                 if (DEBUG)
                     Util.println("setpoint velocity is more positive than goal path: slow down");
+                // would the next point be on the other side?
+
+                double v = setpoint.v() - m_maxA * dt;
+                if (v < lerp.v()) {
+                    return new Control100(
+                            goal.x() + lerp.x() + lerp.v() * dt + 0.5 * lerp.a() * dt * dt,
+                            lerp.v() + lerp.a() * dt,
+                            lerp.a());
+                }
                 return new Control100(
                         setpoint.x() + setpoint.v() * dt - 0.5 * m_maxA * dt * dt,
-                        setpoint.v() - m_maxA * dt,
+                        v,
                         -m_maxA);
             }
         } else {
