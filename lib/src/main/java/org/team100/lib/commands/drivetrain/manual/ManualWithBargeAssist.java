@@ -188,7 +188,7 @@ public class ManualWithBargeAssist implements FieldRelativeDriver {
         double scale = 1;
 
         if(clipped.x() > 0){
-            double distance = 7.47 - m_drive.getPose().getX();
+            double distance = 7.25 - m_drive.getPose().getX();
             scale = distance*scale;
             
             if (Math.abs(distance) < 0.01) {

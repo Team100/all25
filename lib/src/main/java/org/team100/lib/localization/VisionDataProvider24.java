@@ -301,12 +301,12 @@ public class VisionDataProvider24 implements Glassy {
         for (int i = 0; i < blips.length; ++i) {
             Blip24 blip = blips[i];
 
-            if (DEBUG) {
-                Translation3d t = blip.getRawPose().getTranslation();
-                Rotation3d r = blip.getRawPose().getRotation();
-                Util.printf("blip raw pose  %d X %5.2f Y %5.2f Z %5.2f R %5.2f P %5.2f Y %5.2f\n",
-                        blip.getId(), t.getX(), t.getY(), t.getZ(), r.getX(), r.getY(), r.getZ());
-            }
+            // if (DEBUG) {
+            //     Translation3d t = blip.getRawPose().getTranslation();
+            //     Rotation3d r = blip.getRawPose().getRotation();
+            //     Util.printf("blip raw pose  %d X %5.2f Y %5.2f Z %5.2f R %5.2f P %5.2f Y %5.2f\n",
+            //             blip.getId(), t.getX(), t.getY(), t.getZ(), r.getX(), r.getY(), r.getZ());
+            // }
 
             // Look up the pose of the tag in the field frame.
             Optional<Pose3d> tagInFieldCoordsOptional = m_layout.getTagPose(alliance, blip.getId());

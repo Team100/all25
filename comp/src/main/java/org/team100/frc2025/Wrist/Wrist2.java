@@ -121,7 +121,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 m_controller = new TimedProfiledController(parent,
                         new JerkLimitedProfile100(maxVel, maxAccel, maxJerk),
-                        wristFeedback, x -> x, 0.1, 0.1); // WAS 0.05
+                        wristFeedback, x -> x, 0.01, 0.01); // WAS 0.05
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
@@ -251,6 +251,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     }
 
     public void setAngleValue(double goal) {
+        // System.out.println(" I AM BEING CALLED WITH GOAL" + goal);
         Control100 control = new Control100(goal, 0, 0); // 1.17 for l3
         wristServo.setState(control);
     }
@@ -265,6 +266,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     }
 
     public void setSafeCondition(boolean isSafe) {
+        // System.out.println("I AM BEING CALLED WITH BOOLEAN " + isSafe);
         m_isSafe = isSafe;
     }
 

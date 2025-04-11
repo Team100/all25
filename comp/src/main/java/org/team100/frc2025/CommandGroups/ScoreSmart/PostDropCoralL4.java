@@ -44,7 +44,9 @@ public class PostDropCoralL4 extends Command {
         // m_wrist.resetWristProfile();
         // m_elevator.resetElevatorProfile();
         
-
+        if(m_holdingCommand != null){
+            CommandScheduler.getInstance().cancel(m_holdingCommand);
+        }
         initialElevatorPosition = m_elevator.getPosition();
     }
 
