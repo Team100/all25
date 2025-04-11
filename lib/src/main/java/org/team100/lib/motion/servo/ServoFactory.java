@@ -11,13 +11,9 @@ import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.CANSparkMotor;
 import org.team100.lib.motor.MotorPhase;
-import org.team100.lib.motor.NeoCANSparkMotor;
 import org.team100.lib.motor.NeoVortexCANSparkMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
@@ -25,65 +21,6 @@ import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import edu.wpi.first.math.MathUtil;
 
 public class ServoFactory {
-
-    public static LimitedLinearVelocityServo limitedNeoVelocityServo(
-            LoggerFactory parent,
-            int canId,
-            MotorPhase motorPhase,
-            int currentLimit,
-            double gearRatio,
-            double wheelDiameter,
-            double maxVelocity,
-            double maxAccel,
-            double maxDecel,
-            Feedforward100 ff,
-            PIDConstants lowLevelVelocityConstants) {
-        NeoCANSparkMotor motor = new NeoCANSparkMotor(
-                parent,
-                canId,
-                motorPhase,
-                currentLimit,
-                ff,
-                lowLevelVelocityConstants);
-        CANSparkEncoder encoder = new CANSparkEncoder(
-                parent,
-                motor);
-        LinearMechanism mech = new SimpleLinearMechanism(
-                motor,
-                encoder,
-                gearRatio,
-                wheelDiameter);
-        LinearVelocityServo v = new OutboardLinearVelocityServo(
-                parent,
-                mech);
-        return new LimitedLinearVelocityServo(v,
-                maxVelocity,
-                maxAccel,
-                maxDecel);
-    }
-
-    public static LimitedLinearVelocityServo limitedSimulatedVelocityServo(
-            LoggerFactory parent,
-            double gearRatio,
-            double wheelDiameterM,
-            double maxVelocity,
-            double maxAccel,
-            double maxDecel) {
-        // motor speed is rad/s
-        SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
-        LinearMechanism mech = new SimpleLinearMechanism(
-                motor,
-                new SimulatedBareEncoder(parent, motor),
-                gearRatio,
-                wheelDiameterM);
-        LinearVelocityServo v = new OutboardLinearVelocityServo(
-                parent,
-                mech);
-        return new LimitedLinearVelocityServo(v,
-                maxVelocity,
-                maxAccel,
-                maxDecel);
-    }
 
     /**
      * Position control using velocity feedforward and proportional feedback.
@@ -107,11 +44,9 @@ public class ServoFactory {
                 currentLimit,
                 ff,
                 lowLevelVelocityConstants);
-        RotaryMechanism mech = new SimpleRotaryMechanism(
-                parent,
-                motor,
-                new CANSparkEncoder(parent, motor),
-                gearRatio);
+        CANSparkEncoder encoder = new CANSparkEncoder(parent, motor);
+        RotaryMechanism mech = new RotaryMechanism(
+                parent, motor, encoder, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         RotaryPositionSensor sensor = new ProxyRotaryPositionSensor(mech);
         ProfiledController controller = new IncrementalProfiledController(
                 parent,
@@ -138,11 +73,9 @@ public class ServoFactory {
             Feedback100 feedback) {
         // motor speed is rad/s
         SimulatedBareMotor motor = new SimulatedBareMotor(parent, 600);
-        RotaryMechanism mech = new SimpleRotaryMechanism(
-                parent,
-                motor,
-                new SimulatedBareEncoder(parent, motor),
-                1);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, motor);
+        RotaryMechanism mech = new RotaryMechanism(
+                parent, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         RotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
                 parent,
                 mech,

@@ -9,7 +9,7 @@ import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
+import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.testing.Timeless;
 
@@ -21,7 +21,8 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
     void testSimple() {
         SimulatedBareMotor motor = new SimulatedBareMotor(log, 100);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(log, motor);
-        SimpleRotaryMechanism mech = new SimpleRotaryMechanism(log, motor, encoder, 1);
+        RotaryMechanism mech = new RotaryMechanism(
+                log, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, mech, () -> 0);
         CombinedEncoder combinedEncoder = new CombinedEncoder(log, sensor, mech);// , false);
         UnprofiledOutboardAngularPositionServo servo = new UnprofiledOutboardAngularPositionServo(
@@ -52,7 +53,7 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
         servo.periodic();
         servo.setPosition(1, 0);
         stepTime();
-        
+
         servo.periodic();
         servo.setPosition(1, 0);
         stepTime();

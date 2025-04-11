@@ -40,7 +40,6 @@ import edu.wpi.first.math.filter.LinearFilter;
 public class CombinedEncoder implements RotaryPositionSensor {
     private final RotaryPositionSensor m_absolute;
     private final RotaryMechanism m_incremental;
-    // LOGGERS
     private final OptionalDoubleLogger m_log_absolute;
     private final OptionalDoubleLogger m_log_incremental;
     private final DoubleLogger m_log_incremental_wrapped;
@@ -49,7 +48,6 @@ public class CombinedEncoder implements RotaryPositionSensor {
     private final ScheduledExecutorService m_synchronizer;
     private final LinearFilter m_errorFilter;
 
-    // private final boolean m_wrapped;
     private boolean m_synchronized;
 
     /**
@@ -62,7 +60,6 @@ public class CombinedEncoder implements RotaryPositionSensor {
             LoggerFactory parent,
             RotaryPositionSensor absolute,
             RotaryMechanism incremental) {
-        // boolean wrapped) {
         LoggerFactory child = parent.child(this);
         m_absolute = absolute;
         m_incremental = incremental;
@@ -70,7 +67,6 @@ public class CombinedEncoder implements RotaryPositionSensor {
         m_log_incremental = child.optionalDoubleLogger(Level.TRACE, "incremental (rad)");
         m_log_incremental_wrapped = child.doubleLogger(Level.TRACE, "incremental wrapped (rad)");
         m_log_combined = child.optionalDoubleLogger(Level.DEBUG, "combined (rad)");
-        // m_wrapped = wrapped;
         // the duty cycle encoder seems to produce slightly-wrong values immediately
         // upon startup, so wait a bit before doing the synchronization
         m_synchronized = false;
@@ -90,25 +86,18 @@ public class CombinedEncoder implements RotaryPositionSensor {
         // remove a little bit of noise.
         double sin = 0;
         double cos = 0;
-        // 3/28/25: this used to do the mean of the measurement, which is prone to
-        // errors near zero
-        // double posN = 0;
+
         final int N = 10;
         for (int i = 0; i < N; ++i) {
             double pos = m_absolute.getPositionRad().getAsDouble();
             cos += Math.cos(pos);
             sin += Math.sin(pos);
-            // posN += pos;
+
         }
         sin /= N;
         cos /= N;
-        // posN /= N;
 
         double absolutePosition = Math.atan2(sin, cos);
-
-        // if (m_wrapped) {
-        // absolutePosition = posN;
-        // }
 
         m_incremental.setEncoderPosition(absolutePosition);
         m_synchronized = true;

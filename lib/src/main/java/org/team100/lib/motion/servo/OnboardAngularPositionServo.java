@@ -163,7 +163,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public OptionalDouble getPosition() {
+
+        // this is the absolute 1:1 position of the mechanism.
         OptionalDouble position = m_positionSensor.getPositionRad();
+        
         if (position.isEmpty())
             return OptionalDouble.empty();
         return OptionalDouble.of(position.getAsDouble());

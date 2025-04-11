@@ -5,16 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.frc2025.Timeless2025;
 import org.team100.lib.controller.simple.Feedback100;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
@@ -36,11 +35,9 @@ class GravityServoTest implements Timeless2025 {
         Profile100 profile = new TrapezoidProfile100(8, 8, 0.001);
         // motor speed is rad/s
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
-        RotaryMechanism simMech = new SimpleRotaryMechanism(
-                logger,
-                simMotor,
-                new SimulatedBareEncoder(logger, simMotor),
-                165);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, simMotor);
+        RotaryMechanism simMech = new RotaryMechanism(
+                logger, simMotor, encoder, 165, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         SimulatedRotaryPositionSensor simEncoder = new SimulatedRotaryPositionSensor(
                 logger,
                 simMech,

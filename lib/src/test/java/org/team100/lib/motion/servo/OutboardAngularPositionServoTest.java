@@ -14,7 +14,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
@@ -28,11 +27,9 @@ public class OutboardAngularPositionServoTest {
     @Test
     void testOutboard() {
         final MockBareMotor motor = new MockBareMotor(Feedforward100.makeSimple());
-        final RotaryMechanism mech = new SimpleRotaryMechanism(
-                logger,
-                motor,
-                new MockIncrementalBareEncoder(),
-                1);
+        final MockIncrementalBareEncoder encoder = new MockIncrementalBareEncoder();
+        final RotaryMechanism mech = new RotaryMechanism(
+                logger, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         final MockRotaryPositionSensor externalEncoder = new MockRotaryPositionSensor();
         final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech);// , true);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);

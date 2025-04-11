@@ -13,7 +13,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
@@ -32,7 +31,8 @@ public class OutboardAngularPositionServoWithoutWrapTest {
 
         MockIncrementalBareEncoder internalWristEncoder = new MockIncrementalBareEncoder();
 
-        RotaryMechanism wristMech = new SimpleRotaryMechanism(log, wristMotor, internalWristEncoder, 9);
+        RotaryMechanism wristMech = new RotaryMechanism(
+                log, wristMotor, internalWristEncoder, 9, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         MockRotaryPositionSensor encoder = new MockRotaryPositionSensor();
 

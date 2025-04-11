@@ -14,7 +14,6 @@ import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
@@ -33,28 +32,32 @@ public class Climber extends SubsystemBase {
     public Climber(LoggerFactory logger, int canID) {
         LoggerFactory child = logger.child("Climber");
 
-        switch(Identity.instance){
+        switch (Identity.instance) {
             case COMP_BOT -> {
-                Falcon6Motor motor = new Falcon6Motor(child, canID, MotorPhase.REVERSE, 50, 50, PIDConstants.makePositionPID(1),
-                    Feedforward100.makeArmPivot());
-    
-                RotaryMechanism rotaryMechanism = new SimpleRotaryMechanism(child, motor, new Talon6Encoder(child, motor),
-                    25 * 3 * 4);
-    
+                Falcon6Motor motor = new Falcon6Motor(child, canID, MotorPhase.REVERSE, 50, 50,
+                        PIDConstants.makePositionPID(1),
+                        Feedforward100.makeArmPivot());
+
+                Talon6Encoder encoder = new Talon6Encoder(child, motor);
+                RotaryMechanism rotaryMechanism = new RotaryMechanism(child, motor,
+                        encoder,
+                        25 * 3 * 4, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
                 Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
-                PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1 );
-    
+                PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
+
                 ProfiledController controller = new IncrementalProfiledController(
-                    child, profile100, feedback, x -> x, 0.05, 0.05);
-    
-                RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
-                            child,
-                            3,
-                            0.110602,   
-                            EncoderDrive.DIRECT,
-                            false);
-    
-                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, encoder, controller);
+                        child, profile100, feedback, x -> x, 0.05, 0.05);
+
+                // this reads the arm angle directly
+                RotaryPositionSensor sensor = new AS5048RotaryPositionSensor(
+                        child,
+                        3,
+                        0.110602,
+                        EncoderDrive.DIRECT,
+                        false);
+
+                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, sensor, controller);
             }
 
             default -> {
@@ -62,11 +65,12 @@ public class Climber extends SubsystemBase {
 
                 SimulatedBareEncoder encoder0 = new SimulatedBareEncoder(child, climberMotor);
 
-                RotaryMechanism climberMech = new SimpleRotaryMechanism(
+                RotaryMechanism climberMech = new RotaryMechanism(
                         child,
                         climberMotor,
                         encoder0,
-                        1);
+                        1,
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(child, climberMech,
                         () -> 0);
@@ -74,17 +78,17 @@ public class Climber extends SubsystemBase {
                 // ProfiledController controller = new TimedProfiledController();
 
                 // climberMotor = new OnboardAngularPositionServo(
-                //             child, climberMech, encoder, m_controller);
+                // child, climberMech, encoder, m_controller);
 
-                        
             }
-            
+
         }
-        
+
     }
 
     public void setDutyCycle(double dutyCycle) {
-        if(climberMotor == null) return;
+        if (climberMotor == null)
+            return;
         climberMotor.setDutyCycle(dutyCycle);
     }
 
@@ -103,7 +107,8 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        if(climberMotor == null) return;
+        if (climberMotor == null)
+            return;
         climberMotor.periodic();
     }
 }

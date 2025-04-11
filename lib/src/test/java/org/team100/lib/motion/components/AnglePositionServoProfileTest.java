@@ -14,7 +14,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
@@ -36,11 +35,13 @@ class AnglePositionServoProfileTest {
 
     public AnglePositionServoProfileTest() {
         motor = new MockBareMotor(Feedforward100.makeSimple());
-        final RotaryMechanism mech = new SimpleRotaryMechanism(
+        final RotaryMechanism mech = new RotaryMechanism(
                 logger,
                 motor,
                 new MockIncrementalBareEncoder(),
-                1);
+                1,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         encoder = new MockRotaryPositionSensor();
         feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 

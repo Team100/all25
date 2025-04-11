@@ -109,7 +109,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
+
+        // this is the absolute 1:1 position of the mechanism.
         OptionalDouble posOpt = m_encoder.getPositionRad();
+
         if (posOpt.isEmpty())
             return;
         m_log_position.log(() -> posOpt);
@@ -160,7 +163,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getPosition() {
+
+        // this is the absolute 1:1 position of the mechanism.
         return m_encoder.getPositionRad();
+
     }
 
     /** Value is updated in Robot.robotPeriodic(). */

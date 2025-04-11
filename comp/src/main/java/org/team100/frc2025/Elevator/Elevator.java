@@ -12,8 +12,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.motion.mechanism.LimitedLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
+import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.servo.OutboardLinearPositionServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
@@ -121,17 +120,17 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kVelocityTolerance);
                 m_profileChooser.register(m_starboardController::setDelegate);
 
-                SimpleLinearMechanism starboardMech = new SimpleLinearMechanism(
+                LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
                         stbdEncoder,
                         kElevatorReduction,
-                        kElevatorWheelDiamater);
-                LimitedLinearMechanism starboardLimited = new LimitedLinearMechanism(starboardMech,
-                        kElevatorMinimumPosition, kElevatorMaximumPosition);
+                        kElevatorWheelDiamater,
+                        kElevatorMinimumPosition,
+                        kElevatorMaximumPosition);
 
                 starboardServo = new OutboardLinearPositionServo(
                         starboardLogger,
-                        starboardLimited,
+                        starboardMech,
                         m_starboardController);
 
                 Talon6Encoder portEncoder = new Talon6Encoder(portLogger, portMotor);
@@ -149,17 +148,17 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kVelocityTolerance);
                 m_profileChooser.register(m_portController::setDelegate);
 
-                SimpleLinearMechanism portMech = new SimpleLinearMechanism(
+                LinearMechanism portMech = new LinearMechanism(
                         portMotor,
                         portEncoder,
                         kElevatorReduction,
-                        kElevatorWheelDiamater);
-                LimitedLinearMechanism portLimited = new LimitedLinearMechanism(portMech, kElevatorMinimumPosition,
+                        kElevatorWheelDiamater,
+                        kElevatorMinimumPosition,
                         kElevatorMaximumPosition);
 
                 portServo = new OutboardLinearPositionServo(
                         portLogger,
-                        portLimited,
+                        portMech,
                         m_portController);
 
             }
@@ -182,13 +181,13 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kVelocityTolerance);
                 m_profileChooser.register(m_starboardController::setDelegate);
 
-                SimpleLinearMechanism starboardMech = new SimpleLinearMechanism(
+                LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
                         stbdEncoder,
                         kElevatorReduction,
-                        kElevatorWheelDiamater);
-                LimitedLinearMechanism starboardLimited = new LimitedLinearMechanism(starboardMech,
-                        kElevatorMinimumPosition, kElevatorMaximumPosition);
+                        kElevatorWheelDiamater,
+                        kElevatorMinimumPosition, 
+                        kElevatorMaximumPosition);
 
                 SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(portLogger, portMotor);
 
@@ -205,21 +204,21 @@ public class Elevator extends SubsystemBase implements Glassy {
                         kVelocityTolerance);
                 m_profileChooser.register(m_portController::setDelegate);
 
-                SimpleLinearMechanism portMech = new SimpleLinearMechanism(
+                LinearMechanism portMech = new LinearMechanism(
                         portMotor,
                         portEncoder,
                         kElevatorReduction,
-                        kElevatorWheelDiamater);
-                LimitedLinearMechanism portLimited = new LimitedLinearMechanism(portMech, kElevatorMinimumPosition,
+                        kElevatorWheelDiamater,
+                        kElevatorMinimumPosition,
                         kElevatorMaximumPosition);
 
                 starboardServo = new OutboardLinearPositionServo(
                         starboardLogger,
-                        starboardLimited,
+                        starboardMech,
                         m_starboardController);
                 portServo = new OutboardLinearPositionServo(
                         portLogger,
-                        portLimited,
+                        portMech,
                         m_portController);
             }
 

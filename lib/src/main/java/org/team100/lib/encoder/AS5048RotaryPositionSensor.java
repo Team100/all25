@@ -32,13 +32,9 @@ public class AS5048RotaryPositionSensor extends DutyCycleRotaryPositionSensor {
 
     protected double m_sensorMin() {
         return 0.003888;
-
     }
 
     protected double m_sensorMax() {
         return 0.998058;
     }
-
-    
-
 }

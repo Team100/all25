@@ -10,7 +10,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.testing.Timeless;
@@ -32,7 +31,8 @@ class CombinedEncoderTest implements Timeless {
         MockIncrementalBareEncoder e2 = new MockIncrementalBareEncoder();
         e2.position = 0;
 
-        RotaryMechanism m = new SimpleRotaryMechanism(logger, motor, e2, 1.0);
+        RotaryMechanism m = new RotaryMechanism(
+                logger, motor, e2, 1.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         CombinedEncoder c = new CombinedEncoder(logger, e1, m);// , true);
         c.sync();
         // the combined encoder reads the correct value
@@ -54,7 +54,8 @@ class CombinedEncoderTest implements Timeless {
 
         assertEquals(0, encoder.getPositionRad().getAsDouble(), kDelta);
 
-        SimpleRotaryMechanism mech = new SimpleRotaryMechanism(logger, motor, encoder, 1.0);
+        RotaryMechanism mech = new RotaryMechanism(
+                logger, motor, encoder, 1.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         // lash is added to the motor position to get this
         SimulatedRotaryPositionSensor e1 = new SimulatedRotaryPositionSensor(logger, mech, () -> lash);

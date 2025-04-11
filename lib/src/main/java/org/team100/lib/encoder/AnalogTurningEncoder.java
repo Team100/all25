@@ -13,13 +13,16 @@ import edu.wpi.first.wpilibj.RobotController;
 
 /**
  * Absolute rotary position sensor using ratiometric analog input.
+ * 
+ * This type of sensor should not be used: the analog input is sensitive to
+ * noise. It's only used in the legacy "arm" code (because there's no reason to
+ * change it), and in the swerve factory, (in order to preserve the
+ * selectable-encoder code paths).
  */
 public class AnalogTurningEncoder extends RoboRioRotaryPositionSensor {
     private final AnalogInput m_input;
-    // CACHES
     private final DoubleSupplier m_voltage;
     private final DoubleSupplier m_rail;
-    // LOGGERS
     private final DoubleLogger m_log_voltage;
     private final DoubleLogger m_log_ratio;
 
@@ -57,7 +60,6 @@ public class AnalogTurningEncoder extends RoboRioRotaryPositionSensor {
     public void close() {
         m_input.close();
     }
-
 
     /** Cached, almost. */
     @Override

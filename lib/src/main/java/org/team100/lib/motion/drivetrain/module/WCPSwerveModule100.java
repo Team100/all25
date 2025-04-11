@@ -19,8 +19,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
@@ -159,14 +157,15 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 statorLimit,
                 pid,
                 ff);
-        LinearMechanism mech = new SimpleLinearMechanism(
+        Talon6Encoder encoder = new Talon6Encoder(parent, driveMotor);
+        LinearMechanism mech = new LinearMechanism(
                 driveMotor,
-                new Talon6Encoder(parent, driveMotor),
+                encoder,
                 ratio.m_ratio,
-                kWheelDiameterM);
-        return new OutboardLinearVelocityServo(
-                parent,
-                mech);
+                kWheelDiameterM,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
+        return new OutboardLinearVelocityServo(parent, mech);
     }
 
     private static LinearVelocityServo driveFalconServo(
@@ -185,11 +184,10 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 statorLimit,
                 pid,
                 ff);
-        LinearMechanism mech = new SimpleLinearMechanism(
-                driveMotor,
-                new Talon6Encoder(parent, driveMotor),
-                ratio.m_ratio,
-                kWheelDiameterM);
+        Talon6Encoder encoder = new Talon6Encoder(parent, driveMotor);
+        LinearMechanism mech = new LinearMechanism(
+                driveMotor, encoder, ratio.m_ratio, kWheelDiameterM, Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         return new OutboardLinearVelocityServo(
                 parent,
                 mech);
@@ -223,6 +221,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 lowLevelPID,
                 ff);
 
+        // this reads the steering angle directly.
         RotaryPositionSensor turningEncoder = turningEncoder(
                 encoderClass,
                 parent,
@@ -230,27 +229,15 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 turningOffset,
                 drive);
 
-        Talon6Encoder builtInEncoder = new Talon6Encoder(
-                parent,
-                turningMotor);
+        Talon6Encoder builtInEncoder = new Talon6Encoder(parent, turningMotor);
 
-        RotaryMechanism mech = new SimpleRotaryMechanism(
-                parent,
-                turningMotor,
-                builtInEncoder,
-                gearRatio);
+        RotaryMechanism mech = new RotaryMechanism(
+                parent, turningMotor, builtInEncoder, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-        CombinedEncoder combinedEncoder = new CombinedEncoder(
-                parent,
-                turningEncoder,
-                mech);
-        // true);
+        CombinedEncoder combinedEncoder = new CombinedEncoder(parent, turningEncoder, mech);
 
         AngularPositionServo turningServo = outboardTurningServo(
-                parent,
-                kinodynamics,
-                mech,
-                combinedEncoder);
+                parent, kinodynamics, mech, combinedEncoder);
         turningServo.reset();
         return turningServo;
     }

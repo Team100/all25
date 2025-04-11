@@ -21,9 +21,7 @@ import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
-import org.team100.lib.motion.mechanism.LimitedRotaryMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
@@ -103,6 +101,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 Kraken6Motor wristMotor = new Kraken6Motor(wristLogger, wristID, MotorPhase.REVERSE,
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
+                // this reads the wrist angle directly.
                 RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
                         wristLogger,
                         5,
@@ -116,14 +115,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
 
-                m_wristMech = new SimpleRotaryMechanism(
+                m_wristMech = new RotaryMechanism(
                         wristLogger,
                         wristMotor,
                         internalWristEncoder,
-                        GEAR_RATIO);
-
-                RotaryMechanism limitedMech = new LimitedRotaryMechanism(
-                        m_wristMech,
+                        GEAR_RATIO,
                         kWristMinimumPosition,
                         kWristMaximumPosition);
 
@@ -144,10 +140,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity;
                 if (OUTBOARD_SERVO) {
                     wristServoWithoutGravity = new OutboardAngularPositionServo(
-                            wristLogger, limitedMech, combinedEncoder, m_controller);
+                            wristLogger, m_wristMech, combinedEncoder, m_controller);
                 } else {
                     wristServoWithoutGravity = new OnboardAngularPositionServo(
-                            wristLogger, limitedMech, encoder, m_controller);
+                            wristLogger, m_wristMech, encoder, m_controller);
                 }
 
                 wristServoWithoutGravity.reset();
@@ -161,13 +157,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
                 SimulatedBareEncoder encoder0 = new SimulatedBareEncoder(wristLogger, wristMotor);
-                RotaryMechanism wristMech = new SimpleRotaryMechanism(
+                RotaryMechanism wristMech = new RotaryMechanism(
                         wristLogger,
                         wristMotor,
                         encoder0,
-                        GEAR_RATIO);
-
-                RotaryMechanism limitedMech = new LimitedRotaryMechanism(wristMech, kWristMinimumPosition,
+                        GEAR_RATIO,
+                        kWristMinimumPosition,
                         kWristMaximumPosition);
 
                 SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(
@@ -184,14 +179,14 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity;
                 if (OUTBOARD_SERVO) {
                     wristServoWithoutGravity = new OutboardAngularPositionServo(
-                            wristLogger, limitedMech, combinedEncoder, m_controller);
+                            wristLogger, wristMech, combinedEncoder, m_controller);
                 } else {
                     wristServoWithoutGravity = new OnboardAngularPositionServo(
-                            wristLogger, limitedMech, encoder, m_controller);
+                            wristLogger, wristMech, encoder, m_controller);
                 }
 
                 wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 0, 0);
-                m_wristMech = limitedMech;
+                m_wristMech = wristMech;
 
                 m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
             }

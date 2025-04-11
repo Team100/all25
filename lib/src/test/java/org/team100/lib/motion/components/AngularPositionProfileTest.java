@@ -15,7 +15,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
@@ -34,19 +33,17 @@ class AngularPositionProfileTest implements Timeless {
 
     private final MockBareMotor motor;
     private final RotaryMechanism mech;
-    private final MockRotaryPositionSensor encoder;
+    private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
 
     private AngularPositionServo servo;
 
     public AngularPositionProfileTest() {
         motor = new MockBareMotor(Feedforward100.makeSimple());
-        mech = new SimpleRotaryMechanism(
-                logger,
-                motor,
-                new MockIncrementalBareEncoder(),
-                1);
-        encoder = new MockRotaryPositionSensor();
+        MockIncrementalBareEncoder encoder = new MockIncrementalBareEncoder();
+        mech = new RotaryMechanism(
+                logger, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        sensor = new MockRotaryPositionSensor();
         feedback2 = new PIDFeedback(logger, 5, 0, 0, false, 0.05, 1);
     }
 
@@ -67,7 +64,7 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                encoder,
+                sensor,
                 controller);
         servo.reset();
 
@@ -87,7 +84,7 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                encoder,
+                sensor,
                 controller);
         servo.reset();
         verifyTrapezoid();
@@ -118,7 +115,7 @@ class AngularPositionProfileTest implements Timeless {
     }
 
     private void verify(double motorVelocity, double setpointPosition, double setpointVelocity) {
-        encoder.angle += motor.velocity * TimedRobot100.LOOP_PERIOD_S;
+        sensor.angle += motor.velocity * TimedRobot100.LOOP_PERIOD_S;
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
             servo.setPosition(1, 0);

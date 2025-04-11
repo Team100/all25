@@ -7,7 +7,6 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.Neo550Factory;
 import org.team100.lib.motor.SimulatedBareMotor;
@@ -36,10 +35,10 @@ public class Funnel extends SubsystemBase implements Glassy {
         switch (Identity.instance) {
             case COMP_BOT -> {
 
-                m_starboardMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, funnelSupplyLimit,
-                        starboardID, 1, MotorPhase.REVERSE, 1);
-                m_portMech = Neo550Factory.getNEO550LinearMechanism(getName(), child, funnelSupplyLimit, portID, 1,
-                        MotorPhase.FORWARD, 1);
+                m_starboardMech = Neo550Factory.getNEO550LinearMechanism(
+                        getName(), child, funnelSupplyLimit, starboardID, 1, MotorPhase.REVERSE, 1);
+                m_portMech = Neo550Factory.getNEO550LinearMechanism(
+                        getName(), child, funnelSupplyLimit, portID, 1, MotorPhase.FORWARD, 1);
 
                 latchingServo1 = new Servo(3);
                 latchingServo2 = new Servo(9);
@@ -53,8 +52,10 @@ public class Funnel extends SubsystemBase implements Glassy {
                 SimulatedBareEncoder starboardEncoder = new SimulatedBareEncoder(child, starboardMotor);
                 SimulatedBareMotor portMotor = new SimulatedBareMotor(child, 100);
                 SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(child, portMotor);
-                m_starboardMech = new SimpleLinearMechanism(starboardMotor, starboardEncoder, 1, 1);
-                m_portMech = new SimpleLinearMechanism(portMotor, portEncoder, 1, 1);
+                m_starboardMech = new LinearMechanism(
+                        starboardMotor, starboardEncoder, 1, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                m_portMech = new LinearMechanism(
+                        portMotor, portEncoder, 1, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             }
         }
     }
@@ -72,33 +73,35 @@ public class Funnel extends SubsystemBase implements Glassy {
         setPort(value);
     }
 
-    public void setLatch1(double value){
-        if(latchingServo1==null) return;
+    public void setLatch1(double value) {
+        if (latchingServo1 == null)
+            return;
         latchingServo1.setAngle(value);
     }
 
-    public double getLatch1(){
-        
+    public double getLatch1() {
+
         return latchingServo1.getAngle();
     }
 
-    public void setLatch2(double value){
-        if(latchingServo2==null) return;
+    public void setLatch2(double value) {
+        if (latchingServo2 == null)
+            return;
         latchingServo2.setAngle(value);
     }
 
-    public double getLatch2(){
+    public double getLatch2() {
         return latchingServo2.getAngle();
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        if(servoAngle1Log==null) return;
+        if (servoAngle1Log == null)
+            return;
         servoAngle1Log.log(() -> getLatch1());
         servoAngle2Log.log(() -> getLatch2());
 
     }
-
 
 }

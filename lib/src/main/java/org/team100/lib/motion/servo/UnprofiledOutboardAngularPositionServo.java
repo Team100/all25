@@ -63,7 +63,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     public void setEncoderPosition(double value) {
         m_mechanism.setEncoderPosition(value);
     }
-    
+
     @Override
     public void setDutyCycle(double dutyCycle) {
         m_mechanism.setDutyCycle(dutyCycle);
@@ -81,7 +81,10 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
      */
     @Override
     public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
+
+        // this is the absolute 1:1 position of the mechanism.
         OptionalDouble posOpt = m_encoder.getPositionRad();
+
         if (posOpt.isEmpty())
             return;
 

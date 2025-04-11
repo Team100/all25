@@ -5,13 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
-import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-
+import org.team100.lib.motion.mechanism.LinearMechanism;
+import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
+import org.team100.lib.motor.MockBareMotor;
 
 class LinearVelocityServoTest {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
@@ -20,7 +19,8 @@ class LinearVelocityServoTest {
     void testSimple() {
         MockBareMotor driveMotor = new MockBareMotor(Feedforward100.makeSimple());
         MockIncrementalBareEncoder driveEncoder = new MockIncrementalBareEncoder();
-        SimpleLinearMechanism mech = new SimpleLinearMechanism(driveMotor, driveEncoder, 1, 1);
+        LinearMechanism mech = new LinearMechanism(
+                driveMotor, driveEncoder, 1, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         OutboardLinearVelocityServo servo = new OutboardLinearVelocityServo(
                 logger,
                 mech);

@@ -11,8 +11,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
@@ -59,14 +57,10 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         // simulated drive motor free speed is 5 m/s
         SimulatedBareMotor driveMotor = new SimulatedBareMotor(parent, 5);
         // simulated gearing is 2 meter wheel, 1:1, so rad/s and m/s are the same.
-        LinearMechanism mech = new SimpleLinearMechanism(
-                driveMotor,
-                new SimulatedBareEncoder(parent, driveMotor),
-                1,
-                2);
-        return new OutboardLinearVelocityServo(
-                parent,
-                mech);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, driveMotor);
+        LinearMechanism mech = new LinearMechanism(
+                driveMotor, encoder, 1, 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return new OutboardLinearVelocityServo(parent, mech);
     }
 
     /**
@@ -78,12 +72,15 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
             SwerveKinodynamics kinodynamics) {
         // simulated turning motor free speed is 20 rad/s
         SimulatedBareMotor turningMotor = new SimulatedBareMotor(parent, 20);
-        RotaryMechanism turningMech = new SimpleRotaryMechanism(
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, turningMotor);
+        RotaryMechanism turningMech = new RotaryMechanism(
                 parent,
                 turningMotor,
-                new SimulatedBareEncoder(parent, turningMotor),
-                1);
-        SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
+                encoder,
+                1,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
+        SimulatedRotaryPositionSensor turningSensor = new SimulatedRotaryPositionSensor(
                 parent,
                 turningMech,
                 () -> 0);
@@ -104,7 +101,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,
                 turningMech,
-                turningEncoder,
+                turningSensor,
                 controller);
         turningServo.reset();
         return turningServo;
@@ -120,11 +117,14 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
             SwerveKinodynamics kinodynamics) {
         // simulated turning motor free speed is 20 rad/s
         SimulatedBareMotor turningMotor = new SimulatedBareMotor(parent, 20);
-        RotaryMechanism turningMech = new SimpleRotaryMechanism(
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, turningMotor);
+        RotaryMechanism turningMech = new RotaryMechanism(
                 parent,
                 turningMotor,
-                new SimulatedBareEncoder(parent, turningMotor),
-                1);
+                encoder,
+                1,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
                 parent,
                 turningMech,
