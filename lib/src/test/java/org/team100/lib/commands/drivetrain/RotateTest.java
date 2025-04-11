@@ -58,8 +58,7 @@ class RotateTest extends Fixtured implements Timeless {
         verify(0, 0);
         print();
 
-        // since "steer at rest" is off, this tries to turn immediately.
-        // but the "cross track error" thing does slow it slightly.
+        // the "cross track error" thing does slow it slightly.
         for (int i = 0; i < 12; ++i) {
             stepTime();
             fixture.drive.periodic();

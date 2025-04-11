@@ -11,10 +11,6 @@ public interface DriveSubsystemInterface extends Subsystem {
 
     void driveInFieldCoordsVerbatim(FieldRelativeVelocity setpoint);
 
-    void steerAtRest(FieldRelativeVelocity setpoint);
-
-    boolean aligned(FieldRelativeVelocity v);
-
     SwerveModel getState();
 
     void stop();

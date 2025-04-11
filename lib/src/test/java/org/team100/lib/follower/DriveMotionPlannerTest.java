@@ -67,8 +67,6 @@ class DriveMotionPlannerTest implements Timeless {
                 0.01, 0.02);
 
         MockDrive drive = new MockDrive();
-        // ignore steering for now
-        drive.m_aligned = true;
         drive.m_state = new SwerveModel();
         ReferenceController referenceController = new ReferenceController(
                 drive,

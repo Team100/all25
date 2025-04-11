@@ -146,30 +146,6 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
     }
 
     /**
-     * True if wheel steering is aligned to the desired motion.
-     */
-    public boolean aligned(FieldRelativeVelocity v) {
-        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
-                v, getPose().getRotation());
-        return m_swerveLocal.aligned(targetChassisSpeeds);
-    }
-
-    /**
-     * steer the wheels to match the target but don't drive them. This is for the
-     * beginning of trajectories, like the "square" project or any other case where
-     * the new direction happens not to be aligned with the wheels.
-     * 
-     * @return true if aligned
-     */
-    @Override
-    public void steerAtRest(FieldRelativeVelocity v) {
-        // Util.printf("steer at rest v %s\n", v);
-        ChassisSpeeds targetChassisSpeeds = SwerveKinodynamics.toInstantaneousChassisSpeeds(
-                v, getPose().getRotation());
-        m_swerveLocal.steerAtRest(targetChassisSpeeds);
-    }
-
-    /**
      * Scales the supplied ChassisSpeed by the driver speed modifier.
      * 
      * @param speeds in robot coordinates
