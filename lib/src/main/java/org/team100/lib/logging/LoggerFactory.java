@@ -437,27 +437,6 @@ public class LoggerFactory {
         return new Rotation2dLogger(level, leaf);
     }
 
-    public class TrajectorySamplePointLogger {
-        private final Level m_level;
-        private final TimedPoseLogger m_timedPoseLogger;
-
-        TrajectorySamplePointLogger(Level level, String leaf) {
-            m_level = level;
-            m_timedPoseLogger = timedPoseLogger(level, join(leaf, "state"));
-        }
-
-        public void log(Supplier<TimedPose> vals) {
-            if (!allow(m_level))
-                return;
-            TimedPose val = vals.get();
-            m_timedPoseLogger.log(() -> val);
-        }
-    }
-
-    public TrajectorySamplePointLogger trajectorySamplePointLogger(Level level, String leaf) {
-        return new TrajectorySamplePointLogger(level, leaf);
-    }
-
     public class TimedPoseLogger {
         private final Level m_level;
         private final Pose2dWithMotionLogger m_pose2dWithMotionLogger;
