@@ -13,12 +13,12 @@ import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.motion.servo.Gravity;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
-import org.team100.lib.motion.servo.OutboardGravityServo.Gravity;
-import org.team100.lib.motion.servo.OutboardGravityServo.Spring;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
+import org.team100.lib.motion.servo.Spring;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 

@@ -2,8 +2,6 @@ package org.team100.lib.motion.servo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.concurrent.ConcurrentHashMap.KeySetView;
-
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
@@ -11,6 +9,7 @@ import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.MockProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
+import org.team100.lib.controller.simple.ProfiledController.Result;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
@@ -18,12 +17,11 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.servo.OutboardGravityServo.Gravity;
-import org.team100.lib.motion.servo.OutboardGravityServo.Spring;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.state.Control100;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.MathUtil;
@@ -58,7 +56,7 @@ class GravityServoTest implements Timeless {
 
         Gravity gravity = new Gravity(logger, 5, 0);
         Spring spring = new Spring(logger);
-        GravityServoInterface g = new OutboardGravityServo(logger, servo,
+        OutboardGravityServo g = new OutboardGravityServo(logger, servo,
                 (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
         // start at zero
         assertEquals(0, g.getPositionRad().getAsDouble(), kDelta);
@@ -78,45 +76,89 @@ class GravityServoTest implements Timeless {
         RotaryMechanism mech = new RotaryMechanism(
                 logger, motor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         MockProfiledController controller = new MockProfiledController();
-        OnboardAngularPositionServo s0 = new OnboardAngularPositionServo(logger, mech, controller);
+        OnboardAngularPositionServo inner = new OnboardAngularPositionServo(logger, mech, controller);
         // these constants were used in Wrist2.
         // negative force means pull in
         Gravity gravity = new Gravity(logger, 9.0, -0.451230);
         Spring spring = new Spring(logger);
-        OutboardGravityServo servo = new OutboardGravityServo(logger, s0,
+        OutboardGravityServo servo = new OutboardGravityServo(logger, inner,
                 (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
-        double positionRad = -0.1;
-        assertEquals(4.714, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-9.888, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-5.175, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 0;
-        assertEquals(3.925, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-9.050, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-5.125, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 0.5;
-        assertEquals(-0.439, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-5.631, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-6.069, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 1.0;
-        assertEquals(-4.695, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-2.806, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-7.500, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 1.5;
-        assertEquals(-7.801, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-1.576, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-9.377, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 2.0;
-        assertEquals(-8.998, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-1.000, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-9.998, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 2.5;
-        assertEquals(-7.991, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-1.0, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-8.991, servo.m_torque.applyAsDouble(positionRad), kDelta);
-        positionRad = 3.0;
-        assertEquals(-5.028, gravity.applyAsDouble(positionRad), kDelta);
-        assertEquals(-1.0, spring.applyAsDouble(positionRad), kDelta);
-        assertEquals(-6.028, servo.m_torque.applyAsDouble(positionRad), kDelta);
+
+        // the controller never does anything, so the only output should be the
+        // gravity/spring feedforward torque.
+        controller.result = new Result(new Control100(), 0);
+
+        sensor.angle = -0.1;
+        assertEquals(4.714, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-9.888, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-5.175, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-5.175, motor.torque, kDelta);
+
+        sensor.angle = 0;
+        assertEquals(3.925, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-9.050, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-5.125, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-5.125, motor.torque, kDelta);
+
+        sensor.angle = 0.5;
+        assertEquals(-0.439, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-5.631, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-6.069, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-6.069, motor.torque, kDelta);
+
+        sensor.angle = 1.0;
+        assertEquals(-4.695, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-2.806, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-7.500, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-7.500, motor.torque, kDelta);
+
+        sensor.angle = 1.5;
+        assertEquals(-7.801, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-1.576, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-9.377, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-9.377, motor.torque, kDelta);
+
+        sensor.angle = 2.0;
+        assertEquals(-8.998, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-1.000, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-9.998, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-9.998, motor.torque, kDelta);
+
+        sensor.angle = 2.5;
+        assertEquals(-7.991, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-1.0, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-8.991, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-8.991, motor.torque, kDelta);
+
+        sensor.angle = 3.0;
+        assertEquals(-5.028, gravity.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-1.0, spring.applyAsDouble(sensor.angle), kDelta);
+        assertEquals(-6.028, servo.m_torque.applyAsDouble(sensor.angle), kDelta);
+        servo.setPosition(0);
+        assertEquals(0, motor.velocity, kDelta);
+        assertEquals(0, motor.accel, kDelta);
+        assertEquals(-6.028, motor.torque, kDelta);
     }
 
 }

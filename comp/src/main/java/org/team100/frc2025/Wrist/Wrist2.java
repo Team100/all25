@@ -20,16 +20,14 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
-import org.team100.lib.motion.servo.GravityServoInterface;
+import org.team100.lib.motion.servo.Gravity;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
-import org.team100.lib.motion.servo.OutboardGravityServo.Gravity;
-import org.team100.lib.motion.servo.OutboardGravityServo.Spring;
+import org.team100.lib.motion.servo.Spring;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
-import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,7 +49,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     private final double kPositionTolerance = 0.02;
     private final double kVelocityTolerance = 0.01;
-    private final GravityServoInterface wristServo;
+    private final OutboardGravityServo wristServo;
 
     private final RotaryMechanism m_wristMech;
     private final ProfiledController m_controller;
@@ -196,28 +194,20 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         m_wristMech.setDutyCycle(value);
     }
 
-    public void setStatic() {
-        wristServo.setStaticTorque(2.1);
-    }
-
     public double getAngle() {
         return wristServo.getPositionRad().orElse(0);
     }
 
     public void setAngle() {
-        Control100 control = new Control100(0.2, 0, 0); // 1.17 for l3
-        wristServo.setState(control);
+        wristServo.setPosition(0.2);
     }
 
     public void setAngleValue(double goal) {
-        // System.out.println(" I AM BEING CALLED WITH GOAL" + goal);
-        Control100 control = new Control100(goal, 0, 0); // 1.17 for l3
-        wristServo.setState(control);
+        wristServo.setPosition(goal);
     }
 
     public void setAngleSafe() {
-        Control100 control = new Control100(-0.1, 0, 0); // 1.17 for l3
-        wristServo.setState(control);
+        wristServo.setPosition(-0.1);
     }
 
     public boolean getSafeCondition() {

@@ -39,7 +39,9 @@ public class SetWristHandoff extends Command {
         }
 
         if (count >= 20) {
-            m_wrist.setStatic();
+            // i think "set static" was an attempt to push gently into the funnel, but this
+            // is now accomplished with a different command which sets a duty cycle.
+            // m_wrist.setStatic();
             finished = true;
         }
 

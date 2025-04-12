@@ -4,6 +4,8 @@ import org.team100.lib.state.Model100;
 
 public class MockProfiledController implements ProfiledController {
 
+    public Result result;
+
     @Override
     public void init(Model100 measurement) {
 
@@ -11,7 +13,7 @@ public class MockProfiledController implements ProfiledController {
 
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
-        return null;
+        return result;
     }
 
     @Override
