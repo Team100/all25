@@ -24,7 +24,11 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase implements Glassy {
-    private static final boolean VISUALIZE = false;
+    /**
+     * Publish the elevator mechanism visualization to glass. This might be a little
+     * bit slow, turn it off for comp.
+     */
+    private static final boolean VISUALIZE = true;
     private static final double kElevatorMaximumPosition = 56.0;
     private static final double kElevatorMinimumPosition = 0.0;
     private static final double kElevatorReduction = 2;
@@ -65,12 +69,12 @@ public class Elevator extends SubsystemBase implements Glassy {
         int elevatorStatorLimit = 90;
 
         // TODO: review these constants
-        final double maxVel = 220; //220
-        final double maxAccel = 200; //240
+        final double maxVel = 220; // 220
+        final double maxAccel = 200; // 240
         final double stallAccel = 1000;
         final double maxJerk = 500;
 
-        PIDConstants elevatorPID = PIDConstants.makePositionPID(2.5); //6.7
+        PIDConstants elevatorPID = PIDConstants.makePositionPID(2.5); // 6.7
 
         Feedforward100 elevatorFF = Feedforward100.makeKraken6Elevator();
         // TrapezoidProfile100 elevatorProfile = new TrapezoidProfile100(220, 220,
@@ -186,7 +190,7 @@ public class Elevator extends SubsystemBase implements Glassy {
                         stbdEncoder,
                         kElevatorReduction,
                         kElevatorWheelDiamater,
-                        kElevatorMinimumPosition, 
+                        kElevatorMinimumPosition,
                         kElevatorMaximumPosition);
 
                 SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(portLogger, portMotor);

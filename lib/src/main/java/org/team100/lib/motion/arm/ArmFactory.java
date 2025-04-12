@@ -44,17 +44,10 @@ public class ArmFactory {
                 lowerLogger,
                 4,
                 MotorPhase.FORWARD,
-                8,
+                8, // you'll want to change the current limit
                 Feedforward100.makeNeo(),
                 new PIDConstants());
         CANSparkEncoder lowerEncoder = new CANSparkEncoder(lowerLogger, lowerMotor);
-        RotaryMechanism lowerMech = new RotaryMechanism(
-                lowerLogger,
-                lowerMotor,
-                lowerEncoder,
-                kReduction,
-                Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY);
 
         // NOTE: the encoder inversion used to be in the subsystem,
         // but now it is here.
@@ -65,23 +58,30 @@ public class ArmFactory {
                 EncoderDrive.INVERSE,
                 true);
 
+        RotaryMechanism lowerMech = new RotaryMechanism(
+                lowerLogger, lowerMotor, lowerSensor,
+                kReduction, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
         LoggerFactory upperLogger = parent.child(kUpper);
         CANSparkMotor upperMotor = new NeoCANSparkMotor(
                 upperLogger,
                 30,
                 MotorPhase.FORWARD,
-                1,
+                1, // you'll want to change the current limit
                 Feedforward100.makeNeo(),
                 new PIDConstants());
+
         CANSparkEncoder upperEncoder = new CANSparkEncoder(upperLogger, upperMotor);
-        RotaryMechanism upperMech = new RotaryMechanism(
-                upperLogger, upperMotor, upperEncoder, kReduction, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         RotaryPositionSensor upperSensor = new AnalogTurningEncoder(
                 upperLogger,
                 0, // analog input 0
                 kUpperEncoderOffset,
                 EncoderDrive.DIRECT,
                 true);
+
+        RotaryMechanism upperMech = new RotaryMechanism(
+                upperLogger, upperMotor, upperSensor,
+                kReduction, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         return new ArmSubsystem(
                 parent.child(kArm),
@@ -105,32 +105,32 @@ public class ArmFactory {
         LoggerFactory lowerLogger = parent.child(kLower);
         SimulatedBareMotor lowerMotor = new SimulatedBareMotor(lowerLogger, kFreeSpeedRad_S);
         SimulatedBareEncoder lowerEncoder = new SimulatedBareEncoder(lowerLogger, lowerMotor);
-        RotaryMechanism lowerMech = new RotaryMechanism(
-                lowerLogger,
-                lowerMotor,
-                lowerEncoder,
-                kReduction,
-                Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY);
         // limits used to be -1, 1, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor lowerSensor = new SimulatedRotaryPositionSensor(
-                lowerLogger, lowerMech, () -> 0);
+                lowerLogger, lowerEncoder, kReduction, () -> 0);
+        RotaryMechanism lowerMech = new RotaryMechanism(
+                lowerLogger,
+                lowerMotor,
+                lowerSensor,
+                kReduction,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
 
         LoggerFactory upperLogger = parent.child(kUpper);
         SimulatedBareMotor upperMotor = new SimulatedBareMotor(upperLogger, kFreeSpeedRad_S);
         SimulatedBareEncoder upperEncoder = new SimulatedBareEncoder(upperLogger, upperMotor);
-        RotaryMechanism upperMech = new RotaryMechanism(
-                upperLogger,
-                upperMotor,
-                upperEncoder,
-                kReduction,
-                Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY);
         // limits used to be 0.1, 2.5, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor upperSensor = new SimulatedRotaryPositionSensor(
-                upperLogger, upperMech, () -> 0);
+                upperLogger, upperEncoder, kReduction, () -> 0);
+        RotaryMechanism upperMech = new RotaryMechanism(
+                upperLogger,
+                upperMotor,
+                upperSensor,
+                kReduction,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         return new ArmSubsystem(
                 parent.child(kArm),
                 lowerMech,

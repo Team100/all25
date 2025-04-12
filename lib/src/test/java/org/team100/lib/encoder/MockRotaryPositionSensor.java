@@ -13,7 +13,7 @@ public class MockRotaryPositionSensor implements RotaryPositionSensor {
     }
 
     @Override
-    public OptionalDouble getRateRad_S() {
+    public OptionalDouble getVelocityRad_S() {
         return OptionalDouble.of(rate);
     }
 

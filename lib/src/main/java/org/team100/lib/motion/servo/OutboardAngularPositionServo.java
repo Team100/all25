@@ -3,9 +3,7 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.CombinedEncoder;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
+import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
@@ -33,9 +31,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
-    private final CombinedEncoder m_encoder;
-
-    // LOGGERS
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
@@ -55,11 +50,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     public OutboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
-            CombinedEncoder encoder,
             ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        m_encoder = encoder;
+        // m_sensor = sensor;
         m_controller = controller;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
@@ -92,11 +86,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setDutyCycle(dutyCycle);
     }
 
-    @Override
-    public void setEncoderPosition(double value) {
-        m_mechanism.setEncoderPosition(value);
-    }
-
     /**
      * Sets the goal, updates the setpoint to the "next step" value towards it,
      * gives the setpoint to the outboard mechanism.
@@ -111,7 +100,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
 
         // this is the absolute 1:1 position of the mechanism.
-        OptionalDouble posOpt = m_encoder.getPositionRad();
+        OptionalDouble posOpt = m_mechanism.getPositionRad();
 
         if (posOpt.isEmpty())
             return;
@@ -142,12 +131,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 m_setpoint.model(), m_goal);
         m_setpoint = result.feedforward();
 
-        if (Experiments.instance.enabled(Experiment.LashCorrection)) {
-            double lashError = m_encoder.getError();
-            m_mechanism.setPosition(m_setpoint.x() - lashError, m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-        } else {
-            m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-        }
+        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
@@ -165,14 +149,13 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     public OptionalDouble getPosition() {
 
         // this is the absolute 1:1 position of the mechanism.
-        return m_encoder.getPositionRad();
+        return m_mechanism.getPositionRad();
 
     }
 
     /** Value is updated in Robot.robotPeriodic(). */
-    @Override
     public OptionalDouble getVelocity() {
-        return m_encoder.getRateRad_S();
+        return m_mechanism.getVelocityRad_S();
     }
 
     /**
@@ -245,7 +228,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void periodic() {
         m_mechanism.periodic();
-        m_encoder.periodic();
+        // m_sensor.periodic();
     }
 
     @Override

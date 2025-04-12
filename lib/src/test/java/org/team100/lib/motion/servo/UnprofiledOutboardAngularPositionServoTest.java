@@ -3,7 +3,6 @@ package org.team100.lib.motion.servo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
@@ -21,12 +20,11 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
     void testSimple() {
         SimulatedBareMotor motor = new SimulatedBareMotor(log, 100);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(log, motor);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, encoder, 1, () -> 0);
         RotaryMechanism mech = new RotaryMechanism(
-                log, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, mech, () -> 0);
-        CombinedEncoder combinedEncoder = new CombinedEncoder(log, sensor, mech);// , false);
+                log, motor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         UnprofiledOutboardAngularPositionServo servo = new UnprofiledOutboardAngularPositionServo(
-                log, mech, combinedEncoder);
+                log, mech);
 
         servo.reset();
         servo.periodic();

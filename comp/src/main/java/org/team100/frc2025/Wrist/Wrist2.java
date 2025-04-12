@@ -1,6 +1,5 @@
 package org.team100.frc2025.Wrist;
 
-import org.team100.lib.async.Async;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -8,10 +7,8 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.FullStateFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.controller.simple.TimedProfiledController;
-import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
-import org.team100.lib.encoder.CombinedEncoder;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.IncrementalBareEncoder;
 import org.team100.lib.encoder.RotaryPositionSensor;
@@ -25,7 +22,6 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
@@ -37,12 +33,12 @@ import org.team100.lib.state.Model100;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist2 extends SubsystemBase implements Glassy {
-    private static final boolean VISUALIZE = false;
+    /**
+     * Publish the elevator mechanism visualization to glass. This might be a little
+     * bit slow, turn it off for comp.
+     */
+    private static final boolean VISUALIZE = true;
     private static final int GEAR_RATIO = 25;
-
-    // true: use the outboard servo, give the motor position
-    // false: use the onboard servo, give the motor velocity
-    private static final boolean OUTBOARD_SERVO = false;
 
     private static final double kWristMinimumPosition = -0.5;
     private static final double kWristMaximumPosition = 4;
@@ -60,10 +56,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final BooleanLogger safeLogger;
     private final Runnable m_viz;
 
-    public Wrist2(
-            LoggerFactory parent,
-            Async async,
-            int wristID) {
+    public Wrist2(LoggerFactory parent, int wristID) {
         LoggerFactory wristLogger = parent.child(this);
 
         int wristSupplyLimit = 60;
@@ -76,15 +69,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
-        Feedback100 wristFeedback;
-        if (OUTBOARD_SERVO) {
-            // feedback is outboard: this just logs the error.
-            wristFeedback = new ZeroFeedback(x -> x,
-                    kPositionTolerance, 0.1);
-        } else {
-            wristFeedback = new FullStateFeedback(wristLogger,
-                    4.0, 0.11, x -> x, 0.05, 0.05);
-        }
+        Feedback100 wristFeedback = new FullStateFeedback(wristLogger,
+                4.0, 0.11, x -> x, 0.05, 0.05);
 
         // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
         // kPositionTolerance);
@@ -102,7 +88,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
                 // this reads the wrist angle directly.
-                RotaryPositionSensor encoder = new AS5048RotaryPositionSensor(
+                RotaryPositionSensor sensor = new AS5048RotaryPositionSensor(
                         wristLogger,
                         5,
                         0.135541, // 0.346857, //0.317012, //0.227471, //0.188726
@@ -118,7 +104,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 m_wristMech = new RotaryMechanism(
                         wristLogger,
                         wristMotor,
-                        internalWristEncoder,
+                        sensor,
                         GEAR_RATIO,
                         kWristMinimumPosition,
                         kWristMaximumPosition);
@@ -135,60 +121,37 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // IncrementalProfiledController(wristProfile, wristFeedback, x -> x,
                 // kPositionTolerance, kPositionTolerance);
 
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, m_wristMech);
-
-                AngularPositionServo wristServoWithoutGravity;
-                if (OUTBOARD_SERVO) {
-                    wristServoWithoutGravity = new OutboardAngularPositionServo(
-                            wristLogger, m_wristMech, combinedEncoder, m_controller);
-                } else {
-                    wristServoWithoutGravity = new OnboardAngularPositionServo(
-                            wristLogger, m_wristMech, encoder, m_controller);
-                }
+                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(
+                        wristLogger, m_wristMech, m_controller);
 
                 wristServoWithoutGravity.reset();
 
                 wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 9.0, -0.451230);
 
-                m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
+                m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
 
             }
             default -> {
 
-                SimulatedBareMotor wristMotor = new SimulatedBareMotor(wristLogger, 100);
-                SimulatedBareEncoder encoder0 = new SimulatedBareEncoder(wristLogger, wristMotor);
+                SimulatedBareMotor motor = new SimulatedBareMotor(wristLogger, 100);
+                SimulatedBareEncoder encoder = new SimulatedBareEncoder(wristLogger, motor);
+                SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
+                        wristLogger, encoder, GEAR_RATIO, () -> 0);
                 RotaryMechanism wristMech = new RotaryMechanism(
-                        wristLogger,
-                        wristMotor,
-                        encoder0,
-                        GEAR_RATIO,
-                        kWristMinimumPosition,
-                        kWristMaximumPosition);
+                        wristLogger, motor, sensor,
+                        GEAR_RATIO, kWristMinimumPosition, kWristMaximumPosition);
 
-                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(
-                        wristLogger,
-                        wristMech,
-                        () -> 0);
-
+                JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
                 m_controller = new TimedProfiledController(wristLogger,
-                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false),
-                        wristFeedback, x -> x, 0.1, 0.05);
+                        profile, wristFeedback, x -> x, 0.1, 0.05);
 
-                CombinedEncoder combinedEncoder = new CombinedEncoder(wristLogger, encoder, wristMech);
-
-                AngularPositionServo wristServoWithoutGravity;
-                if (OUTBOARD_SERVO) {
-                    wristServoWithoutGravity = new OutboardAngularPositionServo(
-                            wristLogger, wristMech, combinedEncoder, m_controller);
-                } else {
-                    wristServoWithoutGravity = new OnboardAngularPositionServo(
-                            wristLogger, wristMech, encoder, m_controller);
-                }
+                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(
+                        wristLogger, wristMech, m_controller);
 
                 wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 0, 0);
                 m_wristMech = wristMech;
 
-                m_controller.init(new Model100(encoder.getPositionRad().orElseThrow(), 0));
+                m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
             }
 
         }

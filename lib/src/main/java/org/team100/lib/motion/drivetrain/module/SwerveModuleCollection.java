@@ -249,15 +249,6 @@ public class SwerveModuleCollection {
         };
     }
 
-    public OptionalDouble[] turningVelocity() {
-        return new OptionalDouble[] {
-                m_frontLeft.turningVelocity(),
-                m_frontRight.turningVelocity(),
-                m_rearLeft.turningVelocity(),
-                m_rearRight.turningVelocity()
-        };
-    }
-
     /** FOR TEST ONLY */
     public SwerveModuleStates states() {
         return new SwerveModuleStates(

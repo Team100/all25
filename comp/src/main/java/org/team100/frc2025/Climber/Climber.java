@@ -39,15 +39,6 @@ public class Climber extends SubsystemBase {
                         Feedforward100.makeArmPivot());
 
                 Talon6Encoder encoder = new Talon6Encoder(child, motor);
-                RotaryMechanism rotaryMechanism = new RotaryMechanism(child, motor,
-                        encoder,
-                        25 * 3 * 4, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-                Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
-                PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
-
-                ProfiledController controller = new IncrementalProfiledController(
-                        child, profile100, feedback, x -> x, 0.05, 0.05);
 
                 // this reads the arm angle directly
                 RotaryPositionSensor sensor = new AS5048RotaryPositionSensor(
@@ -57,23 +48,31 @@ public class Climber extends SubsystemBase {
                         EncoderDrive.DIRECT,
                         false);
 
-                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, sensor, controller);
+                double gearRatio = 25 * 3 * 4;
+                RotaryMechanism rotaryMechanism = new RotaryMechanism(
+                        child, motor, sensor, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
+                Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
+                PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
+
+                ProfiledController controller = new IncrementalProfiledController(
+                        child, profile100, feedback, x -> x, 0.05, 0.05);
+
+                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, controller);
             }
 
             default -> {
                 SimulatedBareMotor climberMotor = new SimulatedBareMotor(child, 100);
 
-                SimulatedBareEncoder encoder0 = new SimulatedBareEncoder(child, climberMotor);
+                SimulatedBareEncoder encoder = new SimulatedBareEncoder(child, climberMotor);
+                SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(child, encoder, 1, () -> 0);
 
                 RotaryMechanism climberMech = new RotaryMechanism(
                         child,
                         climberMotor,
-                        encoder0,
+                        sensor,
                         1,
                         Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-                SimulatedRotaryPositionSensor encoder = new SimulatedRotaryPositionSensor(child, climberMech,
-                        () -> 0);
 
                 // ProfiledController controller = new TimedProfiledController();
 

@@ -2,9 +2,6 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.encoder.CombinedEncoder;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -25,9 +22,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
-    private final CombinedEncoder m_encoder;
-
-    // LOGGERS
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
@@ -39,11 +33,9 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
 
     public UnprofiledOutboardAngularPositionServo(
             LoggerFactory parent,
-            RotaryMechanism mech,
-            CombinedEncoder encoder) {
+            RotaryMechanism mech){
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        m_encoder = encoder;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (rad)");
@@ -51,17 +43,11 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
 
     @Override
     public void reset() {
-        m_mechanism.resetEncoderPosition();
     }
 
     @Override
     public void setTorqueLimit(double torqueNm) {
         m_mechanism.setTorqueLimit(torqueNm);
-    }
-
-    @Override
-    public void setEncoderPosition(double value) {
-        m_mechanism.setEncoderPosition(value);
     }
 
     @Override
@@ -83,7 +69,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
 
         // this is the absolute 1:1 position of the mechanism.
-        OptionalDouble posOpt = m_encoder.getPositionRad();
+        OptionalDouble posOpt = m_mechanism.getPositionRad();
 
         if (posOpt.isEmpty())
             return;
@@ -96,12 +82,8 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
                 goalVelocityRad_S);
 
-        if (Experiments.instance.enabled(Experiment.LashCorrection)) {
-            double lashError = m_encoder.getError();
-            m_mechanism.setPosition(m_goal.x() - lashError, m_goal.v(), 0, feedForwardTorqueNm);
-        } else {
-            m_mechanism.setPosition(m_goal.x(), m_goal.v(), 0, feedForwardTorqueNm);
-        }
+        m_mechanism.setPosition(m_goal.x(), m_goal.v(), 0, feedForwardTorqueNm);
+
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);
@@ -115,13 +97,12 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     /** Value is updated in Robot.robotPeriodic(). */
     @Override
     public OptionalDouble getPosition() {
-        return m_encoder.getPositionRad();
+        return m_mechanism.getPositionRad();
     }
 
     /** Value is updated in Robot.robotPeriodic(). */
-    @Override
     public OptionalDouble getVelocity() {
-        return m_encoder.getRateRad_S();
+        return m_mechanism.getVelocityRad_S();
     }
 
     /**
@@ -184,7 +165,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     @Override
     public void periodic() {
         m_mechanism.periodic();
-        m_encoder.periodic();
     }
 
     @Override

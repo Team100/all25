@@ -81,11 +81,6 @@ public class OutboardGravityServo implements GravityServoInterface{
     }
 
     @Override
-    public void setEncoderPosition(double positionRad) {
-        m_servo.setEncoderPosition(positionRad);
-    }
-
-    @Override
     public void setTorqueLimit(double torqueNm) {
         m_servo.setTorqueLimit(torqueNm);
     }

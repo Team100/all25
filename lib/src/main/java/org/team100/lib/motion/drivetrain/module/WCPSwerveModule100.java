@@ -8,9 +8,10 @@ import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.AnalogTurningEncoder;
-import org.team100.lib.encoder.CombinedEncoder;
+import org.team100.lib.encoder.CombinedRotaryPositionSensor;
 import org.team100.lib.encoder.DutyCycleRotaryPositionSensor;
 import org.team100.lib.encoder.EncoderDrive;
+import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
 import org.team100.lib.experiments.Experiment;
@@ -222,22 +223,20 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 ff);
 
         // this reads the steering angle directly.
-        RotaryPositionSensor turningEncoder = turningEncoder(
-                encoderClass,
-                parent,
-                turningEncoderChannel,
-                turningOffset,
-                drive);
+        RotaryPositionSensor turningSensor = turningSensor(
+                encoderClass, parent, turningEncoderChannel, turningOffset, drive);
 
         Talon6Encoder builtInEncoder = new Talon6Encoder(parent, turningMotor);
+        
+        ProxyRotaryPositionSensor proxy = new ProxyRotaryPositionSensor(builtInEncoder, gearRatio);
+        CombinedRotaryPositionSensor combined = new CombinedRotaryPositionSensor(parent, turningSensor, proxy);
 
         RotaryMechanism mech = new RotaryMechanism(
-                parent, turningMotor, builtInEncoder, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-        CombinedEncoder combinedEncoder = new CombinedEncoder(parent, turningEncoder, mech);
+                parent, turningMotor, combined, gearRatio, Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
 
         AngularPositionServo turningServo = outboardTurningServo(
-                parent, kinodynamics, mech, combinedEncoder);
+                parent, kinodynamics, mech, combined);
         turningServo.reset();
         return turningServo;
     }
@@ -246,22 +245,20 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             LoggerFactory parent,
             SwerveKinodynamics kinodynamics,
             RotaryMechanism mech,
-            CombinedEncoder combinedEncoder) {
+            CombinedRotaryPositionSensor combinedEncoder) {
         if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
-            return new UnprofiledOutboardAngularPositionServo(parent, mech, combinedEncoder);
+            return new UnprofiledOutboardAngularPositionServo(parent, mech);
         }
         Profile100 profile = kinodynamics.getSteeringProfile();
         Feedback100 feedback = new ZeroFeedback(x -> x, 0.02, 0.02);
         ProfiledController controller = new IncrementalProfiledController(
                 parent, profile, feedback, MathUtil::angleModulus, 0.05, 0.05);
         return new OutboardAngularPositionServo(
-                parent,
-                mech,
-                combinedEncoder,
-                controller);
+                parent, mech, controller);
     }
 
-    private static RotaryPositionSensor turningEncoder(
+    /** Produces either an AS5048 or an Analog sensor. */
+    private static RotaryPositionSensor turningSensor(
             Class<? extends RotaryPositionSensor> encoderClass,
             LoggerFactory parent,
             int channel,

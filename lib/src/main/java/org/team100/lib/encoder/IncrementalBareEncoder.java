@@ -29,9 +29,6 @@ public interface IncrementalBareEncoder extends Glassy {
      */
     OptionalDouble getPositionRad();
 
-    /** For checking calibration, very slow, do not use outside tests. */
-    double getPositionBlockingRad();
-
     /**
      * Resets position to zero.
      *
@@ -45,6 +42,9 @@ public interface IncrementalBareEncoder extends Glassy {
     void close();
 
     /**
+     * Sets the incremental encoder position. This is only used to "zero" it, and
+     * only done by the ProxyRotaryPositionSensor.
+     * 
      * This is very slow, only use it on startup.
      * 
      * Caches should also be flushed, so the new value is available immediately.

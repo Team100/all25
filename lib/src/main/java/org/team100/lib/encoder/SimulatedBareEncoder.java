@@ -63,9 +63,4 @@ public class SimulatedBareEncoder implements IncrementalBareEncoder {
         m_log_position.log(this::getPositionRad);
         m_log_velocity.log(this::getVelocityRad_S);
     }
-
-    @Override
-    public double getPositionBlockingRad() {
-        return getPositionRad().getAsDouble();
-    }
 }

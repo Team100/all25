@@ -221,10 +221,6 @@ public abstract class SwerveModule100 implements Glassy {
         return position;
     }
 
-    public OptionalDouble turningVelocity() {
-        return m_turningServo.getVelocity();
-    }
-
     boolean atSetpoint() {
         return m_turningServo.atSetpoint();
     }

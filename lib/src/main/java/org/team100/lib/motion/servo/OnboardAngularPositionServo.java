@@ -3,7 +3,6 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -26,12 +25,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final double kVTolerance = 0.02;
 
     private final RotaryMechanism m_mechanism;
-    private final RotaryPositionSensor m_positionSensor;
     private final ProfiledController m_controller;
 
     private Model100 m_goal = new Model100(0, 0);
 
-    // LOGGERS
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_feedforward_torque;
     private final Model100Logger m_log_measurement;
@@ -44,18 +41,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_encoderValue;
     private final BooleanLogger m_log_at_setpoint;
 
-    /**
-     * Note the position sensor can be separate from the motor sensors that are part
-     * of the mechanism.
-     */
     public OnboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
-            RotaryPositionSensor positionSensor,
             ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        m_positionSensor = positionSensor;
         m_controller = controller;
 
         m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
@@ -92,7 +83,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // if (velocity.isEmpty())
         // return;
         m_controller.init(new Model100(position.getAsDouble(), 0));
-        // System.out.println("IM BEING RESET TO" + position.getAsDouble() + "***********************************************************");
+        // System.out.println("IM BEING RESET TO" + position.getAsDouble() +
+        // "***********************************************************");
     }
 
     @Override
@@ -165,21 +157,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     public OptionalDouble getPosition() {
 
         // this is the absolute 1:1 position of the mechanism.
-        OptionalDouble position = m_positionSensor.getPositionRad();
-        
+        OptionalDouble position = m_mechanism.getPositionRad();
+
         if (position.isEmpty())
             return OptionalDouble.empty();
         return OptionalDouble.of(position.getAsDouble());
-    }
-
-    /**
-     * Velocity as measured by the position sensor.
-     * 
-     * @return Current velocity, rad/s.
-     */
-    @Override
-    public OptionalDouble getVelocity() {
-        return m_positionSensor.getRateRad_S();
     }
 
     @Override
@@ -197,11 +179,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public boolean profileDone() {
         return m_controller.profileDone();
-    }
-
-    @Override
-    public void setEncoderPosition(double positionRad) {
-        m_mechanism.setEncoderPosition(positionRad);
     }
 
     /**
@@ -231,7 +208,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public void close() {
-        m_positionSensor.close();
+        m_mechanism.close();
     }
 
     /** for testing only */

@@ -36,12 +36,10 @@ class GravityServoTest implements Timeless2025 {
         // motor speed is rad/s
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, simMotor);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
+                logger, encoder, 165, () -> 0);
         RotaryMechanism simMech = new RotaryMechanism(
-                logger, simMotor, encoder, 165, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        SimulatedRotaryPositionSensor simEncoder = new SimulatedRotaryPositionSensor(
-                logger,
-                simMech,
-                () -> 0);
+                logger, simMotor, sensor, 165, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
@@ -51,10 +49,7 @@ class GravityServoTest implements Timeless2025 {
                 0.05,
                 0.05);
         AngularPositionServo servo = new OnboardAngularPositionServo(
-                logger,
-                simMech,
-                simEncoder,
-                controller);
+                logger, simMech, controller);
         servo.reset();
 
         GravityServoInterface g = new OutboardGravityServo(logger,

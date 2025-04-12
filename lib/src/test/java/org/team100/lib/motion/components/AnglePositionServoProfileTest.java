@@ -8,7 +8,6 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -27,7 +26,7 @@ class AnglePositionServoProfileTest {
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     private final MockBareMotor motor;
-    private final MockRotaryPositionSensor encoder;
+    private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
     private final AngularPositionServo servo;
     // for calculating the trapezoidal integral
@@ -35,17 +34,17 @@ class AnglePositionServoProfileTest {
 
     public AnglePositionServoProfileTest() {
         motor = new MockBareMotor(Feedforward100.makeSimple());
-        final RotaryMechanism mech = new RotaryMechanism(
+        sensor = new MockRotaryPositionSensor();
+        RotaryMechanism mech = new RotaryMechanism(
                 logger,
                 motor,
-                new MockIncrementalBareEncoder(),
+                sensor,
                 1,
                 Double.NEGATIVE_INFINITY,
                 Double.POSITIVE_INFINITY);
-        encoder = new MockRotaryPositionSensor();
         feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 
-        final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
+        Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
                 profile,
@@ -54,10 +53,7 @@ class AnglePositionServoProfileTest {
                 0.05,
                 0.05);
         servo = new OnboardAngularPositionServo(
-                logger,
-                mech,
-                encoder,
-                controller);
+                logger, mech, controller);
         servo.reset();
     }
 
@@ -94,7 +90,7 @@ class AnglePositionServoProfileTest {
             // observe the current instant and set the output for the next step
             servo.setPosition(1, 0);
             // trapezoid integral over the step
-            encoder.angle += 0.5 * (motor.velocity + previousMotorSpeed) * 0.02;
+            sensor.angle += 0.5 * (motor.velocity + previousMotorSpeed) * 0.02;
             previousMotorSpeed = motor.velocity;
         }
         assertEquals(motorVelocity, motor.velocity, kDelta);

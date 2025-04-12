@@ -37,9 +37,4 @@ public class MockIncrementalBareEncoder implements IncrementalBareEncoder {
         //
     }
 
-    @Override
-    public double getPositionBlockingRad() {
-        return getPositionRad().getAsDouble();
-    }
-
 }

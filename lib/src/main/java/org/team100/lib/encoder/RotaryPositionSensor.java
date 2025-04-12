@@ -20,11 +20,11 @@ public interface RotaryPositionSensor extends Glassy {
     OptionalDouble getPositionRad();
 
     /**
-     * Note some rate implementations can be noisy.
+     * Note some velocity implementations can be noisy.
      * 
      * @return Counterclockwise positive rad/s, empty if disconnected.
      */
-    OptionalDouble getRateRad_S();
+    OptionalDouble getVelocityRad_S();
 
     /**
      * For logging.
@@ -35,5 +35,4 @@ public interface RotaryPositionSensor extends Glassy {
      * Releases the encoder resource, if necessary (e.g. HAL ports).
      */
     void close();
-
 }

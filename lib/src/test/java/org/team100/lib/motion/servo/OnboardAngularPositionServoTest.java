@@ -8,7 +8,6 @@ import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -30,10 +29,10 @@ public class OnboardAngularPositionServoTest {
     @Test
     void testOnboard() {
         final MockBareMotor turningMotor = new MockBareMotor(Feedforward100.makeSimple());
-        final MockIncrementalBareEncoder motorEncoder = new MockIncrementalBareEncoder();
         final MockRotaryPositionSensor positionSensor = new MockRotaryPositionSensor();
         final RotaryMechanism mech = new RotaryMechanism(
-                logger, turningMotor, motorEncoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+                logger, turningMotor, positionSensor, 1, Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         final Feedback100 turningFeedback2 = new PIDFeedback(
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
@@ -45,7 +44,7 @@ public class OnboardAngularPositionServoTest {
                 0.05,
                 0.05);
         final AngularPositionServo servo = new OnboardAngularPositionServo(
-                logger, mech, positionSensor, controller);
+                logger, mech, controller);
         servo.reset();
         // spin for 1 s
         for (int i = 0; i < 50; ++i) {

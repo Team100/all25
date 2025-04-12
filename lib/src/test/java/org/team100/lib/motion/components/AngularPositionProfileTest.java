@@ -40,10 +40,9 @@ class AngularPositionProfileTest implements Timeless {
 
     public AngularPositionProfileTest() {
         motor = new MockBareMotor(Feedforward100.makeSimple());
-        MockIncrementalBareEncoder encoder = new MockIncrementalBareEncoder();
-        mech = new RotaryMechanism(
-                logger, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         sensor = new MockRotaryPositionSensor();
+        mech = new RotaryMechanism(
+                logger, motor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         feedback2 = new PIDFeedback(logger, 5, 0, 0, false, 0.05, 1);
     }
 
@@ -64,7 +63,6 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                sensor,
                 controller);
         servo.reset();
 
@@ -84,7 +82,6 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                sensor,
                 controller);
         servo.reset();
         verifyTrapezoid();

@@ -5,18 +5,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
-import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.util.Memo;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
 
 /**
  * Proxies an absolute sensor and an incremental sensor.
@@ -37,16 +32,15 @@ import edu.wpi.first.math.filter.LinearFilter;
  * The secondary is a RotaryMechanism, instead of an encoder, because we want
  * the *gear reduction* to be applied to the underlying encoder.
  */
-public class CombinedEncoder implements RotaryPositionSensor {
+public class CombinedRotaryPositionSensor implements RotaryPositionSensor {
     private final RotaryPositionSensor m_absolute;
-    private final RotaryMechanism m_incremental;
+    private final ProxyRotaryPositionSensor m_incremental;
     private final OptionalDoubleLogger m_log_absolute;
     private final OptionalDoubleLogger m_log_incremental;
     private final DoubleLogger m_log_incremental_wrapped;
     private final OptionalDoubleLogger m_log_combined;
     // for synchronization one-shot delayed task
     private final ScheduledExecutorService m_synchronizer;
-    private final LinearFilter m_errorFilter;
 
     private boolean m_synchronized;
 
@@ -56,10 +50,10 @@ public class CombinedEncoder implements RotaryPositionSensor {
      * @param absolute    absolute sensor wired to the RoboRIO
      * @param incremental incremental sensor that needs to be "zeroed"
      */
-    public CombinedEncoder(
+    public CombinedRotaryPositionSensor(
             LoggerFactory parent,
             RotaryPositionSensor absolute,
-            RotaryMechanism incremental) {
+            ProxyRotaryPositionSensor incremental) {
         LoggerFactory child = parent.child(this);
         m_absolute = absolute;
         m_incremental = incremental;
@@ -70,13 +64,16 @@ public class CombinedEncoder implements RotaryPositionSensor {
         // the duty cycle encoder seems to produce slightly-wrong values immediately
         // upon startup, so wait a bit before doing the synchronization
         m_synchronized = false;
-        m_errorFilter = LinearFilter.singlePoleIIR(0.05, TimedRobot100.LOOP_PERIOD_S);
         m_synchronizer = Executors.newSingleThreadScheduledExecutor();
         m_synchronizer.schedule(this::sync, 3, TimeUnit.SECONDS);
     }
 
     /**
      * Sync the absolute and incremental encoders.
+     * 
+     * This should only be called by the initializer executor, a few seconds after
+     * startup, because the absolute encoder readings are wrong immediately after
+     * startup.
      * 
      * Setting the encoder position is very slow, so just do it once.
      */
@@ -123,7 +120,7 @@ public class CombinedEncoder implements RotaryPositionSensor {
      * The secondary (incremental motor-integrated) measurement
      */
     @Override
-    public OptionalDouble getRateRad_S() {
+    public OptionalDouble getVelocityRad_S() {
         return m_incremental.getVelocityRad_S();
     }
 
@@ -133,45 +130,9 @@ public class CombinedEncoder implements RotaryPositionSensor {
         m_incremental.close();
     }
 
-    /**
-     * Error = Actual (i.e. absolute encoder) - Measured (i.e. motor).
-     * 
-     * This is used for lash correction in outboard position control.
-     * 
-     * Say the lash is such that the true measurement is zero, but the motor thinks
-     * the measurement is 1. Then to get the motor to maintain zero, you give it a
-     * positional command of 1. The error calculated here would be -1, so you have
-     * to subtract the error to get the motor target.
-     * 
-     * (Measured = Actual - Error)
-     */
-    public double getError() {
-        if (Experiments.instance.enabled(Experiment.LashFilter)) {
-            return filteredError();
-        }
-        return getRawError();
-    }
-
-    private double getRawError() {
-        // don't attempt to compute error prior to synchronization.
-        if (!m_synchronized)
-            return 0;
-        // The sensor reads the actual position of the mechanism.
-        OptionalDouble sensorPosition = getAbsolutePositionRad();
-        // The motor reads the position on the other side of the gear lash.
-        OptionalDouble motorPosition = getPositionRad();
-        if (sensorPosition.isEmpty() || motorPosition.isEmpty()) {
-            // This is wrong but safe.
-            return 0;
-        }
-        return sensorPosition.getAsDouble() - motorPosition.getAsDouble();
-    }
-
-    private double filteredError() {
-        return m_errorFilter.calculate(getRawError());
-    }
-
     public void periodic() {
+        m_absolute.periodic();
+        m_incremental.periodic();
         m_log_absolute.log(m_absolute::getPositionRad);
         m_log_incremental.log(m_incremental::getPositionRad);
         m_log_incremental_wrapped.log(() -> MathUtil.angleModulus(m_incremental.getPositionRad().getAsDouble()));

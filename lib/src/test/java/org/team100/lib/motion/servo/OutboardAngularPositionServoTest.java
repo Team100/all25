@@ -7,9 +7,10 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.controller.simple.ZeroFeedback;
-import org.team100.lib.encoder.CombinedEncoder;
+import org.team100.lib.encoder.CombinedRotaryPositionSensor;
 import org.team100.lib.encoder.MockIncrementalBareEncoder;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
+import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -28,19 +29,21 @@ public class OutboardAngularPositionServoTest {
     void testOutboard() {
         final MockBareMotor motor = new MockBareMotor(Feedforward100.makeSimple());
         final MockIncrementalBareEncoder encoder = new MockIncrementalBareEncoder();
+        final MockRotaryPositionSensor sensor = new MockRotaryPositionSensor();
+
+        final ProxyRotaryPositionSensor proxy = new ProxyRotaryPositionSensor(encoder, 1);
+        final CombinedRotaryPositionSensor combinedEncoder = new CombinedRotaryPositionSensor(
+                logger, sensor, proxy);
+
         final RotaryMechanism mech = new RotaryMechanism(
-                logger, motor, encoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        final MockRotaryPositionSensor externalEncoder = new MockRotaryPositionSensor();
-        final CombinedEncoder combinedEncoder = new CombinedEncoder(logger, externalEncoder, mech);// , true);
+                logger, motor, combinedEncoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         final ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
         final ProfiledController controller = new IncrementalProfiledController(
                 logger, profile, feedback, x -> x, 0.01, 0.01);
         final OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
-                logger,
-                mech,
-                combinedEncoder,
-                controller);
+                logger, mech, controller);
         servo.reset();
         // it moves slowly
         servo.setPosition(1, 0);

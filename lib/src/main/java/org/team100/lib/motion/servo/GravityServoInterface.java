@@ -19,14 +19,9 @@ public interface GravityServoInterface extends Glassy {
     }
 
     /**
-     * Resets the encoder position, is very slow, so 
-     * only do this on startup
-     * 
-     * @param positionRad The position of the encoder
+     * allow moving end-state
+     * TODO: disallow moving end-state, we never use it.
      */
-    void setEncoderPosition(double positionRad);
-
-    /** allow moving end-state */
     void setState(Control100 goal);
 
     void stop();

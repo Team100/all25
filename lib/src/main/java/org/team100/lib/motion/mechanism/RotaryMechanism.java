@@ -3,7 +3,7 @@ package org.team100.lib.motion.mechanism;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.encoder.IncrementalBareEncoder;
+import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -15,30 +15,33 @@ import org.team100.lib.motor.BareMotor;
  * Motor velocity and accel is higher than mechanism, required torque is lower,
  * using the supplied gear ratio.
  * 
- * The included encoder is the incremental motor encoder.
- * 
  * The position limits used to be enforced by a proxy, but now they're here: it
  * seems simpler that way.
  */
 public class RotaryMechanism implements Glassy {
     private final BareMotor m_motor;
-    private final IncrementalBareEncoder m_encoder;
+    private final RotaryPositionSensor m_sensor;
     private final double m_gearRatio;
     private final double m_minPositionRad;
     private final double m_maxPositionRad;
     private final DoubleLogger m_log_velocity;
     private final DoubleLogger m_log_position;
 
+    /**
+     * The provided sensor encapsulates the motor sensor and/or the external
+     * absolute sensor, if used. See ProxyRotaryPositionSensor and
+     * CombinedRotaryPositionSensor.
+     */
     public RotaryMechanism(
             LoggerFactory parent,
             BareMotor motor,
-            IncrementalBareEncoder encoder,
+            RotaryPositionSensor sensor,
             double gearRatio,
             double minPositionRad,
             double maxPositionRad) {
         LoggerFactory child = parent.child(this);
         m_motor = motor;
-        m_encoder = encoder;
+        m_sensor = sensor;
         m_gearRatio = gearRatio;
         m_minPositionRad = minPositionRad;
         m_maxPositionRad = maxPositionRad;
@@ -51,7 +54,7 @@ public class RotaryMechanism implements Glassy {
         m_motor.setDutyCycle(output);
     }
 
-    /** Should actuate immediately.  Enforces position limit using the encoder. */
+    /** Should actuate immediately. Enforces position limit using the encoder. */
     public void setDutyCycle(double output) {
         OptionalDouble posOpt = getPositionRad();
         if (posOpt.isEmpty()) {
@@ -74,7 +77,7 @@ public class RotaryMechanism implements Glassy {
         m_motor.setTorqueLimit(torqueNm / m_gearRatio);
     }
 
-    /** Should actuate immediately.  Use for homing. */
+    /** Should actuate immediately. Use for homing. */
     public void setVelocityUnlimited(
             double outputRad_S,
             double outputAccelRad_S2,
@@ -85,7 +88,7 @@ public class RotaryMechanism implements Glassy {
                 outputTorqueNm / m_gearRatio);
     }
 
-    /** Should actuate immediately.  Enforces position limit using the encoder. */
+    /** Should actuate immediately. Enforces position limit using the encoder. */
     public void setVelocity(
             double outputRad_S,
             double outputAccelRad_S2,
@@ -110,7 +113,10 @@ public class RotaryMechanism implements Glassy {
                 outputTorqueNm / m_gearRatio);
     }
 
-    /** Should actuate immediately. Enforces position limit using the arguments to this function. */
+    /**
+     * Should actuate immediately. Enforces position limit using the arguments to
+     * this function.
+     */
     public void setPosition(
             double outputPositionRad,
             double outputVelocityRad_S,
@@ -133,23 +139,12 @@ public class RotaryMechanism implements Glassy {
 
     /** Value is updated in Robot.robotPeriodic(). */
     public OptionalDouble getVelocityRad_S() {
-        OptionalDouble velocityRad_S = m_encoder.getVelocityRad_S();
-        if (velocityRad_S.isEmpty())
-            return OptionalDouble.empty();
-        return OptionalDouble.of(velocityRad_S.getAsDouble() / m_gearRatio);
-    }
-
-    /** For checking calibration, very slow, do not use outside tests. */
-    public double getPositionBlockingRad() {
-        return m_encoder.getPositionBlockingRad() / m_gearRatio;
+        return m_sensor.getVelocityRad_S();
     }
 
     /** Value is updated in Robot.robotPeriodic(). */
     public OptionalDouble getPositionRad() {
-        OptionalDouble positionRad = m_encoder.getPositionRad();
-        if (positionRad.isEmpty())
-            return OptionalDouble.empty();
-        return OptionalDouble.of(positionRad.getAsDouble() / m_gearRatio);
+        return m_sensor.getPositionRad();
     }
 
     public void stop() {
@@ -160,19 +155,9 @@ public class RotaryMechanism implements Glassy {
         m_motor.close();
     }
 
-    public void resetEncoderPosition() {
-        m_encoder.reset();
-    }
-
-    /** This can be very slow, only use it on startup. */
-    public void setEncoderPosition(double positionRad) {
-        double motorPositionRad = positionRad * m_gearRatio;
-        m_encoder.setEncoderPositionRad(motorPositionRad);
-    }
-
     public void periodic() {
         m_motor.periodic();
-        m_encoder.periodic();
+        m_sensor.periodic();
         m_log_velocity.log(() -> getVelocityRad_S().getAsDouble());
         m_log_position.log(() -> getPositionRad().getAsDouble());
     }
