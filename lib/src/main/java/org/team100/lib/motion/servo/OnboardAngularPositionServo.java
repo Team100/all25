@@ -25,9 +25,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final double kVTolerance = 0.02;
 
     private final RotaryMechanism m_mechanism;
-    private final ProfiledController m_controller;
-
-    private Model100 m_goal = new Model100(0, 0);
+    final ProfiledController m_controller;
 
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_feedforward_torque;
@@ -40,6 +38,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_log_velocity_error;
     private final DoubleLogger m_encoderValue;
     private final BooleanLogger m_log_at_setpoint;
+
+    private Model100 m_goal = new Model100(0, 0);
 
     public OnboardAngularPositionServo(
             LoggerFactory parent,
@@ -134,20 +134,11 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     /**
-     * Position as measured by the position sensor, which is can be part
-     * of the motor, or not.
-     * 
-     * @return Current position measurement, radians, wrapped in [-pi,pi].
+     * @return the absolute 1:1 position of the mechanism in [-pi, pi]
      */
     @Override
     public OptionalDouble getPosition() {
-
-        // this is the absolute 1:1 position of the mechanism.
-        OptionalDouble position = m_mechanism.getPositionRad();
-
-        if (position.isEmpty())
-            return OptionalDouble.empty();
-        return OptionalDouble.of(position.getAsDouble());
+        return m_mechanism.getPositionRad();
     }
 
     @Override
@@ -172,7 +163,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public boolean atGoal() {
-        OptionalDouble position = getPosition();
+        OptionalDouble position = m_mechanism.getPositionRad();
         OptionalDouble velocity = m_mechanism.getVelocityRad_S();
         if (position.isEmpty() || velocity.isEmpty()) {
             Util.warn("Broken sensor!");
@@ -183,11 +174,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public double getGoal() {
-        return m_goal.x();
-    }
-
-    @Override
     public void stop() {
         m_mechanism.stop();
     }
@@ -195,12 +181,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void close() {
         m_mechanism.close();
-    }
-
-    /** for testing only */
-    @Override
-    public Control100 getSetpoint() {
-        return m_controller.getSetpoint().control();
     }
 
     @Override

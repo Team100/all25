@@ -66,41 +66,4 @@ class DriveWithTrajectoryListTest extends Fixtured implements Timeless {
         assertTrue(c.isFinished());
         assertEquals(1.031, fixture.drive.getPose().getX(), 0.05);
     }
-
-    /**
-     * See also DriveInALittleSquareTest.
-     * This exists to produce useful output to graph.
-     */
-    @Test
-    void testLowLevel() {
-        SwerveController controller = SwerveControllerFactory.test(logger);
-        DriveWithTrajectoryList command = new DriveWithTrajectoryList(
-                fixture.drive,
-                controller,
-                x -> planner.square(x),
-                viz);
-        Experiments.instance.testOverride(Experiment.UseSetpointGenerator, false);
-        fixture.drive.periodic();
-        command.initialize();
-        int counter = 0;
-        do {
-            counter++;
-            if (counter > 1000)
-                fail("counter exceeded");
-            stepTime();
-            fixture.drive.periodic();
-            command.execute();
-            double measurement = fixture.drive.getSwerveLocal().positions().frontLeft().angle.get().getRadians();
-            // double measurement = fixture.drive.getSwerveLocal().states().frontLeft().angle().get().getRadians();
-            SwerveModuleState100 goal = fixture.swerveLocal.getDesiredStates().frontLeft();
-            Control100 setpoint = fixture.swerveLocal.getSetpoints()[0];
-            // this output is useful to see what's happening.
-            if (DEBUG)
-                Util.printf("goal %5.3f setpoint x %5.3f setpoint v %5.3f measurement %5.3f\n",
-                        goal.angle().get().getRadians(),
-                        setpoint.x(),
-                        setpoint.v(),
-                        measurement);
-        } while (!command.isFinished());
-    }
 }

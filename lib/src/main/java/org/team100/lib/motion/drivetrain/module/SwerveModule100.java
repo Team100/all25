@@ -11,7 +11,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
-import org.team100.lib.state.Control100;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -138,25 +137,10 @@ public abstract class SwerveModule100 implements Glassy {
         return desired;
     }
 
-    /**
-     * The state corresponding to the current setpoint (for drive) and goal (for
-     * angle).
-     */
-    SwerveModuleState100 getDesiredState() {
-        return new SwerveModuleState100(
-                m_driveServo.getSetpoint(),
-                Optional.of(new Rotation2d(m_turningServo.getGoal())));
-    }
-
     /** Make sure the setpoint and measurement are the same. */
     public void reset() {
         m_turningServo.reset();
         m_driveServo.reset();
-    }
-
-    /** for testing only */
-    Control100 getSetpoint() {
-        return m_turningServo.getSetpoint();
     }
 
     public void close() {

@@ -22,7 +22,6 @@ class SwerveLocalTest extends Fixtured implements Timeless {
         SwerveLocal local = fixture.swerveLocal;
 
         local.setChassisSpeeds(new ChassisSpeeds());
-        assertEquals(0, modules.getDesiredStates().frontLeft().speedMetersPerSecond(), 0.001);
         local.defense();
         local.stop();
         local.setRawModuleStates(new SwerveModuleStates(

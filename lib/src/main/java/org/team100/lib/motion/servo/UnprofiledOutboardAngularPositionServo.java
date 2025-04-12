@@ -127,11 +127,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     }
 
     @Override
-    public double getGoal() {
-        return m_goal.x();
-    }
-
-    @Override
     public void stop() {
         m_mechanism.stop();
     }
@@ -139,12 +134,6 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     @Override
     public void close() {
         m_mechanism.close();
-    }
-
-    /** for this controller, the goal is the setpoint */
-    @Override
-    public Control100 getSetpoint() {
-        return m_goal.control();
     }
 
     @Override

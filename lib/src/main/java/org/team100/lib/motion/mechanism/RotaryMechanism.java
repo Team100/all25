@@ -142,7 +142,9 @@ public class RotaryMechanism implements Glassy {
         return m_sensor.getVelocityRad_S();
     }
 
-    /** Value is updated in Robot.robotPeriodic(). */
+    /**
+     * @return the absolute 1:1 position of the mechanism in [-pi, pi]
+     */
     public OptionalDouble getPositionRad() {
         return m_sensor.getPositionRad();
     }

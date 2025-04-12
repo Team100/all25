@@ -28,13 +28,14 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
+    private final ProfiledController m_controller;
+
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
     private final Control100Logger m_log_setpoint;
     private final OptionalDoubleLogger m_log_position;
 
-    private final ProfiledController m_controller;
     /**
      * Goal "winds up" i.e. it's it's [-inf, inf], not [-pi,pi]
      */
@@ -126,19 +127,14 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
 
     }
 
-    /** Value is updated in Robot.robotPeriodic(). */
+    /**
+     * @return the absolute 1:1 position of the mechanism in [-pi, pi]
+     */
     @Override
     public OptionalDouble getPosition() {
-
-        // this is the absolute 1:1 position of the mechanism.
         return m_mechanism.getPositionRad();
-
     }
 
-    /** Value is updated in Robot.robotPeriodic(). */
-    public OptionalDouble getVelocity() {
-        return m_mechanism.getVelocityRad_S();
-    }
 
     /**
      * Compares robotPeriodic-updated measurements to the setpoint,
@@ -147,10 +143,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
      */
     @Override
     public boolean atSetpoint() {
-        OptionalDouble positionRad = getPosition();
+        OptionalDouble positionRad = m_mechanism.getPositionRad();
         if (positionRad.isEmpty())
             return false;
-        OptionalDouble velocityRad_S = getVelocity();
+        OptionalDouble velocityRad_S = m_mechanism.getVelocityRad_S();
         if (velocityRad_S.isEmpty())
             return false;
         double positionError = MathUtil.angleModulus(m_setpoint.x() - positionRad.getAsDouble());
@@ -188,11 +184,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public double getGoal() {
-        return m_goal.x();
-    }
-
-    @Override
     public void stop() {
         m_mechanism.stop();
     }
@@ -200,11 +191,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void close() {
         m_mechanism.close();
-    }
-
-    @Override
-    public Control100 getSetpoint() {
-        return m_setpoint;
     }
 
     @Override

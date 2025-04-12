@@ -76,11 +76,6 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
     }
 
     @Override
-    public double getSetpoint() {
-        return m_setpoint;
-    }
-
-    @Override
     public void periodic() {
         m_mechanism.periodic();
     }

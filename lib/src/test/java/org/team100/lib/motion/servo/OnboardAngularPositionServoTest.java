@@ -43,7 +43,7 @@ public class OnboardAngularPositionServoTest {
                 MathUtil::angleModulus,
                 0.05,
                 0.05);
-        final AngularPositionServo servo = new OnboardAngularPositionServo(
+        OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
                 logger, mech, controller);
         servo.reset();
         // spin for 1 s
@@ -52,12 +52,12 @@ public class OnboardAngularPositionServoTest {
             if (kActuallyPrint)
                 Util.printf("i: %d position: %5.3f\n", i, turningMotor.position);
             // lets say we're on the profile.
-            positionSensor.angle = servo.getSetpoint().x();
-            positionSensor.rate = servo.getSetpoint().v();
+            positionSensor.angle = servo.m_controller.getSetpoint().x();
+            positionSensor.rate = servo.m_controller.getSetpoint().v();
         }
         assertEquals(0, turningMotor.output, 0.001);
-        assertEquals(0.5, servo.getSetpoint().x(), kDelta);
-        assertEquals(1.0, servo.getSetpoint().v(), kDelta);
+        assertEquals(0.5, servo.m_controller.getSetpoint().x(), kDelta);
+        assertEquals(1.0, servo.m_controller.getSetpoint().v(), kDelta);
         assertEquals(0.5, positionSensor.getPositionRad().getAsDouble(), kDelta);
         assertEquals(1.000, turningMotor.velocity, kDelta);
     }

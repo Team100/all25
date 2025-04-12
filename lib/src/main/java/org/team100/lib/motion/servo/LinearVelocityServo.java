@@ -37,9 +37,6 @@ public interface LinearVelocityServo extends Glassy {
 
     OptionalDouble getDistance();
 
-    /** For testing */
-    double getSetpoint();
-
     /** For logging */
     void periodic();
 

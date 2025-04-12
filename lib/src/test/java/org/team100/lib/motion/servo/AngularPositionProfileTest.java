@@ -1,4 +1,4 @@
-package org.team100.lib.motion.components;
+package org.team100.lib.motion.servo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,8 +14,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.servo.AngularPositionServo;
-import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
@@ -35,7 +33,7 @@ class AngularPositionProfileTest implements Timeless {
     private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
 
-    private AngularPositionServo servo;
+    private OnboardAngularPositionServo servo;
 
     public AngularPositionProfileTest() {
         motor = new MockBareMotor(Feedforward100.makeSimple());
@@ -120,8 +118,8 @@ class AngularPositionProfileTest implements Timeless {
         // useful to fix up the examples above
         if (DEBUG)
             Util.printf("verify(%5.3f, %5.3f, %5.3f);\n", motor.velocity,
-                    servo.getSetpoint().x(), servo.getSetpoint().v());
-        assertEquals(setpointPosition, servo.getSetpoint().x(), kDelta);
-        assertEquals(setpointVelocity, servo.getSetpoint().v(), kDelta);
+                    servo.m_controller.getSetpoint().x(), servo.m_controller.getSetpoint().v());
+        assertEquals(setpointPosition, servo.m_controller.getSetpoint().x(), kDelta);
+        assertEquals(setpointVelocity, servo.m_controller.getSetpoint().v(), kDelta);
     }
 }

@@ -1,4 +1,4 @@
-package org.team100.lib.motion.components;
+package org.team100.lib.motion.servo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,8 +13,6 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.servo.AngularPositionServo;
-import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
@@ -28,7 +26,7 @@ class AnglePositionServoProfileTest {
     private final MockBareMotor motor;
     private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
-    private final AngularPositionServo servo;
+    private final OnboardAngularPositionServo servo;
     // for calculating the trapezoidal integral
     double previousMotorSpeed = 0;
 
@@ -94,7 +92,7 @@ class AnglePositionServoProfileTest {
             previousMotorSpeed = motor.velocity;
         }
         assertEquals(motorVelocity, motor.velocity, kDelta);
-        assertEquals(setpointPosition, servo.getSetpoint().x(), kDelta);
-        assertEquals(setpointVelocity, servo.getSetpoint().v(), kDelta);
+        assertEquals(setpointPosition, servo.m_controller.getSetpoint().x(), kDelta);
+        assertEquals(setpointVelocity, servo.m_controller.getSetpoint().v(), kDelta);
     }
 }

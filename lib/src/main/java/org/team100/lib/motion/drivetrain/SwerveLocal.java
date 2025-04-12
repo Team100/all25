@@ -12,7 +12,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
-import org.team100.lib.state.Control100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -122,15 +121,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     //
     // Observers
     //
-
-    @Override
-    public SwerveModuleStates getDesiredStates() {
-        return m_modules.getDesiredStates();
-    }
-
-    public Control100[] getSetpoints() {
-        return m_modules.getSetpoint();
-    }
 
     @Override
     public SwerveModulePositions positions() {
