@@ -1,5 +1,7 @@
 package org.team100.frc2025.Wrist;
 
+import java.util.function.DoubleUnaryOperator;
+
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -22,8 +24,8 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.Gravity;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
-import org.team100.lib.motion.servo.OutboardGravityServo;
 import org.team100.lib.motion.servo.Spring;
+import org.team100.lib.motion.servo.Torque;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
@@ -32,6 +34,12 @@ import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * The wrist class now handles gravity torque, it's not in a "servo".
+ * 
+ * TODO: caller should specify the acceleration of the carriage, since that
+ * affects "gravity".
+ */
 public class Wrist2 extends SubsystemBase implements Glassy {
     /**
      * Publish the elevator mechanism visualization to glass. This might be a little
@@ -49,9 +57,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     private final double kPositionTolerance = 0.02;
     private final double kVelocityTolerance = 0.01;
-    private final OutboardGravityServo wristServo;
+    private final AngularPositionServo wristServo;
 
     private final RotaryMechanism m_wristMech;
+    private final Torque m_gravityAndSpringTorque;
     private final ProfiledController m_controller;
     private final BooleanLogger safeLogger;
     private final Runnable m_viz;
@@ -121,16 +130,14 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // IncrementalProfiledController(wristProfile, wristFeedback, x -> x,
                 // kPositionTolerance, kPositionTolerance);
 
-                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(
+                wristServo = new OnboardAngularPositionServo(
                         wristLogger, m_wristMech, m_controller);
 
-                wristServoWithoutGravity.reset();
+                wristServo.reset();
 
                 Gravity gravity = new Gravity(wristLogger, 9.0, -0.451230);
                 Spring spring = new Spring(wristLogger);
-                wristServo = new OutboardGravityServo(
-                        wristLogger, wristServoWithoutGravity,
-                        (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
+                m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
 
                 m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
 
@@ -149,14 +156,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 m_controller = new TimedProfiledController(wristLogger,
                         profile, wristFeedback, x -> x, 0.1, 0.05);
 
-                AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(
+                wristServo = new OnboardAngularPositionServo(
                         wristLogger, wristMech, m_controller);
 
                 Gravity gravity = new Gravity(wristLogger, 0, 0);
                 Spring spring = new Spring(wristLogger);
-                wristServo = new OutboardGravityServo(
-                        wristLogger, wristServoWithoutGravity,
-                        (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
+                m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
                 m_wristMech = wristMech;
 
                 m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
@@ -195,19 +200,23 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     }
 
     public double getAngle() {
-        return wristServo.getPositionRad().orElse(0);
+        // note this default might be dangerous
+        return wristServo.getPosition().orElse(0);
     }
 
     public void setAngle() {
-        wristServo.setPosition(0.2);
+        double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
+        wristServo.setPosition(0.2, torque);
     }
 
     public void setAngleValue(double goal) {
-        wristServo.setPosition(goal);
+        double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
+        wristServo.setPosition(goal, torque);
     }
 
     public void setAngleSafe() {
-        wristServo.setPosition(-0.1);
+        double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
+        wristServo.setPosition(-0.1, torque);
     }
 
     public boolean getSafeCondition() {
@@ -215,7 +224,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     }
 
     public void setSafeCondition(boolean isSafe) {
-        // System.out.println("I AM BEING CALLED WITH BOOLEAN " + isSafe);
         m_isSafe = isSafe;
     }
 
