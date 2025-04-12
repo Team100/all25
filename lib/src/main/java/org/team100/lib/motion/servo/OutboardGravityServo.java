@@ -1,7 +1,9 @@
 package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
+import java.util.function.DoubleUnaryOperator;
 
+import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
@@ -14,36 +16,69 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
  * Wraps an angular position servo, supplying it with the correct feed forward
  * torque for gravity compensation.
  */
-public class OutboardGravityServo implements GravityServoInterface{
-    private final AngularPositionServo m_servo;
-    /** Max gravity torque, newton-meters */
-    private final double m_gravityNm; // = 5.0;
-    /** Offset from horizontal */
-    private final double m_offsetRad; // = 0.0;
-    private final DoubleLogger m_log_gT;
-    private final DoubleLogger m_log_springT;
+public class OutboardGravityServo implements GravityServoInterface {
+    public static class Gravity implements DoubleUnaryOperator, Glassy {
+        /** Max gravity torque, newton-meters */
+        private final double m_gravityNm;
+        /** Offset from horizontal */
+        private final double m_offsetRad;
+        private final DoubleLogger m_log_gravityTorque;
+        private final DoubleLogger m_log_correctedPosition;
 
-    private final DoubleLogger m_correctedPosition;
-    private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap(); // elevator height, elevator cg
+        public Gravity(LoggerFactory parent, double gravityNm, double offsetRad) {
+            m_gravityNm = gravityNm;
+            m_offsetRad = offsetRad;
+            LoggerFactory child = parent.child(this);
+            m_log_gravityTorque = child.doubleLogger(Level.TRACE, "gravity torque (Nm)");
+            m_log_correctedPosition = child.doubleLogger(Level.TRACE, "corrected position (rad)");
+        }
+
+        @Override
+        public double applyAsDouble(double mechanismPositionRad) {
+            double correctedPosition = mechanismPositionRad + m_offsetRad;
+            double gravityTorqueNm = m_gravityNm * -Math.sin(correctedPosition);
+            m_log_correctedPosition.log(() -> correctedPosition);
+            m_log_gravityTorque.log(() -> gravityTorqueNm);
+            return gravityTorqueNm;
+        }
+    }
+
+    public static class Spring implements DoubleUnaryOperator, Glassy {
+        // elevator height, elevator cg
+        private InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap();
+        private final DoubleLogger m_log_springTorque;
+
+        public Spring(LoggerFactory parent) {
+            LoggerFactory child = parent.child(this);
+            m_log_springTorque = child.doubleLogger(Level.TRACE, "spring torque (Nm)");
+
+            table.put(-0.113302, -10.0);
+            table.put(0.34, -6.2);
+            table.put(0.677192, -5.0);
+            table.put(0.784419, -4.0);
+            table.put(0.921020, -3.0);
+            table.put(1.734179, -1.0);
+        }
+
+        @Override
+        public double applyAsDouble(double mechanismPositionRad) {
+            double springTorqueNm = table.get(mechanismPositionRad);
+            m_log_springTorque.log(() -> springTorqueNm);
+            return springTorqueNm;
+        }
+
+    }
+
+    private final AngularPositionServo m_servo;
+    final DoubleUnaryOperator m_torque;
 
     public OutboardGravityServo(
             LoggerFactory parent,
             AngularPositionServo servo,
-            double gravityNm,
-            double offsetRad) {
+            DoubleUnaryOperator torque) {
         LoggerFactory child = parent.child(this);
         m_servo = servo;
-        m_gravityNm = gravityNm;
-        m_offsetRad = offsetRad;
-        m_log_gT = child.doubleLogger(Level.TRACE, "gravity torque (Nm)");
-        m_log_springT = child.doubleLogger(Level.TRACE, "spring torque (Nm)");
-        table.put(-0.113302, -10.0);
-        table.put(0.34, -6.2);
-        table.put(0.677192, -5.0);
-        table.put(0.784419, -4.0);
-        table.put(0.921020, -3.0);
-        table.put(1.734179, -1.0);
-        m_correctedPosition = child.doubleLogger(Level.TRACE, "corrected position (rad)");
+        m_torque = torque;
     }
 
     @Override
@@ -64,15 +99,8 @@ public class OutboardGravityServo implements GravityServoInterface{
             return;
         }
         double mechanismPositionRad = optPos.getAsDouble();
-        m_correctedPosition.log(() -> mechanismPositionRad + m_offsetRad);
-        final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
-        // final double springTorqueNm = -6.2 + 2.85 * mechanismPositionRad; 
-        final double springTorqueNm = table.get(mechanismPositionRad); 
-        // final double springTorqueNm = -10; 
-
-        m_log_gT.log(() -> gravityTorqueNm);
-        m_log_springT.log(() -> springTorqueNm);
-        m_servo.setPositionWithVelocity(goal.x(), goal.v(), gravityTorqueNm  + springTorqueNm);
+        m_servo.setPositionWithVelocity(
+                goal.x(), goal.v(), m_torque.applyAsDouble(mechanismPositionRad));
     }
 
     @Override
@@ -108,8 +136,8 @@ public class OutboardGravityServo implements GravityServoInterface{
             return;
         }
         double mechanismPositionRad = optPos.getAsDouble();
-        mechanismPositionRad = (mechanismPositionRad * 1.16666666667); //CHANGE THIS IF YOU WANT TO CHANGE BACK TO WRIST 1 PLEASE
-        final double gravityTorqueNm = m_gravityNm * -Math.sin(mechanismPositionRad + m_offsetRad); //TODO MAKE THIS COS
+        mechanismPositionRad = (mechanismPositionRad * 1.16666666667);
+        final double gravityTorqueNm = m_torque.applyAsDouble(mechanismPositionRad);
         m_servo.setStaticTorque(gravityTorqueNm);
     }
 }

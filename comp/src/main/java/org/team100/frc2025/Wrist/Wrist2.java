@@ -23,6 +23,8 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.GravityServoInterface;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
+import org.team100.lib.motion.servo.OutboardGravityServo.Gravity;
+import org.team100.lib.motion.servo.OutboardGravityServo.Spring;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
@@ -126,7 +128,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 wristServoWithoutGravity.reset();
 
-                wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 9.0, -0.451230);
+                Gravity gravity = new Gravity(wristLogger, 9.0, -0.451230);
+                Spring spring = new Spring(wristLogger);
+                wristServo = new OutboardGravityServo(
+                        wristLogger, wristServoWithoutGravity,
+                        (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
 
                 m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
 
@@ -148,7 +154,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 AngularPositionServo wristServoWithoutGravity = new OnboardAngularPositionServo(
                         wristLogger, wristMech, m_controller);
 
-                wristServo = new OutboardGravityServo(wristLogger, wristServoWithoutGravity, 0, 0);
+                Gravity gravity = new Gravity(wristLogger, 0, 0);
+                Spring spring = new Spring(wristLogger);
+                wristServo = new OutboardGravityServo(
+                        wristLogger, wristServoWithoutGravity,
+                        (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
                 m_wristMech = wristMech;
 
                 m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));

@@ -16,6 +16,8 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardGravityServo;
+import org.team100.lib.motion.servo.OutboardGravityServo.Gravity;
+import org.team100.lib.motion.servo.OutboardGravityServo.Spring;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
@@ -96,7 +98,7 @@ public class Neo550Factory {
                 moduleLogger, sensor, proxy);
 
         RotaryMechanism rotaryMechanism = new RotaryMechanism(
-                moduleLogger, driveMotor, sensor, gearRatio, lowerLimit, upperLimit);
+                moduleLogger, driveMotor, encoder2, gearRatio, lowerLimit, upperLimit);
         Profile100 profile = new TrapezoidProfile100(1, 1, 0.01);
         ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
         ProfiledController controller = new IncrementalProfiledController(
@@ -104,8 +106,10 @@ public class Neo550Factory {
 
         OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
                 moduleLogger, rotaryMechanism, controller);
-        return new OutboardGravityServo(
-                parent, servo, gravityNm, offsetRad);
+        Gravity gravity = new Gravity(parent, gravityNm, offsetRad);
+        Spring spring = new Spring(parent);
+        return new OutboardGravityServo(parent, servo,
+                (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
     }
 
     public static LinearVelocityServo getNEO550VelocityServo(
@@ -153,8 +157,10 @@ public class Neo550Factory {
 
         OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
                 parent, rotaryMechanism, controller);
-        return new OutboardGravityServo(
-                parent, servo, 1, 1);
+        Gravity gravity = new Gravity(parent, 1, 1);
+        Spring spring = new Spring(parent);
+        return new OutboardGravityServo(parent, servo,
+                (x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
     }
 
     public static RotaryMechanism simulatedRotaryMechanism(LoggerFactory parent) {

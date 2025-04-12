@@ -50,7 +50,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
             ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        // m_sensor = sensor;
         m_controller = controller;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
