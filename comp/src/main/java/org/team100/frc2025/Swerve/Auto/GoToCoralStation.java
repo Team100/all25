@@ -3,9 +3,7 @@ package org.team100.frc2025.Swerve.Auto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Swerve.SemiAuto.Navigator;
-import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.commands.drivetrain.FieldConstants;
 import org.team100.lib.commands.drivetrain.FieldConstants.CoralStation;
 import org.team100.lib.controller.drivetrain.SwerveController;

@@ -1,6 +1,5 @@
 package org.team100.lib.profile.roadrunner;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -12,9 +11,6 @@ import java.util.List;
 // import com.acmerobotics.roadrunner.profile.MotionSegment;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.profile.roadrunner.MotionProfile;
-import org.team100.lib.profile.roadrunner.MotionSegment;
-import org.team100.lib.profile.roadrunner.MotionState;
 
 public class MotionProfileTest {
     private static final double kDelta = 0.001;
@@ -36,6 +32,7 @@ public class MotionProfileTest {
         assertEquals(1, s1.v(), kDelta);
 
     }
+
     @Test
     void testReverse() {
         List<MotionSegment> segments = new ArrayList<MotionSegment>();

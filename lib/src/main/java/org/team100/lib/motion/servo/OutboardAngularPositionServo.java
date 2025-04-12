@@ -3,7 +3,6 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
@@ -23,8 +22,6 @@ import edu.wpi.first.math.MathUtil;
  * delegated to the mechanism.
  * 
  * Must be used with a combined encoder, to "zero" the motor encoder.
- * 
- * 
  */
 public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kPositionTolerance = 0.05;

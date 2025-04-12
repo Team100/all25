@@ -3,10 +3,7 @@ package org.team100.lib.profile.incremental;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.Profile100.ResultWithETA;
-import org.team100.lib.profile.incremental.TrapezoidProfile100;
-import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
