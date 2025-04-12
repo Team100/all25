@@ -31,7 +31,6 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     private final DoubleLogger m_log_u_TOTAL;
     private final DoubleLogger m_log_error;
     private final DoubleLogger m_log_velocity_error;
-    
 
     public OnboardLinearDutyCyclePositionServo(
             LoggerFactory parent,
@@ -68,16 +67,13 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
     }
 
     @Override
-    public void setPositionWithVelocity(
-            double goalM,
-            double goalVelocityM_S,
-            double feedForwardTorqueNm) {
+    public void setPosition(double goalM, double feedForwardTorqueNm) {
         final OptionalDouble position = getPosition();
         final OptionalDouble velocity = getVelocity();
         if (position.isEmpty() || velocity.isEmpty())
             return;
         final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        final Model100 goal = new Model100(goalM, goalVelocityM_S);
+        final Model100 goal = new Model100(goalM, 0);
         final ProfiledController.Result result = m_controller.calculate(measurement, goal);
         final Control100 setpoint = result.feedforward();
         final double u_FF = m_kV * setpoint.v();
@@ -92,11 +88,6 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
         m_log_u_TOTAL.log(() -> u_TOTAL);
         m_log_error.log(() -> setpoint.x() - position.getAsDouble());
         m_log_velocity_error.log(() -> setpoint.v() - velocity.getAsDouble());
-    }
-
-    @Override
-    public void setPosition(double goalM, double feedForwardTorqueNm) {
-        setPositionWithVelocity(goalM, 0, feedForwardTorqueNm);
     }
 
     @Override

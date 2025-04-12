@@ -68,7 +68,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     }
 
     @Override
-    public void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm) {
+    public void setPosition(double goalM, double feedForwardTorqueNm) {
 
         final OptionalDouble position = getPosition();
         final OptionalDouble velocity = getVelocity();
@@ -76,7 +76,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
             return;
         final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
 
-        m_goal = new Model100(goalM, goalVelocityM_S);
+        m_goal = new Model100(goalM, 0);
         final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
         m_setpoint = result.feedforward();
 
@@ -108,11 +108,6 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_setpoint.log(() -> m_setpoint);
-    }
-
-    @Override
-    public void setPosition(double goalM, double feedForwardTorqueNm) {
-        setPositionWithVelocity(goalM, 0.0, feedForwardTorqueNm);
     }
 
     @Override
@@ -151,10 +146,6 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     @Override
     public void close() {
         m_mechanism.close();
-    }
-
-    public Control100 getSetpoint() {
-        return m_setpoint;
     }
 
     @Override

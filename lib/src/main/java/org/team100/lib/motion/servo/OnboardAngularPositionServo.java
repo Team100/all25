@@ -95,7 +95,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     @Override
     public void setPosition(double goalRad, double feedForwardTorqueNm) {
 
-        final OptionalDouble position = getPosition();
+        final OptionalDouble position = m_mechanism.getPositionRad();
         // note the mechanism uses the motor's internal encoder which may be only
         // approximately attached to the the output, via backlash and slack, so these
         // two measurements might not be entirely consistent.
@@ -107,6 +107,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             Util.warn("Broken sensor!");
             return;
         }
+        // we seem to always use zero goal velocity
         m_goal = new Model100(goalRad, 0);
 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
@@ -118,7 +119,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // note u_FF is rad/s, so a big number, u_FB should also be a big number.
         final double u_FB = result.feedback();
 
-        final double u_TOTAL = (u_FB) + u_FF;
+        final double u_TOTAL = u_FB + u_FF;
 
         m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
 

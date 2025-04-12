@@ -62,11 +62,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final RotaryMechanism m_wristMech;
     private final Torque m_gravityAndSpringTorque;
     private final ProfiledController m_controller;
-    private final BooleanLogger safeLogger;
+    private final BooleanLogger m_log_safe;
     private final Runnable m_viz;
 
     public Wrist2(LoggerFactory parent, int wristID) {
-        LoggerFactory wristLogger = parent.child(this);
+        LoggerFactory logger = parent.child(this);
 
         int wristSupplyLimit = 60;
         int wristStatorLimit = 90;
@@ -78,40 +78,42 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
-        Feedback100 wristFeedback = new FullStateFeedback(wristLogger,
-                4.0, 0.11, x -> x, 0.05, 0.05);
-
-        // TrapezoidProfile100 wristProfile = new TrapezoidProfile100(35, 15,
-        // kPositionTolerance);
+        Feedback100 wristFeedback = new FullStateFeedback(
+                logger, 4.0, 0.11, x -> x, 0.05, 0.05);
 
         double maxVel = 40;
         double maxAccel = 40;
         double maxJerk = 70;
 
-        safeLogger = wristLogger.booleanLogger(Level.TRACE, "Wrist Safe Condition");
+        JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
+
+        // TrapezoidProfile100 profile = new TrapezoidProfile100(35, 15,
+        // kPositionTolerance);
+
+        m_log_safe = logger.booleanLogger(Level.TRACE, "Wrist Safe Condition");
 
         switch (Identity.instance) {
             case COMP_BOT -> {
 
-                Kraken6Motor wristMotor = new Kraken6Motor(wristLogger, wristID, MotorPhase.REVERSE,
+                Kraken6Motor wristMotor = new Kraken6Motor(logger, wristID, MotorPhase.REVERSE,
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
                 // this reads the wrist angle directly.
                 RotaryPositionSensor sensor = new AS5048RotaryPositionSensor(
-                        wristLogger,
+                        logger,
                         5,
                         0.135541, // 0.346857, //0.317012, //0.227471, //0.188726
                         EncoderDrive.DIRECT,
                         false);
 
-                m_controller = new TimedProfiledController(parent,
-                        new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false),
+                m_controller = new TimedProfiledController(logger,
+                        profile,
                         wristFeedback, x -> x, 0.01, 0.01); // WAS 0.05
 
-                IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(wristLogger, wristMotor);
+                IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(logger, wristMotor);
 
                 m_wristMech = new RotaryMechanism(
-                        wristLogger,
+                        logger,
                         wristMotor,
                         sensor,
                         GEAR_RATIO,
@@ -130,13 +132,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // IncrementalProfiledController(wristProfile, wristFeedback, x -> x,
                 // kPositionTolerance, kPositionTolerance);
 
-                wristServo = new OnboardAngularPositionServo(
-                        wristLogger, m_wristMech, m_controller);
+                wristServo = new OnboardAngularPositionServo(logger, m_wristMech, m_controller);
 
                 wristServo.reset();
 
-                Gravity gravity = new Gravity(wristLogger, 9.0, -0.451230);
-                Spring spring = new Spring(wristLogger);
+                Gravity gravity = new Gravity(logger, 9.0, -0.451230);
+                Spring spring = new Spring(logger);
                 m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
 
                 m_controller.init(new Model100(sensor.getPositionRad().orElseThrow(), 0));
@@ -144,23 +145,21 @@ public class Wrist2 extends SubsystemBase implements Glassy {
             }
             default -> {
 
-                SimulatedBareMotor motor = new SimulatedBareMotor(wristLogger, 100);
-                SimulatedBareEncoder encoder = new SimulatedBareEncoder(wristLogger, motor);
+                SimulatedBareMotor motor = new SimulatedBareMotor(logger, 100);
+                SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, motor);
                 SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
-                        wristLogger, encoder, GEAR_RATIO, () -> 0);
+                        logger, encoder, GEAR_RATIO, () -> 0);
                 RotaryMechanism wristMech = new RotaryMechanism(
-                        wristLogger, motor, sensor,
+                        logger, motor, sensor,
                         GEAR_RATIO, kWristMinimumPosition, kWristMaximumPosition);
 
-                JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
-                m_controller = new TimedProfiledController(wristLogger,
+                m_controller = new TimedProfiledController(logger,
                         profile, wristFeedback, x -> x, 0.1, 0.05);
 
-                wristServo = new OnboardAngularPositionServo(
-                        wristLogger, wristMech, m_controller);
+                wristServo = new OnboardAngularPositionServo(logger, wristMech, m_controller);
 
-                Gravity gravity = new Gravity(wristLogger, 0, 0);
-                Spring spring = new Spring(wristLogger);
+                Gravity gravity = new Gravity(logger, 0, 0);
+                Spring spring = new Spring(logger);
                 m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
                 m_wristMech = wristMech;
 
@@ -179,7 +178,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     @Override
     public void periodic() {
         wristServo.periodic();
-        safeLogger.log(() -> m_isSafe);
+        m_log_safe.log(() -> m_isSafe);
         m_viz.run();
     }
 

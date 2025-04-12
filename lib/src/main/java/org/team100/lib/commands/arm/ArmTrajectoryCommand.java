@@ -132,11 +132,11 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
 
         // position feedback
         final double u1_pos = m_lowerPosFeedback.calculate(
-                new Model100(measurement.get().th1, 0),
-                new Model100(r.th1, 0));
+                new Model100(measurement.get().th1(), 0),
+                new Model100(r.th1(), 0));
         final double u2_pos = m_upperPosFeedback.calculate(
-                new Model100(measurement.get().th2, 0),
-                new Model100(r.th2, 0));
+                new Model100(measurement.get().th2(), 0),
+                new Model100(r.th2(), 0));
 
         // velocity reference
         final ArmAngles rdot = getThetaVelReference(desiredState, r);
@@ -144,16 +144,16 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         // feedforward velocity
         // this is a guess.
         final double kFudgeFactor = 3;
-        final double ff2 = rdot.th2 * kFudgeFactor;
-        final double ff1 = rdot.th1 * kFudgeFactor;
+        final double ff2 = rdot.th2() * kFudgeFactor;
+        final double ff1 = rdot.th1() * kFudgeFactor;
 
         // velocity feedback
         final double u1_vel = m_lowerVelFeedback.calculate(
-                new Model100(velocityMeasurement.get().th1, 0),
-                new Model100(rdot.th1, 0));
+                new Model100(velocityMeasurement.get().th1(), 0),
+                new Model100(rdot.th1(), 0));
         final double u2_vel = m_upperVelFeedback.calculate(
-                new Model100(velocityMeasurement.get().th2, 0),
-                new Model100(rdot.th2, 0));
+                new Model100(velocityMeasurement.get().th2(), 0),
+                new Model100(rdot.th2(), 0));
 
         // u is really velocity
         final double u1 = ff1 + u1_pos + u1_vel;
@@ -165,8 +165,8 @@ public class ArmTrajectoryCommand extends Command implements Glassy {
         m_log_Lower_Controller_Output.log(() -> u1_pos);
         m_log_Upper_FF.log(() -> ff2);
         m_log_Upper_Controller_Output.log(() -> u2_pos);
-        m_log_Lower_Ref.log(() -> r.th1);
-        m_log_Upper_Ref.log(() -> r.th2);
+        m_log_Lower_Ref.log(r::th1);
+        m_log_Upper_Ref.log(r::th2);
         m_log_Output_Upper.log(() -> u1);
         m_log_Output_Lower.log(() -> u2);
     }

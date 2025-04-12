@@ -2,24 +2,13 @@ package org.team100.lib.motion.arm;
 
 /**
  * Represents a 2DOF serial arm.
+ * 
+ * Absolute angles in radians, counting out from the grounded joint.
+ * 
+ * @param th1 proximal, absolute, radians
+ * @param th2 distal, absolute, radians
  */
-public class ArmAngles {
-    /** absolute proximal radians */
-    public final double th1;
-    /** absolute distal radians */
-    public final double th2;
-
-    /**
-     * Absolute angles in radians, counting out from the grounded joint.
-     * 
-     * @param th1 proximal
-     * @param th2 distal
-     */
-    public ArmAngles(double th1, double th2) {
-        this.th1 = th1;
-        this.th2 = th2;
-    }
-
+public record ArmAngles(double th1, double th2) {
     @Override
     public String toString() {
         return "ArmAngles [th1=" + th1 + ", th2=" + th2 + "]";

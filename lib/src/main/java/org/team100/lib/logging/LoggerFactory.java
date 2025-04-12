@@ -797,8 +797,8 @@ public class LoggerFactory {
             if (!allow(m_level))
                 return;
             ArmAngles val = vals.get();
-            m_th1Logger.log(() -> val.th1);
-            m_th2Logger.log(() -> val.th2);
+            m_th1Logger.log(val::th1);
+            m_th2Logger.log(val::th2);
         }
     }
 

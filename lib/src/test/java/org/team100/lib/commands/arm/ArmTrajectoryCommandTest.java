@@ -34,7 +34,7 @@ class ArmTrajectoryCommandTest implements Timeless {
                 armKinematicsM,
                 goal);
         command.initialize();
-        assertEquals(0, armSubSystem.getPosition().get().th1, kDelta);
+        assertEquals(0, armSubSystem.getPosition().get().th1(), kDelta);
         stepTime();
         command.execute();
         // the goal is impossible so this is always finished.
@@ -66,8 +66,8 @@ class ArmTrajectoryCommandTest implements Timeless {
         }
         assertTrue(command.isFinished());
         // command tolerance is 0.02
-        assertEquals(0, armSubSystem.getPosition().get().th1, 0.02);
-        assertEquals(Math.PI / 2, armSubSystem.getPosition().get().th2, 0.02);
+        assertEquals(0, armSubSystem.getPosition().get().th1(), 0.02);
+        assertEquals(Math.PI / 2, armSubSystem.getPosition().get().th2(), 0.02);
         command.end(false);
         armSubSystem.close();
     }
@@ -85,8 +85,8 @@ class ArmTrajectoryCommandTest implements Timeless {
         Trajectory.State s = new Trajectory.State();
         s.poseMeters = new Pose2d(1, 1, Rotation2d.kZero);
         ArmAngles r = command.getThetaPosReference(s);
-        assertEquals(0, r.th1, kDelta);
-        assertEquals(Math.PI / 2, r.th2, kDelta);
+        assertEquals(0, r.th1(), kDelta);
+        assertEquals(Math.PI / 2, r.th2(), kDelta);
     }
 
     @Test
@@ -105,13 +105,13 @@ class ArmTrajectoryCommandTest implements Timeless {
         s.velocityMetersPerSecond = 1;
         ArmAngles r = command.getThetaPosReference(s);
         // proximal straight up
-        assertEquals(0, r.th1, kDelta);
+        assertEquals(0, r.th1(), kDelta);
         // distal at +90
-        assertEquals(Math.PI / 2, r.th2, kDelta);
+        assertEquals(Math.PI / 2, r.th2(), kDelta);
         ArmAngles rdot = command.getThetaVelReference(s, r);
         // proximal does not move
-        assertEquals(0, rdot.th1, kDelta);
+        assertEquals(0, rdot.th1(), kDelta);
         // distal should be moving negative
-        assertEquals(-1, rdot.th2, kDelta);
+        assertEquals(-1, rdot.th2(), kDelta);
     }
 }
