@@ -10,6 +10,8 @@ import org.team100.lib.state.Control100;
  */
 public interface AngularPositionServo extends Glassy {
     /**
+     * Zeros controller errors, sets setpoint to current position.
+     *
      * It is essential to call this after a period of disuse, to prevent transients.
      * 
      * To prevent oscillation, the previous setpoint is used to compute the profile,
@@ -22,31 +24,15 @@ public interface AngularPositionServo extends Glassy {
     void setTorqueLimit(double torqueNm);
 
     /**
-     * The angle measure here *does not* wind up, so 0 and 2pi are the same.
+     * Sets the goal, updates the setpoint to the "next step" value towards it,
+     * gives the setpoint to the outboard mechanism.
      * 
-     * The measurements here are output measurements, e.g. shaft radians, not motor
-     * radians.
-     * 
-     * @param goalRad             radians
-     * @param feedForwardTorqueNm used for gravity compensation
+     * @param goalRad             The goal angle here wraps within [-pi, pi], using
+     *                            output measurements, e.g. shaft radians, not motor
+     *                            radians
+     * @param feedForwardTorqueNm used for gravity or spring compensation
      */
     void setPosition(double goalRad, double feedForwardTorqueNm);
-
-    /**
-     * The angle measure here *does not* wind up, so 0 and 2pi are the same.
-     * 
-     * The measurements here are output measurements, e.g. shaft radians, not motor
-     * radians.
-     * 
-     * TODO: remove the velocity argument, we never use it.
-     * 
-     * @param goalRad             radians
-     * @param goalVelocityRad_S   rad/s
-     * @param feedForwardTorqueNm used for gravity compensation
-     */
-    void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm);
-
-    void setStaticTorque(double feedForwardTorqueNm);
 
     /**
      * Value should be updated in Robot.robotPeriodic().

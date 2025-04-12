@@ -25,17 +25,22 @@ public class OutboardGravityServo implements Glassy {
     }
 
     public void setPosition(double goalRad) {
+        double torque = torque();
+        m_servo.setPosition(goalRad, torque);
+    }
+
+    private double torque() {
         OptionalDouble optPos = getPositionRad();
         if (optPos.isEmpty()) {
             Util.warn("GravityServo: Broken sensor!");
-            return;
+            // zero is an acceptable torque value in this case.
+            return 0;
         }
         double mechanismPositionRad = optPos.getAsDouble();
-        m_servo.setPositionWithVelocity(
-                goalRad, 0, m_torque.applyAsDouble(mechanismPositionRad));
+        return m_torque.applyAsDouble(mechanismPositionRad);
     }
 
-    /** Zeros controller errors, sets setpoint to current position. */
+
     public void reset() {
         m_servo.reset();
     }

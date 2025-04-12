@@ -92,18 +92,9 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setTorqueLimit(torqueNm);
     }
 
-    public void setStaticTorque(double feedForwardTorqueNm) {
-        m_mechanism.setVelocity(0, 0, feedForwardTorqueNm);
-    }
-
-    /**
-     * Sets the goal, updates the setpoint to the "next step" value towards it.
-     */
     @Override
-    public void setPositionWithVelocity(
-            double goalRad,
-            double goalVelocityRad_S,
-            double feedForwardTorqueNm) {
+    public void setPosition(double goalRad, double feedForwardTorqueNm) {
+
         final OptionalDouble position = getPosition();
         // note the mechanism uses the motor's internal encoder which may be only
         // approximately attached to the the output, via backlash and slack, so these
@@ -116,7 +107,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
             Util.warn("Broken sensor!");
             return;
         }
-        m_goal = new Model100(goalRad, goalVelocityRad_S);
+        m_goal = new Model100(goalRad, 0);
 
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
 
@@ -140,11 +131,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_TOTAL.log(() -> u_TOTAL);
         m_log_error.log(() -> setpointRad.x() - position.getAsDouble());
         m_log_velocity_error.log(() -> setpointRad.v() - velocity.getAsDouble());
-    }
-
-    @Override
-    public void setPosition(double goalRad, double feedForwardTorqueNm) {
-        setPositionWithVelocity(goalRad, 0.0, feedForwardTorqueNm);
     }
 
     /**

@@ -33,7 +33,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
 
     public UnprofiledOutboardAngularPositionServo(
             LoggerFactory parent,
-            RotaryMechanism mech){
+            RotaryMechanism mech) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
@@ -55,18 +55,8 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_mechanism.setDutyCycle(dutyCycle);
     }
 
-    /**
-     * Sets the goal, updates the setpoint to the "next step" value towards it,
-     * gives the setpoint to the outboard mechanism.
-     * 
-     * The outboard measurement does not wrap, but the goal does.
-     * 
-     * @param goalRad             [-pi, pi]
-     * @param goalVelocityRad_S
-     * @param feedForwardTorqueNm
-     */
     @Override
-    public void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm) {
+    public void setPosition(double goalRad, double feedForwardTorqueNm) {
 
         // this is the absolute 1:1 position of the mechanism.
         OptionalDouble posOpt = m_mechanism.getPositionRad();
@@ -80,18 +70,13 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         // choose a goal which is near the measurement
         // goal is [-inf, inf]
         m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
-                goalVelocityRad_S);
+                0);
 
-        m_mechanism.setPosition(m_goal.x(), m_goal.v(), 0, feedForwardTorqueNm);
+        m_mechanism.setPosition(m_goal.x(), 0, 0, feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);
-    }
-
-    @Override
-    public void setPosition(double goal, double feedForwardTorqueNm) {
-        setPositionWithVelocity(goal, 0.0, feedForwardTorqueNm);
     }
 
     /** Value is updated in Robot.robotPeriodic(). */
@@ -166,9 +151,4 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     public void periodic() {
         m_mechanism.periodic();
     }
-
-    @Override
-    public void setStaticTorque(double feedForwardTorqueNm) {
-    }
-
 }
