@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.reference.Setpoints1d;
 
 /**
  * Angular position control, e.g. for swerve steering axes or arm axes.
@@ -23,6 +24,8 @@ public interface AngularPositionServo extends Glassy {
     void setTorqueLimit(double torqueNm);
 
     /**
+     * TODO: remove this.
+     * 
      * Sets the goal, updates the setpoint to the "next step" value towards it,
      * gives the setpoint to the outboard mechanism.
      * 
@@ -31,7 +34,10 @@ public interface AngularPositionServo extends Glassy {
      *                            radians
      * @param feedForwardTorqueNm used for gravity or spring compensation
      */
-    void setPosition(double goalRad, double feedForwardTorqueNm);
+    void setPositionGoal(double goalRad, double feedForwardTorqueNm);
+
+    /** No profile here. */
+    void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm);
 
     /**
      * Value should be updated in Robot.robotPeriodic().

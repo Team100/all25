@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.profile.incremental.IncrementalProfile;
+import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -35,7 +36,7 @@ import edu.wpi.first.math.MathUtil;
 public class IncrementalProfiledController implements ProfiledController, Glassy {
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
-    private final IncrementalProfile m_profile;
+    private final IncrementalProfileReference1d m_reference;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
     private final double m_positionTolerance;
@@ -49,12 +50,12 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
 
     public IncrementalProfiledController(
             LoggerFactory logger,
-            IncrementalProfile profile,
+            IncrementalProfileReference1d reference,
             Feedback100 feedback,
             DoubleUnaryOperator modulus,
             double positionTolerance,
             double velocityTolerance) {
-        m_profile = profile;
+        m_reference = reference;
         m_feedback = feedback;
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
@@ -74,6 +75,7 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         m_setpoint = measurement;
         m_log_setpoint.log(() -> m_setpoint);
         m_feedback.reset();
+        m_reference.init(measurement);
     }
 
     /**
@@ -86,6 +88,8 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
      * Feedforward is based on the profile at the end of the next time step.
      * 
      * This remembers the feedforward and uses it on the next step.
+     * 
+     * TODO: remove goal
      * 
      * @param measurement current-instant measurement
      * @param goal        final desired state
@@ -109,7 +113,8 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step.
-        Control100 u_FF = m_profile.calculate(kDt, m_setpoint.control(), m_goal);
+        // Control100 u_FF = m_reference.calculate(kDt, m_setpoint.control(), m_goal);
+        Control100 u_FF = m_reference.get().next();
         m_log_control.log(() -> u_FF);
 
         m_setpoint = u_FF.model();

@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.profile.timed.TimedProfile;
+import org.team100.lib.reference.TimedProfileReference1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Takt;
@@ -22,7 +23,7 @@ import org.team100.lib.util.Util;
 public class TimedProfiledController implements ProfiledController, Glassy {
     private static final boolean DEBUG = false;
 
-    private final TimedProfile m_profile;
+    private final TimedProfileReference1d m_reference;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
     private final double m_positionTolerance;
@@ -37,12 +38,12 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
     public TimedProfiledController(
             LoggerFactory logger,
-            TimedProfile profile,
+            TimedProfileReference1d reference,
             Feedback100 feedback,
             DoubleUnaryOperator modulus,
             double positionTolerance,
             double velocityTolerance) {
-        m_profile = profile;
+        m_reference = reference;
         m_feedback = feedback;
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
@@ -57,9 +58,9 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         if (DEBUG)
             Util.printf("TimedProfiledController init\n");
         m_startTimeS = Takt.get();
-        
+
         // if(m_setpoint != null && !m_setpoint.near(measurement, 0.1, 0.1)){
-            m_goal = null;
+        m_goal = null;
         // }
         m_setpoint = measurement;
         m_log_setpoint.log(() -> m_setpoint);
@@ -76,7 +77,7 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         if (m_goal == null || !m_goal.near(goal, m_velocityTolerance, m_positionTolerance)) {
             // if the goal has changed noticeably, recalculate.
             // use motionless measurement to avoid injecting velocity noise.
-            m_profile.init(new Control100(measurement.x(), 0), goal);
+            m_reference.init(new Model100(measurement.x(), 0));
             // use the goal nearest to the measurement.
             m_goal = new Model100(
                     m_modulus.applyAsDouble(goal.x() - measurement.x()) + measurement.x(),

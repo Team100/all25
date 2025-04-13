@@ -7,6 +7,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -31,6 +32,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
      */
     private Model100 m_goal = new Model100(0, 0);
 
+    /** TODO: add a modulus here */
     public UnprofiledOutboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech) {
@@ -56,7 +58,7 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
     }
 
     @Override
-    public void setPosition(double goalRad, double feedForwardTorqueNm) {
+    public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
 
         // this is the absolute 1:1 position of the mechanism.
         OptionalDouble posOpt = m_mechanism.getPositionRad();
@@ -75,6 +77,26 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_mechanism.setPosition(m_goal.x(), 0, 0, feedForwardTorqueNm);
 
         m_log_goal.log(() -> m_goal);
+        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+        m_log_measurement.log(() -> measurement);
+    }
+
+    /**
+     * set mechanism position passthrough, adjusting the setpoint to be close to the
+     * measurement.
+     * TODO: add configurable modulus
+     */
+    @Override
+    public void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        OptionalDouble posOpt = m_mechanism.getPositionRad();
+        if (posOpt.isEmpty())
+            return;
+        final double measurement = posOpt.getAsDouble();
+        m_mechanism.setPosition(
+                MathUtil.angleModulus(setpoint.next().x() - measurement) + measurement,
+                setpoint.next().v(),
+                setpoint.next().a(),
+                feedForwardTorqueNm);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);
     }

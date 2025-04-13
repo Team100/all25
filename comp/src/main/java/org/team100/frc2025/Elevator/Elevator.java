@@ -5,6 +5,8 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
+import org.team100.lib.controller.simple.IncrementalProfiledController;
+import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.controller.simple.SelectProfiledController;
 import org.team100.lib.controller.simple.SelectProfiledController.ProfileChoice;
 import org.team100.lib.controller.simple.ZeroFeedback;
@@ -17,7 +19,10 @@ import org.team100.lib.motion.servo.OutboardLinearPositionServo;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
+import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.state.Model100;
 import org.team100.lib.util.PolledEnumChooser;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -39,11 +44,10 @@ public class Elevator extends SubsystemBase implements Glassy {
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
 
-    private final SelectProfiledController m_starboardController;
-    private final SelectProfiledController m_portController;
+    private final ProfiledController m_starboardController;
+    private final ProfiledController m_portController;
 
     private final Runnable m_viz;
-    private final PolledEnumChooser<ProfileChoice> m_profileChooser;
 
     private boolean m_isSafe = false;
 
@@ -53,7 +57,6 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     public Elevator(
             LoggerFactory parent,
-            Async async,
             int starboardID,
             int portID) {
 
@@ -94,12 +97,9 @@ public class Elevator extends SubsystemBase implements Glassy {
         table.put(0.0, 0.5);
         table.put(0.0, 0.5);
 
-        m_profileChooser = new PolledEnumChooser<>(
-                async,
-                ProfileChoice.class,
-                "elevator profile",
-                ProfileChoice.TRAPEZOID_100);
-
+        Profile100 profile = new TrapezoidProfile100(maxVel, maxAccel, kPositionTolerance);
+        // TODO: goal here is wrong
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(0, 0));
         switch (Identity.instance) {
             case COMP_BOT -> {
                 Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.REVERSE,
@@ -111,18 +111,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 // TODO: the port and stbd profiles should be the same, i.e. a single chooser
                 // for both.
-                m_starboardController = new SelectProfiledController(
+                m_starboardController = new IncrementalProfiledController(
                         child,
+                        ref,
                         new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
                         x -> x,
-                        () -> stbdEncoder.getPositionRad().orElseThrow(),
-                        maxVel,
-                        maxAccel,
-                        stallAccel,
-                        maxJerk,
                         kPositionTolerance,
                         kVelocityTolerance);
-                m_profileChooser.register(m_starboardController::setDelegate);
 
                 LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
@@ -139,18 +134,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 Talon6Encoder portEncoder = new Talon6Encoder(portLogger, portMotor);
 
-                m_portController = new SelectProfiledController(
+                m_portController = new IncrementalProfiledController(
                         child,
+                        ref,
                         new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
                         x -> x,
-                        () -> portEncoder.getPositionRad().orElseThrow(),
-                        maxVel,
-                        maxAccel,
-                        stallAccel,
-                        maxJerk,
                         kPositionTolerance,
                         kVelocityTolerance);
-                m_profileChooser.register(m_portController::setDelegate);
 
                 LinearMechanism portMech = new LinearMechanism(
                         portMotor,
@@ -172,18 +162,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 SimulatedBareEncoder stbdEncoder = new SimulatedBareEncoder(starboardLogger, starboardMotor);
 
-                m_starboardController = new SelectProfiledController(
+                m_starboardController = new IncrementalProfiledController(
                         child,
+                        ref,
                         new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
                         x -> x,
-                        () -> stbdEncoder.getPositionRad().orElseThrow(),
-                        maxVel,
-                        maxAccel,
-                        stallAccel,
-                        maxJerk,
                         kPositionTolerance,
                         kVelocityTolerance);
-                m_profileChooser.register(m_starboardController::setDelegate);
 
                 LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
@@ -195,18 +180,13 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(portLogger, portMotor);
 
-                m_portController = new SelectProfiledController(
+                m_portController = new IncrementalProfiledController(
                         child,
+                        ref,
                         new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
                         x -> x,
-                        () -> portEncoder.getPositionRad().orElseThrow(),
-                        maxVel,
-                        maxAccel,
-                        stallAccel,
-                        maxJerk,
                         kPositionTolerance,
                         kVelocityTolerance);
-                m_profileChooser.register(m_portController::setDelegate);
 
                 LinearMechanism portMech = new LinearMechanism(
                         portMotor,
@@ -316,7 +296,6 @@ public class Elevator extends SubsystemBase implements Glassy {
     public void close() {
         m_portController.close();
         m_starboardController.close();
-        m_profileChooser.close();
     }
 
 }

@@ -9,11 +9,15 @@ import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.Profile100.ResultWithETA;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
+import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
+import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
-public class IncrementalProfiledControllerTest {
+public class IncrementalProfiledControllerTest implements Timeless {
+    private static final double kDelta = 0.001;
     private static final boolean DEBUG = false;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
@@ -72,7 +76,9 @@ public class IncrementalProfiledControllerTest {
      */
     @Test
     void test1() {
+        final Model100 goal = new Model100(1, 0);
         Profile100 p = new TrapezoidProfile100(2, 1, 0.01);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
 
         // Feedback100 f = new PIDFeedback(logger, 1, 0, 0, false, 0.05, 1);
 
@@ -81,9 +87,8 @@ public class IncrementalProfiledControllerTest {
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
         ProfiledController c = new IncrementalProfiledController(
-                logger, p, f, x -> x, 0.05, 0.05);
+                logger, ref, f, x -> x, 0.05, 0.05);
         final Model100 initial = new Model100(0, 0);
-        final Model100 goal = new Model100(1, 0);
 
         c.init(initial);
 
@@ -181,5 +186,43 @@ public class IncrementalProfiledControllerTest {
 
             sim.step(u);
         }
+    }
+
+    /** This covers refactoring the controller */
+    @Test
+    void actuallyTestSomething() {
+        TrapezoidProfileWPI p = new TrapezoidProfileWPI(2, 6);
+        Feedback100 fb = new PositionProportionalFeedback(1, 0.01);
+        ProfiledController c = new IncrementalProfiledController(logger, p, fb, x -> x, 0.01, 0.01);
+        Model100 setpoint = new Model100();
+        c.init(setpoint);
+        Model100 goal = new Model100(1, 0);
+
+        ProfiledController.Result result = c.calculate(setpoint, goal);
+        assertEquals(0, result.feedback(), kDelta);
+        assertEquals(0.0012, result.feedforward().x(), kDelta);
+        assertEquals(0.120, result.feedforward().v(), kDelta);
+        assertEquals(6.000, result.feedforward().a(), kDelta);
+
+        setpoint = result.feedforward().model();
+
+        // the incremental profile ignores the clock, so this advances
+        result = c.calculate(setpoint, goal);
+        assertEquals(0, result.feedback(), kDelta);
+        assertEquals(0.0048, result.feedforward().x(), kDelta);
+        assertEquals(0.240, result.feedforward().v(), kDelta);
+        assertEquals(6.000, result.feedforward().a(), kDelta);
+
+        setpoint = result.feedforward().model();
+
+        stepTime();
+
+        // clock is ignored, advance again.
+        result = c.calculate(setpoint, goal);
+        assertEquals(0, result.feedback(), kDelta);
+        assertEquals(0.0108, result.feedforward().x(), kDelta);
+        assertEquals(0.360, result.feedforward().v(), kDelta);
+        assertEquals(6.000, result.feedforward().a(), kDelta);
+
     }
 }

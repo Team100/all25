@@ -16,6 +16,9 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
+import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
@@ -36,19 +39,23 @@ public class OnboardAngularPositionServoTest {
         final Feedback100 turningFeedback2 = new PIDFeedback(
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
+
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(1, 0));
+
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
-                profile,
+                ref,
                 turningFeedback2,
                 MathUtil::angleModulus,
                 0.05,
                 0.05);
         OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
-                logger, mech, controller);
+                logger, mech, controller, turningFeedback2);
         servo.reset();
         // spin for 1 s
         for (int i = 0; i < 50; ++i) {
-            servo.setPosition(1, 0);
+            Setpoints1d setpoints = ref.get();
+            servo.setPositionSetpoint(setpoints, 0);
             if (kActuallyPrint)
                 Util.printf("i: %d position: %5.3f\n", i, turningMotor.position);
             // lets say we're on the profile.

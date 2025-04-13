@@ -16,6 +16,8 @@ import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.MathUtil;
 
@@ -43,15 +45,18 @@ class AnglePositionServoProfileTest {
         feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 
         Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
+            profile, new Model100(1, 0));
+
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
-                profile,
+                ref,
                 feedback2,
                 MathUtil::angleModulus,
                 0.05,
                 0.05);
         servo = new OnboardAngularPositionServo(
-                logger, mech, controller);
+                logger, mech, controller, feedback2);
         servo.reset();
     }
 

@@ -80,7 +80,7 @@ public abstract class SwerveModule100 implements Glassy {
             }
         }
         m_driveServo.setVelocityM_S(speed);
-        m_turningServo.setPosition(desiredAngle.getRadians(), 0);
+        m_turningServo.setPositionGoal(desiredAngle.getRadians(), 0);
         m_previousDesiredAngle = desiredAngle;
     }
 

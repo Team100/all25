@@ -28,7 +28,9 @@ public class TrapezoidProfileWPI implements Profile100 {
     @Override
     public Control100 calculate(double dt, Control100 initial, Model100 goal) {
         State result = m_profile.calculate(dt, new State(initial.x(), initial.v()), new State(goal.x(), goal.v()));
-        return new Control100(result.position, result.velocity, 0);
+        // WPI State doesn't have accel, so we calculate it.
+        double accel = (result.velocity - initial.v()) / dt;
+        return new Control100(result.position, result.velocity, accel);
     }
 
     @Override

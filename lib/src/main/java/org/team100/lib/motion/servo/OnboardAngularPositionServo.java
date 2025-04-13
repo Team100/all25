@@ -2,6 +2,7 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
+import org.team100.lib.controller.simple.Feedback100;
 import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -10,6 +11,7 @@ import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -26,6 +28,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     private final RotaryMechanism m_mechanism;
     final ProfiledController m_controller;
+    private final Feedback100 m_feedback;
 
     private final Model100Logger m_log_goal;
     private final DoubleLogger m_log_feedforward_torque;
@@ -44,10 +47,12 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     public OnboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
-            ProfiledController controller) {
+            ProfiledController controller,
+            Feedback100 feedback) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_controller = controller;
+        m_feedback = feedback;
 
         m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
@@ -93,7 +98,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public void setPosition(double goalRad, double feedForwardTorqueNm) {
+    public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
 
         final OptionalDouble position = m_mechanism.getPositionRad();
         // note the mechanism uses the motor's internal encoder which may be only
@@ -132,6 +137,36 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_TOTAL.log(() -> u_TOTAL);
         m_log_error.log(() -> setpointRad.x() - position.getAsDouble());
         m_log_velocity_error.log(() -> setpointRad.v() - velocity.getAsDouble());
+    }
+
+    /**
+     * set mechanism velocity use the current setpoint for feedback, and
+     * the next setpoint velocity as feedforward.
+     * 
+     * controller is not used here
+     */
+    @Override
+    public void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        OptionalDouble position = m_mechanism.getPositionRad();
+        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+        if (position.isEmpty() || velocity.isEmpty()) {
+            Util.warn("Broken sensor!");
+            return;
+        }
+        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+        double u_FB = m_feedback.calculate(measurement, setpoint.current().model());
+        double u_FF = setpoint.next().v();
+        double u_TOTAL = u_FB + u_FF;
+        m_mechanism.setVelocity(u_TOTAL, setpoint.next().a(), feedForwardTorqueNm);
+
+        m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
+        m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
+        m_log_control.log(() -> setpoint.next());
+        m_log_u_FB.log(() -> u_FB);
+        m_log_u_FF.log(() -> u_FF);
+        m_log_u_TOTAL.log(() -> u_TOTAL);
+        m_log_error.log(() -> setpoint.current().x() - position.getAsDouble());
+        m_log_velocity_error.log(() -> setpoint.current().v() - velocity.getAsDouble());
     }
 
     /**

@@ -21,6 +21,9 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
+import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -53,12 +56,17 @@ public class Climber extends SubsystemBase {
                         child, motor, sensor, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
                 Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
+
                 PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
+                // TODO: remove this
+                IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
+                        profile100, new Model100(1, 0));
 
+                // TODO: remove this
                 ProfiledController controller = new IncrementalProfiledController(
-                        child, profile100, feedback, x -> x, 0.05, 0.05);
+                        child, ref, feedback, x -> x, 0.05, 0.05);
 
-                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, controller);
+                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, controller, feedback);
             }
 
             default -> {
@@ -92,7 +100,11 @@ public class Climber extends SubsystemBase {
     }
 
     public void setAngle(double value) {
-        climberMotor.setPosition(value, 0);
+        climberMotor.setPositionGoal(value, 0);
+    }
+
+    public void setAngleSetpoint(Setpoints1d setpoint) {
+        climberMotor.setPositionSetpoint(setpoint, 0);
     }
 
     public double getAngle() {
@@ -105,7 +117,6 @@ public class Climber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
         if (climberMotor == null)
             return;
         climberMotor.periodic();

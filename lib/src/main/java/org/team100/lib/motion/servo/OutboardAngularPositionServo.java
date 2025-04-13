@@ -10,6 +10,7 @@ import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -84,7 +85,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public void setPosition(double goalRad, double feedForwardTorqueNm) {
+    public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
 
         // this is the absolute 1:1 position of the mechanism.
         OptionalDouble posOpt = m_mechanism.getPositionRad();
@@ -114,8 +115,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         // m_setpoint.v());
 
         // finally compute a new setpoint
-        final ProfiledController.Result result = m_controller.calculate(
-                m_setpoint.model(), m_goal);
+        final ProfiledController.Result result = m_controller.calculate(m_setpoint.model(), m_goal);
         m_setpoint = result.feedforward();
 
         m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
@@ -124,7 +124,27 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> measurement);
         m_log_setpoint.log(() -> m_setpoint);
+    }
 
+    /**
+     * set mechanism position passthrough, adjusting the setpoint to be close to the
+     * measurement.
+     * TODO: add configurable modulus
+     */
+    @Override
+    public void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        OptionalDouble posOpt = m_mechanism.getPositionRad();
+        if (posOpt.isEmpty())
+            return;
+        final double measurement = posOpt.getAsDouble();
+        m_mechanism.setPosition(
+                MathUtil.angleModulus(setpoint.next().x() - measurement) + measurement,
+                setpoint.next().v(),
+                setpoint.next().a(),
+                feedForwardTorqueNm);
+        m_log_setpoint.log(() -> setpoint.next());
+        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+        m_log_measurement.log(() -> measurement);
     }
 
     /**
@@ -134,7 +154,6 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     public OptionalDouble getPosition() {
         return m_mechanism.getPositionRad();
     }
-
 
     /**
      * Compares robotPeriodic-updated measurements to the setpoint,

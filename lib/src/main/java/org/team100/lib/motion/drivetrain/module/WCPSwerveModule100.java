@@ -29,6 +29,8 @@ import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.MathUtil;
 
@@ -250,9 +252,11 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             return new UnprofiledOutboardAngularPositionServo(parent, mech);
         }
         Profile100 profile = kinodynamics.getSteeringProfile();
+        // TODO: goal here is bad
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
         Feedback100 feedback = new ZeroFeedback(x -> x, 0.02, 0.02);
         ProfiledController controller = new IncrementalProfiledController(
-                parent, profile, feedback, MathUtil::angleModulus, 0.05, 0.05);
+                parent, ref, feedback, MathUtil::angleModulus, 0.05, 0.05);
         return new OutboardAngularPositionServo(
                 parent, mech, controller);
     }

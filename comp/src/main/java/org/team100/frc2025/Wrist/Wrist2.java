@@ -1,7 +1,5 @@
 package org.team100.frc2025.Wrist;
 
-import java.util.function.DoubleUnaryOperator;
-
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -30,6 +28,8 @@ import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
+import org.team100.lib.reference.Setpoints1d;
+import org.team100.lib.reference.TimedProfileReference1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -87,6 +87,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
         JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
 
+        // TODO: remove this, the goal is wrong
+        TimedProfileReference1d ref = new TimedProfileReference1d(profile, new Model100());
         // TrapezoidProfile100 profile = new TrapezoidProfile100(35, 15,
         // kPositionTolerance);
 
@@ -107,10 +109,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         false);
 
                 m_controller = new TimedProfiledController(logger,
-                        profile,
+                        ref,
                         wristFeedback, x -> x, 0.01, 0.01); // WAS 0.05
 
-                IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(logger, wristMotor);
+                // IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(logger, wristMotor);
 
                 m_wristMech = new RotaryMechanism(
                         logger,
@@ -132,7 +134,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // IncrementalProfiledController(wristProfile, wristFeedback, x -> x,
                 // kPositionTolerance, kPositionTolerance);
 
-                wristServo = new OnboardAngularPositionServo(logger, m_wristMech, m_controller);
+                wristServo = new OnboardAngularPositionServo(
+                        logger, m_wristMech, m_controller, wristFeedback);
 
                 wristServo.reset();
 
@@ -154,9 +157,10 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         GEAR_RATIO, kWristMinimumPosition, kWristMaximumPosition);
 
                 m_controller = new TimedProfiledController(logger,
-                        profile, wristFeedback, x -> x, 0.1, 0.05);
+                        ref, wristFeedback, x -> x, 0.1, 0.05);
 
-                wristServo = new OnboardAngularPositionServo(logger, wristMech, m_controller);
+                wristServo = new OnboardAngularPositionServo(
+                        logger, wristMech, m_controller, wristFeedback);
 
                 Gravity gravity = new Gravity(logger, 0, 0);
                 Spring spring = new Spring(logger);
@@ -205,17 +209,22 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     public void setAngle() {
         double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
-        wristServo.setPosition(0.2, torque);
+        wristServo.setPositionGoal(0.2, torque);
     }
 
     public void setAngleValue(double goal) {
         double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
-        wristServo.setPosition(goal, torque);
+        wristServo.setPositionGoal(goal, torque);
+    }
+
+    public void setAngleSetpoint(Setpoints1d setpoint) {
+        double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
+        wristServo.setPositionSetpoint(setpoint, torque);
     }
 
     public void setAngleSafe() {
         double torque = m_gravityAndSpringTorque.torque(wristServo.getPosition());
-        wristServo.setPosition(-0.1, torque);
+        wristServo.setPositionGoal(-0.1, torque);
     }
 
     public boolean getSafeCondition() {

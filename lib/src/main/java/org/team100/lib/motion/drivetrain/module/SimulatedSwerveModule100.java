@@ -19,6 +19,8 @@ import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
 import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.MathUtil;
 
@@ -88,15 +90,18 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 0.05, // note low tolerance
                 1);
         Profile100 profile = kinodynamics.getSteeringProfile();
+        // TODO: goal should not be here.
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
 
         ProfiledController controller = new IncrementalProfiledController(
-                parent,
-                profile, turningPositionFeedback, MathUtil::angleModulus,
+                parent, ref,
+                turningPositionFeedback, MathUtil::angleModulus,
                 0.05, 0.05);
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,
                 turningMech,
-                controller);
+                controller,
+                turningPositionFeedback);
         turningServo.reset();
         return turningServo;
     }
