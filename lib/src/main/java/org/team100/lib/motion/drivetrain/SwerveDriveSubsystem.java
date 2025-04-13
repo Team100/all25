@@ -198,6 +198,7 @@ public class SwerveDriveSubsystem extends SubsystemBase implements Glassy, Drive
         m_stateSupplier.reset();
     }
 
+    @Override
     public void resetLimiter() {
         m_limiter.updateSetpoint(getVelocity());
 

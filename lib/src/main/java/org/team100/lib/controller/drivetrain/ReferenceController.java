@@ -8,11 +8,7 @@ import org.team100.lib.reference.SwerveReference;
 import org.team100.lib.util.Util;
 
 /**
- * Drives based on a reference time series.
- * 
- * If the current reference velocity is zero, this waits a bit for the wheels to
- * align to the next reference direction, eliminating the little wiggle that
- * happens with uncoordinated steer/drive commands.
+ * Actuates the drivetrain based on a SwerveReference.
  * 
  * The lifespan of this object is intended to be a single "playback" of a
  * trajectory, so create it in Command.initialize().
