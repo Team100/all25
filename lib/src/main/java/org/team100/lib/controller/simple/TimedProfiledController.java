@@ -99,7 +99,9 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         double u_FB = m_feedback.calculate(measurement, m_setpoint);
 
         // Profile result is for the next time step, LOOP_PERIOD from now.
-        Control100 u_FF = m_profile.sample(progress() + TimedRobot100.LOOP_PERIOD_S);
+        // Control100 u_FF = m_profile.sample(progress() + TimedRobot100.LOOP_PERIOD_S);
+        Control100 u_FF = m_reference.get().next();
+
         m_log_control.log(() -> u_FF);
         m_setpoint = u_FF.model();
         m_log_setpoint.log(() -> m_setpoint);
@@ -109,7 +111,7 @@ public class TimedProfiledController implements ProfiledController, Glassy {
     @Override
     public boolean profileDone() {
         // to tell if a timed profile is done, look at the timer.
-        return progress() >= m_profile.duration();
+        return progress() >= m_reference.duration();
     }
 
     @Override

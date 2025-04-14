@@ -34,6 +34,10 @@ public class TimedProfileReference1d {
                 m_profile.sample(progress + TimedRobot100.LOOP_PERIOD_S));
     }
 
+    public double duration() {
+        return m_profile.duration();
+    }
+
     private double progress() {
         return Takt.get() - m_startTimeS;
     }

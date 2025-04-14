@@ -118,7 +118,7 @@ class AngularPositionProfileTest implements Timeless {
         sensor.angle += motor.velocity * TimedRobot100.LOOP_PERIOD_S;
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
-            servo.setPosition(1, 0);
+            servo.setPositionGoal(1, 0);
             stepTime();
         }
         // useful to fix up the examples above

@@ -14,7 +14,7 @@ import org.team100.lib.util.Takt;
  */
 public class IncrementalProfileReference1d {
     private final IncrementalProfile m_profile;
-    private final Model100 m_goal;
+    protected Model100 m_goal;
     private double m_currentInstant;
     private Setpoints1d m_currentSetpoint;
 
@@ -41,6 +41,8 @@ public class IncrementalProfileReference1d {
     }
 
     private Setpoints1d advance(Control100 newCurrent) {
+        if (m_goal == null)
+            throw new IllegalStateException("goal must be set");
         Control100 next = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, newCurrent, m_goal);
         return new Setpoints1d(newCurrent, next);
     }

@@ -1,14 +1,11 @@
 package org.team100.frc2025.Elevator;
 
-import org.team100.lib.async.Async;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.controller.simple.SelectProfiledController;
-import org.team100.lib.controller.simple.SelectProfiledController.ProfileChoice;
 import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
@@ -23,7 +20,6 @@ import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
-import org.team100.lib.util.PolledEnumChooser;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

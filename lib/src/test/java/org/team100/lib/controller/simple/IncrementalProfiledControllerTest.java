@@ -52,17 +52,18 @@ public class IncrementalProfiledControllerTest implements Timeless {
 
     @Test
     void test2() {
+        Model100 goal = new Model100(0.1, 0);
         Profile100 p = new TrapezoidProfile100(100, 100, 0.01);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
         // Profile100 p = new ProfileWPI(100, 100);
         final double k1 = 5.0;
         final double k2 = 1.0;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
 
         ProfiledController controller = new IncrementalProfiledController(
-                logger, p, f, x -> x, 0.05, 0.05);
+                logger, ref, f, x -> x, 0.05, 0.05);
         Model100 measurement = new Model100(0, 0);
         controller.init(measurement);
-        Model100 goal = new Model100(0.1, 0);
         ProfiledController.Result result = controller.calculate(measurement, goal);
         // this is for the *next* timestep so there should be non-zero velocity.
         assertEquals(2, result.feedforward().v(), 1e-12);
@@ -191,12 +192,14 @@ public class IncrementalProfiledControllerTest implements Timeless {
     /** This covers refactoring the controller */
     @Test
     void actuallyTestSomething() {
+        Model100 goal = new Model100(1, 0);
         TrapezoidProfileWPI p = new TrapezoidProfileWPI(2, 6);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
         Feedback100 fb = new PositionProportionalFeedback(1, 0.01);
-        ProfiledController c = new IncrementalProfiledController(logger, p, fb, x -> x, 0.01, 0.01);
+        ProfiledController c = new IncrementalProfiledController(
+                logger, ref, fb, x -> x, 0.01, 0.01);
         Model100 setpoint = new Model100();
         c.init(setpoint);
-        Model100 goal = new Model100(1, 0);
 
         ProfiledController.Result result = c.calculate(setpoint, goal);
         assertEquals(0, result.feedback(), kDelta);

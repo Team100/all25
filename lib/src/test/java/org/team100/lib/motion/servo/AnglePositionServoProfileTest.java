@@ -91,7 +91,7 @@ class AnglePositionServoProfileTest {
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
             // observe the current instant and set the output for the next step
-            servo.setPosition(1, 0);
+            servo.setPositionGoal(1, 0);
             // trapezoid integral over the step
             sensor.angle += 0.5 * (motor.velocity + previousMotorSpeed) * 0.02;
             previousMotorSpeed = motor.velocity;
