@@ -1,5 +1,6 @@
 package org.team100.lib.controller.simple;
 
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -35,7 +36,10 @@ public interface ProfiledController {
      * @param measurement current-instant measurement
      * @param goal        final desired state
      */
-    Result calculate(Model100 measurement, Model100 goal);
+    // Result calculate(Model100 measurement, Model100 goal);
+
+    /** now the controller just does feedback and feedforward, it doesn't know about goals. */
+    Result calculate(Model100 measurement, Setpoints1d setpoint);
 
     /**
      * The profile is at the goal. The measurement may not be. This is useful for

@@ -38,7 +38,8 @@ public class TimedProfiledControllerTest implements Timeless {
 
         for (int i = 0; i < 100; ++i) {
             stepTime();
-            ProfiledController.Result result = c.calculate(setpoint, goal);
+            Setpoints1d setpoints = ref.get();
+            ProfiledController.Result result = c.calculate(setpoint, setpoints);
             Control100 ff = result.feedforward();
             setpoint = ff.model();
             if (DEBUG)
@@ -57,6 +58,8 @@ public class TimedProfiledControllerTest implements Timeless {
                 ref, wristFeedback, x -> x, 0.01, 0.01);
 
         Model100 setpoint = new Model100();
+        ref.init(setpoint);
+        // TODO: ???
         c.init(setpoint);
 
         for (int i = 0; i < 100; ++i) {
@@ -72,14 +75,16 @@ public class TimedProfiledControllerTest implements Timeless {
     /** This covers refactoring the controller */
     @Test
     void actuallyTestSomething() {
+        Model100 setpoint = new Model100();
         Model100 goal = new Model100(1, 0);
         TimedProfile p = new JerkLimitedProfile100(2, 6, 25, false);
         TimedProfileReference1d ref = new TimedProfileReference1d(p, goal);
+        ref.init(setpoint);
         Feedback100 fb = new PositionProportionalFeedback(1, 0.01);
         ProfiledController c = new TimedProfiledController(logger, ref, fb, x -> x, 0.01, 0.01);
-        Model100 setpoint = new Model100();
         c.init(setpoint);
-        ProfiledController.Result result = c.calculate(setpoint, goal);
+        Setpoints1d setpoints = ref.get();
+        ProfiledController.Result result = c.calculate(setpoints.current().model(), setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.0000333333333, result.feedforward().x(), kDelta);
         assertEquals(0.005, result.feedforward().v(), kDelta);
@@ -88,7 +93,8 @@ public class TimedProfiledControllerTest implements Timeless {
         setpoint = result.feedforward().model();
 
         // no time step => no change
-        result = c.calculate(setpoint, goal);
+        setpoints = ref.get();
+        result = c.calculate(setpoint, setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.000033333333333333, result.feedforward().x(), kDelta);
         assertEquals(0.005, result.feedforward().v(), kDelta);
@@ -99,7 +105,8 @@ public class TimedProfiledControllerTest implements Timeless {
         stepTime();
 
         // now we've advanced.
-        result = c.calculate(setpoint, goal);
+        setpoints = ref.get();
+        result = c.calculate(setpoint, setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.000266666666666666, result.feedforward().x(), kDelta);
         assertEquals(0.020, result.feedforward().v(), kDelta);

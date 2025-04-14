@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.profile.timed.TimedProfile;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.reference.TimedProfileReference1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -29,7 +30,6 @@ public class TimedProfiledController implements ProfiledController, Glassy {
     private final double m_positionTolerance;
     private final double m_velocityTolerance;
 
-    private final Model100Logger m_log_setpoint;
     private final Control100Logger m_log_control;
 
     private double m_startTimeS;
@@ -48,8 +48,6 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
         m_velocityTolerance = velocityTolerance;
-        // use the parent logger
-        m_log_setpoint = logger.model100Logger(Level.TRACE, "setpoint");
         m_log_control = logger.control100Logger(Level.TRACE, "control");
     }
 
@@ -63,12 +61,12 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         m_goal = null;
         // }
         m_setpoint = measurement;
-        m_log_setpoint.log(() -> m_setpoint);
+        m_log_control.log(() -> m_setpoint.control());
         m_feedback.reset();
     }
 
-    @Override
-    public Result calculate(Model100 measurement, Model100 goal) {
+    // @Override
+    private Result calculate(Model100 measurement, Model100 goal) {
         if (DEBUG)
             Util.printf("TimedProfiledController calculate measurement %s goal %s\n", measurement, goal);
         if (m_setpoint == null)
@@ -104,9 +102,27 @@ public class TimedProfiledController implements ProfiledController, Glassy {
 
         m_log_control.log(() -> u_FF);
         m_setpoint = u_FF.model();
-        m_log_setpoint.log(() -> m_setpoint);
         return new Result(u_FF, u_FB);
     }
+
+    @Override
+    public Result calculate(Model100 measurement, Setpoints1d setpoint) {
+        Control100 current = setpoint.current();
+        Control100 next = setpoint.next();
+
+        current = new Control100(
+            m_modulus.applyAsDouble(current.x() - measurement.x()) + measurement.x(),
+            current.v());
+
+        double u_FB = m_feedback.calculate(measurement, current.model());
+
+        Control100 u_FF = next;
+
+        m_log_control.log(() -> u_FF);
+        m_setpoint = u_FF.model();
+        return new Result(u_FF, u_FB);
+    }
+
 
     @Override
     public boolean profileDone() {

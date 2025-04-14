@@ -11,6 +11,7 @@ import org.team100.lib.profile.incremental.Profile100.ResultWithETA;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
@@ -64,7 +65,9 @@ public class IncrementalProfiledControllerTest implements Timeless {
                 logger, ref, f, x -> x, 0.05, 0.05);
         Model100 measurement = new Model100(0, 0);
         controller.init(measurement);
-        ProfiledController.Result result = controller.calculate(measurement, goal);
+        ref.init(measurement);
+        Setpoints1d setpoints = ref.get();
+        ProfiledController.Result result = controller.calculate(measurement, setpoints);
         // this is for the *next* timestep so there should be non-zero velocity.
         assertEquals(2, result.feedforward().v(), 1e-12);
 
@@ -91,6 +94,7 @@ public class IncrementalProfiledControllerTest implements Timeless {
                 logger, ref, f, x -> x, 0.05, 0.05);
         final Model100 initial = new Model100(0, 0);
 
+        ref.init(initial);
         c.init(initial);
 
         Control100 setpointControl = initial.control();
@@ -118,7 +122,8 @@ public class IncrementalProfiledControllerTest implements Timeless {
                         sim.yDot,
                         u_FB);
 
-            ProfiledController.Result result = c.calculate(sim.state(), goal);
+            Setpoints1d setpoints = ref.get();
+            ProfiledController.Result result = c.calculate(sim.state(), setpoints);
             setpointControl = result.feedforward();
             u_FB = result.feedback();
             sim.step(setpointControl.a() + u_FB);
@@ -196,12 +201,14 @@ public class IncrementalProfiledControllerTest implements Timeless {
         TrapezoidProfileWPI p = new TrapezoidProfileWPI(2, 6);
         IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
         Feedback100 fb = new PositionProportionalFeedback(1, 0.01);
-        ProfiledController c = new IncrementalProfiledController(
+        IncrementalProfiledController c = new IncrementalProfiledController(
                 logger, ref, fb, x -> x, 0.01, 0.01);
         Model100 setpoint = new Model100();
         c.init(setpoint);
+        ref.init(setpoint);
 
-        ProfiledController.Result result = c.calculate(setpoint, goal);
+        Setpoints1d setpoints = ref.get();
+        ProfiledController.Result result = c.calculate(setpoint, setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.0012, result.feedforward().x(), kDelta);
         assertEquals(0.120, result.feedforward().v(), kDelta);
@@ -209,8 +216,21 @@ public class IncrementalProfiledControllerTest implements Timeless {
 
         setpoint = result.feedforward().model();
 
-        // the incremental profile ignores the clock, so this advances
-        result = c.calculate(setpoint, goal);
+        // clock hasn't advanced so we get the same thing back
+        setpoints = ref.get();
+        result = c.calculate(setpoint, setpoints);
+        assertEquals(0, result.feedback(), kDelta);
+        assertEquals(0.0012, result.feedforward().x(), kDelta);
+        assertEquals(0.120, result.feedforward().v(), kDelta);
+        assertEquals(6.000, result.feedforward().a(), kDelta);
+
+        setpoint = result.feedforward().model();
+
+        stepTime();
+
+        // now advance
+        setpoints = ref.get();
+        result = c.calculate(setpoint, setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.0048, result.feedforward().x(), kDelta);
         assertEquals(0.240, result.feedforward().v(), kDelta);
@@ -220,8 +240,9 @@ public class IncrementalProfiledControllerTest implements Timeless {
 
         stepTime();
 
-        // clock is ignored, advance again.
-        result = c.calculate(setpoint, goal);
+        // advance again.
+        setpoints = ref.get();
+        result = c.calculate(setpoint, setpoints);
         assertEquals(0, result.feedback(), kDelta);
         assertEquals(0.0108, result.feedforward().x(), kDelta);
         assertEquals(0.360, result.feedforward().v(), kDelta);

@@ -39,7 +39,7 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
         assertEquals(0, mech.getVelocityRad_S().getAsDouble(), kDelta);
 
         servo.periodic();
-        servo.setPositionGoal(1, 0);
+        servo.setPositionSetpoint(new Setpoints1d(new Control100(0, 0), new Control100(1, 0)), 0);
         stepTime();
 
         // move 0 to 1 in 0.02 => v = 50
@@ -51,11 +51,11 @@ public class UnprofiledOutboardAngularPositionServoTest implements Timeless {
         assertEquals(0.5, sensor.getPositionRad().getAsDouble(), kDelta);
 
         servo.periodic();
-        servo.setPositionGoal(1, 0);
+        servo.setPositionSetpoint(new Setpoints1d(new Control100(0, 0), new Control100(1, 0)), 0);
         stepTime();
 
         servo.periodic();
-        servo.setPositionGoal(1, 0);
+        servo.setPositionSetpoint(new Setpoints1d(new Control100(0, 0), new Control100(1, 0)), 0);
         stepTime();
 
         assertEquals(0, motor.getVelocityRad_S(), kDelta);

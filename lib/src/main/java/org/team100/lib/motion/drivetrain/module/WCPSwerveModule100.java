@@ -30,9 +30,11 @@ import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.AngularMomentum;
 
 public class WCPSwerveModule100 extends SwerveModule100 {
     // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L212
@@ -105,7 +107,9 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 drive,
                 motorPhase);
 
-        return new WCPSwerveModule100(driveServo, turningServo);
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        return new WCPSwerveModule100(driveServo, turningServo, ref);
     }
 
     /**
@@ -140,7 +144,9 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 kinodynamics,
                 drive,
                 motorPhase);
-        return new WCPSwerveModule100(driveServo, turningServo);
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        return new WCPSwerveModule100(driveServo, turningServo, ref);
     }
 
     private static LinearVelocityServo driveKrakenServo(
@@ -229,7 +235,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 encoderClass, parent, turningEncoderChannel, turningOffset, drive);
 
         Talon6Encoder builtInEncoder = new Talon6Encoder(parent, turningMotor);
-        
+
         ProxyRotaryPositionSensor proxy = new ProxyRotaryPositionSensor(builtInEncoder, gearRatio);
         CombinedRotaryPositionSensor combined = new CombinedRotaryPositionSensor(parent, turningSensor, proxy);
 
@@ -254,11 +260,11 @@ public class WCPSwerveModule100 extends SwerveModule100 {
         Profile100 profile = kinodynamics.getSteeringProfile();
         // TODO: goal here is bad
         IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
-        Feedback100 feedback = new ZeroFeedback(x -> x, 0.02, 0.02);
-        ProfiledController controller = new IncrementalProfiledController(
-                parent, ref, feedback, MathUtil::angleModulus, 0.05, 0.05);
+        Feedback100 feedback = new ZeroFeedback(MathUtil::angleModulus, 0.02, 0.02);
+        // ProfiledController controller = new IncrementalProfiledController(
+        // parent, ref, feedback, MathUtil::angleModulus, 0.05, 0.05);
         return new OutboardAngularPositionServo(
-                parent, mech, controller);
+                parent, mech);
     }
 
     /** Produces either an AS5048 or an Analog sensor. */
@@ -289,8 +295,9 @@ public class WCPSwerveModule100 extends SwerveModule100 {
 
     private WCPSwerveModule100(
             LinearVelocityServo driveServo,
-            AngularPositionServo turningServo) {
-        super(driveServo, turningServo);
+            AngularPositionServo turningServo,
+            TrackingIncrementalProfileReference1d ref) {
+        super(driveServo, turningServo, ref);
         //
     }
 }

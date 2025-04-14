@@ -19,6 +19,7 @@ import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
@@ -34,7 +35,7 @@ class AngularPositionProfileTest implements Timeless {
     private final RotaryMechanism mech;
     private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
-
+    IncrementalProfileReference1d ref;
     private OnboardAngularPositionServo servo;
 
     public AngularPositionProfileTest() {
@@ -52,7 +53,10 @@ class AngularPositionProfileTest implements Timeless {
     @Test
     void testTrapezoid() {
         final Profile100 profile = new TrapezoidProfileWPI(1, 1);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
+        Model100 goal = new Model100(1, 0);
+        Model100 measurement = new Model100();
+        ref = new IncrementalProfileReference1d(profile, goal);
+        ref.init(measurement);
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
                 ref,
@@ -63,7 +67,6 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                controller,
                 feedback2);
         servo.reset();
 
@@ -73,7 +76,10 @@ class AngularPositionProfileTest implements Timeless {
     @Test
     void testProfile() {
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
+        Model100 goal = new Model100(1, 0);
+        Model100 measurement = new Model100();
+        ref = new IncrementalProfileReference1d(profile, goal);
+        ref.init(measurement);
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
                 ref,
@@ -84,7 +90,6 @@ class AngularPositionProfileTest implements Timeless {
         servo = new OnboardAngularPositionServo(
                 logger,
                 mech,
-                controller,
                 feedback2);
         servo.reset();
         verifyTrapezoid();
@@ -118,14 +123,15 @@ class AngularPositionProfileTest implements Timeless {
         sensor.angle += motor.velocity * TimedRobot100.LOOP_PERIOD_S;
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
-            servo.setPositionGoal(1, 0);
+            Setpoints1d setpoint = ref.get();
+            servo.setPositionSetpoint(setpoint, 0);
             stepTime();
         }
         // useful to fix up the examples above
         if (DEBUG)
             Util.printf("verify(%5.3f, %5.3f, %5.3f);\n", motor.velocity,
-                    servo.m_controller.getSetpoint().x(), servo.m_controller.getSetpoint().v());
-        assertEquals(setpointPosition, servo.m_controller.getSetpoint().x(), kDelta);
-        assertEquals(setpointVelocity, servo.m_controller.getSetpoint().v(), kDelta);
+                    servo.m_setpoint.x(), servo.m_setpoint.v());
+        assertEquals(setpointPosition, servo.m_setpoint.x(), kDelta, "position");
+        assertEquals(setpointVelocity, servo.m_setpoint.v(), kDelta, "velocity");
     }
 }

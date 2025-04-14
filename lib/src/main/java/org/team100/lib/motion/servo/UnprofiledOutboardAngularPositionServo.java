@@ -57,29 +57,29 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
         m_mechanism.setDutyCycle(dutyCycle);
     }
 
-    @Override
-    public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
+    // @Override
+    // public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
 
-        // this is the absolute 1:1 position of the mechanism.
-        OptionalDouble posOpt = m_mechanism.getPositionRad();
+    //     // this is the absolute 1:1 position of the mechanism.
+    //     OptionalDouble posOpt = m_mechanism.getPositionRad();
 
-        if (posOpt.isEmpty())
-            return;
+    //     if (posOpt.isEmpty())
+    //         return;
 
-        // measurement is [-inf,inf]
-        final double measurement = posOpt.getAsDouble();
+    //     // measurement is [-inf,inf]
+    //     final double measurement = posOpt.getAsDouble();
 
-        // choose a goal which is near the measurement
-        // goal is [-inf, inf]
-        m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
-                0);
+    //     // choose a goal which is near the measurement
+    //     // goal is [-inf, inf]
+    //     m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
+    //             0);
 
-        m_mechanism.setPosition(m_goal.x(), 0, 0, feedForwardTorqueNm);
+    //     m_mechanism.setPosition(m_goal.x(), 0, 0, feedForwardTorqueNm);
 
-        m_log_goal.log(() -> m_goal);
-        m_log_ff_torque.log(() -> feedForwardTorqueNm);
-        m_log_measurement.log(() -> measurement);
-    }
+    //     m_log_goal.log(() -> m_goal);
+    //     m_log_ff_torque.log(() -> feedForwardTorqueNm);
+    //     m_log_measurement.log(() -> measurement);
+    // }
 
     /**
      * set mechanism position passthrough, adjusting the setpoint to be close to the
@@ -131,10 +131,10 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
-    @Override
-    public boolean profileDone() {
-        return atGoal();
-    }
+    // @Override
+    // public boolean profileDone() {
+    //     return atGoal();
+    // }
 
     /**
      * Note this is affected by the setpoint update.
@@ -143,10 +143,10 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
      * because the measurement comes from the recent-past Takt and the updated
      * setpoint will be aiming at the next one.
      */
-    @Override
-    public boolean atGoal() {
-        return atSetpoint();
-    }
+    // @Override
+    // public boolean atGoal() {
+    //     return atSetpoint();
+    // }
 
     @Override
     public void stop() {

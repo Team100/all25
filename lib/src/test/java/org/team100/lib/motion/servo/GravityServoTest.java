@@ -58,7 +58,7 @@ class GravityServoTest implements Timeless {
                 0.05,
                 0.05);
         AngularPositionServo servo = new OnboardAngularPositionServo(
-                logger, simMech, controller, pivotFeedback);
+                logger, simMech, pivotFeedback);
         servo.reset();
         ref.init(new Model100(servo.getPosition().getAsDouble(), 0));
 
@@ -87,7 +87,7 @@ class GravityServoTest implements Timeless {
                 logger, motor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         MockProfiledController controller = new MockProfiledController();
         Feedback100 fb = new ZeroFeedback(x -> x, 0.01, 0.01);
-        OnboardAngularPositionServo servo = new OnboardAngularPositionServo(logger, mech, controller, fb);
+        OnboardAngularPositionServo servo = new OnboardAngularPositionServo(logger, mech, fb);
         // these constants were used in Wrist2.
         // negative force means pull in
         Gravity gravity = new Gravity(logger, 9.0, -0.451230);

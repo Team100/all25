@@ -29,6 +29,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
+
+
+
+    // accepts setpoints
     AngularPositionServo climberMotor;
     // BareMotor m_motor;
 
@@ -66,7 +70,7 @@ public class Climber extends SubsystemBase {
                 ProfiledController controller = new IncrementalProfiledController(
                         child, ref, feedback, x -> x, 0.05, 0.05);
 
-                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, controller, feedback);
+                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, feedback);
             }
 
             default -> {
@@ -99,9 +103,11 @@ public class Climber extends SubsystemBase {
         climberMotor.setDutyCycle(dutyCycle);
     }
 
-    public void setAngle(double value) {
-        climberMotor.setPositionGoal(value, 0);
-    }
+    // public void setAngle(double value) {
+
+
+    //     climberMotor.setPositionGoal(value, 0);
+    // }
 
     public void setAngleSetpoint(Setpoints1d setpoint) {
         climberMotor.setPositionSetpoint(setpoint, 0);

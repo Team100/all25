@@ -1,5 +1,6 @@
 package org.team100.lib.controller.simple;
 
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
 
 public class MockProfiledController implements ProfiledController {
@@ -12,7 +13,7 @@ public class MockProfiledController implements ProfiledController {
     }
 
     @Override
-    public Result calculate(Model100 measurement, Model100 goal) {
+    public Result calculate(Model100 measurement, Setpoints1d setpoints) {
         return result;
     }
 

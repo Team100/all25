@@ -17,17 +17,20 @@ import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
+import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.MathUtil;
 
-class AnglePositionServoProfileTest {
+class AnglePositionServoProfileTest implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 
     private final MockBareMotor motor;
     private final MockRotaryPositionSensor sensor;
     private final Feedback100 feedback2;
+    private final IncrementalProfileReference1d ref;
     private final OnboardAngularPositionServo servo;
     // for calculating the trapezoidal integral
     double previousMotorSpeed = 0;
@@ -45,8 +48,8 @@ class AnglePositionServoProfileTest {
         feedback2 = new PIDFeedback(logger, 1, 0, 0, true, 0.05, 1);
 
         Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
-            profile, new Model100(1, 0));
+        Model100 goal = new Model100(1, 0);
+        ref = new IncrementalProfileReference1d(profile, goal);
 
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
@@ -56,12 +59,14 @@ class AnglePositionServoProfileTest {
                 0.05,
                 0.05);
         servo = new OnboardAngularPositionServo(
-                logger, mech, controller, feedback2);
+                logger, mech, feedback2);
         servo.reset();
     }
 
     @Test
     void testProfile() {
+        // the profile pays attention to time, so this needs to be in the test method.
+        ref.init(new Model100());
         verify(0.1, 0.005, 0.1);
         verify(0.2, 0.020, 0.2);
         verify(0.3, 0.045, 0.3);
@@ -91,13 +96,15 @@ class AnglePositionServoProfileTest {
         // spin for 100ms
         for (int i = 0; i < 5; ++i) {
             // observe the current instant and set the output for the next step
-            servo.setPositionGoal(1, 0);
+            Setpoints1d setpoint = ref.get();
+            servo.setPositionSetpoint(setpoint, 0);
+            stepTime();
             // trapezoid integral over the step
             sensor.angle += 0.5 * (motor.velocity + previousMotorSpeed) * 0.02;
             previousMotorSpeed = motor.velocity;
         }
-        assertEquals(motorVelocity, motor.velocity, kDelta);
-        assertEquals(setpointPosition, servo.m_controller.getSetpoint().x(), kDelta);
-        assertEquals(setpointVelocity, servo.m_controller.getSetpoint().v(), kDelta);
+        assertEquals(motorVelocity, motor.velocity, kDelta, "velocity");
+        assertEquals(setpointPosition, servo.m_setpoint.x(), kDelta, "setpoint position");
+        assertEquals(setpointVelocity, servo.m_setpoint.v(), kDelta, "setpoint velocity");
     }
 }

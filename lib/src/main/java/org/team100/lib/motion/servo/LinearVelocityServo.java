@@ -11,6 +11,8 @@ import org.team100.lib.dashboard.Glassy;
  * 
  * This is part of the project to remove generics from the motion components; I
  * think generics make things too hard to read.
+ * 
+ * There should be no profile here.
  */
 public interface LinearVelocityServo extends Glassy {
     void reset();

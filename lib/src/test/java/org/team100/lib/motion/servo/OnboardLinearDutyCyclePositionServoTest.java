@@ -14,6 +14,7 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
@@ -31,18 +32,21 @@ public class OnboardLinearDutyCyclePositionServoTest implements Timeless {
                 driveMotor, driveEncoder, 1, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         Profile100 p = new TrapezoidProfile100(2, 1, 0.01);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, new Model100(1,0));
+        Model100 goal = new Model100(1,0);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
+        ref.init(new Model100());
 
         final double k1 = 1.0;
         final double k2 = 0.01;
         Feedback100 f = new FullStateFeedback(logger, k1, k2, x -> x, 1, 1);
-        ProfiledController c = new IncrementalProfiledController(
-                logger, ref, f, x -> x, 0.05, 0.05);
+        // ProfiledController c = new IncrementalProfiledController(
+        //         logger, ref, f, x -> x, 0.05, 0.05);
 
-        OnboardLinearDutyCyclePositionServo s = new OnboardLinearDutyCyclePositionServo(logger, mech, c, 0.1);
+        OnboardLinearDutyCyclePositionServo s = new OnboardLinearDutyCyclePositionServo(logger, mech, f, 0.1);
         s.reset();
         for (double t = 0; t < 3; t += 0.02) {
-            s.setPosition(1, 0);
+            Setpoints1d setpoints = ref.get();
+            s.setPositionSetpoint(setpoints, 0);
             stepTime();
             if (DEBUG)
                 Util.printf("%f, %f, %f, %f, %f\n",

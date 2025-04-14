@@ -8,8 +8,8 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
-import org.team100.lib.profile.incremental.IncrementalProfile;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -32,6 +32,8 @@ import edu.wpi.first.math.MathUtil;
  * measurement, or you'll introduce transients.
  * 
  * TODO: dedupe the two profiled controllers.
+ * 
+ * TODO: remove the reference
  */
 public class IncrementalProfiledController implements ProfiledController, Glassy {
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
@@ -60,7 +62,7 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         m_modulus = modulus;
         m_positionTolerance = positionTolerance;
         m_velocityTolerance = velocityTolerance;
-        // use the parent logger
+
         m_log_setpoint = logger.model100Logger(Level.TRACE, "setpoint");
         m_log_control = logger.control100Logger(Level.TRACE, "control");
     }
@@ -94,8 +96,8 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
      * @param measurement current-instant measurement
      * @param goal        final desired state
      */
-    @Override
-    public Result calculate(Model100 measurement, Model100 goal) {
+    // @Override
+    private Result calculate(Model100 measurement, Model100 goal) {
         if (m_setpoint == null)
             throw new IllegalStateException("Null setpoint!");
 
@@ -119,6 +121,23 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
 
         m_setpoint = u_FF.model();
         m_log_setpoint.log(() -> m_setpoint);
+        return new Result(u_FF, u_FB);
+    }
+
+    @Override
+    public Result calculate(Model100 measurement, Setpoints1d setpoint) {
+        Control100 current = setpoint.current();
+        Control100 next = setpoint.next();
+        
+        current = new Control100(
+            m_modulus.applyAsDouble(current.x() - measurement.x()) + measurement.x(),
+            current.v());
+
+        double u_FB = m_feedback.calculate(measurement, current.model());
+
+        Control100 u_FF = next;
+
+        m_log_control.log(() -> u_FF);
         return new Result(u_FF, u_FB);
     }
 

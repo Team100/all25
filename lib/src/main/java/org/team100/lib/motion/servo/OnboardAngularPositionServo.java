@@ -27,7 +27,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final double kVTolerance = 0.02;
 
     private final RotaryMechanism m_mechanism;
-    final ProfiledController m_controller;
+    // final ProfiledController m_controller;
     private final Feedback100 m_feedback;
 
     private final Model100Logger m_log_goal;
@@ -42,16 +42,19 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_encoderValue;
     private final BooleanLogger m_log_at_setpoint;
 
+    // TODO: remove this
     private Model100 m_goal = new Model100(0, 0);
+    // most-recent "next" setpoint
+    Control100 m_setpoint;
 
     public OnboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
-            ProfiledController controller,
+            // ProfiledController controller,
             Feedback100 feedback) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        m_controller = controller;
+        // m_controller = controller;
         m_feedback = feedback;
 
         m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
@@ -87,7 +90,8 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // OptionalDouble velocity = getVelocity();
         // if (velocity.isEmpty())
         // return;
-        m_controller.init(new Model100(position.getAsDouble(), 0));
+        // TODO: do i need this somewhere else?
+        // m_controller.init(new Model100(position.getAsDouble(), 0));
         // System.out.println("IM BEING RESET TO" + position.getAsDouble() +
         // "***********************************************************");
     }
@@ -97,47 +101,47 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setTorqueLimit(torqueNm);
     }
 
-    @Override
-    public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
+    // @Override
+    // private void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
 
-        final OptionalDouble position = m_mechanism.getPositionRad();
-        // note the mechanism uses the motor's internal encoder which may be only
-        // approximately attached to the the output, via backlash and slack, so these
-        // two measurements might not be entirely consistent.
-        // on the other hand, using the position sensor to obtain velocity has its own
-        // issues: delay and noise.
-        final OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+    //     final OptionalDouble position = m_mechanism.getPositionRad();
+    //     // note the mechanism uses the motor's internal encoder which may be only
+    //     // approximately attached to the the output, via backlash and slack, so these
+    //     // two measurements might not be entirely consistent.
+    //     // on the other hand, using the position sensor to obtain velocity has its own
+    //     // issues: delay and noise.
+    //     final OptionalDouble velocity = m_mechanism.getVelocityRad_S();
 
-        if (position.isEmpty() || velocity.isEmpty()) {
-            Util.warn("Broken sensor!");
-            return;
-        }
-        // we seem to always use zero goal velocity
-        m_goal = new Model100(goalRad, 0);
+    //     if (position.isEmpty() || velocity.isEmpty()) {
+    //         Util.warn("Broken sensor!");
+    //         return;
+    //     }
+    //     // we seem to always use zero goal velocity
+    //     m_goal = new Model100(goalRad, 0);
 
-        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+    //     Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
 
-        ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
-        final Control100 setpointRad = result.feedforward();
+    //     ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
+    //     m_setpoint = result.feedforward();
 
-        final double u_FF = setpointRad.v();
-        // note u_FF is rad/s, so a big number, u_FB should also be a big number.
-        final double u_FB = result.feedback();
+    //     final double u_FF = m_setpoint.v();
+    //     // note u_FF is rad/s, so a big number, u_FB should also be a big number.
+    //     final double u_FB = result.feedback();
 
-        final double u_TOTAL = u_FB + u_FF;
+    //     final double u_TOTAL = u_FB + u_FF;
 
-        m_mechanism.setVelocity(u_TOTAL, setpointRad.a(), feedForwardTorqueNm);
+    //     m_mechanism.setVelocity(u_TOTAL, m_setpoint.a(), feedForwardTorqueNm);
 
-        m_log_goal.log(() -> m_goal);
-        m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
-        m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
-        m_log_control.log(() -> setpointRad);
-        m_log_u_FB.log(() -> u_FB);
-        m_log_u_FF.log(() -> u_FF);
-        m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(() -> setpointRad.x() - position.getAsDouble());
-        m_log_velocity_error.log(() -> setpointRad.v() - velocity.getAsDouble());
-    }
+    //     m_log_goal.log(() -> m_goal);
+    //     m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
+    //     m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
+    //     m_log_control.log(() -> m_setpoint);
+    //     m_log_u_FB.log(() -> u_FB);
+    //     m_log_u_FF.log(() -> u_FF);
+    //     m_log_u_TOTAL.log(() -> u_TOTAL);
+    //     m_log_error.log(() -> m_setpoint.x() - position.getAsDouble());
+    //     m_log_velocity_error.log(() -> m_setpoint.v() - velocity.getAsDouble());
+    // }
 
     /**
      * set mechanism velocity use the current setpoint for feedback, and
@@ -155,13 +159,14 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         }
         Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
         double u_FB = m_feedback.calculate(measurement, setpoint.current().model());
-        double u_FF = setpoint.next().v();
+        m_setpoint = setpoint.next();
+        double u_FF = m_setpoint.v();
         double u_TOTAL = u_FB + u_FF;
-        m_mechanism.setVelocity(u_TOTAL, setpoint.next().a(), feedForwardTorqueNm);
+        m_mechanism.setVelocity(u_TOTAL, m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
         m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
-        m_log_control.log(() -> setpoint.next());
+        m_log_control.log(() -> m_setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
@@ -184,30 +189,30 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
 
     @Override
     public boolean atSetpoint() {
-        boolean atSetpoint = m_controller.atSetpoint();
+        boolean atSetpoint = m_feedback.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
     }
 
-    @Override
-    public boolean profileDone() {
-        return m_controller.profileDone();
-    }
+    // @Override
+    // public boolean profileDone() {
+    //     return m_controller.profileDone();
+    // }
 
-    /**
-     * position and velocity errors are both under their tolerances.
-     */
-    @Override
-    public boolean atGoal() {
-        OptionalDouble position = m_mechanism.getPositionRad();
-        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
-        if (position.isEmpty() || velocity.isEmpty()) {
-            Util.warn("Broken sensor!");
-            return false;
-        }
-        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        return measurement.near(m_goal, kXTolerance, kVTolerance);
-    }
+    // /**
+    //  * position and velocity errors are both under their tolerances.
+    //  */
+    // @Override
+    // public boolean atGoal() {
+    //     OptionalDouble position = m_mechanism.getPositionRad();
+    //     OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+    //     if (position.isEmpty() || velocity.isEmpty()) {
+    //         Util.warn("Broken sensor!");
+    //         return false;
+    //     }
+    //     Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+    //     return measurement.near(m_goal, kXTolerance, kVTolerance);
+    // }
 
     @Override
     public void stop() {

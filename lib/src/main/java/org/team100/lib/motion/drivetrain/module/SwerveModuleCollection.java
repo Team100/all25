@@ -249,15 +249,6 @@ public class SwerveModuleCollection {
         };
     }
 
-    public boolean[] atGoal() {
-        return new boolean[] {
-                m_frontLeft.atGoal(),
-                m_frontRight.atGoal(),
-                m_rearLeft.atGoal(),
-                m_rearRight.atGoal()
-        };
-    }
-
     ////////////////////////////////////////////
 
     public void close() {

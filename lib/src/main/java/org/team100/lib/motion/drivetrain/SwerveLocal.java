@@ -135,11 +135,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
         return m_modules.atSetpoint();
     }
 
-    @Override
-    public boolean[] atGoal() {
-        return m_modules.atGoal();
-    }
-
     ///////////////////////////////////////////
 
     public void close() {

@@ -135,7 +135,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 // kPositionTolerance, kPositionTolerance);
 
                 wristServo = new OnboardAngularPositionServo(
-                        logger, m_wristMech, m_controller, wristFeedback);
+                        logger, m_wristMech, wristFeedback);
 
                 wristServo.reset();
 
@@ -160,7 +160,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         ref, wristFeedback, x -> x, 0.1, 0.05);
 
                 wristServo = new OnboardAngularPositionServo(
-                        logger, wristMech, m_controller, wristFeedback);
+                        logger, wristMech, wristFeedback);
 
                 Gravity gravity = new Gravity(logger, 0, 0);
                 Spring spring = new Spring(logger);

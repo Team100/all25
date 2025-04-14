@@ -20,9 +20,10 @@ import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
+import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
-public class OutboardAngularPositionServoTest {
+public class OutboardAngularPositionServoTest implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
     private static final boolean kActuallyPrint = false;
@@ -41,23 +42,33 @@ public class OutboardAngularPositionServoTest {
                 logger, motor, combinedEncoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(1, 0));
+        Model100 goal = new Model100(1, 0);
+        Model100 measurement = new Model100();
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal);
+        ref.init(measurement);
         final ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
         final ProfiledController controller = new IncrementalProfiledController(
                 logger, ref, feedback, x -> x, 0.01, 0.01);
         final OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
-                logger, mech, controller);
+                logger, mech);
         servo.reset();
         // it moves slowly
         servo.setPositionSetpoint(ref.get(), 0);
+        stepTime();
+
         assertEquals(2e-4, motor.position, 1e-4);
         servo.setPositionSetpoint(ref.get(), 0);
+        stepTime();
+
         // assertEquals(8e-4, motor.position, 1e-4);
         servo.setPositionSetpoint(ref.get(), 0);
+        stepTime();
+
         assertEquals(0.002, motor.position, kDelta);
         for (int i = 0; i < 100; ++i) {
             // run it for awhile
             servo.setPositionSetpoint(ref.get(), 0);
+            stepTime();
             if (kActuallyPrint)
                 Util.printf("i: %d position: %5.3f\n", i, motor.position);
         }

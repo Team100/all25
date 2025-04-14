@@ -19,11 +19,12 @@ import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
+import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
 
-public class OnboardAngularPositionServoTest {
+public class OnboardAngularPositionServoTest implements Timeless {
     // note ridiculously precise delta
     private static final double kDelta = 1e-9;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
@@ -40,7 +41,10 @@ public class OnboardAngularPositionServoTest {
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
 
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(1, 0));
+        Model100 goal = new Model100(1, 0);
+        Model100 measurement = new Model100();
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal);
+        ref.init(measurement);
 
         ProfiledController controller = new IncrementalProfiledController(
                 logger,
@@ -50,21 +54,22 @@ public class OnboardAngularPositionServoTest {
                 0.05,
                 0.05);
         OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
-                logger, mech, controller, turningFeedback2);
+                logger, mech, turningFeedback2);
         servo.reset();
         // spin for 1 s
         for (int i = 0; i < 50; ++i) {
             Setpoints1d setpoints = ref.get();
             servo.setPositionSetpoint(setpoints, 0);
+            stepTime();
             if (kActuallyPrint)
                 Util.printf("i: %d position: %5.3f\n", i, turningMotor.position);
             // lets say we're on the profile.
-            positionSensor.angle = servo.m_controller.getSetpoint().x();
-            positionSensor.rate = servo.m_controller.getSetpoint().v();
+            positionSensor.angle = servo.m_setpoint.x();
+            positionSensor.rate = servo.m_setpoint.v();
         }
         assertEquals(0, turningMotor.output, 0.001);
-        assertEquals(0.5, servo.m_controller.getSetpoint().x(), kDelta);
-        assertEquals(1.0, servo.m_controller.getSetpoint().v(), kDelta);
+        assertEquals(0.5, servo.m_setpoint.x(), kDelta);
+        assertEquals(1.0, servo.m_setpoint.v(), kDelta);
         assertEquals(0.5, positionSensor.getPositionRad().getAsDouble(), kDelta);
         assertEquals(1.000, turningMotor.velocity, kDelta);
     }

@@ -7,6 +7,10 @@ import org.team100.lib.reference.Setpoints1d;
 
 /**
  * Angular position control, e.g. for swerve steering axes or arm axes.
+ * 
+ * Servos no longer include profiles (in order to coordinate multiple axes), so
+ * this just takes setpoints, and, for onboard versions, computes feedback
+ * control.
  */
 public interface AngularPositionServo extends Glassy {
     /**
@@ -34,7 +38,7 @@ public interface AngularPositionServo extends Glassy {
      *                            radians
      * @param feedForwardTorqueNm used for gravity or spring compensation
      */
-    void setPositionGoal(double goalRad, double feedForwardTorqueNm);
+    // void setPositionGoal(double goalRad, double feedForwardTorqueNm);
 
     /** No profile here. */
     void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm);
@@ -48,9 +52,10 @@ public interface AngularPositionServo extends Glassy {
 
     boolean atSetpoint();
 
-    boolean profileDone();
+    // boolean profileDone();
 
-    boolean atGoal();
+    // TODO: remove
+    // boolean atGoal();
 
     void stop();
 

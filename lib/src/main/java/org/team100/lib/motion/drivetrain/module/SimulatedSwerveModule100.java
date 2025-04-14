@@ -20,6 +20,7 @@ import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.MathUtil;
@@ -38,7 +39,9 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         AngularPositionServo turningServo = simulatedTurningServo(
                 parent.child("Turning"),
                 kinodynamics);
-        return new SimulatedSwerveModule100(driveServo, turningServo);
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        return new SimulatedSwerveModule100(driveServo, turningServo, ref);
     }
 
     /**
@@ -52,8 +55,9 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         AngularPositionServo turningServo = simulatedOutboardTurningServo(
                 parent.child("Turning"),
                 kinodynamics);
-
-        return new SimulatedSwerveModule100(driveServo, turningServo);
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        return new SimulatedSwerveModule100(driveServo, turningServo, ref);
     }
 
     private static LinearVelocityServo simulatedDriveServo(LoggerFactory parent) {
@@ -89,18 +93,17 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 true,
                 0.05, // note low tolerance
                 1);
-        Profile100 profile = kinodynamics.getSteeringProfile();
+        // Profile100 profile = kinodynamics.getSteeringProfile();
         // TODO: goal should not be here.
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
+        // IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
 
-        ProfiledController controller = new IncrementalProfiledController(
-                parent, ref,
-                turningPositionFeedback, MathUtil::angleModulus,
-                0.05, 0.05);
+        // ProfiledController controller = new IncrementalProfiledController(
+        //         parent, ref,
+        //         turningPositionFeedback, MathUtil::angleModulus,
+        //         0.05, 0.05);
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,
                 turningMech,
-                controller,
                 turningPositionFeedback);
         turningServo.reset();
         return turningServo;
@@ -135,8 +138,9 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
 
     private SimulatedSwerveModule100(
             LinearVelocityServo driveServo,
-            AngularPositionServo turningServo) {
-        super(driveServo, turningServo);
+            AngularPositionServo turningServo,
+            TrackingIncrementalProfileReference1d ref) {
+        super(driveServo, turningServo, ref);
         //
     }
 
