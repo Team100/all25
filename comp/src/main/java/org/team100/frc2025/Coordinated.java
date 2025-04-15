@@ -2,6 +2,7 @@ package org.team100.frc2025;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.motion.CoordinatedKinematics;
 import org.team100.lib.motion.CoordinatedKinematics.Joints;
 import org.team100.lib.reference.Setpoints1d;
@@ -11,6 +12,7 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -18,6 +20,13 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Coordinates the wrist and elevator to trace a simple 2d path.
  * 
  * As an example, the path is a square.
+ * 
+ * see output here
+ * https://docs.google.com/spreadsheets/d/1THzS5zsGuOULofmM7NmHzwKTza13R2BHfLIqsm1wSi4/edit?gid=1969770684#gid=1969770684
+ * 
+ * TODO: don't use the absolute edge of the envelope, it's hard to get there
+ * 
+ * TODO: make a combined visualization that makes the behavior more obvious
  */
 public class Coordinated extends Command implements Debug {
     /** There are something like 20 sanjan units per meter? */
@@ -67,7 +76,7 @@ public class Coordinated extends Command implements Debug {
             return;
         }
 
-        if (m_timer.get() > DURATION) {
+        if (m_timer.get() > (DURATION - TimedRobot100.LOOP_PERIOD_S)) {
             m_timer.reset();
             m_side += 1;
             if (m_side >= POINTS.length - 1)
@@ -75,23 +84,34 @@ public class Coordinated extends Command implements Debug {
         }
         Translation2d s0 = POINTS[m_side];
         Translation2d s1 = POINTS[m_side + 1];
-        double fraction = m_timer.get() / DURATION;
-        Translation2d setpoint = s0.interpolate(s1, fraction);
-        Joints joints = m_kinematics.inverse(setpoint);
-        if (joints == null) {
+        double currentFraction = m_timer.get() / DURATION;
+        Translation2d currentSetpoint = s0.interpolate(s1, currentFraction);
+        double nextFraction = (m_timer.get() + TimedRobot100.LOOP_PERIOD_S) / DURATION;
+        Translation2d nextSetpoint = s0.interpolate(s1, nextFraction);
+        Joints currentJoints = m_kinematics.inverse(currentSetpoint);
+        if (currentJoints == null) {
             // we tried to go outside the envelope
             cancel();
             return;
         }
-        // these currently set goals, with profiles. we don't want that, we want to set
-        // the setpoints.
+        Joints nextJoints = m_kinematics.inverse(nextSetpoint);
+        if (nextJoints == null) {
+            // we tried to go outside the envelope
+            cancel();
+            return;
+        }
+        // calculate implied velocity.  this is kinda wrong, but closer than zero
+        double elevatorVelocity = sanjanunit * (nextJoints.height() - currentJoints.height())
+                / TimedRobot100.LOOP_PERIOD_S;
+        double wristVelocity = (nextJoints.angle() - currentJoints.angle()) / TimedRobot100.LOOP_PERIOD_S;
+
         m_elevator.setPositionDirect(new Setpoints1d(
-                new Control100(sanjanunit * joints.height(), 0),
-                new Control100(sanjanunit * joints.height(), 0)));
+                new Control100(sanjanunit * currentJoints.height(), elevatorVelocity),
+                new Control100(sanjanunit * nextJoints.height(), elevatorVelocity)));
         m_wrist.setAngleDirect(new Setpoints1d(
-                new Control100(joints.angle(), 0),
-                new Control100(joints.angle(), 0)));
-        debug("%12.6f %12.6f\n", joints.height(), joints.angle());
+                new Control100(currentJoints.angle(), wristVelocity),
+                new Control100(nextJoints.angle(), wristVelocity)));
+        debug("%12.6f %12.6f\n", currentJoints.height(), currentJoints.angle());
     }
 
     @Override

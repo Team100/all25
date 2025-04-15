@@ -132,8 +132,8 @@ public class Elevator extends SubsystemBase implements Glassy {
 
             }
             default -> {
-                SimulatedBareMotor starboardMotor = new SimulatedBareMotor(starboardMotorLogger, 100);
-                SimulatedBareMotor portMotor = new SimulatedBareMotor(portMotorLogger, 100);
+                SimulatedBareMotor starboardMotor = new SimulatedBareMotor(starboardMotorLogger, 600);
+                SimulatedBareMotor portMotor = new SimulatedBareMotor(portMotorLogger, 600);
 
                 SimulatedBareEncoder stbdEncoder = new SimulatedBareEncoder(starboardLogger, starboardMotor);
 

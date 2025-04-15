@@ -134,7 +134,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
             }
             default -> {
 
-                SimulatedBareMotor motor = new SimulatedBareMotor(logger, 100);
+                SimulatedBareMotor motor = new SimulatedBareMotor(logger, 600);
                 SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, motor);
                 SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
                         logger, encoder, GEAR_RATIO, () -> 0);
