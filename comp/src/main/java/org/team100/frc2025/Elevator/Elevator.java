@@ -19,6 +19,7 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -224,23 +225,28 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.reset();
     }
 
-    public void setPosition(double x) {
-        starboardServo.setPosition(x, 1.3); // 54 max
-        portServo.setPosition(x, 1.3); // 54 max
+    public void setPositionSetpoint(Setpoints1d setpoint) {
+        starboardServo.setPositionSetpoint(setpoint, 1.3);
+        portServo.setPositionSetpoint(setpoint, 1.3);
     }
+
+    // public void setPosition(double x) {
+    //     starboardServo.setPosition(x, 1.3); // 54 max
+    //     portServo.setPosition(x, 1.3); // 54 max
+    // }
 
     // public boolean profileDone() {
     //     return starboardServo.profileDone();
     // }
 
-    public void setPositionDirectly(double x) {
-        // starboardServo.setPositionDirectly(x, 1.3); // 54 max
-        // portServo.setPositionDirectly(x, 1.3); // 54 max
+    // public void setPositionDirectly(double x) {
+    //     // starboardServo.setPositionDirectly(x, 1.3); // 54 max
+    //     // portServo.setPositionDirectly(x, 1.3); // 54 max
 
-        starboardServo.setPosition(x, 1.3); // 54 max
-        portServo.setPosition(x, 1.3); // 54 max
+    //     starboardServo.setPosition(x, 1.3); // 54 max
+    //     portServo.setPosition(x, 1.3); // 54 max
 
-    }
+    // }
 
     public void setPositionNoGravity(double x) {
         starboardServo.setPosition(x, 0); // 54 max
