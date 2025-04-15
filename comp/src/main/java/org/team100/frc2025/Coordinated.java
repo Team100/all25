@@ -12,7 +12,6 @@ import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -23,25 +22,21 @@ import edu.wpi.first.wpilibj2.command.Command;
  * 
  * see output here
  * https://docs.google.com/spreadsheets/d/1THzS5zsGuOULofmM7NmHzwKTza13R2BHfLIqsm1wSi4/edit?gid=1969770684#gid=1969770684
- * 
- * TODO: don't use the absolute edge of the envelope, it's hard to get there
- * 
- * TODO: make a combined visualization that makes the behavior more obvious
  */
 public class Coordinated extends Command implements Debug {
     /** There are something like 20 sanjan units per meter? */
     private static final double sanjanunit = 20;
     /** Length of the arm. Not really 1 meter long, I guess? */
-    private static final double LENGTH = 1;
+    private static final double LENGTH = 1.25;
     /** How long to take drawing each side. */
     private static final double DURATION = 1;
     /** Points to connect with straight lines. */
     private static final Translation2d[] POINTS = {
-            new Translation2d(1, 0.5),
-            new Translation2d(1.5, 0),
-            new Translation2d(2, 0.5),
-            new Translation2d(1.5, 1),
-            new Translation2d(1, 0.5) };
+            new Translation2d(1.5, 0.5),
+            new Translation2d(2.0, 0),
+            new Translation2d(2.5, 0.5),
+            new Translation2d(2.0, 1),
+            new Translation2d(1.5, 0.5) };
 
     private final Elevator m_elevator;
     private final Wrist2 m_wrist;

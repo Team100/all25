@@ -191,7 +191,7 @@ public class RobotContainer implements Glassy{
             m_climber = new Climber(logger, 18);
         }
 
-        m_combinedViz = new CombinedVisualization(m_elevator);
+        m_combinedViz = new CombinedVisualization(m_elevator, m_wrist);
 
         m_test = new Coordinated(m_elevator, m_wrist);
 

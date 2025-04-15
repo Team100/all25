@@ -286,6 +286,6 @@ public class Robot extends TimedRobot100 implements Debug {
 
     @Override
     public boolean debug() {
-        return true;
+        return false;
     }
 }
