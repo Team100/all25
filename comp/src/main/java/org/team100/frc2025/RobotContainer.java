@@ -141,6 +141,7 @@ public class RobotContainer implements Glassy{
     private final ScheduledExecutorService m_initializer;
 
     private final Runnable m_simulatedTagDetector;
+    private final Runnable m_combinedViz;
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -189,6 +190,8 @@ public class RobotContainer implements Glassy{
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
         }
+
+        m_combinedViz = new CombinedVisualization(m_elevator);
 
         m_test = new Coordinated(m_elevator, m_wrist);
 
@@ -577,6 +580,7 @@ public class RobotContainer implements Glassy{
         // publish the simulated tag sightings.
         m_simulatedTagDetector.run();
         m_leds.periodic();
+        m_combinedViz.run();
     }
 
     public void cancelAuton() {
