@@ -2,14 +2,13 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -29,9 +28,9 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private static final double kVelocityTolerance = 0.05;
 
     private final RotaryMechanism m_mechanism;
-    // private final ProfiledController m_controller;
+    private final ProfileReference1d m_ref;
 
-    private final Model100Logger m_log_goal;
+    private final DoubleLogger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
     private final Control100Logger m_log_setpoint;
@@ -48,11 +47,12 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
 
     public OutboardAngularPositionServo(
             LoggerFactory parent,
-            RotaryMechanism mech) {
+            RotaryMechanism mech,
+            ProfileReference1d ref) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
-        // m_controller = controller;
-        m_log_goal = child.model100Logger(Level.TRACE, "goal (rad)");
+        m_ref = ref;
+        m_log_goal = child.doubleLogger(Level.TRACE, "goal (rad)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (rad)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
@@ -69,9 +69,20 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         // OptionalDouble velocity = getVelocity();
         // if (velocity.isEmpty())
         // return;
-        m_setpoint = new Control100(position.getAsDouble(), 0);
+        Control100 measurement = new Control100(position.getAsDouble(), 0);
+        m_setpoint = measurement;
         // TODO: do i need this somewhere else?
         // m_controller.init(new Model100(position.getAsDouble(), 0));
+        // measurement is used for initialization only here.
+        m_ref.setGoal(measurement.model());
+        m_ref.init(measurement.model());
+    }
+
+    @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_goal = null;
+        m_setpoint = null;
+        m_mechanism.setDutyCycle(dutyCycle);
     }
 
     @Override
@@ -80,72 +91,63 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public void setDutyCycle(double dutyCycle) {
-        m_mechanism.setDutyCycle(dutyCycle);
+    public void setPositionProfiled(double goalRad, double feedForwardTorqueNm) {
+        m_log_goal.log(() -> goalRad);
+
+        Model100 goal = new Model100(mod(goalRad), 0);
+
+        if (!goal.near(m_goal, kPositionTolerance, kVelocityTolerance)) {
+            m_goal = goal;
+            m_ref.setGoal(goal);
+            // make sure the setpoint is near the measurement
+            if (m_setpoint == null) {
+                // erased by dutycycle control
+                OptionalDouble posOpt = m_mechanism.getPositionRad();
+                if (posOpt.isEmpty())
+                    return;
+                double measurement = posOpt.getAsDouble();
+                m_setpoint = new Control100(measurement, 0);
+            } else {
+                m_setpoint = new Control100(mod(m_setpoint.x()), m_setpoint.v());
+            }
+            // initialize with the setpoint, not the measurement, to avoid noise.
+            m_ref.init(m_setpoint.model());
+        }
+
+        actuate(m_ref.get(), feedForwardTorqueNm);
     }
-
-    // @Override
-    // public void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
-
-    //     // this is the absolute 1:1 position of the mechanism.
-    //     OptionalDouble posOpt = m_mechanism.getPositionRad();
-
-    //     if (posOpt.isEmpty())
-    //         return;
-    //     m_log_position.log(() -> posOpt);
-
-    //     // measurement is [-inf,inf]
-    //     final double measurement = posOpt.getAsDouble();
-
-    //     // choose a goal which is near the measurement
-    //     // goal is [-inf, inf]
-    //     m_goal = new Model100(MathUtil.angleModulus(goalRad - measurement) + measurement,
-    //             0);
-
-    //     // m_goal = new Model100(goalRad,
-    //     // goalVelocityRad_S);
-
-    //     // setpoint is [-inf,inf], near the measurement
-    //     m_setpoint = new Control100(
-    //             MathUtil.angleModulus(m_setpoint.x() - measurement) + measurement,
-    //             m_setpoint.v());
-
-    //     // m_setpoint = new Control100(
-    //     // m_setpoint.x(),
-    //     // m_setpoint.v());
-
-    //     // finally compute a new setpoint
-    //     final ProfiledController.Result result = m_controller.calculate(m_setpoint.model(), m_goal);
-    //     m_setpoint = result.feedforward();
-
-    //     m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-
-    //     m_log_goal.log(() -> m_goal);
-    //     m_log_ff_torque.log(() -> feedForwardTorqueNm);
-    //     m_log_measurement.log(() -> measurement);
-    //     m_log_setpoint.log(() -> m_setpoint);
-    // }
 
     /**
      * set mechanism position passthrough, adjusting the setpoint to be close to the
      * measurement.
-     * TODO: add configurable modulus
-     * TODO: i think this is just like "unprofiled" now.
+     * invalidates the current profile.
+     * for outboard control we only use the "next" setpoint.
      */
     @Override
-    public void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm) {
+    public void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        m_goal = null;
+        actuate(setpoint, feedForwardTorqueNm);
+    }
+
+    /**
+     * Pass the setpoint directly to the mechanism's position controller.
+     * For outboard control we only use the "next" setpoint.
+     */
+    private void actuate(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        m_setpoint = setpoint.next();
+        m_mechanism.setPosition(mod(m_setpoint.x()), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
+        m_log_setpoint.log(() -> m_setpoint);
+        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+    }
+
+    /** Return an angle near the measurement */
+    private double mod(double x) {
         OptionalDouble posOpt = m_mechanism.getPositionRad();
         if (posOpt.isEmpty())
-            return;
-        final double measurement = posOpt.getAsDouble();
-        m_mechanism.setPosition(
-                MathUtil.angleModulus(setpoint.next().x() - measurement) + measurement,
-                setpoint.next().v(),
-                setpoint.next().a(),
-                feedForwardTorqueNm);
-        m_log_setpoint.log(() -> setpoint.next());
-        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+            return x;
+        double measurement = posOpt.getAsDouble();
         m_log_measurement.log(() -> measurement);
+        return MathUtil.angleModulus(x - measurement) + measurement;
     }
 
     /**
@@ -175,21 +177,15 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
                 && Math.abs(velocityError) < kVelocityTolerance;
     }
 
-    // @Override
-    // public boolean profileDone() {
-    //     return setpointAtGoal();
-    // }
-
-    /**
-     * Note the setpoint may reflect the curent time, or the next time, depending on
-     * whether setPosition has been called during this cycle.
-     */
-    private boolean setpointAtGoal() {
-        double positionError = MathUtil.angleModulus(m_goal.x() - m_setpoint.x());
-        double velocityError = m_goal.v() - m_setpoint.v();
-        return Math.abs(positionError) < kPositionTolerance
-                && Math.abs(velocityError) < kVelocityTolerance;
+    @Override
+    public boolean profileDone() {
+        if (m_goal == null) {
+            // if there's no profile, it's always done.
+            return true;
+        }
+        return m_ref.profileDone();
     }
+
 
     /**
      * Note this is affected by the setpoint update.
@@ -198,10 +194,10 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
      * because the measurement comes from the recent-past Takt and the updated
      * setpoint will be aiming at the next one.
      */
-    // @Override
-    // public boolean atGoal() {
-    //     return atSetpoint() && setpointAtGoal();
-    // }
+    @Override
+    public boolean atGoal() {
+        return atSetpoint() && profileDone();
+    }
 
     @Override
     public void stop() {

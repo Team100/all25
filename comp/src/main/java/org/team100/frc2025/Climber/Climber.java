@@ -3,9 +3,7 @@ package org.team100.frc2025.Climber;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.RotaryPositionSensor;
@@ -22,17 +20,13 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
-import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-
-
-
-    // accepts setpoints
     AngularPositionServo climberMotor;
     // BareMotor m_motor;
 
@@ -59,18 +53,12 @@ public class Climber extends SubsystemBase {
                 RotaryMechanism rotaryMechanism = new RotaryMechanism(
                         child, motor, sensor, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-                // Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
+                Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
 
                 PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
-                // TODO: remove this
-                // IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
-                //         profile100, new Model100(1, 0));
+                ProfileReference1d ref = new IncrementalProfileReference1d(profile100, 0.05, 0.05);
 
-                // TODO: remove this
-                // ProfiledController controller = new IncrementalProfiledController(
-                //         child, ref, feedback, x -> x, 0.05, 0.05);
-
-                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, feedback);
+                climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, ref, feedback);
             }
 
             default -> {
@@ -86,11 +74,6 @@ public class Climber extends SubsystemBase {
                         1,
                         Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-                // ProfiledController controller = new TimedProfiledController();
-
-                // climberMotor = new OnboardAngularPositionServo(
-                // child, climberMech, encoder, m_controller);
-
             }
 
         }
@@ -103,14 +86,12 @@ public class Climber extends SubsystemBase {
         climberMotor.setDutyCycle(dutyCycle);
     }
 
-    // public void setAngle(double value) {
-
-
-    //     climberMotor.setPositionGoal(value, 0);
-    // }
+    public void setAngle(double value) {
+        climberMotor.setPositionProfiled(value, 0);
+    }
 
     public void setAngleSetpoint(Setpoints1d setpoint) {
-        climberMotor.setPositionSetpoint(setpoint, 0);
+        climberMotor.setPositionDirect(setpoint, 0);
     }
 
     public double getAngle() {

@@ -4,9 +4,6 @@ import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
-import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.Talon6Encoder;
@@ -19,9 +16,7 @@ import org.team100.lib.motor.SimulatedBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
-import org.team100.lib.reference.Setpoints1d;
-import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
-import org.team100.lib.state.Model100;
+import org.team100.lib.reference.ProfileReference1d;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,9 +38,6 @@ public class Elevator extends SubsystemBase implements Glassy {
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;
-
-    // private final ProfiledController m_starboardController;
-    // private final ProfiledController m_portController;
 
     private final Runnable m_viz;
 
@@ -98,8 +90,8 @@ public class Elevator extends SubsystemBase implements Glassy {
         table.put(0.0, 0.5);
 
         Profile100 profile = new TrapezoidProfile100(maxVel, maxAccel, kPositionTolerance);
-        // TODO: goal here is wrong
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(0, 0), 0.05, 0.05);
+        ProfileReference1d ref = new IncrementalProfileReference1d(profile, 0.05, 0.05);
+
         switch (Identity.instance) {
             case COMP_BOT -> {
                 Kraken6Motor starboardMotor = new Kraken6Motor(starboardMotorLogger, starboardID, MotorPhase.REVERSE,
@@ -108,16 +100,6 @@ public class Elevator extends SubsystemBase implements Glassy {
                         elevatorSupplyLimit, elevatorStatorLimit, elevatorPID, elevatorFF);
 
                 Talon6Encoder stbdEncoder = new Talon6Encoder(starboardLogger, starboardMotor);
-
-                // TODO: the port and stbd profiles should be the same, i.e. a single chooser
-                // for both.
-                // m_starboardController = new IncrementalProfiledController(
-                // child,
-                // ref,
-                // new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
-                // x -> x,
-                // kPositionTolerance,
-                // kVelocityTolerance);
 
                 LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
@@ -129,18 +111,10 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 starboardServo = new OutboardLinearPositionServo(
                         starboardLogger,
-                        starboardMech);
-                // m_starboardController);
+                        starboardMech,
+                        ref);
 
                 Talon6Encoder portEncoder = new Talon6Encoder(portLogger, portMotor);
-
-                // m_portController = new IncrementalProfiledController(
-                // child,
-                // ref,
-                // new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
-                // x -> x,
-                // kPositionTolerance,
-                // kVelocityTolerance);
 
                 LinearMechanism portMech = new LinearMechanism(
                         portMotor,
@@ -152,8 +126,8 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 portServo = new OutboardLinearPositionServo(
                         portLogger,
-                        portMech);
-                // m_portController);
+                        portMech,
+                        ref);
 
             }
             default -> {
@@ -161,14 +135,6 @@ public class Elevator extends SubsystemBase implements Glassy {
                 SimulatedBareMotor portMotor = new SimulatedBareMotor(portMotorLogger, 100);
 
                 SimulatedBareEncoder stbdEncoder = new SimulatedBareEncoder(starboardLogger, starboardMotor);
-
-                // m_starboardController = new IncrementalProfiledController(
-                // child,
-                // ref,
-                // new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
-                // x -> x,
-                // kPositionTolerance,
-                // kVelocityTolerance);
 
                 LinearMechanism starboardMech = new LinearMechanism(
                         starboardMotor,
@@ -180,14 +146,6 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 SimulatedBareEncoder portEncoder = new SimulatedBareEncoder(portLogger, portMotor);
 
-                // m_portController = new IncrementalProfiledController(
-                // child,
-                // ref,
-                // new ZeroFeedback(x -> x, kPositionTolerance, kVelocityTolerance),
-                // x -> x,
-                // kPositionTolerance,
-                // kVelocityTolerance);
-
                 LinearMechanism portMech = new LinearMechanism(
                         portMotor,
                         portEncoder,
@@ -198,35 +156,23 @@ public class Elevator extends SubsystemBase implements Glassy {
 
                 starboardServo = new OutboardLinearPositionServo(
                         starboardLogger,
-                        starboardMech);
-                // m_starboardController);
+                        starboardMech,
+                        ref);
                 portServo = new OutboardLinearPositionServo(
                         portLogger,
-                        portMech);
-                // m_portController);
+                        portMech,
+                        ref);
             }
 
         }
+        starboardServo.reset();
+        portServo.reset();
         if (VISUALIZE) {
             m_viz = new ElevatorVisualization(this);
         } else {
             m_viz = () -> {
             };
         }
-    }
-
-    /** Reference for commands */
-    public IncrementalProfileReference1d defaultReference(double value) {
-        Profile100 profile = new TrapezoidProfile100(maxVel, maxAccel, kPositionTolerance);
-        return new IncrementalProfileReference1d(
-                profile, new Model100(value, 0), kPositionTolerance, kVelocityTolerance);
-    }
-
-    /** You can update the goal of this one */
-    public TrackingIncrementalProfileReference1d updatableReference() {
-        Profile100 profile = new TrapezoidProfile100(maxVel, maxAccel, kPositionTolerance);
-        return new TrackingIncrementalProfileReference1d(
-                profile, kPositionTolerance, kVelocityTolerance);
     }
 
     @Override
@@ -242,38 +188,34 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.reset();
     }
 
-    public void setPositionSetpoint(Setpoints1d setpoint) {
-        starboardServo.setPositionSetpoint(setpoint, 1.3);
-        portServo.setPositionSetpoint(setpoint, 1.3);
+    public void setPosition(double x) {
+        starboardServo.setPositionProfiled(x, 1.3); // 54 max
+        portServo.setPositionProfiled(x, 1.3); // 54 max
     }
 
-    // public void setPosition(double x) {
-    // starboardServo.setPosition(x, 1.3); // 54 max
-    // portServo.setPosition(x, 1.3); // 54 max
-    // }
+    public boolean profileDone() {
+        return starboardServo.profileDone();
+    }
 
-    // public boolean profileDone() {
-    // return starboardServo.profileDone();
-    // }
+    public void setPositionDirectly(double x) {
+        // starboardServo.setPositionDirectly(x, 1.3); // 54 max
+        // portServo.setPositionDirectly(x, 1.3); // 54 max
 
-    // public void setPositionDirectly(double x) {
-    // // starboardServo.setPositionDirectly(x, 1.3); // 54 max
-    // // portServo.setPositionDirectly(x, 1.3); // 54 max
+        starboardServo.setPositionProfiled(x, 1.3); // 54 max
+        portServo.setPositionProfiled(x, 1.3); // 54 max
 
-    // starboardServo.setPosition(x, 1.3); // 54 max
-    // portServo.setPosition(x, 1.3); // 54 max
-
-    // }
+    }
 
     public void setPositionNoGravity(double x) {
-        starboardServo.setPosition(x, 0); // 54 max
-        portServo.setPosition(x, 0); // 54 max
+        starboardServo.setPositionProfiled(x, 0); // 54 max
+        portServo.setPositionProfiled(x, 0); // 54 max
     }
 
-    // public void setStatic() {
-    //     starboardServo.setPosition(starboardServo.getPosition().getAsDouble(), 1.3); // 54 max
-    //     portServo.setPosition(portServo.getPosition().getAsDouble(), 1.3); // 54 max
-    // }
+    public void setStatic() {
+        starboardServo.setPositionProfiled(starboardServo.getPosition().getAsDouble(), 1.3);
+        // 54 max
+        portServo.setPositionProfiled(portServo.getPosition().getAsDouble(), 1.3); // 54 max
+    }
 
     public void setDutyCycle(double value) {
         starboardServo.setDutyCycle(value);

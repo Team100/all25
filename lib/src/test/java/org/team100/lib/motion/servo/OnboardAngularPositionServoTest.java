@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
@@ -17,12 +15,8 @@ import org.team100.lib.motor.MockBareMotor;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
-import org.team100.lib.reference.Setpoints1d;
-import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.util.Util;
-
-import edu.wpi.first.math.MathUtil;
 
 public class OnboardAngularPositionServoTest implements Timeless {
     // note ridiculously precise delta
@@ -40,29 +34,16 @@ public class OnboardAngularPositionServoTest implements Timeless {
         final Feedback100 turningFeedback2 = new PIDFeedback(
                 logger, 1, 0, 0, false, 0.05, 1);
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
-
-        Model100 goal = new Model100(1, 0);
-        Model100 measurement = new Model100();
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal, 0.05, 0.05);
-        ref.init(measurement);
-
-        // ProfiledController controller = new IncrementalProfiledController(
-        //         logger,
-        //         ref,
-        //         turningFeedback2,
-        //         MathUtil::angleModulus,
-        //         0.05,
-        //         0.05);
-        OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
-                logger, mech, turningFeedback2);
+        final IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, 0.05, 0.05);
+        final OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
+                logger, mech, ref, turningFeedback2);
         servo.reset();
         // spin for 1 s
         for (int i = 0; i < 50; ++i) {
-            Setpoints1d setpoints = ref.get();
-            servo.setPositionSetpoint(setpoints, 0);
+            servo.setPositionProfiled(1, 0);
             stepTime();
             if (kActuallyPrint)
-                Util.printf("i: %d position: %5.3f\n", i, turningMotor.position);
+                Util.printf("i: %d position: %5.3f %5.3f\n", i, turningMotor.position, turningMotor.velocity);
             // lets say we're on the profile.
             positionSensor.angle = servo.m_setpoint.x();
             positionSensor.rate = servo.m_setpoint.v();

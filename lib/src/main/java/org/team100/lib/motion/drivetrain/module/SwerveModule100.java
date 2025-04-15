@@ -11,8 +11,8 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
-import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
-import org.team100.lib.state.Model100;
+import org.team100.lib.reference.Setpoints1d;
+import org.team100.lib.state.Control100;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
@@ -28,7 +28,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public abstract class SwerveModule100 implements Glassy {
     private final LinearVelocityServo m_driveServo;
     private final AngularPositionServo m_turningServo;
-    private final TrackingIncrementalProfileReference1d m_ref;
     /**
      * The previous desired angle, used if the current desired angle is empty (i.e.
      * the module is motionless) and to calculate steering velocity.
@@ -38,15 +37,12 @@ public abstract class SwerveModule100 implements Glassy {
 
     protected SwerveModule100(
             LinearVelocityServo driveServo,
-            AngularPositionServo turningServo,
-            TrackingIncrementalProfileReference1d ref) {
+            AngularPositionServo turningServo) {
         m_driveServo = driveServo;
         m_turningServo = turningServo;
-        m_ref = ref;
+        // note this will be wrong at instantiation.
+        // TODO: make previous desired angle null instead.
         double measurement = m_turningServo.getPosition().orElse(0);
-        Model100 measurement2 = new Model100(measurement, 0);
-        m_ref.setGoal(measurement2);
-        m_ref.init(measurement2);
         // the default previous angle is the measurement.
         m_previousDesiredAngle = new Rotation2d(measurement);
         m_previousTime = Takt.get();
@@ -56,6 +52,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Optimizes.
      * 
      * Works fine with empty angles.
+     * 
+     * TODO: make it do nothing if the angle is empty
      */
     void setDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
@@ -67,6 +65,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Does not optimize.
      * 
      * Works fine with empty angles.
+     * 
+     * TODO: make it do nothing if the angle is empty
      */
     void setRawDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
@@ -92,9 +92,14 @@ public abstract class SwerveModule100 implements Glassy {
             }
         }
         m_driveServo.setVelocityM_S(speed);
-        // servos no longer take goals, so we have to calculate the setpoint here.
-        m_ref.setGoal(new Model100(desiredAngle.getRadians(), 0));
-        m_turningServo.setPositionSetpoint(m_ref.get(), 0);
+        if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
+            // no profile, just low-level position
+            Control100 control = new Control100(desiredAngle.getRadians(), 0);
+            m_turningServo.setPositionDirect(new Setpoints1d(control, control), 0);
+        } else {
+            // use the profile
+            m_turningServo.setPositionProfiled(desiredAngle.getRadians(), 0);
+        }
         m_previousDesiredAngle = desiredAngle;
     }
 
@@ -155,7 +160,6 @@ public abstract class SwerveModule100 implements Glassy {
     public void reset() {
         m_turningServo.reset();
         m_driveServo.reset();
-        m_ref.init(new Model100(m_turningServo.getPosition().orElse(0), 0));
     }
 
     public void close() {

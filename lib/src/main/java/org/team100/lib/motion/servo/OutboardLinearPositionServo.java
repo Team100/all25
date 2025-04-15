@@ -7,44 +7,44 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
+import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
 /**
- * Position control using the feedback controller in the motor controller
- * hardware
- * 
- * TODO: integrate ProfiledController here.
+ * Profiled or direct position control using the feedback controller in the
+ * motor controller hardware.
  */
 public class OutboardLinearPositionServo implements LinearPositionServo {
     private static final double kPositionTolerance = 0.01;
     private static final double kVelocityTolerance = 0.01;
     private final LinearMechanism m_mechanism;
-    // private final ProfiledController m_controller;
+    private final ProfileReference1d m_ref;
 
-    private Model100 m_goal;
-    private Control100 m_setpoint = new Control100(0, 0);
-
-    private final Model100Logger m_log_goal;
+    private final DoubleLogger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
     private final Control100Logger m_log_setpoint;
     private final DoubleLogger m_log_position;
     private final DoubleLogger m_log_velocity;
+
+    /** Null if there's no current profile. */
+    private Model100 m_goal;
+    // TODO: should this be both? which one should we retain?
+    private Control100 m_nextSetpoint;
 
     // for calculating acceleration
     private double previousSetpoint = 0;
 
     public OutboardLinearPositionServo(
             LoggerFactory parent,
-            LinearMechanism mechanism){
-            // ProfiledController controller) {
+            LinearMechanism mechanism,
+            ProfileReference1d ref) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
-        // m_controller = controller;
-        m_log_goal = child.model100Logger(Level.COMP, "goal (m)");
+        m_ref = ref;
+        m_log_goal = child.doubleLogger(Level.COMP, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (m)");
         m_log_position = child.doubleLogger(Level.COMP, "position (m)");
@@ -61,60 +61,53 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // OptionalDouble velocity = getVelocity();
         // if (velocity.isEmpty())
         // return;
-        m_setpoint = new Control100(position.getAsDouble(), 0);
-        // m_controller.init(new Model100(position.getAsDouble(), 0));
+        Control100 measurement = new Control100(position.getAsDouble(), 0);
+        m_nextSetpoint = measurement;
+        // reference is initalized with measurement only here.
+        m_ref.setGoal(measurement.model());
+        m_ref.init(measurement.model());
     }
 
-    // @Override
-    // public void setPosition(double goalM, double feedForwardTorqueNm) {
-
-    //     final OptionalDouble position = getPosition();
-    //     final OptionalDouble velocity = getVelocity();
-    //     if (position.isEmpty() || velocity.isEmpty())
-    //         return;
-    //     final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-
-    //     m_goal = new Model100(goalM, 0);
-    //     final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
-    //     m_setpoint = result.feedforward();
-
-    //     m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-
-    //     m_log_goal.log(() -> m_goal);
-    //     m_log_ff_torque.log(() -> feedForwardTorqueNm);
-    //     m_log_setpoint.log(() -> m_setpoint);
-    // }
-
+    /** Resets the profile if necessary */
     @Override
-    public void setPositionSetpoint(Setpoints1d setpoints, double feedForwardTorqueNm) {
-        m_setpoint = setpoints.next();
-        m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-        m_log_ff_torque.log(() -> feedForwardTorqueNm);
-        m_log_setpoint.log(() -> m_setpoint);
+    public void setPositionProfiled(double goalM, double feedForwardTorqueNm) {
+        m_log_goal.log(() -> goalM);
+        Model100 goal = new Model100(goalM, 0);
+
+        if (!goal.near(m_goal, kPositionTolerance, kVelocityTolerance)) {
+            m_goal = goal;
+            m_ref.setGoal(goal);
+            if (m_nextSetpoint == null) {
+                // erased by dutycycle control
+                OptionalDouble position = getPosition();
+                if (position.isEmpty())
+                    return;
+                m_nextSetpoint = new Control100(position.getAsDouble(), 0);
+            }
+            // initialize with the setpoint, not the measurement, to avoid noise.
+            m_ref.init(m_nextSetpoint.model());
+        }
+        actuate(m_ref.get(), feedForwardTorqueNm);
     }
 
-    // /** Set the mechanism to exactly the goal position, without a profile. */
-    // public void setPositionDirectly(double goalM, double feedForwardTorqueNm) {
-    //     final OptionalDouble position = getPosition();
-    //     final OptionalDouble velocity = getVelocity();
-    //     if (position.isEmpty() || velocity.isEmpty())
-    //         return;
-    //     final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+    /** Invalidates the current profile */
+    @Override
+    public void setPositionDirect(Setpoints1d setpoints, double feedForwardTorqueNm) {
+        m_goal = null;
+        actuate(setpoints, feedForwardTorqueNm);
+    }
 
-    //     // update the controller even though we don't use the result.
-    //     @SuppressWarnings("unused")
-    //     final ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
-
-    //     m_goal = new Model100(goalM, 0.0);
-
-    //     m_setpoint = m_goal.control();
-
-    //     m_mechanism.setPosition(m_setpoint.x(), m_setpoint.v(), m_setpoint.a(), feedForwardTorqueNm);
-
-    //     m_log_goal.log(() -> m_goal);
-    //     m_log_ff_torque.log(() -> feedForwardTorqueNm);
-    //     m_log_setpoint.log(() -> m_setpoint);
-    // }
+    /**
+     * Pass the setpoint directly to the mechanism's position controller.
+     * For outboard control we only use the "next" setpoint.
+     */
+    private void actuate(Setpoints1d setpoints, double feedForwardTorqueNm) {
+        // setpoint must be updated so the profile can see it
+        m_nextSetpoint = setpoints.next();
+        m_mechanism.setPosition(m_nextSetpoint.x(), m_nextSetpoint.v(), m_nextSetpoint.a(), feedForwardTorqueNm);
+        m_log_setpoint.log(() -> m_nextSetpoint);
+        m_log_ff_torque.log(() -> feedForwardTorqueNm);
+    }
 
     @Override
     public OptionalDouble getPosition() {
@@ -122,6 +115,8 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     }
 
     public void setDutyCycle(double value) {
+        m_goal = null;
+        m_nextSetpoint = null;
         m_mechanism.setDutyCycle(value);
     }
 
@@ -130,19 +125,14 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         return m_mechanism.getVelocityM_S();
     }
 
-    // @Override
-    // public boolean profileDone() {
-    //     // the only way to tell if an incremental profile is done is to compare the
-    //     // setpoint to the goal.
-    //     return MathUtil.isNear(
-    //             m_goal.x(),
-    //             m_setpoint.x(),
-    //             kPositionTolerance)
-    //             && MathUtil.isNear(
-    //                     m_goal.v(),
-    //                     m_setpoint.v(),
-    //                     kVelocityTolerance);
-    // }
+    @Override
+    public boolean profileDone() {
+        if (m_goal == null) {
+            // if there's no profile, it's always done.
+            return true;
+        }
+        return m_ref.profileDone();
+    }
 
     @Override
     public void stop() {

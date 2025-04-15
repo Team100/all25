@@ -18,6 +18,8 @@ public interface LinearVelocityServo extends Glassy {
     void reset();
 
     /**
+     * There's no profile here, it just sets the mechanism velocity.
+     * 
      * Set velocity and compute implied acceleration based on the previous call,
      * using TimedRobot100.LOOP_PERIOD_S.  If you call this more often, you'll
      * get weird results.

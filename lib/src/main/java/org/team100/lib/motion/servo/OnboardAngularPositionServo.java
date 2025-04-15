@@ -3,7 +3,6 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
@@ -11,10 +10,13 @@ import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
+
+import edu.wpi.first.math.MathUtil;
 
 /**
  * Because the 2025 angular encoder classes do not wind up, this is a version of
@@ -23,14 +25,14 @@ import org.team100.lib.util.Util;
  */
 public class OnboardAngularPositionServo implements AngularPositionServo {
     private static final boolean DEBUG = false;
-    private static final double kXTolerance = 0.02;
-    private static final double kVTolerance = 0.02;
+    private static final double kPositionTolerance = 0.02;
+    private static final double kVelocityTolerance = 0.02;
 
     private final RotaryMechanism m_mechanism;
-    // final ProfiledController m_controller;
+    private final ProfileReference1d m_ref;
     private final Feedback100 m_feedback;
 
-    private final Model100Logger m_log_goal;
+    private final DoubleLogger m_log_goal;
     private final DoubleLogger m_log_feedforward_torque;
     private final Model100Logger m_log_measurement;
     private final Control100Logger m_log_control;
@@ -50,14 +52,15 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     public OnboardAngularPositionServo(
             LoggerFactory parent,
             RotaryMechanism mech,
-            // ProfiledController controller,
+            ProfileReference1d ref,
             Feedback100 feedback) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
+        m_ref = ref;
         // m_controller = controller;
         m_feedback = feedback;
 
-        m_log_goal = child.model100Logger(Level.COMP, "goal (rad)");
+        m_log_goal = child.doubleLogger(Level.COMP, "goal (rad)");
         m_log_feedforward_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.model100Logger(Level.COMP, "measurement (rad)");
         m_log_control = child.control100Logger(Level.COMP, "control (rad)");
@@ -94,6 +97,19 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         // m_controller.init(new Model100(position.getAsDouble(), 0));
         // System.out.println("IM BEING RESET TO" + position.getAsDouble() +
         // "***********************************************************");
+        Control100 measurement = new Control100(position.getAsDouble(), 0);
+        m_setpoint = measurement;
+        // measurement is used for initialization only here.
+        m_ref.setGoal(measurement.model());
+        m_ref.init(measurement.model());
+        m_feedback.reset();
+    }
+
+    @Override
+    public void setDutyCycle(double dutyCycle) {
+        m_goal = null;
+        m_setpoint = null;
+        m_mechanism.setDutyCycle(dutyCycle);
     }
 
     @Override
@@ -101,77 +117,78 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_mechanism.setTorqueLimit(torqueNm);
     }
 
-    // @Override
-    // private void setPositionGoal(double goalRad, double feedForwardTorqueNm) {
+    @Override
+    public void setPositionProfiled(double goalRad, double feedForwardTorqueNm) {
+        m_log_goal.log(() -> goalRad);
 
-    //     final OptionalDouble position = m_mechanism.getPositionRad();
-    //     // note the mechanism uses the motor's internal encoder which may be only
-    //     // approximately attached to the the output, via backlash and slack, so these
-    //     // two measurements might not be entirely consistent.
-    //     // on the other hand, using the position sensor to obtain velocity has its own
-    //     // issues: delay and noise.
-    //     final OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+        Model100 goal = new Model100(goalRad, 0);
+        if (!goal.near(m_goal, kPositionTolerance, kVelocityTolerance)) {
+            m_goal = goal;
+            m_ref.setGoal(goal);
+            if (m_setpoint == null) {
+                final OptionalDouble position = m_mechanism.getPositionRad();
+                if (position.isEmpty()) {
+                    Util.warn("Broken sensor!");
+                    return;
+                }
+                double measurement = position.getAsDouble();
+                // avoid velocity noise here
+                m_setpoint = new Control100(measurement, 0);
+            } else {
+                m_setpoint = new Control100(mod(m_setpoint.x()), m_setpoint.v());
+            }
+            m_ref.init(m_setpoint.model());
 
-    //     if (position.isEmpty() || velocity.isEmpty()) {
-    //         Util.warn("Broken sensor!");
-    //         return;
-    //     }
-    //     // we seem to always use zero goal velocity
-    //     m_goal = new Model100(goalRad, 0);
-
-    //     Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-
-    //     ProfiledController.Result result = m_controller.calculate(measurement, m_goal);
-    //     m_setpoint = result.feedforward();
-
-    //     final double u_FF = m_setpoint.v();
-    //     // note u_FF is rad/s, so a big number, u_FB should also be a big number.
-    //     final double u_FB = result.feedback();
-
-    //     final double u_TOTAL = u_FB + u_FF;
-
-    //     m_mechanism.setVelocity(u_TOTAL, m_setpoint.a(), feedForwardTorqueNm);
-
-    //     m_log_goal.log(() -> m_goal);
-    //     m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
-    //     m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
-    //     m_log_control.log(() -> m_setpoint);
-    //     m_log_u_FB.log(() -> u_FB);
-    //     m_log_u_FF.log(() -> u_FF);
-    //     m_log_u_TOTAL.log(() -> u_TOTAL);
-    //     m_log_error.log(() -> m_setpoint.x() - position.getAsDouble());
-    //     m_log_velocity_error.log(() -> m_setpoint.v() - velocity.getAsDouble());
-    // }
+        }
+        actuate(m_ref.get(), feedForwardTorqueNm);
+    }
 
     /**
      * set mechanism velocity use the current setpoint for feedback, and
      * the next setpoint velocity as feedforward.
-     * 
-     * controller is not used here
      */
     @Override
-    public void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm) {
-        OptionalDouble position = m_mechanism.getPositionRad();
-        OptionalDouble velocity = m_mechanism.getVelocityRad_S();
+    public void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm) {
+        m_goal = null;
+        actuate(setpoint, feedForwardTorqueNm);
+    }
+
+    private void actuate(Setpoints1d setpoints, double feedForwardTorqueNm) {
+        m_setpoint = setpoints.next();
+
+        final OptionalDouble position = m_mechanism.getPositionRad();
+        final OptionalDouble velocity = m_mechanism.getVelocityRad_S();
         if (position.isEmpty() || velocity.isEmpty()) {
             Util.warn("Broken sensor!");
             return;
         }
-        Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-        double u_FB = m_feedback.calculate(measurement, setpoint.current().model());
-        m_setpoint = setpoint.next();
-        double u_FF = m_setpoint.v();
-        double u_TOTAL = u_FB + u_FF;
+        final Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
+
+        final double u_FB = m_feedback.calculate(
+                measurement,
+                new Model100(mod(setpoints.current().x()), setpoints.current().v()));
+        final double u_FF = m_setpoint.v();
+        final double u_TOTAL = u_FB + u_FF;
+
         m_mechanism.setVelocity(u_TOTAL, m_setpoint.a(), feedForwardTorqueNm);
 
         m_log_feedforward_torque.log(() -> feedForwardTorqueNm);
-        m_log_measurement.log(() -> new Model100(position.getAsDouble(), velocity.getAsDouble()));
+        m_log_measurement.log(() -> measurement);
         m_log_control.log(() -> m_setpoint);
         m_log_u_FB.log(() -> u_FB);
         m_log_u_FF.log(() -> u_FF);
         m_log_u_TOTAL.log(() -> u_TOTAL);
-        m_log_error.log(() -> setpoint.current().x() - position.getAsDouble());
-        m_log_velocity_error.log(() -> setpoint.current().v() - velocity.getAsDouble());
+        m_log_error.log(() -> setpoints.current().x() - position.getAsDouble());
+        m_log_velocity_error.log(() -> setpoints.current().v() - velocity.getAsDouble());
+    }
+
+    /** Return an angle near the measurement */
+    private double mod(double x) {
+        OptionalDouble posOpt = m_mechanism.getPositionRad();
+        if (posOpt.isEmpty())
+            return x;
+        double measurement = posOpt.getAsDouble();
+        return MathUtil.angleModulus(x - measurement) + measurement;
     }
 
     /**
@@ -183,36 +200,25 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     }
 
     @Override
-    public void setDutyCycle(double dutyCycle) {
-        m_mechanism.setDutyCycle(dutyCycle);
-    }
-
-    @Override
     public boolean atSetpoint() {
         boolean atSetpoint = m_feedback.atSetpoint();
         m_log_at_setpoint.log(() -> atSetpoint);
         return atSetpoint;
     }
 
-    // @Override
-    // public boolean profileDone() {
-    //     return m_controller.profileDone();
-    // }
+    @Override
+    public boolean profileDone() {
+        if (m_goal == null) {
+            // if there's no profile, it's always done.
+            return true;
+        }
+        return m_ref.profileDone();
+    }
 
-    // /**
-    //  * position and velocity errors are both under their tolerances.
-    //  */
-    // @Override
-    // public boolean atGoal() {
-    //     OptionalDouble position = m_mechanism.getPositionRad();
-    //     OptionalDouble velocity = m_mechanism.getVelocityRad_S();
-    //     if (position.isEmpty() || velocity.isEmpty()) {
-    //         Util.warn("Broken sensor!");
-    //         return false;
-    //     }
-    //     Model100 measurement = new Model100(position.getAsDouble(), velocity.getAsDouble());
-    //     return measurement.near(m_goal, kXTolerance, kVTolerance);
-    // }
+    @Override
+    public boolean atGoal() {
+        return atSetpoint() && profileDone();
+    }
 
     @Override
     public void stop() {

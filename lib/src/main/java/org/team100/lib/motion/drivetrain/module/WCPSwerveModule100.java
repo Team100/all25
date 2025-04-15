@@ -2,10 +2,6 @@ package org.team100.lib.motion.drivetrain.module;
 
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.PIDConstants;
-import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
-import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.AS5048RotaryPositionSensor;
 import org.team100.lib.encoder.AnalogTurningEncoder;
 import org.team100.lib.encoder.CombinedRotaryPositionSensor;
@@ -14,8 +10,6 @@ import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.Talon6Encoder;
-import org.team100.lib.experiments.Experiment;
-import org.team100.lib.experiments.Experiments;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
@@ -24,14 +18,12 @@ import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
-import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.Falcon6Motor;
 import org.team100.lib.motor.Kraken6Motor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
-import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
-import org.team100.lib.state.Model100;
+import org.team100.lib.reference.ProfileReference1d;
 
 public class WCPSwerveModule100 extends SwerveModule100 {
     private static final double kSteeringPositionToleranceRad = 0.05;
@@ -105,11 +97,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 kinodynamics,
                 drive,
                 motorPhase);
-
-        Profile100 profile = kinodynamics.getSteeringProfile();
-        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(
-                profile, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
-        return new WCPSwerveModule100(driveServo, turningServo, ref);
+        return new WCPSwerveModule100(driveServo, turningServo);
     }
 
     /**
@@ -144,10 +132,7 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 kinodynamics,
                 drive,
                 motorPhase);
-        Profile100 profile = kinodynamics.getSteeringProfile();
-        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(
-                profile, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
-        return new WCPSwerveModule100(driveServo, turningServo, ref);
+        return new WCPSwerveModule100(driveServo, turningServo);
     }
 
     private static LinearVelocityServo driveKrakenServo(
@@ -255,17 +240,10 @@ public class WCPSwerveModule100 extends SwerveModule100 {
             SwerveKinodynamics kinodynamics,
             RotaryMechanism mech,
             CombinedRotaryPositionSensor combinedEncoder) {
-        if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
-            return new UnprofiledOutboardAngularPositionServo(parent, mech);
-        }
         Profile100 profile = kinodynamics.getSteeringProfile();
-        // TODO: goal here is bad
-        // IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
-        //         profile, new Model100(), kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
-        // Feedback100 feedback = new ZeroFeedback(MathUtil::angleModulus, 0.02, 0.02);
-        // ProfiledController controller = new IncrementalProfiledController(
-        // parent, ref, feedback, MathUtil::angleModulus, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
-        return new OutboardAngularPositionServo(parent, mech);
+        ProfileReference1d ref = new IncrementalProfileReference1d(
+                profile, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
+        return new OutboardAngularPositionServo(parent, mech, ref);
     }
 
     /** Produces either an AS5048 or an Analog sensor. */
@@ -296,9 +274,8 @@ public class WCPSwerveModule100 extends SwerveModule100 {
 
     private WCPSwerveModule100(
             LinearVelocityServo driveServo,
-            AngularPositionServo turningServo,
-            TrackingIncrementalProfileReference1d ref) {
-        super(driveServo, turningServo, ref);
+            AngularPositionServo turningServo) {
+        super(driveServo, turningServo);
         //
     }
 }

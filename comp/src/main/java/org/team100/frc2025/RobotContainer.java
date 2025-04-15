@@ -589,7 +589,6 @@ public class RobotContainer implements Glassy{
     public void close() {
         m_modules.close();
         m_leds.close();
-        m_wrist.close();
         m_elevator.close();
     }
 }

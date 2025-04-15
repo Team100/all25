@@ -27,8 +27,6 @@ public class SetElevator extends Command implements Glassy {
     private final IntLogger m_log_count;
     private final DoubleLogger m_log_error;
 
-    private final IncrementalProfileReference1d m_ref;
-
     private boolean finished = false;
     private int count = 0;
 
@@ -40,7 +38,6 @@ public class SetElevator extends Command implements Glassy {
         m_value = value;
         finished = false;
         m_perpetual = perpetual;
-        m_ref = elevator.defaultReference(value);
         addRequirements(m_elevator);
     }
 
@@ -51,13 +48,11 @@ public class SetElevator extends Command implements Glassy {
         // resetting forces the setpoint velocity to zero, which is not always what we
         // want
         // m_elevator.resetElevatorProfile();
-        m_ref.init(new Model100(m_elevator.getPosition(), 0));
     }
 
     @Override
     public void execute() {
-        m_elevator.setPositionSetpoint(m_ref.get());
-        // m_elevator.setPosition(m_value); // 24.5 for l3
+        m_elevator.setPosition(m_value); // 24.5 for l3
 
         double error = Math.abs(m_elevator.getPosition() - m_value);
         m_log_error.log(() -> error);
@@ -86,8 +81,7 @@ public class SetElevator extends Command implements Glassy {
             return false;
         }
         if (Experiments.instance.enabled(Experiment.UseProfileDone))
-            return finished && m_ref.profileDone();
-        // return finished && m_elevator.profileDone();
+            return finished && m_elevator.profileDone();
         return finished;
 
     }

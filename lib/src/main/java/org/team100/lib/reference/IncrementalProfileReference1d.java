@@ -7,40 +7,43 @@ import org.team100.lib.state.Model100;
 import org.team100.lib.util.Takt;
 
 /**
- * To extract current and next references from the incremental profile
- * controller.
- * 
- * Contains the goal, since our goals never change.
+ * Extracts current and next references from an incremental profile.
  */
-public class IncrementalProfileReference1d {
+public class IncrementalProfileReference1d implements ProfileReference1d {
     private final IncrementalProfile m_profile;
-    protected Model100 m_goal;
     private final double m_positionTolerance;
     private final double m_velocityTolerance;
+    private Model100 m_goal;
     private double m_currentInstant;
     private Setpoints1d m_currentSetpoint;
 
     public IncrementalProfileReference1d(
             IncrementalProfile profile,
-            Model100 goal,
             double positionTolerance,
             double velocityTolerance) {
         m_profile = profile;
-        m_goal = goal;
         m_positionTolerance = positionTolerance;
         m_velocityTolerance = velocityTolerance;
     }
 
+    @Override
+    public void setGoal(Model100 goal) {
+        m_goal = goal;
+    }
+
+    @Override
     public void init(Model100 measurement) {
         m_currentInstant = Takt.get();
         m_currentSetpoint = advance(measurement.control());
     }
 
+    @Override
     public Setpoints1d get() {
         double t = Takt.get();
-        // If time hasn't passed, don't change anything.
-        if (t == m_currentInstant)
+        if (t == m_currentInstant) {
+            // Time hasn't passed since last time, so don't change anything.
             return m_currentSetpoint;
+        }
 
         // Time has passed, make a new setpoint and return it.
         m_currentInstant = t;
@@ -48,11 +51,14 @@ public class IncrementalProfileReference1d {
         return m_currentSetpoint;
     }
 
+    @Override
     public boolean profileDone() {
         // the only way to tell if an incremental profile is done is to compare the goal
         // to the setpoint.
         return m_currentSetpoint.current().model().near(m_goal, m_positionTolerance, m_velocityTolerance);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
     private Setpoints1d advance(Control100 newCurrent) {
         if (m_goal == null)

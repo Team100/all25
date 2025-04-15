@@ -41,16 +41,24 @@ public record Model100(double x, double v) implements Interpolatable<Model100> {
         return new Model100(x * scalar, v * scalar);
     }
 
-    /** position and velocity are both within (the same) tolerance */
+    /**
+     * True if not null and position and velocity are both within (the same)
+     * tolerance
+     */
     public boolean near(Model100 other, double tolerance) {
-        return MathUtil.isNear(x, other.x, tolerance) &&
-                MathUtil.isNear(v, other.v, tolerance);
+        return other != null
+                && MathUtil.isNear(x, other.x, tolerance)
+                && MathUtil.isNear(v, other.v, tolerance);
     }
 
-    /** position is within xtolerance, velocity is within vtolerance. */
+    /**
+     * True if not null, position is within xtolerance, velocity is within
+     * vtolerance.
+     */
     public boolean near(Model100 other, double xTolerance, double vTolerance) {
-        return MathUtil.isNear(x, other.x, xTolerance) &&
-                MathUtil.isNear(v, other.v, vTolerance);
+        return other != null
+                && MathUtil.isNear(x, other.x, xTolerance)
+                && MathUtil.isNear(v, other.v, vTolerance);
     }
 
     @Override

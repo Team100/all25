@@ -23,12 +23,15 @@ public interface AngularPositionServo extends Glassy {
      */
     void reset();
 
+    /**
+     * Invalidates the current profile.
+     */
     public void setDutyCycle(double dutyCycle);
 
     void setTorqueLimit(double torqueNm);
 
     /**
-     * TODO: remove this.
+     * Initializes the profile if necessary.
      * 
      * Sets the goal, updates the setpoint to the "next step" value towards it,
      * gives the setpoint to the outboard mechanism.
@@ -38,10 +41,14 @@ public interface AngularPositionServo extends Glassy {
      *                            radians
      * @param feedForwardTorqueNm used for gravity or spring compensation
      */
-    // void setPositionGoal(double goalRad, double feedForwardTorqueNm);
+    void setPositionProfiled(double goalRad, double feedForwardTorqueNm);
 
-    /** No profile here. */
-    void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm);
+    /**
+     * Invalidates the current profile, sets the setpoint directly.
+     * This takes both current and next setpoints so that the implementation can
+     * choose the current one for feedback and the next one for feedforward.
+     */
+    void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm);
 
     /**
      * Value should be updated in Robot.robotPeriodic().
@@ -52,10 +59,9 @@ public interface AngularPositionServo extends Glassy {
 
     boolean atSetpoint();
 
-    // boolean profileDone();
+    boolean profileDone();
 
-    // TODO: remove
-    // boolean atGoal();
+    boolean atGoal();
 
     void stop();
 

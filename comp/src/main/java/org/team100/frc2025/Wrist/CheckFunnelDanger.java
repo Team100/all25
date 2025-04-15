@@ -1,8 +1,6 @@
 package org.team100.frc2025.Wrist;
 
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.lib.reference.Setpoints1d;
-import org.team100.lib.state.Control100;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -29,8 +27,7 @@ public class CheckFunnelDanger extends Command {
     public void execute() {
         if (m_wrist.getAngle() > 1.6) {
             m_wrist.setAngleValue(1.5);
-            var setpoint = new Control100(m_initialElevatorValue, 0);
-            m_elevator.setPositionSetpoint(new Setpoints1d(setpoint, setpoint));
+            m_elevator.setPosition(m_initialElevatorValue);
         } else {
             finished = true;
         }

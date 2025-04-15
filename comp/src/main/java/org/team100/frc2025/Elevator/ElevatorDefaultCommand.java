@@ -8,7 +8,6 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
-import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +20,6 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private double m_holdPosition;
     private final DoubleLogger m_log_holdPosition;
-    private final TrackingIncrementalProfileReference1d m_ref;
 
     public ElevatorDefaultCommand(LoggerFactory logger, Elevator elevator, Wrist2 wrist, AlgaeGrip grip,
             SwerveDriveSubsystem drive) {
@@ -30,8 +28,6 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         m_log_holdPosition = child.doubleLogger(Level.TRACE, "hold position (m)");
 
         m_elevator = elevator;
-        m_ref = elevator.updatableReference();
-
         m_wrist = wrist;
         m_grip = grip;
         m_drive = drive;
@@ -43,7 +39,6 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         // only the default command resets the profile
         m_elevator.resetElevatorProfile();
         m_holdPosition = m_elevator.getPosition();
-        m_ref.init(new Model100(m_holdPosition, 0));
     }
 
     @Override
@@ -54,8 +49,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         if (!m_wrist.getSafeCondition()) {
             // System.out.println("IM RUNNING BUT IM UNSAFE");
             // elevator shouldn't move at all
-            m_ref.setGoal(new Model100(m_holdPosition, 0));
-            m_elevator.setPositionSetpoint(m_ref.get());
+            m_elevator.setPositionDirectly(m_holdPosition);
 
             double goal = 0;
             if (!m_grip.hasAlgae()) {
@@ -75,8 +69,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         }
 
         if (distanceToReef < 1.6) {
-            m_ref.setGoal(new Model100(m_holdPosition, 0));
-            m_elevator.setPositionSetpoint(m_ref.get());
+            m_elevator.setPositionDirectly(m_holdPosition);
             return;
         }
 
@@ -90,8 +83,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
             if (m_wrist.getSafeCondition()) {
                 m_elevator.setPositionNoGravity(goal);
             } else {
-                m_ref.setGoal(new Model100(m_elevator.getPosition(), 0));
-                m_elevator.setPositionSetpoint(m_ref.get());
+                m_elevator.setStatic();
             }
 
             double error = Math.abs(m_elevator.getPosition() - goal);
@@ -107,11 +99,9 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
             double goal = 12;
 
             if (m_wrist.getSafeCondition()) {
-                m_ref.setGoal(new Model100(goal, 0));
-                m_elevator.setPositionSetpoint(m_ref.get());
+                m_elevator.setPosition(goal);
             } else {
-                m_ref.setGoal(new Model100(m_elevator.getPosition(), 0));
-                m_elevator.setPositionSetpoint(m_ref.get());
+                m_elevator.setStatic();
             }
 
         }

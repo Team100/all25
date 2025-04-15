@@ -18,21 +18,26 @@ public interface LinearPositionServo extends Glassy {
     void reset();
 
     /**
+     * Initializes the profile if necessary.
      * This is movement and force on the output.
      * 
      * @param goalM             meters
      * @param feedForwardTorque used for gravity compensation
      */
-    // void setPosition(double goalM, double feedForwardTorqueNm);
+    void setPositionProfiled(double goalM, double feedForwardTorqueNm);
 
-    /** No setpoints here. */
-    void setPositionSetpoint(Setpoints1d setpoint, double feedForwardTorqueNm);
+    /**
+     * Invalidates the current profile, sets the setpoint directly.
+     * This takes both current and next setpoints so that the implementation can
+     * choose the current one for feedback and the next one for feedforward.
+     */
+    void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm);
 
     OptionalDouble getPosition();
 
     OptionalDouble getVelocity();
 
-    // boolean profileDone();
+    boolean profileDone();
 
     void stop();
 
