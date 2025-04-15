@@ -49,15 +49,14 @@ class AnglePositionServoProfileTest implements Timeless {
 
         Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         Model100 goal = new Model100(1, 0);
-        ref = new IncrementalProfileReference1d(profile, goal);
-
-        ProfiledController controller = new IncrementalProfiledController(
-                logger,
-                ref,
-                feedback2,
-                MathUtil::angleModulus,
-                0.05,
-                0.05);
+        ref = new IncrementalProfileReference1d(profile, goal, 0.05, 0.05);
+        // ProfiledController controller = new IncrementalProfiledController(
+        //         logger,
+        //         ref,
+        //         feedback2,
+        //         MathUtil::angleModulus,
+        //         0.05,
+        //         0.05);
         servo = new OnboardAngularPositionServo(
                 logger, mech, feedback2);
         servo.reset();

@@ -44,11 +44,11 @@ public class OutboardAngularPositionServoTest implements Timeless {
         final Profile100 profile = new TrapezoidProfile100(1, 1, 0.05);
         Model100 goal = new Model100(1, 0);
         Model100 measurement = new Model100();
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal, 0.01, 0.01);
         ref.init(measurement);
-        final ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
-        final ProfiledController controller = new IncrementalProfiledController(
-                logger, ref, feedback, x -> x, 0.01, 0.01);
+        // final ZeroFeedback feedback = new ZeroFeedback(x -> x, 0.01, 0.01);
+        // final ProfiledController controller = new IncrementalProfiledController(
+        //         logger, ref, feedback, x -> x, 0.01, 0.01);
         final OutboardAngularPositionServo servo = new OutboardAngularPositionServo(
                 logger, mech);
         servo.reset();

@@ -2,7 +2,6 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
@@ -14,8 +13,6 @@ import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
-import edu.wpi.first.math.MathUtil;
-
 /**
  * Position control using the feedback controller in the motor controller
  * hardware
@@ -26,7 +23,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private static final double kPositionTolerance = 0.01;
     private static final double kVelocityTolerance = 0.01;
     private final LinearMechanism m_mechanism;
-    private final ProfiledController m_controller;
+    // private final ProfiledController m_controller;
 
     private Model100 m_goal;
     private Control100 m_setpoint = new Control100(0, 0);
@@ -42,11 +39,11 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
 
     public OutboardLinearPositionServo(
             LoggerFactory parent,
-            LinearMechanism mechanism,
-            ProfiledController controller) {
+            LinearMechanism mechanism){
+            // ProfiledController controller) {
         LoggerFactory child = parent.child(this);
         m_mechanism = mechanism;
-        m_controller = controller;
+        // m_controller = controller;
         m_log_goal = child.model100Logger(Level.COMP, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (m)");
@@ -65,7 +62,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // if (velocity.isEmpty())
         // return;
         m_setpoint = new Control100(position.getAsDouble(), 0);
-        m_controller.init(new Model100(position.getAsDouble(), 0));
+        // m_controller.init(new Model100(position.getAsDouble(), 0));
     }
 
     // @Override

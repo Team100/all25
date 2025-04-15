@@ -17,7 +17,7 @@ public class SetClimber extends Command {
         // m_value = value;
         Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
         Model100 goal = new Model100(value, 0);
-        m_ref = new IncrementalProfileReference1d(profile100, goal);
+        m_ref = new IncrementalProfileReference1d(profile100, goal, 0.05, 0.05);
         addRequirements(m_climber);
     }
 

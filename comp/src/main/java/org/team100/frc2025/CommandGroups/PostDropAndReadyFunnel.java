@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
+import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
+import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -12,6 +14,7 @@ public class PostDropAndReadyFunnel extends Command {
     private final Wrist2 m_wrist;
     private final Elevator m_elevator;
     private final double m_elevatorGoal;
+    private final TrackingIncrementalProfileReference1d m_ref;
 
     private double count = 0;
     private boolean finishedDrop = false;
@@ -28,6 +31,8 @@ public class PostDropAndReadyFunnel extends Command {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
+        m_ref = elevator.updatableReference();
+
         m_endCondition = endCondition;
         addRequirements(m_wrist, m_elevator);
     }
@@ -45,6 +50,8 @@ public class PostDropAndReadyFunnel extends Command {
         // m_elevator.resetElevatorProfile();
 
         initialElevatorPosition = m_elevator.getPosition();
+        m_ref.setGoal(new Model100(m_elevatorGoal, 0));
+        m_ref.init(new Model100(m_elevator.getPosition(), 0));
     }
 
     @Override
@@ -52,7 +59,9 @@ public class PostDropAndReadyFunnel extends Command {
 
         if (!finishedDrop) {
             // System.out.println("FINISHED DROPPP " + finishedDrop);
-            m_elevator.setPosition(m_elevatorGoal);
+            // m_elevator.setPosition(m_elevatorGoal);
+
+            m_elevator.setPositionSetpoint(m_ref.get());
 
             if (Math.abs(m_elevator.getPosition() - initialElevatorPosition) > 5) {
                 m_wrist.setAngleValue(0.4);
@@ -70,6 +79,7 @@ public class PostDropAndReadyFunnel extends Command {
 
             if (count >= 5) {
                 finishedDrop = true;
+                m_ref.setGoal(new Model100(0.1, 0));
             }
 
             if (m_elevator.getPosition() <= 30 && m_wrist.getAngle() <= 0.9) {
@@ -83,7 +93,7 @@ public class PostDropAndReadyFunnel extends Command {
                 indicateReadyToLeave = true;
             }
 
-            m_elevator.setPosition(0.1);
+            m_elevator.setPositionSetpoint(m_ref.get());
             m_wrist.setAngleValue(0.1);
 
             if (Math.abs(m_wrist.getAngle() - 0.1) < 0.05) {

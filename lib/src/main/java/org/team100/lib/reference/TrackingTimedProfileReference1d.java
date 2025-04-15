@@ -5,26 +5,19 @@ import org.team100.lib.profile.timed.TimedProfile;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Takt;
 
-/**
- * To extract current and next references from the timed profile
- * controller.
- * 
- * Contains the goal, since our goals never change.
- */
-public class TimedProfileReference1d {
+/** Update goal on init. */
+public class TrackingTimedProfileReference1d {
 
     private final TimedProfile m_profile;
-    private final Model100 m_goal;
     private double m_startTimeS;
 
-    public TimedProfileReference1d(TimedProfile profile, Model100 goal) {
+    public TrackingTimedProfileReference1d(TimedProfile profile) {
         m_profile = profile;
-        m_goal = goal;
     }
 
-    public void init(Model100 measurement) {
+    public void init(Model100 measurement, Model100 goal) {
         m_startTimeS = Takt.get();
-        m_profile.init(measurement.control(), m_goal);
+        m_profile.init(measurement.control(), goal);
     }
 
     public Setpoints1d get() {
@@ -45,5 +38,4 @@ public class TimedProfileReference1d {
     public boolean profileDone() {
         return progress() >= duration();
     }
-
 }

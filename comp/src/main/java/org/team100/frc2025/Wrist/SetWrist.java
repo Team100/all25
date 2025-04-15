@@ -100,7 +100,7 @@ public class SetWrist extends Command {
             return false;
         }
         if (Experiments.instance.enabled(Experiment.UseProfileDone))
-            return finished && m_wrist.profileDone();
+            return finished && m_ref.profileDone();
         return finished;
     }
 }

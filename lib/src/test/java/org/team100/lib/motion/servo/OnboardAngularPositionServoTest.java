@@ -43,16 +43,16 @@ public class OnboardAngularPositionServoTest implements Timeless {
 
         Model100 goal = new Model100(1, 0);
         Model100 measurement = new Model100();
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, goal, 0.05, 0.05);
         ref.init(measurement);
 
-        ProfiledController controller = new IncrementalProfiledController(
-                logger,
-                ref,
-                turningFeedback2,
-                MathUtil::angleModulus,
-                0.05,
-                0.05);
+        // ProfiledController controller = new IncrementalProfiledController(
+        //         logger,
+        //         ref,
+        //         turningFeedback2,
+        //         MathUtil::angleModulus,
+        //         0.05,
+        //         0.05);
         OnboardAngularPositionServo servo = new OnboardAngularPositionServo(
                 logger, mech, turningFeedback2);
         servo.reset();

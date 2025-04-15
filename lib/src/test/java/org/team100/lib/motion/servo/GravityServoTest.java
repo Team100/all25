@@ -7,10 +7,8 @@ import java.util.function.DoubleUnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.MockProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.controller.simple.ProfiledController.Result;
 import org.team100.lib.controller.simple.ZeroFeedback;
 import org.team100.lib.encoder.MockRotaryPositionSensor;
@@ -30,8 +28,6 @@ import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 
-import edu.wpi.first.math.MathUtil;
-
 class GravityServoTest implements Timeless {
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
@@ -41,7 +37,7 @@ class GravityServoTest implements Timeless {
         Feedback100 pivotFeedback = new PIDFeedback(
                 logger, 4.5, 0.0, 0.000, false, 0.05, 1);
         Profile100 profile = new TrapezoidProfile100(8, 8, 0.001);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(1, 0));
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100(1, 0), 0.05, 0.05);
         // motor speed is rad/s
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, simMotor);
@@ -50,13 +46,13 @@ class GravityServoTest implements Timeless {
         RotaryMechanism simMech = new RotaryMechanism(
                 logger, simMotor, sensor, 165, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-        ProfiledController controller = new IncrementalProfiledController(
-                logger,
-                ref,
-                pivotFeedback,
-                MathUtil::angleModulus,
-                0.05,
-                0.05);
+        // ProfiledController controller = new IncrementalProfiledController(
+        //         logger,
+        //         ref,
+        //         pivotFeedback,
+        //         MathUtil::angleModulus,
+        //         0.05,
+        //         0.05);
         AngularPositionServo servo = new OnboardAngularPositionServo(
                 logger, simMech, pivotFeedback);
         servo.reset();

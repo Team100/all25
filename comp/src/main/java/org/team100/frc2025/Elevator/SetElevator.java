@@ -1,6 +1,5 @@
 package org.team100.frc2025.Elevator;
 
-import org.team100.lib.controller.simple.ProfiledController;
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -11,6 +10,7 @@ import org.team100.lib.logging.LoggerFactory.IntLogger;
 import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Model100;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +19,7 @@ public class SetElevator extends Command implements Glassy {
     private static final double maxVel = 220; // 220
     private static final double maxAccel = 200; // 240
     private static final double kPositionTolerance = 0.02;
+    private static final double kVelocityTolerance = 0.02;
 
     private final Elevator m_elevator;
     private final double m_value;
@@ -26,9 +27,8 @@ public class SetElevator extends Command implements Glassy {
     private final IntLogger m_log_count;
     private final DoubleLogger m_log_error;
 
-    private final Profile100 m_profile;
     private final IncrementalProfileReference1d m_ref;
-       
+
     private boolean finished = false;
     private int count = 0;
 
@@ -40,9 +40,7 @@ public class SetElevator extends Command implements Glassy {
         m_value = value;
         finished = false;
         m_perpetual = perpetual;
-        m_profile = new TrapezoidProfile100(maxVel, maxAccel, kPositionTolerance);
-        m_ref = new IncrementalProfileReference1d(m_profile, new Model100(value, 0));
-       
+        m_ref = elevator.defaultReference(value);
         addRequirements(m_elevator);
     }
 
@@ -58,8 +56,8 @@ public class SetElevator extends Command implements Glassy {
 
     @Override
     public void execute() {
-        m_ref.get()
-        m_elevator.setPosition(m_value); // 24.5 for l3
+        m_elevator.setPositionSetpoint(m_ref.get());
+        // m_elevator.setPosition(m_value); // 24.5 for l3
 
         double error = Math.abs(m_elevator.getPosition() - m_value);
         m_log_error.log(() -> error);
@@ -88,7 +86,8 @@ public class SetElevator extends Command implements Glassy {
             return false;
         }
         if (Experiments.instance.enabled(Experiment.UseProfileDone))
-            return finished && m_elevator.profileDone();
+            return finished && m_ref.profileDone();
+        // return finished && m_elevator.profileDone();
         return finished;
 
     }

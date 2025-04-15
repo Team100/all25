@@ -15,12 +15,20 @@ import org.team100.lib.util.Takt;
 public class IncrementalProfileReference1d {
     private final IncrementalProfile m_profile;
     protected Model100 m_goal;
+    private final double m_positionTolerance;
+    private final double m_velocityTolerance;
     private double m_currentInstant;
     private Setpoints1d m_currentSetpoint;
 
-    public IncrementalProfileReference1d(IncrementalProfile profile, Model100 goal) {
+    public IncrementalProfileReference1d(
+            IncrementalProfile profile,
+            Model100 goal,
+            double positionTolerance,
+            double velocityTolerance) {
         m_profile = profile;
         m_goal = goal;
+        m_positionTolerance = positionTolerance;
+        m_velocityTolerance = velocityTolerance;
     }
 
     public void init(Model100 measurement) {
@@ -40,11 +48,16 @@ public class IncrementalProfileReference1d {
         return m_currentSetpoint;
     }
 
+    public boolean profileDone() {
+        // the only way to tell if an incremental profile is done is to compare the goal
+        // to the setpoint.
+        return m_currentSetpoint.current().model().near(m_goal, m_positionTolerance, m_velocityTolerance);
+    }
+
     private Setpoints1d advance(Control100 newCurrent) {
         if (m_goal == null)
             throw new IllegalStateException("goal must be set");
         Control100 next = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, newCurrent, m_goal);
         return new Setpoints1d(newCurrent, next);
     }
-
 }

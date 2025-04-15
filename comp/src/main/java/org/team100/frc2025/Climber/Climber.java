@@ -59,16 +59,16 @@ public class Climber extends SubsystemBase {
                 RotaryMechanism rotaryMechanism = new RotaryMechanism(
                         child, motor, sensor, gearRatio, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-                Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
+                // Profile100 profile100 = new TrapezoidProfile100(0.5, 0.5, 0.05);
 
                 PIDFeedback feedback = new PIDFeedback(child, 10, 0, 0, false, 0.05, 0.1);
                 // TODO: remove this
-                IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
-                        profile100, new Model100(1, 0));
+                // IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
+                //         profile100, new Model100(1, 0));
 
                 // TODO: remove this
-                ProfiledController controller = new IncrementalProfiledController(
-                        child, ref, feedback, x -> x, 0.05, 0.05);
+                // ProfiledController controller = new IncrementalProfiledController(
+                //         child, ref, feedback, x -> x, 0.05, 0.05);
 
                 climberMotor = new OnboardAngularPositionServo(child, rotaryMechanism, feedback);
             }

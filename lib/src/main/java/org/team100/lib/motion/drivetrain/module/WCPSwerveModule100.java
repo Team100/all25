@@ -33,10 +33,9 @@ import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.reference.TrackingIncrementalProfileReference1d;
 import org.team100.lib.state.Model100;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.AngularMomentum;
-
 public class WCPSwerveModule100 extends SwerveModule100 {
+    private static final double kSteeringPositionToleranceRad = 0.05;
+    private static final double kSteeringVelocityToleranceRad_S = 0.05;
     // https://github.com/frc1678/C2024-Public/blob/17e78272e65a6ce4f87c00a3514c79f787439ca1/src/main/java/com/team1678/frc2024/Constants.java#L212
     // 2/26/25 Joel increased the steering limits *a lot*, they were 10/20, now
     // 60/80, which may mean it's more imporant now to avoid twitching and
@@ -108,7 +107,8 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 motorPhase);
 
         Profile100 profile = kinodynamics.getSteeringProfile();
-        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(
+                profile, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
         return new WCPSwerveModule100(driveServo, turningServo, ref);
     }
 
@@ -145,7 +145,8 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                 drive,
                 motorPhase);
         Profile100 profile = kinodynamics.getSteeringProfile();
-        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(profile);
+        TrackingIncrementalProfileReference1d ref = new TrackingIncrementalProfileReference1d(
+                profile, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
         return new WCPSwerveModule100(driveServo, turningServo, ref);
     }
 
@@ -259,12 +260,12 @@ public class WCPSwerveModule100 extends SwerveModule100 {
         }
         Profile100 profile = kinodynamics.getSteeringProfile();
         // TODO: goal here is bad
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, new Model100());
-        Feedback100 feedback = new ZeroFeedback(MathUtil::angleModulus, 0.02, 0.02);
+        // IncrementalProfileReference1d ref = new IncrementalProfileReference1d(
+        //         profile, new Model100(), kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
+        // Feedback100 feedback = new ZeroFeedback(MathUtil::angleModulus, 0.02, 0.02);
         // ProfiledController controller = new IncrementalProfiledController(
-        // parent, ref, feedback, MathUtil::angleModulus, 0.05, 0.05);
-        return new OutboardAngularPositionServo(
-                parent, mech);
+        // parent, ref, feedback, MathUtil::angleModulus, kSteeringPositionToleranceRad, kSteeringVelocityToleranceRad_S);
+        return new OutboardAngularPositionServo(parent, mech);
     }
 
     /** Produces either an AS5048 or an Analog sensor. */

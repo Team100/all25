@@ -55,7 +55,7 @@ public class IncrementalProfiledControllerTest implements Timeless {
     void test2() {
         Model100 goal = new Model100(0.1, 0);
         Profile100 p = new TrapezoidProfile100(100, 100, 0.01);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal, 0.05, 0.05);
         // Profile100 p = new ProfileWPI(100, 100);
         final double k1 = 5.0;
         final double k2 = 1.0;
@@ -82,7 +82,7 @@ public class IncrementalProfiledControllerTest implements Timeless {
     void test1() {
         final Model100 goal = new Model100(1, 0);
         Profile100 p = new TrapezoidProfile100(2, 1, 0.01);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal, 0.05, 0.05);
 
         // Feedback100 f = new PIDFeedback(logger, 1, 0, 0, false, 0.05, 1);
 
@@ -199,7 +199,7 @@ public class IncrementalProfiledControllerTest implements Timeless {
     void actuallyTestSomething() {
         Model100 goal = new Model100(1, 0);
         TrapezoidProfileWPI p = new TrapezoidProfileWPI(2, 6);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal, 0.01, 0.01);
         Feedback100 fb = new PositionProportionalFeedback(1, 0.01);
         IncrementalProfiledController c = new IncrementalProfiledController(
                 logger, ref, fb, x -> x, 0.01, 0.01);

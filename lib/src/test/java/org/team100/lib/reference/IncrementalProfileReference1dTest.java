@@ -14,7 +14,7 @@ public class IncrementalProfileReference1dTest implements Timeless {
     void testSimple() {
         TrapezoidProfileWPI p = new TrapezoidProfileWPI(2, 6);
         Model100 goal = new Model100(1, 0);
-        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(p, goal, 0.05, 0.05);
         Model100 measurement = new Model100();
         ref.init(measurement);
 
