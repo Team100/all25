@@ -57,7 +57,6 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         LoggerFactory child = parent.child(this);
         m_mechanism = mech;
         m_ref = ref;
-        // m_controller = controller;
         m_feedback = feedback;
 
         m_log_goal = child.doubleLogger(Level.COMP, "goal (rad)");

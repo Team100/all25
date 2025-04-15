@@ -25,7 +25,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
 
     private final DoubleLogger m_log_goal;
     private final DoubleLogger m_log_ff_torque;
-    private final Control100Logger m_log_setpoint;
+    private final Control100Logger m_log_control;
     private final DoubleLogger m_log_position;
     private final DoubleLogger m_log_velocity;
 
@@ -46,7 +46,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         m_ref = ref;
         m_log_goal = child.doubleLogger(Level.COMP, "goal (m)");
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
-        m_log_setpoint = child.control100Logger(Level.COMP, "setpoint (m)");
+        m_log_control = child.control100Logger(Level.COMP, "control (m)");
         m_log_position = child.doubleLogger(Level.COMP, "position (m)");
         m_log_velocity = child.doubleLogger(Level.COMP, "velocity (m_s)");
     }
@@ -105,7 +105,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         // setpoint must be updated so the profile can see it
         m_nextSetpoint = setpoints.next();
         m_mechanism.setPosition(m_nextSetpoint.x(), m_nextSetpoint.v(), m_nextSetpoint.a(), feedForwardTorqueNm);
-        m_log_setpoint.log(() -> m_nextSetpoint);
+        m_log_control.log(() -> m_nextSetpoint);
         m_log_ff_torque.log(() -> feedForwardTorqueNm);
     }
 

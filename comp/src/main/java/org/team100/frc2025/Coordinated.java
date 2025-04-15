@@ -4,6 +4,8 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.motion.CoordinatedKinematics;
 import org.team100.lib.motion.CoordinatedKinematics.Joints;
+import org.team100.lib.reference.Setpoints1d;
+import org.team100.lib.state.Control100;
 import org.team100.lib.util.Debug;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -83,8 +85,12 @@ public class Coordinated extends Command implements Debug {
         }
         // these currently set goals, with profiles. we don't want that, we want to set
         // the setpoints.
-        m_elevator.setPosition(sanjanunit * joints.height());
-        m_wrist.setAngleValue(joints.angle());
+        m_elevator.setPositionDirect(new Setpoints1d(
+                new Control100(sanjanunit * joints.height(), 0),
+                new Control100(sanjanunit * joints.height(), 0)));
+        m_wrist.setAngleDirect(new Setpoints1d(
+                new Control100(joints.angle(), 0),
+                new Control100(joints.angle(), 0)));
         debug("%12.6f %12.6f\n", joints.height(), joints.angle());
     }
 

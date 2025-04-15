@@ -146,9 +146,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                 wristServo = new OnboardAngularPositionServo(
                         logger, wristMech, ref, wristFeedback);
 
-                Gravity gravity = new Gravity(logger, 0, 0);
-                Spring spring = new Spring(logger);
-                m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
+                // Gravity gravity = new Gravity(logger, 0, 0);
+                // Spring spring = new Spring(logger);
+                // m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
+                // for now, no extra forces in simulation
+                // TODO: add physics to the sim
+                m_gravityAndSpringTorque = new Torque(x->x);
                 m_wristMech = wristMech;
             }
 

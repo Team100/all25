@@ -49,7 +49,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         if (!m_wrist.getSafeCondition()) {
             // System.out.println("IM RUNNING BUT IM UNSAFE");
             // elevator shouldn't move at all
-            m_elevator.setPositionDirectly(m_holdPosition);
+            m_elevator.setPosition(m_holdPosition);
 
             double goal = 0;
             if (!m_grip.hasAlgae()) {
@@ -69,7 +69,7 @@ public class ElevatorDefaultCommand extends Command implements Glassy {
         }
 
         if (distanceToReef < 1.6) {
-            m_elevator.setPositionDirectly(m_holdPosition);
+            m_elevator.setPosition(m_holdPosition);
             return;
         }
 

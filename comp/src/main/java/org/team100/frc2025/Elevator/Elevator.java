@@ -17,6 +17,7 @@ import org.team100.lib.profile.incremental.Profile100;
 import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.reference.IncrementalProfileReference1d;
 import org.team100.lib.reference.ProfileReference1d;
+import org.team100.lib.reference.Setpoints1d;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -197,13 +198,9 @@ public class Elevator extends SubsystemBase implements Glassy {
         return starboardServo.profileDone();
     }
 
-    public void setPositionDirectly(double x) {
-        // starboardServo.setPositionDirectly(x, 1.3); // 54 max
-        // portServo.setPositionDirectly(x, 1.3); // 54 max
-
-        starboardServo.setPositionProfiled(x, 1.3); // 54 max
-        portServo.setPositionProfiled(x, 1.3); // 54 max
-
+    public void setPositionDirect(Setpoints1d x) {
+        starboardServo.setPositionDirect(x, 1.3); // 54 max
+        portServo.setPositionDirect(x, 1.3); // 54 max
     }
 
     public void setPositionNoGravity(double x) {
