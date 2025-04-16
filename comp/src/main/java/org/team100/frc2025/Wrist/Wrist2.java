@@ -1,5 +1,7 @@
 package org.team100.frc2025.Wrist;
 
+import java.util.function.DoubleSupplier;
+
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
@@ -64,7 +66,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     private final BooleanLogger m_log_safe;
     private final Runnable m_viz;
 
-    public Wrist2(LoggerFactory parent, int wristID) {
+    /** carriage acceleration is reported by the elevator */
+    public Wrist2(LoggerFactory parent, int wristID, DoubleSupplier carriageAccel) {
         LoggerFactory logger = parent.child(this);
 
         int wristSupplyLimit = 60;
@@ -127,7 +130,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
                 wristServo.reset();
 
-                Gravity gravity = new Gravity(logger, 9.0, -0.451230);
+                double gravityNm = 9.0 + carriageAccel.getAsDouble();
+                Gravity gravity = new Gravity(logger, gravityNm, -0.451230);
                 Spring spring = new Spring(logger);
                 m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
 

@@ -219,10 +219,16 @@ public class Elevator extends SubsystemBase implements Glassy {
         portServo.setDutyCycle(value);
     }
 
-    /**
-     */
     public double getPosition() {
         return starboardServo.getPosition().orElse(0);
+    }
+
+    public double getSetpointAcceleration() {
+        // i think there arel like 20 sanjan units per meter?
+        // you can adjust this factor so that the wrist doesn't rotate when the elevator
+        // moves.
+        double sanjanAccelFactor = 20;
+        return starboardServo.getSetpointAcceleration() / sanjanAccelFactor;
     }
 
     public void stop() {
