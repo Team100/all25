@@ -23,6 +23,7 @@ import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.reference.TimedProfileReference1d;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -38,9 +39,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * 
  * This class extends SubsystemBase, to be compatible with the scheduler, and it
  * implements Glassy, so that the logger will use the class name.
- * 
  */
 public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
+    /**
+     * It's useful for a subsystem to know about positional settings, so that all
+     * the knowledge about the subsystem itself is contained here.
+     */
+    private static final double THE_SPECIAL_SPOT = 1.5;
+
     /**
      * This should be the total reduction from the motor shaft to the mechanism
      * angle.
@@ -54,18 +60,22 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
     private static final double MIN_POSITION = -0.5;
     private static final double MAX_POSITION = 4;
 
-    private final AngularPositionServo servo;
+    private final AngularPositionServo m_servo;
 
     public RotaryPositionSubsystem1d(LoggerFactory parent) {
         LoggerFactory log = parent.child(this);
 
-        Feedback100 wristFeedback = new FullStateFeedback(
-                log, 4.0, 0.11, x -> x, 0.05, 0.05);
+        double positionGain = 4.0;
+        double velocityGain = 0.11;
+        double positionTolerance = 0.05;
+        double velocityTolerance = 0.05;
+        Feedback100 feedback = new FullStateFeedback(
+                log, positionGain, velocityGain, MathUtil::angleModulus, positionTolerance, velocityTolerance);
 
         double maxVel = 40;
         double maxAccel = 40;
         double maxJerk = 70;
-        JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
+        JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, true);
         ProfileReference1d ref = new TimedProfileReference1d(profile);
 
         /*
@@ -75,7 +85,9 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
          */
         switch (Identity.instance) {
             case COMP_BOT -> {
-                // these constants only apply to the COMP_BOT case
+                // these constants only apply to the COMP_BOT case.
+                // note the pattern here: using a variable is a way to label the thing
+                // without needing to write a comment.
                 int canID = 1;
                 int supplyLimit = 60;
                 int statorLimit = 90;
@@ -90,9 +102,9 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
                         log, sensorChannel, inputOffset, EncoderDrive.DIRECT, false);
                 RotaryMechanism mech = new RotaryMechanism(
                         log, motor, sensor, GEAR_RATIO, MIN_POSITION, MAX_POSITION);
-                servo = new OnboardAngularPositionServo(
-                        log, mech, ref, wristFeedback);
-                servo.reset();
+                m_servo = new OnboardAngularPositionServo(
+                        log, mech, ref, feedback);
+                m_servo.reset();
             }
             default -> {
                 SimulatedBareMotor motor = new SimulatedBareMotor(log, 600);
@@ -101,32 +113,48 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
                         log, encoder, GEAR_RATIO);
                 RotaryMechanism mech = new RotaryMechanism(
                         log, motor, sensor, GEAR_RATIO, MIN_POSITION, MAX_POSITION);
-                servo = new OnboardAngularPositionServo(
-                        log, mech, ref, wristFeedback);
-                servo.reset();
+                m_servo = new OnboardAngularPositionServo(
+                        log, mech, ref, feedback);
+                m_servo.reset();
             }
         }
     }
 
+    ///////////////////////////////////////////////////////
+    //
+    // ACTIONS
+    //
+    // These methods make the subsystem do something.
+
     public void setPositionProfiled(double goal) {
-        servo.setPositionProfiled(goal, 0);
+        m_servo.setPositionProfiled(goal, 0);
     }
 
     public void setPositionDirect(Setpoints1d setpoint) {
-        servo.setPositionDirect(setpoint, 0);
+        m_servo.setPositionDirect(setpoint, 0);
     }
 
-    @Override
-    public void periodic() {
-        servo.periodic();
+    ///////////////////////////////////////////////////////
+    //
+    // COMMANDS
+    //
+    // For single-subsystem actions, these actuator commands are the cleanest way to
+    // do it. Coordinated multi-subsystem actions would need to use the methods
+    // above.
+    //
+
+    /** Return to the "home" position, forever. */
+    public Command goHome() {
+        return run(() -> {
+            setPositionProfiled(0);
+        });
     }
 
-    /**
-     * Go to the goal with a profile, forever. For simple "go to position" commands,
-     * you can use this factory instead of writing a Command class.
-     */
-    public Command setProfiled(double goal) {
-        return this.run(() -> setPositionProfiled(goal));
+    /** Go to the spot with a profile, forever. */
+    public Command goToTheSpot() {
+        return run(() -> {
+            setPositionProfiled(THE_SPECIAL_SPOT);
+        });
     }
 
     /**
@@ -134,7 +162,12 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
      * enough.
      */
     public boolean isDone() {
-        return servo.atGoal();
+        return m_servo.atGoal();
+    }
+
+    @Override
+    public void periodic() {
+        m_servo.periodic();
     }
 
 }
