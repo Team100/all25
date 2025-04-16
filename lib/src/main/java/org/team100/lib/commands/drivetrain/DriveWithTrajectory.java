@@ -66,9 +66,4 @@ public class DriveWithTrajectory extends Command implements Glassy {
         m_drive.stop();
         m_viz.clear();
     }
-
-    // for testing
-    boolean is_aligned() {
-        return m_referenceController.is_aligned();
-    }
 }

@@ -61,7 +61,8 @@ public class SetWrist extends Command {
             }
 
             if (count >= 5) {
-                m_wrist.setStatic();
+                // i think this wa an attempt to hold position, but it's not needed.
+                // m_wrist.setStatic();
             }
         }
 

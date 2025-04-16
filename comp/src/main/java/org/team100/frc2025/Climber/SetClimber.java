@@ -3,8 +3,8 @@ package org.team100.frc2025.Climber;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetClimber extends Command {
-    Climber m_climber;
-    double m_value;
+    private final Climber m_climber;
+    private final double m_value;
 
     public SetClimber(Climber climber, double value) {
         m_climber = climber;
@@ -20,15 +20,5 @@ public class SetClimber extends Command {
     @Override
     public void execute() {
         m_climber.setAngle(m_value);
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
     }
 }

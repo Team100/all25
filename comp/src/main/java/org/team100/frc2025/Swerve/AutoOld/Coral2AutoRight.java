@@ -2,14 +2,9 @@ package org.team100.frc2025.Swerve.AutoOld;
 
 import java.util.function.DoubleConsumer;
 
-
-import org.team100.frc2025.CommandGroups.PrePlaceCoralL3;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
-import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
-import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
@@ -51,24 +46,20 @@ public class Coral2AutoRight extends SequentialCommandGroup100 {
         addCommands(
                 // First Coral
                 new ParallelCommandGroup100(m_logger, "embark1",
-                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.EF, ReefDestination.RIGHT,
+                        new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.EF,
+                                ReefDestination.RIGHT,
                                 () -> ScoringPosition.L4, ReefPoint.F),
-                        new SequentialCommandGroup100(logger, "handoff then place",      
-                            new ParallelRaceGroup100(m_logger, "handoff",
-                                new WaitCommand(2),
-                                new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
-                            ),
-                            new PrePlaceCoralL4(wrist, elevator, 47, true)
-                        )
-                ),
+                        new SequentialCommandGroup100(logger, "handoff then place",
+                                new ParallelRaceGroup100(m_logger, "handoff",
+                                        new WaitCommand(2),
+                                        new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)),
+                                new PrePlaceCoralL4(wrist, elevator, 47, true))),
                 new PostDropCoralL4(wrist, elevator, 10),
 
-                // new ParallelDeadlineGroup100(m_logger, "pick", 
-                        new GoToCoralStation(m_logger, m_drive, controller, viz, kinodynamics, CoralStation.Right, 0.5)
-                        // new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
-                // ),
-
-
+                // new ParallelDeadlineGroup100(m_logger, "pick",
+                new GoToCoralStation(m_logger, m_drive, controller, viz, kinodynamics, CoralStation.Right, 0.5)
+        // new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
+        // ),
 
         );
     }

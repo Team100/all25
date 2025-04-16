@@ -11,7 +11,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.WCPSwerveModule100.DriveRatio;
 import org.team100.lib.motor.MotorPhase;
-import org.team100.lib.state.Control100;
 import org.team100.lib.util.Util;
 
 /**
@@ -215,23 +214,6 @@ public class SwerveModuleCollection {
     // Observers
     //
 
-    public SwerveModuleStates getDesiredStates() {
-        return new SwerveModuleStates(
-                m_frontLeft.getDesiredState(),
-                m_frontRight.getDesiredState(),
-                m_rearLeft.getDesiredState(),
-                m_rearRight.getDesiredState());
-    }
-
-    public Control100[] getSetpoint() {
-        return new Control100[] {
-                m_frontLeft.getSetpoint(),
-                m_frontRight.getSetpoint(),
-                m_rearLeft.getSetpoint(),
-                m_rearRight.getSetpoint()
-        };
-    }
-
     public SwerveModulePositions positions() {
         return new SwerveModulePositions(
                 m_frontLeft.getPosition(),
@@ -246,15 +228,6 @@ public class SwerveModuleCollection {
                 m_frontRight.turningPosition(),
                 m_rearLeft.turningPosition(),
                 m_rearRight.turningPosition()
-        };
-    }
-
-    public OptionalDouble[] turningVelocity() {
-        return new OptionalDouble[] {
-                m_frontLeft.turningVelocity(),
-                m_frontRight.turningVelocity(),
-                m_rearLeft.turningVelocity(),
-                m_rearRight.turningVelocity()
         };
     }
 
@@ -273,15 +246,6 @@ public class SwerveModuleCollection {
                 m_frontRight.atSetpoint(),
                 m_rearLeft.atSetpoint(),
                 m_rearRight.atSetpoint()
-        };
-    }
-
-    public boolean[] atGoal() {
-        return new boolean[] {
-                m_frontLeft.atGoal(),
-                m_frontRight.atGoal(),
-                m_rearLeft.atGoal(),
-                m_rearRight.atGoal()
         };
     }
 

@@ -31,6 +31,8 @@ public class MockBareMotor implements BareMotor {
     @Override
     public void setVelocity(double velocityRad_S, double accel, double torque) {
         this.velocity = velocityRad_S;
+        this.accel = accel;
+        this.torque = torque;
     }
 
     @Override

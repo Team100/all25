@@ -8,8 +8,8 @@ import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.localization.SwerveDrivePoseEstimator100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.VeeringCorrection;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.sensors.Gyro;
 
 import edu.wpi.first.math.geometry.Pose2d;

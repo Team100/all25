@@ -4,7 +4,7 @@ package org.team100.frc2025.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ElevatorDown extends Command {
-    Elevator m_elevator;
+    private final Elevator m_elevator;
 
     public ElevatorDown(Elevator elevator) {
         m_elevator = elevator;
@@ -19,7 +19,7 @@ public class ElevatorDown extends Command {
     @Override
     public void execute() {
         // m_elevator.setDutyCycle(-0.05);
-        m_elevator.setPosition(0.2286); //16 for l3
+        m_elevator.setPosition(0.2286); // 16 for l3
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePosition100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
+import org.team100.lib.reference.Setpoints1d;
 import org.team100.lib.state.Control100;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
@@ -20,6 +21,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * Feedforward and feedback control of a single module.
+ * 
+ * It used to be that the turning servo would contain the profile, but now it's
+ * here.
  */
 public abstract class SwerveModule100 implements Glassy {
     private final LinearVelocityServo m_driveServo;
@@ -36,8 +40,11 @@ public abstract class SwerveModule100 implements Glassy {
             AngularPositionServo turningServo) {
         m_driveServo = driveServo;
         m_turningServo = turningServo;
+        // note this will be wrong at instantiation.
+        // TODO: make previous desired angle null instead.
+        double measurement = m_turningServo.getPosition().orElse(0);
         // the default previous angle is the measurement.
-        m_previousDesiredAngle = new Rotation2d(m_turningServo.getPosition().orElse(0));
+        m_previousDesiredAngle = new Rotation2d(measurement);
         m_previousTime = Takt.get();
     }
 
@@ -45,6 +52,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Optimizes.
      * 
      * Works fine with empty angles.
+     * 
+     * TODO: make it do nothing if the angle is empty
      */
     void setDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
@@ -56,6 +65,8 @@ public abstract class SwerveModule100 implements Glassy {
      * Does not optimize.
      * 
      * Works fine with empty angles.
+     * 
+     * TODO: make it do nothing if the angle is empty
      */
     void setRawDesiredState(SwerveModuleState100 desired) {
         desired = usePreviousAngleIfEmpty(desired);
@@ -81,7 +92,14 @@ public abstract class SwerveModule100 implements Glassy {
             }
         }
         m_driveServo.setVelocityM_S(speed);
-        m_turningServo.setPosition(desiredAngle.getRadians(), 0);
+        if (Experiments.instance.enabled(Experiment.UnprofiledSteering)) {
+            // no profile, just low-level position
+            Control100 control = new Control100(desiredAngle.getRadians(), 0);
+            m_turningServo.setPositionDirect(new Setpoints1d(control, control), 0);
+        } else {
+            // use the profile
+            m_turningServo.setPositionProfiled(desiredAngle.getRadians(), 0);
+        }
         m_previousDesiredAngle = desiredAngle;
     }
 
@@ -89,7 +107,7 @@ public abstract class SwerveModule100 implements Glassy {
         double error = MathUtil.angleModulus(desiredAngle.getRadians() - measuredAngleRad);
         // cosine is pretty forgiving of misalignment
         // double scale = Math.abs(Math.cos(error));
-        // gaussian is much less forgiving. note the adjustable factor.  The value of
+        // gaussian is much less forgiving. note the adjustable factor. The value of
         // 4 means there is almost no motion past about 60 degrees of error.
         final double width = 4.0;
         double scale = Math.exp(-width * error * error);
@@ -138,25 +156,10 @@ public abstract class SwerveModule100 implements Glassy {
         return desired;
     }
 
-    /**
-     * The state corresponding to the current setpoint (for drive) and goal (for
-     * angle).
-     */
-    SwerveModuleState100 getDesiredState() {
-        return new SwerveModuleState100(
-                m_driveServo.getSetpoint(),
-                Optional.of(new Rotation2d(m_turningServo.getGoal())));
-    }
-
     /** Make sure the setpoint and measurement are the same. */
     public void reset() {
         m_turningServo.reset();
         m_driveServo.reset();
-    }
-
-    /** for testing only */
-    Control100 getSetpoint() {
-        return m_turningServo.getSetpoint();
     }
 
     public void close() {
@@ -221,18 +224,8 @@ public abstract class SwerveModule100 implements Glassy {
         return position;
     }
 
-    public OptionalDouble turningVelocity() {
-        return m_turningServo.getVelocity();
-    }
-
     boolean atSetpoint() {
         return m_turningServo.atSetpoint();
-    }
-
-    boolean atGoal() {
-        boolean atGoal = m_turningServo.atGoal();
-        // Util.printf("module atgoal %b\n", atGoal);
-        return atGoal;
     }
 
     void stop() {

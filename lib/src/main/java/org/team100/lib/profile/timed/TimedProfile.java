@@ -9,7 +9,11 @@ import org.team100.lib.state.Model100;
  */
 public interface TimedProfile {
 
-    void init(Model100 initial, Model100 goal);
+    /**
+     * Initial is Control100 so we can make acceleration smooth between multiple
+     * profiles.
+     */
+    void init(Control100 initial, Model100 goal);
 
     Control100 sample(double timeS);
 

@@ -24,7 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
  * https://docs.google.com/spreadsheets/d/16UUCCz-qcPz_YZMnsJnVkVO1KGp5zHCOVo7EoJct2nA/edit?gid=0#gid=0
  */
 public class TrajectoryVelocityProfileTest {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     // A five-meter straight line.
     public static final List<Pose2dWithMotion> kWaypoints = Arrays.asList(
             new Pose2dWithMotion(new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.kZero)),

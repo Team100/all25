@@ -11,7 +11,6 @@ import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motor.CANSparkMotor;
 import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.NeoCANSparkMotor;
@@ -45,50 +44,51 @@ public class ArmFactory {
                 lowerLogger,
                 4,
                 MotorPhase.FORWARD,
-                8,
+                8, // you'll want to change the current limit
                 Feedforward100.makeNeo(),
                 new PIDConstants());
-        RotaryMechanism lowerMech = new SimpleRotaryMechanism(
-                lowerLogger,
-                lowerMotor,
-                new CANSparkEncoder(lowerLogger, lowerMotor),
-                kReduction);
+        CANSparkEncoder lowerEncoder = new CANSparkEncoder(lowerLogger, lowerMotor);
 
         // NOTE: the encoder inversion used to be in the subsystem,
         // but now it is here.
-        RotaryPositionSensor lowerEncoder = new AnalogTurningEncoder(
+        RotaryPositionSensor lowerSensor = new AnalogTurningEncoder(
                 lowerLogger,
                 1, // analog input 1
                 kLowerEncoderOffset,
                 EncoderDrive.INVERSE,
                 true);
 
+        RotaryMechanism lowerMech = new RotaryMechanism(
+                lowerLogger, lowerMotor, lowerSensor,
+                kReduction, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
         LoggerFactory upperLogger = parent.child(kUpper);
         CANSparkMotor upperMotor = new NeoCANSparkMotor(
                 upperLogger,
                 30,
                 MotorPhase.FORWARD,
-                1,
+                1, // you'll want to change the current limit
                 Feedforward100.makeNeo(),
                 new PIDConstants());
-        RotaryMechanism upperMech = new SimpleRotaryMechanism(
-                upperLogger,
-                upperMotor,
-                new CANSparkEncoder(upperLogger, upperMotor),
-                kReduction);
-        RotaryPositionSensor upperEncoder = new AnalogTurningEncoder(
+
+        CANSparkEncoder upperEncoder = new CANSparkEncoder(upperLogger, upperMotor);
+        RotaryPositionSensor upperSensor = new AnalogTurningEncoder(
                 upperLogger,
                 0, // analog input 0
                 kUpperEncoderOffset,
                 EncoderDrive.DIRECT,
                 true);
 
+        RotaryMechanism upperMech = new RotaryMechanism(
+                upperLogger, upperMotor, upperSensor,
+                kReduction, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
         return new ArmSubsystem(
                 parent.child(kArm),
                 lowerMech,
-                lowerEncoder,
+                lowerSensor,
                 upperMech,
-                upperEncoder);
+                upperSensor);
     }
 
     /**
@@ -104,33 +104,39 @@ public class ArmFactory {
 
         LoggerFactory lowerLogger = parent.child(kLower);
         SimulatedBareMotor lowerMotor = new SimulatedBareMotor(lowerLogger, kFreeSpeedRad_S);
-        RotaryMechanism lowerMech = new SimpleRotaryMechanism(
-                lowerLogger,
-                lowerMotor,
-                new SimulatedBareEncoder(lowerLogger, lowerMotor),
-                kReduction);
+        SimulatedBareEncoder lowerEncoder = new SimulatedBareEncoder(lowerLogger, lowerMotor);
         // limits used to be -1, 1, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
-        SimulatedRotaryPositionSensor lowerEncoder = new SimulatedRotaryPositionSensor(
-                lowerLogger, lowerMech, () -> 0);
+        SimulatedRotaryPositionSensor lowerSensor = new SimulatedRotaryPositionSensor(
+                lowerLogger, lowerEncoder, kReduction, () -> 0);
+        RotaryMechanism lowerMech = new RotaryMechanism(
+                lowerLogger,
+                lowerMotor,
+                lowerSensor,
+                kReduction,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
 
         LoggerFactory upperLogger = parent.child(kUpper);
         SimulatedBareMotor upperMotor = new SimulatedBareMotor(upperLogger, kFreeSpeedRad_S);
-        RotaryMechanism upperMech = new SimpleRotaryMechanism(
-                upperLogger,
-                upperMotor,
-                new SimulatedBareEncoder(upperLogger, upperMotor),
-                kReduction);
+        SimulatedBareEncoder upperEncoder = new SimulatedBareEncoder(upperLogger, upperMotor);
         // limits used to be 0.1, 2.5, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
-        SimulatedRotaryPositionSensor upperEncoder = new SimulatedRotaryPositionSensor(
-                upperLogger, upperMech, () -> 0);
+        SimulatedRotaryPositionSensor upperSensor = new SimulatedRotaryPositionSensor(
+                upperLogger, upperEncoder, kReduction, () -> 0);
+        RotaryMechanism upperMech = new RotaryMechanism(
+                upperLogger,
+                upperMotor,
+                upperSensor,
+                kReduction,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
         return new ArmSubsystem(
                 parent.child(kArm),
                 lowerMech,
-                lowerEncoder,
+                lowerSensor,
                 upperMech,
-                upperEncoder);
+                upperSensor);
     }
 
     private ArmFactory() {

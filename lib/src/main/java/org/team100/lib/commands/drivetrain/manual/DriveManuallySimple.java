@@ -1,6 +1,5 @@
 package org.team100.lib.commands.drivetrain.manual;
 
-import java.lang.reflect.Field;
 import java.util.function.Supplier;
 
 import org.team100.lib.dashboard.Glassy;

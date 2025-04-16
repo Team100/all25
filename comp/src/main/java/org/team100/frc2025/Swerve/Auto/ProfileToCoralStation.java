@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.FieldConstants;
 import org.team100.lib.commands.drivetrain.FieldConstants.FieldSector;
-import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.dashboard.Glassy;
@@ -22,7 +21,6 @@ import org.team100.lib.reference.ProfileReference;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**

@@ -1,10 +1,8 @@
 package org.team100.lib.profile.timed;
 
-import org.team100.lib.logging.Level;
-import org.team100.lib.logging.Logging;
-import org.team100.lib.profile.jerk_limited.MotionProfile;
-import org.team100.lib.profile.jerk_limited.MotionProfileGenerator;
-import org.team100.lib.profile.jerk_limited.MotionState;
+import org.team100.lib.profile.roadrunner.JerkLimitedProfileGenerator;
+import org.team100.lib.profile.roadrunner.MotionProfile;
+import org.team100.lib.profile.roadrunner.MotionState;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -16,31 +14,41 @@ public class JerkLimitedProfile100 implements TimedProfile {
     private final double vel;
     private final double acc;
     private final double jerk;
+    private final boolean overshoot;
     private MotionProfile m_profile;
 
-    /** You can specify independent limits for velocity, acceleration, and jerk. */
-    public JerkLimitedProfile100(double vel, double acc, double jerk) {
+    /**
+     * You can specify independent limits for velocity, acceleration, and jerk.
+     * 
+     * @param overshoot if a single profile is impossible, true means to use one
+     *                  that overshoots the goal, and a second one that returns to
+     *                  it from the other side. false means to violate the
+     *                  constraints. you should probably say "true" here.
+     */
+    public JerkLimitedProfile100(double vel, double acc, double jerk, boolean overshoot) {
         this.vel = vel;
         this.acc = acc;
         this.jerk = jerk;
+        this.overshoot = overshoot;
     }
 
     @Override
-    public void init(Model100 initial, Model100 goal) {
-        // if (Logging.instance().getLevel().admit(Level.TRACE))
-        //     Util.printf("INIT initial %s goal %s\n", initial, goal);
-        MotionState start = new MotionState(initial.x(), initial.v());
-        MotionState end = new MotionState(goal.x(), goal.v());
-        m_profile = MotionProfileGenerator.generateSimpleMotionProfile(
-                start, end, vel, acc, jerk);
+    public void init(Control100 initial, Model100 goal) {
+        MotionState start = new MotionState(initial.x(), initial.v(), initial.a(), 0);
+        MotionState end = new MotionState(goal.x(), goal.v(), 0, 0);
+        // "true" below means "overshoot rather than violating constraints"
+        m_profile = JerkLimitedProfileGenerator.generateMotionProfile(
+                start, end, vel, acc, jerk, overshoot);
+        if (DEBUG)
+            Util.printf("init %s goal %s profile %s\n", initial, goal, m_profile);
     }
 
     @Override
     public Control100 sample(double timeS) {
-        if (DEBUG)
-            Util.printf("time %f\n", timeS);
         MotionState s = m_profile.get(timeS);
-        return new Control100(s.getX(), s.getV(), s.getA());
+        if (DEBUG)
+            Util.printf("time %f x %f v %f a %f\n", timeS, s.x(), s.v(), s.a());
+        return new Control100(s.x(), s.v(), s.a());
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.reference.Setpoints1d;
 
 /**
  * Linear position control, e.g. for elevators.
@@ -16,22 +17,21 @@ public interface LinearPositionServo extends Glassy {
      */
     void reset();
 
-     /**
+    /**
+     * Initializes the profile if necessary.
      * This is movement and force on the output.
      * 
      * @param goalM             meters
      * @param feedForwardTorque used for gravity compensation
      */
-    void setPosition(double goalM, double feedForwardTorqueNm);
+    void setPositionProfiled(double goalM, double feedForwardTorqueNm);
 
     /**
-     * This is movement and force on the output.
-     * 
-     * @param goalM           meters
-     * @param goalVelocityM_S m/s
-     * @param feedForwardTorque used for gravity compensation
+     * Invalidates the current profile, sets the setpoint directly.
+     * This takes both current and next setpoints so that the implementation can
+     * choose the current one for feedback and the next one for feedforward.
      */
-    void setPositionWithVelocity(double goalM, double goalVelocityM_S, double feedForwardTorqueNm);
+    void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm);
 
     OptionalDouble getPosition();
 

@@ -2,6 +2,7 @@ package org.team100.lib.encoder;
 
 import java.util.OptionalDouble;
 
+/** Contains no logic. */
 public class MockRotaryPositionSensor implements RotaryPositionSensor {
     public double angle = 0;
     public double rate = 0;
@@ -12,7 +13,7 @@ public class MockRotaryPositionSensor implements RotaryPositionSensor {
     }
 
     @Override
-    public OptionalDouble getRateRad_S() {
+    public OptionalDouble getVelocityRad_S() {
         return OptionalDouble.of(rate);
     }
 

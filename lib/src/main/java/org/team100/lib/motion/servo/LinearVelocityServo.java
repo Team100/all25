@@ -11,11 +11,15 @@ import org.team100.lib.dashboard.Glassy;
  * 
  * This is part of the project to remove generics from the motion components; I
  * think generics make things too hard to read.
+ * 
+ * There should be no profile here.
  */
 public interface LinearVelocityServo extends Glassy {
     void reset();
 
     /**
+     * There's no profile here, it just sets the mechanism velocity.
+     * 
      * Set velocity and compute implied acceleration based on the previous call,
      * using TimedRobot100.LOOP_PERIOD_S.  If you call this more often, you'll
      * get weird results.
@@ -36,9 +40,6 @@ public interface LinearVelocityServo extends Glassy {
     void stop();
 
     OptionalDouble getDistance();
-
-    /** For testing */
-    double getSetpoint();
 
     /** For logging */
     void periodic();

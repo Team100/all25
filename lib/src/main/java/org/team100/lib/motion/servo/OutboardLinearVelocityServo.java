@@ -10,10 +10,10 @@ import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.util.Util;
 
+/** There is no profile here. */
 public class OutboardLinearVelocityServo implements LinearVelocityServo {
     private static final boolean DEBUG = false;
     private final LinearMechanism m_mechanism;
-    // LOGGERS
     private final DoubleLogger m_log_setpoint_v;
     private final DoubleLogger m_log_setpoint_a;
     private final OptionalDoubleLogger m_log_velocity;
@@ -73,11 +73,6 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
         final OptionalDouble positionM = m_mechanism.getPositionM();
         m_log_position.log(() -> positionM);
         return positionM;
-    }
-
-    @Override
-    public double getSetpoint() {
-        return m_setpoint;
     }
 
     @Override

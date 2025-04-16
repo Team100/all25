@@ -92,13 +92,13 @@ public class CartesianManualPositionalArm extends Command implements Glassy {
 
         final double u1 = MathUtil.clamp(
                 m_lowerFeedback.calculate(
-                        new Model100(measurement.get().th1, 0),
-                        new Model100(setpoint.th1, 0)),
+                        new Model100(measurement.get().th1(), 0),
+                        new Model100(setpoint.th1(), 0)),
                 -1, 1);
         final double u2 = MathUtil.clamp(
                 m_upperFeedback.calculate(
-                        new Model100(measurement.get().th2, 0),
-                        new Model100(setpoint.th2, 0)),
+                        new Model100(measurement.get().th2(), 0),
+                        new Model100(setpoint.th2(), 0)),
                 -1, 1);
 
         m_arm.set(u1, u2);

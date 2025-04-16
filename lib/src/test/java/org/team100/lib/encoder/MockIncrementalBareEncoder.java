@@ -2,6 +2,7 @@ package org.team100.lib.encoder;
 
 import java.util.OptionalDouble;
 
+/** Contains no logic. */
 public class MockIncrementalBareEncoder implements IncrementalBareEncoder {
     public double position = 0;
     public double velocity = 0;
@@ -34,11 +35,6 @@ public class MockIncrementalBareEncoder implements IncrementalBareEncoder {
     @Override
     public void periodic() {
         //
-    }
-
-    @Override
-    public double getPositionBlockingRad() {
-        return getPositionRad().getAsDouble();
     }
 
 }

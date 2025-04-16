@@ -67,6 +67,10 @@ public class Experiments implements Glassy {
         m_testOverrides.put(experiment, state);
     }
 
+    /**
+     * Remember not to use this in factories, since the experiment twiddlers will
+     * have no effect after instantiation!
+     */
     public boolean enabled(Experiment experiment) {
         if (m_testOverrides.containsKey(experiment)) {
             return m_testOverrides.get(experiment);
