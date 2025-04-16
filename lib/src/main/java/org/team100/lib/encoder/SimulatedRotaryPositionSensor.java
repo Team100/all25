@@ -21,7 +21,6 @@ import edu.wpi.first.math.MathUtil;
 public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     private final IncrementalBareEncoder m_encoder;
     private final double m_gearRatio;
-    private final DoubleSupplier m_lash;
     private final DoubleLogger m_log_position;
     private final OptionalDoubleLogger m_log_rate;
 
@@ -33,12 +32,10 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
     public SimulatedRotaryPositionSensor(
             LoggerFactory parent,
             IncrementalBareEncoder encoder,
-            double gearRatio,
-            DoubleSupplier lash) {
+            double gearRatio) {
         LoggerFactory child = parent.child(this);
         m_encoder = encoder;
         m_gearRatio = gearRatio;
-        m_lash = lash;
         m_log_position = child.doubleLogger(Level.TRACE, "position");
         m_log_rate = child.optionalDoubleLogger(Level.TRACE, "rate");
     }
@@ -72,7 +69,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_positionRad = MathUtil.angleModulus(m_positionRad);
         m_timeS = nowS;
         m_log_position.log(() -> m_positionRad);
-        return OptionalDouble.of(m_positionRad + m_lash.getAsDouble());
+        return OptionalDouble.of(m_positionRad);
     }
 
     @Override

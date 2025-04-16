@@ -42,7 +42,7 @@ class GravityServoTest implements Timeless {
         SimulatedBareMotor simMotor = new SimulatedBareMotor(logger, 600);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(logger, simMotor);
         SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
-                logger, encoder, 165, () -> 0);
+                logger, encoder, 165);
         RotaryMechanism simMech = new RotaryMechanism(
                 logger, simMotor, sensor, 165, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         AngularPositionServo servo = new OnboardAngularPositionServo(

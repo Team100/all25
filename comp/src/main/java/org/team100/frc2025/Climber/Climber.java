@@ -65,7 +65,7 @@ public class Climber extends SubsystemBase {
                 SimulatedBareMotor climberMotor = new SimulatedBareMotor(child, 100);
 
                 SimulatedBareEncoder encoder = new SimulatedBareEncoder(child, climberMotor);
-                SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(child, encoder, 1, () -> 0);
+                SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(child, encoder, 1);
 
                 RotaryMechanism climberMech = new RotaryMechanism(
                         child,

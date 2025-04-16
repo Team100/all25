@@ -87,7 +87,7 @@ public class Neo550Factory {
     public static RotaryMechanism simulatedRotaryMechanism(LoggerFactory parent) {
         SimulatedBareMotor driveMotor = new SimulatedBareMotor(parent, 5);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, driveMotor);
-        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(parent, encoder, 1, () -> 0);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(parent, encoder, 1);
         return new RotaryMechanism(
                 parent, driveMotor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
