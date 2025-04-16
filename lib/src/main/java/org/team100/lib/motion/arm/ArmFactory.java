@@ -108,7 +108,7 @@ public class ArmFactory {
         // limits used to be -1, 1, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor lowerSensor = new SimulatedRotaryPositionSensor(
-                lowerLogger, lowerEncoder, kReduction, () -> 0);
+                lowerLogger, lowerEncoder, kReduction);
         RotaryMechanism lowerMech = new RotaryMechanism(
                 lowerLogger,
                 lowerMotor,
@@ -123,7 +123,7 @@ public class ArmFactory {
         // limits used to be 0.1, 2.5, when we used winding encoders.
         // i don't think we ever actually *use* the limits for anything, though.
         SimulatedRotaryPositionSensor upperSensor = new SimulatedRotaryPositionSensor(
-                upperLogger, upperEncoder, kReduction, () -> 0);
+                upperLogger, upperEncoder, kReduction);
         RotaryMechanism upperMech = new RotaryMechanism(
                 upperLogger,
                 upperMotor,

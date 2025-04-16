@@ -71,7 +71,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         SimulatedBareMotor turningMotor = new SimulatedBareMotor(parent, 20);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, turningMotor);
         SimulatedRotaryPositionSensor turningSensor = new SimulatedRotaryPositionSensor(
-                parent, encoder, 1, () -> 0);
+                parent, encoder, 1);
         RotaryMechanism turningMech = new RotaryMechanism(
                 parent, turningMotor, turningSensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
@@ -106,7 +106,7 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         SimulatedBareMotor motor = new SimulatedBareMotor(parent, 20);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, motor);
         SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
-                parent, encoder, 1, () -> 0);
+                parent, encoder, 1);
 
         ProxyRotaryPositionSensor proxy = new ProxyRotaryPositionSensor(encoder, 1);
         CombinedRotaryPositionSensor combinedEncoder = new CombinedRotaryPositionSensor(

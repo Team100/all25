@@ -76,7 +76,7 @@ public class OutboardAngularPositionServoTest implements Timeless {
     void testDirect() {
         SimulatedBareMotor motor = new SimulatedBareMotor(log, 100);
         SimulatedBareEncoder encoder = new SimulatedBareEncoder(log, motor);
-        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, encoder, 1, () -> 0);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(log, encoder, 1);
         RotaryMechanism mech = new RotaryMechanism(
                 log, motor, sensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         ProfileReference1d ref = new MockProfileReference1d();
