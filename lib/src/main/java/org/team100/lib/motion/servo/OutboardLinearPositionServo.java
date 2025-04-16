@@ -114,6 +114,11 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
         return m_mechanism.getPositionM();
     }
 
+    /** This is for wrist feedforard. */
+    public double getSetpointAcceleration() {
+        return m_nextSetpoint.a();
+    }
+
     public void setDutyCycle(double value) {
         m_goal = null;
         m_nextSetpoint = null;

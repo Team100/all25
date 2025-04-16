@@ -171,7 +171,7 @@ public class RobotContainer implements Glassy{
             // m_leds.setBack(LEDIndicator.State.RED);
             // m_leds.setFlashing(true);
             m_elevator = new Elevator(elevatorLog, 11, 19);
-            m_wrist = new Wrist2(elevatorLog, 9);
+            m_wrist = new Wrist2(elevatorLog, 9, m_elevator::getSetpointAcceleration);
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_funnel = new Funnel(logger, 23, 14);
             m_grip = new AlgaeGrip(logger, m_tunnel);
@@ -186,7 +186,7 @@ public class RobotContainer implements Glassy{
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_grip = new AlgaeGrip(logger, m_tunnel);
             m_elevator = new Elevator(elevatorLog, 2, 19);
-            m_wrist = new Wrist2(elevatorLog, 9);
+            m_wrist = new Wrist2(elevatorLog, 9, m_elevator::getSetpointAcceleration);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
         }
