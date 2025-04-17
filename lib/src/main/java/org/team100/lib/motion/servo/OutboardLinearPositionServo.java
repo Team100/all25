@@ -2,7 +2,6 @@ package org.team100.lib.motion.servo;
 
 import java.util.OptionalDouble;
 
-import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
@@ -35,7 +34,7 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
     private Control100 m_nextSetpoint;
 
     // for calculating acceleration
-    private double previousSetpoint = 0;
+    // private double previousSetpoint = 0;
 
     public OutboardLinearPositionServo(
             LoggerFactory parent,
@@ -165,9 +164,9 @@ public class OutboardLinearPositionServo implements LinearPositionServo {
      * 
      * @param setpoint desired velocity
      */
-    private double accel(double setpoint) {
-        double accel = (setpoint - previousSetpoint) / TimedRobot100.LOOP_PERIOD_S;
-        previousSetpoint = setpoint;
-        return accel;
-    }
+    // private double accel(double setpoint) {
+    //     double accel = (setpoint - previousSetpoint) / TimedRobot100.LOOP_PERIOD_S;
+    //     previousSetpoint = setpoint;
+    //     return accel;
+    // }
 }

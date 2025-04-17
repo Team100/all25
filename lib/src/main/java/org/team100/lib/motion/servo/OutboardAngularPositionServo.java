@@ -6,7 +6,6 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.reference.ProfileReference1d;
 import org.team100.lib.reference.Setpoints1d;
@@ -34,7 +33,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_log_ff_torque;
     private final DoubleLogger m_log_measurement;
     private final Control100Logger m_log_setpoint;
-    private final OptionalDoubleLogger m_log_position;
+    // private final OptionalDoubleLogger m_log_position;
 
     /**
      * Goal "winds up" i.e. it's it's [-inf, inf], not [-pi,pi]
@@ -56,7 +55,7 @@ public class OutboardAngularPositionServo implements AngularPositionServo {
         m_log_ff_torque = child.doubleLogger(Level.TRACE, "Feedforward Torque (Nm)");
         m_log_measurement = child.doubleLogger(Level.TRACE, "measurement (rad)");
         m_log_setpoint = child.control100Logger(Level.TRACE, "setpoint (rad)");
-        m_log_position = child.optionalDoubleLogger(Level.TRACE, "Position");
+        // m_log_position = child.optionalDoubleLogger(Level.TRACE, "Position");
     }
 
     @Override

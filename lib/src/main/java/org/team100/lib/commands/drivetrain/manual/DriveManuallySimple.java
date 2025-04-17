@@ -95,17 +95,17 @@ public class DriveManuallySimple extends Command implements Glassy {
 
     //////////////
 
-    private Driver stop() {
-        return new Driver() {
-            public void apply(SwerveModel s, DriverControl.Velocity t) {
-                m_drive.stop();
-            }
+    // private Driver stop() {
+    //     return new Driver() {
+    //         public void apply(SwerveModel s, DriverControl.Velocity t) {
+    //             m_drive.stop();
+    //         }
 
-            public void reset(SwerveModel p) {
-                //
-            }
-        };
-    }
+    //         public void reset(SwerveModel p) {
+    //             //
+    //         }
+    //     };
+    // }
 
 
     @Override

@@ -14,7 +14,7 @@ public class PostDropAndReadyFunnel extends Command {
 
     private double count = 0;
     private boolean finishedDrop = false;
-    private boolean completelyFinished = false;
+    // private boolean completelyFinished = false;
     private boolean finishedReadyFunnel = false;
     private boolean indicateReadyToLeave = false;
 
@@ -34,7 +34,7 @@ public class PostDropAndReadyFunnel extends Command {
     public void initialize() {
         count = 0;
         finishedDrop = false;
-        completelyFinished = false;
+        // completelyFinished = false;
         finishedReadyFunnel = false;
         indicateReadyToLeave = false;
         // resetting forces the setpoint velocity to zero, which is not always what we
@@ -108,7 +108,7 @@ public class PostDropAndReadyFunnel extends Command {
     public void end(boolean interrupted) {
         count = 0;
         finishedDrop = false;
-        completelyFinished = false;
+        // completelyFinished = false;
         finishedReadyFunnel = false;
         indicateReadyToLeave = false;
 

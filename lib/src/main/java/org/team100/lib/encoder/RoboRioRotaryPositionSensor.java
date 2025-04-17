@@ -24,10 +24,10 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
 
     private final DoubleLogger m_log_position_turns;
     private final DoubleLogger m_log_position_turns_offset;
-    private final DoubleLogger m_log_rate;
+    // private final DoubleLogger m_log_rate;
 
-    private Double m_prevAngleRad = null;
-    private Double m_prevTimeS = null;
+    // private Double m_prevAngleRad = null;
+    // private Double m_prevTimeS = null;
 
 
     protected RoboRioRotaryPositionSensor(
@@ -40,7 +40,7 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
         m_log_position = log.optionalDoubleLogger(Level.COMP, "position (rad)");
         m_log_position_turns = log.doubleLogger(Level.COMP, "position (turns)");
         m_log_position_turns_offset = log.doubleLogger(Level.TRACE, "position (turns-offset)");
-        m_log_rate = log.doubleLogger(Level.TRACE, "rate (rad)s)");
+        // m_log_rate = log.doubleLogger(Level.TRACE, "rate (rad)s)");
     }
 
     /** Implementations should cache this. */

@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase implements Glassy {
     private static final double maxVel = 190;
     private static final double maxAccel = 210;
     private static final double kPositionTolerance = 0.01;
-    private static final double kVelocityTolerance = 0.01;
+    // private static final double kVelocityTolerance = 0.01;
 
     private final OutboardLinearPositionServo starboardServo;
     private final OutboardLinearPositionServo portServo;

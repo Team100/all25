@@ -19,8 +19,8 @@ public class WristDefaultCommand extends Command implements Glassy {
     private final AlgaeGrip m_grip;
     private final SwerveDriveSubsystem m_drive;
 
-    private double count = 0;
-    private boolean docked = false;
+    // private double count = 0;
+    // private boolean docked = false;
     private double m_holdPosition;
     private final DoubleLogger m_log_holdPosition;
 
@@ -43,8 +43,8 @@ public class WristDefaultCommand extends Command implements Glassy {
         // this sets the setpoint position to the current measurement,
         // and sets the setpoint velocity to zero.
         m_wrist.resetWristProfile();
-        count = 0;
-        docked = false;
+        // count = 0;
+        // docked = false;
         m_holdPosition = m_wrist.getAngle();
     }
 

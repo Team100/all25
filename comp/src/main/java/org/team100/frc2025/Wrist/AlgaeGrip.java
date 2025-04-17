@@ -1,15 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.team100.frc2025.Wrist;
 
 import org.team100.lib.config.Identity;
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.logging.LoggerFactory.BooleanLogger;
-import org.team100.lib.motor.SimulatedBareMotor;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -18,10 +11,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeGrip extends SubsystemBase implements Glassy {
-    private static final int currLim = 10;
-    private static final double wheelDiameterM = 0.072;
+    // private static final int currLim = 10;
+    // private static final double wheelDiameterM = 0.072;
 
-    private final BooleanLogger m_log_hasAlgae;
+    // private final BooleanLogger m_log_hasAlgae;
 
     CoralTunnel m_tunnel;
     // private final BareMotor m_motor;
@@ -39,12 +32,12 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
     // NetworkTableEntry entry1;
     // NetworkTableEntry entry2;
 
-    private static final double m_5to1 = 5.2307692308;
+    // private static final double m_5to1 = 5.2307692308;
 
 
     public AlgaeGrip(LoggerFactory parent, CoralTunnel tunnel) {
-        LoggerFactory child = parent.child(this);
-        m_log_hasAlgae = child.booleanLogger(Level.TRACE, "has algae");
+        // LoggerFactory child = parent.child(this);
+        // m_log_hasAlgae = child.booleanLogger(Level.TRACE, "has algae");
         m_tunnel = tunnel;
 
         // NetworkTable table = inst.getTable("My Table");
@@ -90,7 +83,7 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
                 reset();
             }
             default -> {
-                SimulatedBareMotor motor = new SimulatedBareMotor(child, 100);
+                // SimulatedBareMotor motor = new SimulatedBareMotor(child, 100);
                 // TODO: expose these switches so the command can work in simulation
                 // m_leftLimitSwitch = () -> false;
                 // m_rightLimitSwitch = () -> false;

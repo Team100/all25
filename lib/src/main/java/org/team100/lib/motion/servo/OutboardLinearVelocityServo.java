@@ -21,7 +21,7 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
 
     // for calculating acceleration
     private double previousSetpoint = 0;
-    private double m_setpoint;
+    // private double m_setpoint;
 
     public OutboardLinearVelocityServo(LoggerFactory parent, LinearMechanism mechanism) {
         LoggerFactory child = parent.child(this);
@@ -46,7 +46,7 @@ public class OutboardLinearVelocityServo implements LinearVelocityServo {
 
     @Override
     public void setVelocity(double setpointM_S, double setpointM_S2) {
-        m_setpoint = setpointM_S;
+        // m_setpoint = setpointM_S;
         m_mechanism.setVelocity(setpointM_S, setpointM_S2, 0);
         m_log_setpoint_v.log(() -> setpointM_S);
         m_log_setpoint_a.log(() -> setpointM_S2);

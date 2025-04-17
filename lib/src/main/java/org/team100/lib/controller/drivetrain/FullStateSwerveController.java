@@ -19,10 +19,10 @@ public class FullStateSwerveController implements SwerveController {
     private static final boolean DEBUG = false;
     private final SwerveModelLogger m_log_measurement;
     private final BooleanLogger m_log_atPositionReference;
-    private final BooleanLogger m_log_atVelocityReference;
+    // private final BooleanLogger m_log_atVelocityReference;
 
     private final DoubleLogger m_log_PositionError;
-    private final DoubleLogger m_log_VelocityError;
+    // private final DoubleLogger m_log_VelocityError;
 
 
     private final SwerveModelLogger m_log_currentReference;
@@ -40,7 +40,7 @@ public class FullStateSwerveController implements SwerveController {
     private final double m_xTolerance;
     private final double m_thetaTolerance;
     private final double m_xDotTolerance;
-    private final double m_omegaTolerance;
+    // private final double m_omegaTolerance;
 
     private boolean m_atReference;
 
@@ -66,10 +66,10 @@ public class FullStateSwerveController implements SwerveController {
         
 
         m_log_atPositionReference = log.booleanLogger(Level.TRACE, "At Position Reference");
-        m_log_atVelocityReference = log.booleanLogger(Level.TRACE, "At Velocity Reference");
+        // m_log_atVelocityReference = log.booleanLogger(Level.TRACE, "At Velocity Reference");
 
         m_log_PositionError = log.doubleLogger(Level.TRACE, "Position Error ");
-        m_log_VelocityError = log.doubleLogger(Level.TRACE, "Velocity Error ");
+        // m_log_VelocityError = log.doubleLogger(Level.TRACE, "Velocity Error ");
 
 
         m_kPCart = kPCart;
@@ -80,7 +80,7 @@ public class FullStateSwerveController implements SwerveController {
         m_xTolerance = xTolerance;
         m_thetaTolerance = thetaTolerance;
         m_xDotTolerance = xDotTolerance;
-        m_omegaTolerance = omegaTolerance;
+        // m_omegaTolerance = omegaTolerance;
     }
 
     @Override
