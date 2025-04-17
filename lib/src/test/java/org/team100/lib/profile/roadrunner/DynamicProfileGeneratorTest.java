@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class DynamicProfileGeneratorTest {
-    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
 
     @Test

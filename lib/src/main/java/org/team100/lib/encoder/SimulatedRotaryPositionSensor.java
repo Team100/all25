@@ -1,7 +1,6 @@
 package org.team100.lib.encoder;
 
 import java.util.OptionalDouble;
-import java.util.function.DoubleSupplier;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;

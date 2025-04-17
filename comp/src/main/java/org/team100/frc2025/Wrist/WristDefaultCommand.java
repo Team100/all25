@@ -12,9 +12,6 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class WristDefaultCommand extends Command implements Glassy {
-    private final double kPositionTolerance = 0.02;
-    private final double kVelocityTolerance = 0.01;
-
     private final StringLogger m_log_activity;
     private final Elevator m_elevator;
     private final Wrist2 m_wrist;

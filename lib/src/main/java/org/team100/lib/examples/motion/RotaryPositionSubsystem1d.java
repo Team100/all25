@@ -99,7 +99,7 @@ public class RotaryPositionSubsystem1d extends SubsystemBase implements Glassy {
                 Kraken6Motor motor = new Kraken6Motor(
                         log, canID, MotorPhase.REVERSE, supplyLimit, statorLimit, PID, FF);
                 RotaryPositionSensor sensor = new AS5048RotaryPositionSensor(
-                        log, sensorChannel, inputOffset, EncoderDrive.DIRECT, false);
+                        log, sensorChannel, inputOffset, EncoderDrive.DIRECT);
                 RotaryMechanism mech = new RotaryMechanism(
                         log, motor, sensor, GEAR_RATIO, MIN_POSITION, MAX_POSITION);
                 m_servo = new OnboardAngularPositionServo(

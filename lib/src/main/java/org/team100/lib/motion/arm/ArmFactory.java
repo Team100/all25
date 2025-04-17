@@ -4,7 +4,6 @@ import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
 import org.team100.lib.config.PIDConstants;
 import org.team100.lib.encoder.AnalogTurningEncoder;
-import org.team100.lib.encoder.CANSparkEncoder;
 import org.team100.lib.encoder.EncoderDrive;
 import org.team100.lib.encoder.RotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
@@ -47,16 +46,12 @@ public class ArmFactory {
                 8, // you'll want to change the current limit
                 Feedforward100.makeNeo(),
                 new PIDConstants());
-        CANSparkEncoder lowerEncoder = new CANSparkEncoder(lowerLogger, lowerMotor);
 
-        // NOTE: the encoder inversion used to be in the subsystem,
-        // but now it is here.
         RotaryPositionSensor lowerSensor = new AnalogTurningEncoder(
                 lowerLogger,
                 1, // analog input 1
                 kLowerEncoderOffset,
-                EncoderDrive.INVERSE,
-                true);
+                EncoderDrive.INVERSE);
 
         RotaryMechanism lowerMech = new RotaryMechanism(
                 lowerLogger, lowerMotor, lowerSensor,
@@ -71,13 +66,11 @@ public class ArmFactory {
                 Feedforward100.makeNeo(),
                 new PIDConstants());
 
-        CANSparkEncoder upperEncoder = new CANSparkEncoder(upperLogger, upperMotor);
         RotaryPositionSensor upperSensor = new AnalogTurningEncoder(
                 upperLogger,
                 0, // analog input 0
                 kUpperEncoderOffset,
-                EncoderDrive.DIRECT,
-                true);
+                EncoderDrive.DIRECT);
 
         RotaryMechanism upperMech = new RotaryMechanism(
                 upperLogger, upperMotor, upperSensor,

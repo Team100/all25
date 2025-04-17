@@ -6,7 +6,6 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class PostDropAndReadyFunnel extends Command {
     private final Wrist2 m_wrist;
@@ -20,7 +19,6 @@ public class PostDropAndReadyFunnel extends Command {
     private boolean indicateReadyToLeave = false;
 
     private double initialElevatorPosition = 0;
-    private final CommandScheduler scheduler = CommandScheduler.getInstance();
     Supplier<Boolean> m_endCondition;
 
     public PostDropAndReadyFunnel(Wrist2 wrist, Elevator elevator, double elevatorValue,

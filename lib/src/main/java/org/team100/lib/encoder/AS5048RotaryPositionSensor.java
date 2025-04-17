@@ -25,9 +25,8 @@ public class AS5048RotaryPositionSensor extends DutyCycleRotaryPositionSensor {
             LoggerFactory parent,
             int channel,
             double inputOffset,
-            EncoderDrive drive,
-            boolean wrapped) {
-        super(parent, channel, inputOffset, drive, wrapped);
+            EncoderDrive drive) {
+        super(parent, channel, inputOffset, drive);
     }
 
     protected double m_sensorMin() {

@@ -14,7 +14,6 @@ public class PostDropCoralL3 extends Command {
     private double count = 0;
     private boolean finished = false;
     private double initialElevatorPosition = 0;
-    private final CommandScheduler scheduler = CommandScheduler.getInstance();
     private final Command m_holdingCommand;
 
     public PostDropCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue, Command holdingCommand) {

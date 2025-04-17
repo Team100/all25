@@ -49,7 +49,7 @@ public class Robot extends TimedRobot100 implements Debug {
         m_jvmLogger = new JvmLogger(m_robotLogger);
         m_log_update = m_robotLogger.doubleLogger(Level.COMP, "update time (s)");
         // 4/2/25 Joel added this to try to avoid doing extra work
-        setNetworkTablesFlushEnabled(false);
+        // setNetworkTablesFlushEnabled(false);
         // CanBridge.runTCP();
     }
 
@@ -193,7 +193,7 @@ public class Robot extends TimedRobot100 implements Debug {
     public void testInit() {
         clearCommands();
         for (Topic t : NetworkTableInstance.getDefault().getTopics()) {
-           // debug("%s\n", t.getName());
+           debug("%s\n", t.getName());
         }
         m_robotContainer.scheduleTest();
     }

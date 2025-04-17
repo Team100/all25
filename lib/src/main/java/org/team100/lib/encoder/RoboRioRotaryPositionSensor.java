@@ -29,21 +29,18 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
     private Double m_prevAngleRad = null;
     private Double m_prevTimeS = null;
 
-    private boolean m_wrapped = false;
 
     protected RoboRioRotaryPositionSensor(
             LoggerFactory parent,
             double inputOffset,
-            EncoderDrive drive,
-            boolean wrapped) {
-        LoggerFactory child = parent.child(this);
-        m_wrapped = wrapped;
+            EncoderDrive drive) {
+        LoggerFactory log = parent.child(this);
         m_positionOffset = Util.inRange(inputOffset, 0.0, 1.0);
         m_drive = drive;
-        m_log_position = child.optionalDoubleLogger(Level.COMP, "position (rad)");
-        m_log_position_turns = child.doubleLogger(Level.COMP, "position (turns)");
-        m_log_position_turns_offset = child.doubleLogger(Level.TRACE, "position (turns-offset)");
-        m_log_rate = child.doubleLogger(Level.TRACE, "rate (rad)s)");
+        m_log_position = log.optionalDoubleLogger(Level.COMP, "position (rad)");
+        m_log_position_turns = log.doubleLogger(Level.COMP, "position (turns)");
+        m_log_position_turns_offset = log.doubleLogger(Level.TRACE, "position (turns-offset)");
+        m_log_rate = log.doubleLogger(Level.TRACE, "rate (rad)s)");
     }
 
     /** Implementations should cache this. */
@@ -90,31 +87,19 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
         double turnsMinusOffset = posTurns - m_positionOffset;
         m_log_position_turns_offset.log(() -> turnsMinusOffset);
 
-
-        if(m_wrapped){
-            switch (m_drive) {
-                case DIRECT:
-                    return OptionalDouble.of(MathUtil.angleModulus(turnsMinusOffset * kTwoPi));
-                case INVERSE:
-                    return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }else{
-            switch (m_drive) {
-                case DIRECT:
-                    return OptionalDouble.of(turnsMinusOffset * kTwoPi);
-                case INVERSE:
-                    return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
-                default:
-                    throw new IllegalArgumentException();
-            }
+        switch (m_drive) {
+            case DIRECT:
+                return OptionalDouble.of(MathUtil.angleModulus(turnsMinusOffset * kTwoPi));
+            case INVERSE:
+                return OptionalDouble.of(MathUtil.angleModulus(-1.0 * turnsMinusOffset * kTwoPi));
+            default:
+                throw new IllegalArgumentException();
         }
-        
+
     }
 
     /**
-     * NOTE (3/14/25): this seems to return garbage?  I'm not sure, so I'll
+     * NOTE (3/14/25): this seems to return garbage? I'm not sure, so I'll
      * comment it out for now.
      * TODO (3/14/25): test this in reality.
      * 
@@ -136,14 +121,15 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
 
         // OptionalDouble angleRad = getRad();
         // if (angleRad.isEmpty())
-        //     return OptionalDouble.empty();
+        // return OptionalDouble.empty();
         // double timeS = Takt.get();
         // if (m_prevAngleRad == null) {
-        //     m_prevAngleRad = angleRad.getAsDouble();
-        //     m_prevTimeS = timeS;
-        //     return OptionalDouble.of(0);
+        // m_prevAngleRad = angleRad.getAsDouble();
+        // m_prevTimeS = timeS;
+        // return OptionalDouble.of(0);
         // }
-        // double dxRad = MathUtil.angleModulus(angleRad.getAsDouble() - m_prevAngleRad);
+        // double dxRad = MathUtil.angleModulus(angleRad.getAsDouble() -
+        // m_prevAngleRad);
         // double dtS = timeS - m_prevTimeS;
 
         // m_prevAngleRad = angleRad.getAsDouble();
