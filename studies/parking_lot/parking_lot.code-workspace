@@ -1,10 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "../../../../../../../../studies/parking_lot"
+			"path": "."
 		},
 		{
-			"path": "../../../../../../.."
+			"path": "../../lib"
 		}
 	],
 	"settings": {
