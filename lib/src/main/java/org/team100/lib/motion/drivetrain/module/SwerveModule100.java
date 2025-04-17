@@ -207,7 +207,7 @@ public abstract class SwerveModule100 implements Glassy {
             case COMP_BOT:
                 // TODO: replace the magic number here with .. i think this is like wheel
                 // diameter? radius? what is this?
-                drive_M -= .0975 * (steerRad) / 3.8;
+                drive_M -= 0.0975 * (steerRad) / 3.8;
                 break;
             case BLANK:
             default:

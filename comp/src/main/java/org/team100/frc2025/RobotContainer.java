@@ -104,7 +104,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * don't need right now, cut and paste it into {@link RobotContainerParkingLot}.
  */
 // for background on drive current limits:
-public class RobotContainer implements Glassy{
+public class RobotContainer implements Glassy {
     // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
     // https://www.chiefdelphi.com/t/the-brushless-era-needs-sensible-default-current-limits/461056/51
     // https://docs.google.com/document/d/10uXdmu62AFxyolmwtDY8_9UNnci7eVcev4Y64ZS0Aqk
@@ -174,13 +174,9 @@ public class RobotContainer implements Glassy{
             m_funnel = new Funnel(logger, 23, 14);
             m_grip = new AlgaeGrip(logger, m_tunnel);
             m_climber = new Climber(logger, 15);
-            // TODO: calibrate the elevator and use it here.
-            // swerveKinodynamics = SwerveKinodynamicsFactory
-            // .get(() -> VCG.vcg(m_elevator.getPosition()));
-            m_swerveKinodynamics = SwerveKinodynamicsFactory.get(() -> 0.5);
+            m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
         } else {
-            m_swerveKinodynamics = SwerveKinodynamicsFactory
-                    .get(() -> 1);
+            m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
             m_grip = new AlgaeGrip(logger, m_tunnel);
             m_elevator = new Elevator(elevatorLog, 2, 19);
@@ -325,10 +321,10 @@ public class RobotContainer implements Glassy{
         // m_drive.setDefaultCommand(driveManually);
 
         // FieldRelativeDriver driver = new ManualWithProfiledHeading(
-        //         manLog,
-        //         m_swerveKinodynamics,
-        //         driverControl::desiredRotation,
-        //         thetaFeedback);
+        // manLog,
+        // m_swerveKinodynamics,
+        // driverControl::desiredRotation,
+        // thetaFeedback);
 
         DriveManuallySimple driveDefault = new DriveManuallySimple(
                 driverControl::velocity,

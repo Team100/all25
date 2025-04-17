@@ -7,14 +7,12 @@ import org.junit.jupiter.api.Test;
 public class VCGTest {
     private static final double kDelta = 0.001;
 
-    /** TODO: calibrate this */
     @Test
     void testDown() {
         double elevatorPosition = 0;
         assertEquals(0.18, VCG.vcg(elevatorPosition), kDelta);
     }
 
-    /** TODO: calibrate this */
     @Test
     void testUp() {
         double elevatorPosition = 2;
