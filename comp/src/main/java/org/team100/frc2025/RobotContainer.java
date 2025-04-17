@@ -85,7 +85,6 @@ import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.sensors.Gyro;
 import org.team100.lib.sensors.GyroFactory;
-import org.team100.lib.timing.ConstantConstraint;
 import org.team100.lib.timing.TimingConstraintFactory;
 import org.team100.lib.trajectory.TrajectoryPlanner;
 import org.team100.lib.util.Takt;
@@ -195,8 +194,6 @@ public class RobotContainer implements Glassy{
 
         m_test = new Coordinated(m_elevator, m_wrist);
 
-        final TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(1, 0.5, m_swerveKinodynamics)));
         m_modules = SwerveModuleCollection.get(
                 driveLog,
                 kDriveCurrentLimit,

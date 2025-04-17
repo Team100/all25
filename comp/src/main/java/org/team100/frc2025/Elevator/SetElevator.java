@@ -11,11 +11,6 @@ import org.team100.lib.logging.LoggerFactory.IntLogger;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetElevator extends Command implements Glassy {
-    private static final double maxVel = 220; // 220
-    private static final double maxAccel = 200; // 240
-    private static final double kPositionTolerance = 0.02;
-    private static final double kVelocityTolerance = 0.02;
-
     private final Elevator m_elevator;
     private final double m_value;
     private final boolean m_perpetual;

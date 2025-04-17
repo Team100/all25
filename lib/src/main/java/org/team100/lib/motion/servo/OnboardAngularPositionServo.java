@@ -44,8 +44,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     private final DoubleLogger m_encoderValue;
     private final BooleanLogger m_log_at_setpoint;
 
-    // TODO: remove this
-    private Model100 m_goal = new Model100(0, 0);
+    private Model100 m_goal;
     // most-recent "next" setpoint
     Control100 m_setpoint;
 

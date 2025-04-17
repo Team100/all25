@@ -3,7 +3,6 @@ package org.team100.lib.motor;
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
-import org.team100.lib.spline.SepticSpline1d.SplineException;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Memo.DoubleCache;
 import org.team100.lib.util.Takt;
@@ -110,7 +109,7 @@ public class SimulatedBareMotor implements BareMotor {
     public double getPositionRad() {
         double pos = m_positionCache.getAsDouble();
         if (Double.isNaN(pos))
-            throw new SplineException("motor pos");
+            throw new IllegalArgumentException("motor pos");
         return pos;
     }
 
@@ -118,7 +117,7 @@ public class SimulatedBareMotor implements BareMotor {
     @Override
     public void setEncoderPositionRad(double positionRad) {
         if (Double.isNaN(positionRad))
-            throw new SplineException("motor set position");
+            throw new IllegalArgumentException("motor set position");
         m_position = positionRad;
         m_positionCache.reset();
         m_velocityCache.reset();

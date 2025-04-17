@@ -55,7 +55,6 @@ public class TrapezoidProfileGenerator {
         } else if (Math.abs(requiredAccel) > maxAccel) {
             // not possible within constraints
             if (overshoot) {
-                // TODO: is this most efficient? (do we care?)
                 return noCoastProfile.append(generateSimpleMotionProfile(
                         noCoastProfile.end(), goal, maxVel, maxAccel, true));
             } else {
