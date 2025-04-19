@@ -131,7 +131,7 @@ public abstract class RoboRioRotaryPositionSensor implements RotaryPositionSenso
      * Use a Kalman filter if you can, to reduce the lag.
      */
     @Override
-    public OptionalDouble getRateRad_S() {
+    public OptionalDouble getVelocityRad_S() {
         return OptionalDouble.of(0);
 
         // OptionalDouble angleRad = getRad();

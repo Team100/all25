@@ -1,7 +1,6 @@
 package org.team100.lib.controller.drivetrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import org.team100.lib.motion.drivetrain.Fixtured;
 import org.team100.lib.motion.drivetrain.MockDrive;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.motion.drivetrain.SwerveModel;
-import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
 import org.team100.lib.reference.TrajectoryReference;
@@ -46,20 +44,14 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         MockDrive drive = new MockDrive();
         // initially at rest
         drive.m_state = new SwerveModel();
-        drive.m_aligned = false;
 
         ReferenceController c = new ReferenceController(
                 drive,
                 controller,
                 new TrajectoryReference(t), false);
 
-        // Initially unaligned so steer at rest
         stepTime();
         c.execute();
-        // TODO: turn the "steer at rest" thing back on maybe?  or maybe fix this test?
-        // assertEquals(0.098, drive.m_atRestSetpoint.x(), kDelta);
-        // assertEquals(0, drive.m_atRestSetpoint.y(), kDelta);
-        // assertEquals(0, drive.m_atRestSetpoint.theta(), kDelta);
 
         // we don't advance because we're still steering.
         // this next-setpoint is from "preview"
@@ -70,8 +62,6 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         // assertEquals(0, drive.m_atRestSetpoint.y(), kDelta);
         // assertEquals(0, drive.m_atRestSetpoint.theta(), kDelta);
 
-        drive.m_aligned = true;
-        // now aligned, so we drive normally, using the same setpoint as above
         stepTime();
         c.execute();
         assertEquals(0.139, drive.m_setpoint.x(), kDelta);
@@ -105,8 +95,6 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         MockDrive drive = new MockDrive();
         // initially at rest
         drive.m_state = new SwerveModel();
-        // for this test we don't care about steering alignment.
-        drive.m_aligned = true;
 
         ReferenceController c = new ReferenceController(
                 drive,
@@ -142,9 +130,6 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
         assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
 
-        // initial state is wheels pointing +x
-        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
-
         ReferenceController command = new ReferenceController(
                 drive,
                 controller,
@@ -152,20 +137,10 @@ public class ReferenceControllerTest extends Fixtured implements Timeless {
                 false);
         stepTime();
 
-        // command has not checked yet
-        assertFalse(command.is_aligned());
-
-        // here it notices that we're aligned and produces a +x output
-        // so we never steer at rest
         command.execute();
         // but that output is not available until after takt.
         assertEquals(0, fixture.collection.states().frontLeft().speedMetersPerSecond(), kDelta);
         assertEquals(0, fixture.collection.states().frontLeft().angle().get().getRadians(), kDelta);
-
-        // the side-effect is to set the "aligned" flag.
-        assertTrue(command.is_aligned());
-        // and we are actually aligned (as we have been the whole time)
-        assertTrue(drive.aligned(new FieldRelativeVelocity(1, 0, 0)));
 
         // drive normally more
         stepTime();

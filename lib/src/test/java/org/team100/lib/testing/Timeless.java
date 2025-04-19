@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.simulation.SimHooks;
  */
 public interface Timeless {
 
+    /** Do any time-related setup *in your test method* ! */
     @BeforeEach
     default void pauseTiming() {
         HAL.initialize(500, 0);

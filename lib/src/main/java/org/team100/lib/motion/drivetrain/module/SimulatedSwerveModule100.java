@@ -1,27 +1,23 @@
 package org.team100.lib.motion.drivetrain.module;
 
 import org.team100.lib.controller.simple.Feedback100;
-import org.team100.lib.controller.simple.IncrementalProfiledController;
 import org.team100.lib.controller.simple.PIDFeedback;
-import org.team100.lib.controller.simple.ProfiledController;
-import org.team100.lib.encoder.CombinedEncoder;
+import org.team100.lib.encoder.CombinedRotaryPositionSensor;
+import org.team100.lib.encoder.ProxyRotaryPositionSensor;
 import org.team100.lib.encoder.SimulatedBareEncoder;
 import org.team100.lib.encoder.SimulatedRotaryPositionSensor;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.mechanism.LinearMechanism;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
-import org.team100.lib.motion.mechanism.SimpleLinearMechanism;
-import org.team100.lib.motion.mechanism.SimpleRotaryMechanism;
 import org.team100.lib.motion.servo.AngularPositionServo;
 import org.team100.lib.motion.servo.LinearVelocityServo;
 import org.team100.lib.motion.servo.OnboardAngularPositionServo;
+import org.team100.lib.motion.servo.OutboardAngularPositionServo;
 import org.team100.lib.motion.servo.OutboardLinearVelocityServo;
-import org.team100.lib.motion.servo.UnprofiledOutboardAngularPositionServo;
 import org.team100.lib.motor.SimulatedBareMotor;
-import org.team100.lib.profile.Profile100;
-
-import edu.wpi.first.math.MathUtil;
+import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.reference.IncrementalProfileReference1d;
 
 /**
  * Uses simulated position sensors, must be used with clock control (e.g.
@@ -51,7 +47,6 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         AngularPositionServo turningServo = simulatedOutboardTurningServo(
                 parent.child("Turning"),
                 kinodynamics);
-
         return new SimulatedSwerveModule100(driveServo, turningServo);
     }
 
@@ -59,14 +54,10 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
         // simulated drive motor free speed is 5 m/s
         SimulatedBareMotor driveMotor = new SimulatedBareMotor(parent, 5);
         // simulated gearing is 2 meter wheel, 1:1, so rad/s and m/s are the same.
-        LinearMechanism mech = new SimpleLinearMechanism(
-                driveMotor,
-                new SimulatedBareEncoder(parent, driveMotor),
-                1,
-                2);
-        return new OutboardLinearVelocityServo(
-                parent,
-                mech);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, driveMotor);
+        LinearMechanism mech = new LinearMechanism(
+                driveMotor, encoder, 1, 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return new OutboardLinearVelocityServo(parent, mech);
     }
 
     /**
@@ -78,15 +69,12 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
             SwerveKinodynamics kinodynamics) {
         // simulated turning motor free speed is 20 rad/s
         SimulatedBareMotor turningMotor = new SimulatedBareMotor(parent, 20);
-        RotaryMechanism turningMech = new SimpleRotaryMechanism(
-                parent,
-                turningMotor,
-                new SimulatedBareEncoder(parent, turningMotor),
-                1);
-        SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
-                parent,
-                turningMech,
-                () -> 0);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, turningMotor);
+        SimulatedRotaryPositionSensor turningSensor = new SimulatedRotaryPositionSensor(
+                parent, encoder, 1);
+        RotaryMechanism turningMech = new RotaryMechanism(
+                parent, turningMotor, turningSensor, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
         Feedback100 turningPositionFeedback = new PIDFeedback(
                 parent,
                 20, // kP
@@ -96,16 +84,12 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
                 0.05, // note low tolerance
                 1);
         Profile100 profile = kinodynamics.getSteeringProfile();
-
-        ProfiledController controller = new IncrementalProfiledController(
-                parent,
-                profile, turningPositionFeedback, MathUtil::angleModulus,
-                0.05, 0.05);
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, 0.05, 0.05);
         OnboardAngularPositionServo turningServo = new OnboardAngularPositionServo(
                 parent,
                 turningMech,
-                turningEncoder,
-                controller);
+                ref,
+                turningPositionFeedback);
         turningServo.reset();
         return turningServo;
     }
@@ -119,25 +103,23 @@ public class SimulatedSwerveModule100 extends SwerveModule100 {
             LoggerFactory parent,
             SwerveKinodynamics kinodynamics) {
         // simulated turning motor free speed is 20 rad/s
-        SimulatedBareMotor turningMotor = new SimulatedBareMotor(parent, 20);
-        RotaryMechanism turningMech = new SimpleRotaryMechanism(
-                parent,
-                turningMotor,
-                new SimulatedBareEncoder(parent, turningMotor),
-                1);
-        SimulatedRotaryPositionSensor turningEncoder = new SimulatedRotaryPositionSensor(
-                parent,
-                turningMech,
-                () -> 0);
-        CombinedEncoder combinedEncoder = new CombinedEncoder(
-                parent,
-                turningEncoder,
-                turningMech);
-        // false);
-        UnprofiledOutboardAngularPositionServo turningServo = new UnprofiledOutboardAngularPositionServo(
-                parent,
-                turningMech,
-                combinedEncoder);
+        SimulatedBareMotor motor = new SimulatedBareMotor(parent, 20);
+        SimulatedBareEncoder encoder = new SimulatedBareEncoder(parent, motor);
+        SimulatedRotaryPositionSensor sensor = new SimulatedRotaryPositionSensor(
+                parent, encoder, 1);
+
+        ProxyRotaryPositionSensor proxy = new ProxyRotaryPositionSensor(encoder, 1);
+        CombinedRotaryPositionSensor combinedEncoder = new CombinedRotaryPositionSensor(
+                parent, sensor, proxy);
+
+        RotaryMechanism turningMech = new RotaryMechanism(
+                parent, motor, combinedEncoder, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+
+        Profile100 profile = kinodynamics.getSteeringProfile();
+        IncrementalProfileReference1d ref = new IncrementalProfileReference1d(profile, 0.05, 0.05);
+
+        OutboardAngularPositionServo turningServo = new OutboardAngularPositionServo(
+                parent, turningMech, ref);
         turningServo.reset();
         return turningServo;
     }

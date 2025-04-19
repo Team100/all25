@@ -7,19 +7,20 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.OptionalDoubleLogger;
-import org.team100.lib.motion.mechanism.RotaryMechanism;
 import org.team100.lib.util.Takt;
 
 import edu.wpi.first.math.MathUtil;
 
 /**
- * Integrates mechanism velocity to find position. If you use this in tests,
- * you'll have to control the clock somehow, e.g. by using {@link Timeless}.
+ * Integrates encoder velocity to find position. It repeats the gear ratio
+ * that's in the mechanism, to avoid a circular dependency.
+ * 
+ * If you use this in tests, you'll have to control the clock somehow, e.g. by
+ * using {@link Timeless}.
  */
 public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
-    private final RotaryMechanism m_mechanism;
-    private final DoubleSupplier m_lash;
-    // LOGGERS
+    private final IncrementalBareEncoder m_encoder;
+    private final double m_gearRatio;
     private final DoubleLogger m_log_position;
     private final OptionalDoubleLogger m_log_rate;
 
@@ -30,13 +31,21 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
 
     public SimulatedRotaryPositionSensor(
             LoggerFactory parent,
-            RotaryMechanism mechanism,
-            DoubleSupplier lash) {
+            IncrementalBareEncoder encoder,
+            double gearRatio) {
         LoggerFactory child = parent.child(this);
-        m_mechanism = mechanism;
-        m_lash = lash;
+        m_encoder = encoder;
+        m_gearRatio = gearRatio;
         m_log_position = child.doubleLogger(Level.TRACE, "position");
         m_log_rate = child.optionalDoubleLogger(Level.TRACE, "rate");
+    }
+
+    /** The same as RotaryMechanism.getVelocityRad_S(). */
+    private OptionalDouble encoderVelocityRad_S() {
+        OptionalDouble velocityRad_S = m_encoder.getVelocityRad_S();
+        if (velocityRad_S.isEmpty())
+            return OptionalDouble.empty();
+        return OptionalDouble.of(velocityRad_S.getAsDouble() / m_gearRatio);
     }
 
     /**
@@ -49,7 +58,7 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         double dtS = nowS - m_timeS;
         // this is the velocity at the current instant.
         // motor velocity is rad/s
-        OptionalDouble velocityRad_S = m_mechanism.getVelocityRad_S();
+        OptionalDouble velocityRad_S = encoderVelocityRad_S();
         if (velocityRad_S.isEmpty())
             return OptionalDouble.empty();
 
@@ -60,13 +69,13 @@ public class SimulatedRotaryPositionSensor implements RotaryPositionSensor {
         m_positionRad = MathUtil.angleModulus(m_positionRad);
         m_timeS = nowS;
         m_log_position.log(() -> m_positionRad);
-        return OptionalDouble.of(m_positionRad + m_lash.getAsDouble());
+        return OptionalDouble.of(m_positionRad);
     }
 
     @Override
-    public OptionalDouble getRateRad_S() {
+    public OptionalDouble getVelocityRad_S() {
         // motor velocity is rad/s
-        OptionalDouble m_rate = m_mechanism.getVelocityRad_S();
+        OptionalDouble m_rate = encoderVelocityRad_S();
         if (m_rate.isEmpty())
             return OptionalDouble.empty();
         m_log_rate.log(() -> m_rate);

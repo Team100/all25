@@ -21,15 +21,4 @@ public record SwerveModuleStates(
                 rearRight
         };
     }
-
-    /**
-     * Make a copy with no drive component.
-     */
-    public SwerveModuleStates motionless() {
-        return new SwerveModuleStates(
-                new SwerveModuleState100(0, frontLeft.angle()),
-                new SwerveModuleState100(0, frontRight.angle()),
-                new SwerveModuleState100(0, rearLeft.angle()),
-                new SwerveModuleState100(0, rearRight.angle()));
-    }
 }

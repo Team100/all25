@@ -20,6 +20,7 @@ public class Takt {
 
     }
 
+    /** Current Takt time in seconds. */
     private static double now = actual();
 
     /**
@@ -35,14 +36,16 @@ public class Takt {
     }
 
     /**
-     * The current Takt time. Even though this is a double, it's ok to test
-     * equality, because it is only incremented periodically.
+     * The current Takt time in seconds. Even though this is a double, it's ok to
+     * test equality, because it is only incremented periodically.
      */
     public static double get() {
         return now;
     }
 
     /**
+     * Curent actual FPGA time in seconds.
+     * 
      * A few consumers want the actual time; don't use this unless you really do.
      */
     public static double actual() {

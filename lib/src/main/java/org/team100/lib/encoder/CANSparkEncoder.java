@@ -15,13 +15,10 @@ import org.team100.lib.motor.CANSparkMotor;
  */
 public class CANSparkEncoder implements IncrementalBareEncoder {
     private final CANSparkMotor m_motor;
-    // LOGGERS
     private final OptionalDoubleLogger m_log_position;
     private final OptionalDoubleLogger m_log_velocity;
 
-    public CANSparkEncoder(
-            LoggerFactory parent,
-            CANSparkMotor motor) {
+    public CANSparkEncoder(LoggerFactory parent, CANSparkMotor motor) {
         LoggerFactory child = parent.child(this);
         m_motor = motor;
         m_log_position = child.optionalDoubleLogger(Level.TRACE, "position (rad)");
@@ -71,10 +68,5 @@ public class CANSparkEncoder implements IncrementalBareEncoder {
     public void periodic() {
         m_log_position.log(this::getPositionRad);
         m_log_velocity.log(this::getVelocityRad_S);
-    }
-
-    @Override
-    public double getPositionBlockingRad() {
-        return getPositionRad().getAsDouble();
     }
 }

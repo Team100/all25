@@ -44,7 +44,7 @@ public class CartesianManualArm extends Command {
         if (position.isEmpty())
             return;
         ArmAngles jointVelocity = m_kinematics.inverseVel(position.get(), cartesianVelocity);
-        m_arm.set(kMaxDutyCycle * jointVelocity.th1, kMaxDutyCycle * jointVelocity.th2);
+        m_arm.set(kMaxDutyCycle * jointVelocity.th1(), kMaxDutyCycle * jointVelocity.th2());
     }
 
     @Override

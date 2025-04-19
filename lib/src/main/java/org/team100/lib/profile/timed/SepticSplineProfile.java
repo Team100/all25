@@ -27,7 +27,7 @@ public class SepticSplineProfile implements TimedProfile {
     }
 
     @Override
-    public void init(Model100 initial, Model100 goal) {
+    public void init(Control100 initial, Model100 goal) {
 
         double adjustedAcceleration = acc;
 

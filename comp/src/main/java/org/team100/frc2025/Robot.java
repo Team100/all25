@@ -13,19 +13,20 @@ import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.IntLogger;
 import org.team100.lib.logging.Logging;
+import org.team100.lib.util.Debug;
 import org.team100.lib.util.Memo;
 import org.team100.lib.util.Takt;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends TimedRobot100 {
+public class Robot extends TimedRobot100 implements Debug {
     private final DoubleLogger m_log_ds_MatchTime;
     private final BooleanLogger m_log_ds_AutonomousEnabled;
     private final BooleanLogger m_log_ds_TeleopEnabled;
@@ -186,12 +187,15 @@ public class Robot extends TimedRobot100 {
         CommandScheduler.getInstance().cancelAll();
         m_robotContainer.cancelAuton();
         m_robotContainer.onTeleop();
-
     }
 
     @Override
     public void testInit() {
         clearCommands();
+        for (Topic t : NetworkTableInstance.getDefault().getTopics()) {
+           // debug("%s\n", t.getName());
+        }
+        m_robotContainer.scheduleTest();
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -216,6 +220,20 @@ public class Robot extends TimedRobot100 {
 
     @Override
     public void testPeriodic() {
+        double elevatorControl = NetworkTableInstance.getDefault()
+                .getEntry("log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/control (m)/x").getDouble(0);
+        double wristControl = NetworkTableInstance.getDefault()
+                .getEntry("log/Elevator/Wrist2/OnboardAngularPositionServo/control (rad)/x").getDouble(0);
+        double elevatorMeasurement = NetworkTableInstance.getDefault()
+                .getEntry("log/Elevator/Elevator/Starboard/OutboardLinearPositionServo/position (m)").getDouble(0);
+        double wristMeasurement = NetworkTableInstance.getDefault()
+                .getEntry("log/Elevator/Wrist2/OnboardAngularPositionServo/measurement (rad)/x").getDouble(0);
+        debug("%12.6f %12.6f %12.6f %12.6f\n",
+                elevatorControl / 20,
+                wristControl,
+                elevatorMeasurement / 20,
+                wristMeasurement);
+
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -264,5 +282,10 @@ public class Robot extends TimedRobot100 {
         b.append("\n");
         Util.println(b.toString());
 
+    }
+
+    @Override
+    public boolean debug() {
+        return false;
     }
 }

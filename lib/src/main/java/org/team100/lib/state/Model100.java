@@ -3,6 +3,7 @@ package org.team100.lib.state;
 import java.util.Objects;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.interpolation.Interpolatable;
 
 /**
  * One-dimensional system state, used for system modeling. The model only
@@ -10,31 +11,14 @@ import edu.wpi.first.math.MathUtil;
  * 
  * The usual state-space representation would be X = (x,v) and Xdot = (v,a).
  * Units are meters, radians, and seconds.
+ * 
+ * @param x position
+ * @param v velocity
  */
-public class Model100 {
-    private final double m_x;
-    private final double m_v;
-
-    /** Specify position and velocity. */
-    public Model100(double x, double v) {
-        m_x = x;
-        m_v = v;
-    }
-
-    public static Model100 x(double x) {
-        return new Model100(x, 0);
-    }
+public record Model100(double x, double v) implements Interpolatable<Model100> {
 
     public Model100() {
         this(0, 0);
-    }
-
-    public double x() {
-        return m_x;
-    }
-
-    public double v() {
-        return m_v;
     }
 
     /**
@@ -42,7 +26,7 @@ public class Model100 {
      *         acceleration.
      */
     public Control100 control() {
-        return new Control100(m_x, m_v, 0);
+        return new Control100(x, v, 0);
     }
 
     public Model100 minus(Model100 other) {
@@ -53,32 +37,48 @@ public class Model100 {
         return new Model100(x() + other.x(), v() + other.v());
     }
 
-    public Model100 mult(double scaler) {
-        return new Model100(m_x * scaler, m_v * scaler);
+    public Model100 mult(double scalar) {
+        return new Model100(x * scalar, v * scalar);
     }
 
-    /** position and velocity are both within (the same) tolerance */
+    /**
+     * True if not null and position and velocity are both within (the same)
+     * tolerance
+     */
     public boolean near(Model100 other, double tolerance) {
-        return MathUtil.isNear(m_x, other.m_x, tolerance) &&
-                MathUtil.isNear(m_v, other.m_v, tolerance);
+        return other != null
+                && MathUtil.isNear(x, other.x, tolerance)
+                && MathUtil.isNear(v, other.v, tolerance);
     }
 
-    /** position is within xtolerance, velocity is within vtolerance. */
+    /**
+     * True if not null, position is within xtolerance, velocity is within
+     * vtolerance.
+     */
     public boolean near(Model100 other, double xTolerance, double vTolerance) {
-        return MathUtil.isNear(m_x, other.m_x, xTolerance) &&
-                MathUtil.isNear(m_v, other.m_v, vTolerance);
+        return other != null
+                && MathUtil.isNear(x, other.x, xTolerance)
+                && MathUtil.isNear(v, other.v, vTolerance);
+    }
+
+    @Override
+    public Model100 interpolate(Model100 endValue, double t) {
+        return new Model100(
+                MathUtil.interpolate(x, endValue.x, t),
+                MathUtil.interpolate(v, endValue.v, t));
+
     }
 
     @Override
     public String toString() {
-        return String.format("Model100(X %11.8f V %11.8f)", m_x, m_v);
+        return String.format("Model100(X %11.8f V %11.8f)", x, v);
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Model100) {
             Model100 rhs = (Model100) other;
-            return this.m_x == rhs.m_x && this.m_v == rhs.m_v;
+            return this.x == rhs.x && this.v == rhs.v;
         } else {
             return false;
         }
@@ -86,7 +86,6 @@ public class Model100 {
 
     @Override
     public int hashCode() {
-        return Objects.hash(m_x, m_v);
+        return Objects.hash(x, v);
     }
-
 }

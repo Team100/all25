@@ -1,7 +1,6 @@
 package org.team100.lib.motion.drivetrain;
 
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.Level;
@@ -13,10 +12,8 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModulePositions;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleState100;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveModuleStates;
 import org.team100.lib.motion.drivetrain.module.SwerveModuleCollection;
-import org.team100.lib.state.Control100;
 import org.team100.lib.util.Util;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -84,55 +81,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     }
 
     /**
-     * Discretizes the speeds, calculates the inverse kinematic module states,
-     * and aligns the wheels with the directions implied by speeds,
-     * without moving the drive motors.
-     */
-    public void steerAtRest(ChassisSpeeds speeds) {
-        SwerveModuleStates states = m_swerveKinodynamics.toSwerveModuleStates(speeds);
-        states = states.motionless();
-        setModuleStates(states);
-    }
-
-    /**
-     * True if current wheel steering positions are aligned with the positions
-     * implied by the desired speed.
-     */
-    public boolean aligned(ChassisSpeeds desiredSpeeds) {
-        // These measurements include empty angles for motionless wheels.
-        // Otherwise angle is always within [-pi, pi].
-        OptionalDouble[] positions = m_modules.turningPosition();
-        OptionalDouble[] velocities = m_modules.turningVelocity();
-        SwerveModuleState100[] desiredStates = m_swerveKinodynamics.toSwerveModuleStates(
-                desiredSpeeds).all();
-        for (int i = 0; i < positions.length; ++i) {
-            if (positions[i].isEmpty() && velocities[i].isEmpty()) {
-                // Util.warn("broken sensor, this should never happen");
-                return false;
-            }
-            double position = positions[i].getAsDouble();
-            double velocity = velocities[i].getAsDouble();
-            if (desiredStates[i].angle().isEmpty()) {
-                // This can happen if the desired wheel speed is zero, which can happen even if
-                // the other desired wheel speeds are not zero.
-                continue;
-            }
-            double setpoint = desiredStates[i].angle().get().getRadians();
-            // Modulus accommodates "optimizing" wheel direction.
-            double error = MathUtil.inputModulus(setpoint - position, -Math.PI / 2, Math.PI / 2);
-            if (Math.abs(error) > kPositionToleranceRad) {
-                return false;
-            }
-            double velocityError = velocity;
-            // steering commands always specify zero speed.
-            if (Math.abs(velocityError) > kVelocityToleranceRad_S) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Sets the wheels to make an "X" pattern.
      */
     public void defense() {
@@ -175,15 +123,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
     //
 
     @Override
-    public SwerveModuleStates getDesiredStates() {
-        return m_modules.getDesiredStates();
-    }
-
-    public Control100[] getSetpoints() {
-        return m_modules.getSetpoint();
-    }
-
-    @Override
     public SwerveModulePositions positions() {
         return m_modules.positions();
     }
@@ -194,11 +133,6 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
 
     public boolean[] atSetpoint() {
         return m_modules.atSetpoint();
-    }
-
-    @Override
-    public boolean[] atGoal() {
-        return m_modules.atGoal();
     }
 
     ///////////////////////////////////////////

@@ -2,14 +2,11 @@ package org.team100.frc2025.Swerve.AutoOld;
 
 import java.util.function.DoubleConsumer;
 
-import org.team100.frc2025.CommandGroups.CancelCommand;
 import org.team100.frc2025.CommandGroups.DeadlineForEmbarkAndPrePlace;
 import org.team100.frc2025.CommandGroups.PrePlaceCoralL4;
 import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
-import org.team100.frc2025.CommandGroups.ScoreL4;
 import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
-import org.team100.frc2025.Elevator.HoldWristAndElevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Swerve.Auto.GoToCoralStation;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
@@ -23,7 +20,6 @@ import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
-import org.team100.lib.framework.ParallelCommandGroup100;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.ParallelRaceGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
@@ -33,7 +29,6 @@ import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Coral2AutoLeft extends SequentialCommandGroup100 {

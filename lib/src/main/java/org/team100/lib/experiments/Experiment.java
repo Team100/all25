@@ -54,19 +54,17 @@ public enum Experiment {
     CorrectSpeedForSteering,
     /**
      * Use the steering error to adjust the drive motor speed, minimizing
-     * cross-track error. This could be the "cosine" used by some teams. It serves
-     * the same function as the "steer at rest" idea -- avoid going in the wrong
-     * direction. In this case, since the upper layers are unaware of it, it will
-     * introduce lag (thus controller error) into timed movements. But it has the
-     * benefit of being simple.
+     * cross-track error on a per-module basis.
+     * 
+     * This could be the "cosine" used by some teams; our implementation is a narrow
+     * gaussian. The idea is simple: avoid driving direction. In this case, since
+     * the upper layers are unaware of it, it will introduce lag (thus controller
+     * error) into timed movements, and also, because the drive corrections are
+     * uncoordinated, this produces rotational errors, not just translational ones.
+     * 
+     * But it has the benefit of being simple.
      */
     ReduceCrossTrackError,
-    /**
-     * The ReferenceController will try to align the steering perfectly before
-     * starting motion.
-     * TODO(2/24/25) I think this isn't worth the coupling between layers
-     */
-    SteerAtRest,
     /**
      * Use pure outboard PID for steering control, rather than the usual profiled
      * motion -- it's faster and less work for the RoboRIO.
@@ -75,13 +73,5 @@ public enum Experiment {
     /**
      * End the wrist command when the profile completes, instead of using the timer.
      */
-    UseProfileDone,
-    /**
-     * Correct for lash in outboard positional control.
-     */
-    LashCorrection,
-    /**
-     * Low-pass filter the lash-correction error
-     */
-    LashFilter
+    UseProfileDone
 }

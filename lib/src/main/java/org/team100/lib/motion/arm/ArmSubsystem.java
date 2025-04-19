@@ -82,8 +82,8 @@ public class ArmSubsystem extends SubsystemBase implements Glassy {
         Optional<ArmAngles> position = getPosition();
         if (position.isEmpty())
             return Optional.empty();
-        double th1 = position.get().th1 - m_previousPosition.th1;
-        double th2 = position.get().th2 - m_previousPosition.th2;
+        double th1 = position.get().th1() - m_previousPosition.th1();
+        double th2 = position.get().th2() - m_previousPosition.th2();
         m_previousPosition = position.get();
         final ArmAngles velocity = new ArmAngles(th1 * 50, th2 * 50);
         m_log_velocity.log(() -> velocity);

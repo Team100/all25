@@ -3,13 +3,19 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
-import org.team100.lib.state.Control100;
+import org.team100.lib.reference.Setpoints1d;
 
 /**
  * Angular position control, e.g. for swerve steering axes or arm axes.
+ * 
+ * Servos no longer include profiles (in order to coordinate multiple axes), so
+ * this just takes setpoints, and, for onboard versions, computes feedback
+ * control.
  */
 public interface AngularPositionServo extends Glassy {
     /**
+     * Zeros controller errors, sets setpoint to current position.
+     *
      * It is essential to call this after a period of disuse, to prevent transients.
      * 
      * To prevent oscillation, the previous setpoint is used to compute the profile,
@@ -18,42 +24,31 @@ public interface AngularPositionServo extends Glassy {
     void reset();
 
     /**
-     * Resets the encoder position, is very slow, so
-     * only do this on startup
-     * 
-     * @param positionRad The position of the encoder
+     * Invalidates the current profile.
      */
-    public void setEncoderPosition(double positionRad);
-
     public void setDutyCycle(double dutyCycle);
 
     void setTorqueLimit(double torqueNm);
 
     /**
-     * The angle measure here *does not* wind up, so 0 and 2pi are the same.
+     * Initializes the profile if necessary.
      * 
-     * The measurements here are output measurements, e.g. shaft radians, not motor
-     * radians.
+     * Sets the goal, updates the setpoint to the "next step" value towards it,
+     * gives the setpoint to the outboard mechanism.
      * 
-     * @param goalRad             radians
-     * @param feedForwardTorqueNm used for gravity compensation
+     * @param goalRad             The goal angle here wraps within [-pi, pi], using
+     *                            output measurements, e.g. shaft radians, not motor
+     *                            radians
+     * @param feedForwardTorqueNm used for gravity or spring compensation
      */
-    void setPosition(double goalRad, double feedForwardTorqueNm);
+    void setPositionProfiled(double goalRad, double feedForwardTorqueNm);
 
     /**
-     * The angle measure here *does not* wind up, so 0 and 2pi are the same.
-     * 
-     * The measurements here are output measurements, e.g. shaft radians, not motor
-     * radians.
-     * 
-     * @param goalRad             radians
-     * @param goalVelocityRad_S   rad/s
-     * @param feedForwardTorqueNm used for gravity compensation
+     * Invalidates the current profile, sets the setpoint directly.
+     * This takes both current and next setpoints so that the implementation can
+     * choose the current one for feedback and the next one for feedforward.
      */
-    void setPositionWithVelocity(double goalRad, double goalVelocityRad_S, double feedForwardTorqueNm);
-
-
-    void setStaticTorque(double feedForwardTorqueNm);
+    void setPositionDirect(Setpoints1d setpoint, double feedForwardTorqueNm);
 
     /**
      * Value should be updated in Robot.robotPeriodic().
@@ -62,22 +57,15 @@ public interface AngularPositionServo extends Glassy {
      */
     OptionalDouble getPosition();
 
-    /** Value should be updated in Robot.robotPeriodic(). */
-    OptionalDouble getVelocity();
-
     boolean atSetpoint();
 
     boolean profileDone();
 
     boolean atGoal();
 
-    double getGoal();
-
     void stop();
 
     void close();
-
-    Control100 getSetpoint();
 
     /** for logging */
     void periodic();

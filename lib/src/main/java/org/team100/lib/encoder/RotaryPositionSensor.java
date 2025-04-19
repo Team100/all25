@@ -5,41 +5,34 @@ import org.team100.lib.dashboard.Glassy;
 
 /**
  * Absolute rotational measurement, as used in, for example, swerve steering,
- * arm angles, shooter angles, etc. Unlike Encoder100<Angle100>, this does not
- * "wind up", it only returns values within [-pi, pi]. This type of sensor
- * cannot be "reset" at runtime.
+ * arm angles, shooter angles, etc. This does not "wind up", it only returns
+ * values within [-pi, pi]. This type of sensor cannot be "reset" at runtime,
+ * offsets should be fixed at instantiation.
+ * 
+ * In 2025 these position sensors always sense the absolute position of a
+ * mechanism, not through any sort of gearing.
  */
 public interface RotaryPositionSensor extends Glassy {
 
     /**
-     * Implementations should cache this, or nearly so.
-     * 
-     * Counterclockwise-positive rad within [-pi,pi], which is different from the
-     * winding encoder behavior.
-     * 
-     * If the encoder can't return a valid measurement (e.g. because hardware is not
-     * connected), return empty.
+     * @return Counterclockwise-positive rad in [-pi,pi], empty if disconnected.
      */
     OptionalDouble getPositionRad();
 
     /**
-     * Implementations should cache this, or nearly so.
+     * Note some velocity implementations can be noisy.
      * 
-     * Counterclockwise positive, rad/s.
-     * Note some rate implementations can be noisy.
-     * 
-     * If the encoder can't return a valid measurement (e.g. because hardware is not
-     * connected), return empty.
+     * @return Counterclockwise positive rad/s, empty if disconnected.
      */
-    OptionalDouble getRateRad_S();
+    OptionalDouble getVelocityRad_S();
 
-    /** Whatever.  Log stuff. */
+    /**
+     * For logging.
+     */
     void periodic();
 
     /**
      * Releases the encoder resource, if necessary (e.g. HAL ports).
      */
     void close();
-
-
 }

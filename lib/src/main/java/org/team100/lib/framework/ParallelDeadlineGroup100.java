@@ -10,8 +10,6 @@ import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * A copy of WPILib's ParallelDeadlineGroup that logs what it's doing.
@@ -26,8 +24,6 @@ public class ParallelDeadlineGroup100 extends Command {
     private boolean m_runWhenDisabled = true;
     private boolean m_finished = true;
     private Command m_deadline;
-
-    
 
     public ParallelDeadlineGroup100(LoggerFactory logger, String name, Command deadline, Command... otherCommands) {
         m_logger = logger.child(name);
@@ -83,8 +79,6 @@ public class ParallelDeadlineGroup100 extends Command {
         }
         m_finished = false;
     }
-
-    
 
     @Override
     public final void execute() {

@@ -11,8 +11,8 @@ import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.motion.drivetrain.kinodynamics.SwerveKinodynamicsFactory;
-import org.team100.lib.profile.Profile100;
-import org.team100.lib.profile.TrapezoidProfile100;
+import org.team100.lib.profile.incremental.Profile100;
+import org.team100.lib.profile.incremental.TrapezoidProfile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -343,7 +343,7 @@ public class SwerveLimiterTest {
         for (int i = 0; i < 81; ++i) {
             double accelLimit = SwerveUtil.getAccelLimit(limits, 1, 1, setpoint, target);
 
-            profileTarget = profile.calculate(TimedRobot100.LOOP_PERIOD_S, profileTarget.model(), goal);
+            profileTarget = profile.calculate(TimedRobot100.LOOP_PERIOD_S, profileTarget, goal);
             target = new FieldRelativeVelocity(profileTarget.v(), 0, 0);
             setpoint = limiter.apply(target);
             if (DEBUG)

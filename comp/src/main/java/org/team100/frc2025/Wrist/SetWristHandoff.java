@@ -6,10 +6,10 @@ import org.team100.lib.experiments.Experiments;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class SetWristHandoff extends Command {
-    Wrist2 m_wrist;
-    double m_angle;
-    boolean finished = false;
-    double count = 0;
+    private final Wrist2 m_wrist;
+    private final double m_angle;
+    private boolean finished = false;
+    private double count = 0;
 
     public SetWristHandoff(Wrist2 wrist, double angle) {
         m_wrist = wrist;
@@ -39,7 +39,9 @@ public class SetWristHandoff extends Command {
         }
 
         if (count >= 20) {
-            m_wrist.setStatic();
+            // i think "set static" was an attempt to push gently into the funnel, but this
+            // is now accomplished with a different command which sets a duty cycle.
+            // m_wrist.setStatic();
             finished = true;
         }
 
