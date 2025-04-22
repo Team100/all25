@@ -16,7 +16,7 @@ public class RobotContainer {
     public RobotContainer() {
         m_controller = new XboxController(0);
         m_arm = new Arm();
-        m_chart = new Chart(m_controller);
+        m_chart = new Chart(m_controller, m_arm);
     }
 
     public Command getAutonomousCommand() {
