@@ -11,6 +11,7 @@ import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
@@ -66,7 +67,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (rad_s)");
         m_encoderValue = child.doubleLogger(Level.TRACE, "Encoder Value");
 
-        m_log_u_TOTAL = child.doubleLogger(Level.TRACE, "u_TOTAL (rad_s)");
+        m_log_u_TOTAL = child.doubleLogger(Level.COMP, "u_TOTAL (rad_s)");
         m_log_error = child.doubleLogger(Level.TRACE, "Controller Position Error (rad)");
         m_log_velocity_error = child.doubleLogger(Level.TRACE, "Controller Velocity Error (rad_s)");
         m_log_at_setpoint = child.booleanLogger(Level.TRACE, "At Setpoint");
@@ -241,5 +242,10 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
     public void periodic() {
         m_mechanism.periodic();
         m_encoderValue.log(() -> getPosition().getAsDouble());
+    }
+
+    @Override
+    public void setProfile(Profile100 profile){
+        m_controller.setProfile(profile);
     }
 }

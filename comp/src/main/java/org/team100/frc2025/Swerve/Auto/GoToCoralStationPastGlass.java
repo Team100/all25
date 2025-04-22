@@ -20,12 +20,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class GoToCoralStation extends Navigator {
+public class GoToCoralStationPastGlass extends Navigator {
 
     private double kScale;
     private final CoralStation m_station;
 
-    public GoToCoralStation(
+    public GoToCoralStationPastGlass(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController hcontroller,
@@ -41,7 +41,7 @@ public class GoToCoralStation extends Navigator {
     }
 
 
-    public GoToCoralStation(
+    public GoToCoralStationPastGlass(
             LoggerFactory parent,
             SwerveDriveSubsystem drive,
             SwerveController hcontroller,
@@ -67,20 +67,22 @@ public class GoToCoralStation extends Navigator {
         double scaleAdjust = kScale;
 
         if (m_station == CoralStation.Left) {
-            goalTranslation = new Translation2d(1.12, 7.14); //1.2 7.0
+            goalTranslation = new Translation2d(1.12 - (0.07 * 0.5), 7.14 + (0.07 * 0.86)); //1.2 7.0
             goalRotation = Rotation2d.fromDegrees(-54);
             scaleAdjust *= 1;
 
         } else {
-            goalTranslation = new Translation2d(1.12, 0.98); 
+            goalTranslation = new Translation2d(1.12 - (0.07 * 0.5), 0.98 - (0.07 * 0.86)); 
             goalRotation = Rotation2d.fromDegrees(54);
             scaleAdjust *= -1;
         }
 
         Rotation2d courseToGoal = goalTranslation.minus(currTranslation).getAngle();
 
-        Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(courseToGoal,
-                courseToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, scaleAdjust);
+        // Rotation2d newInitialSpline = FieldConstants.calculateDeltaSpline(courseToGoal,
+        //         courseToGoal.rotateBy(Rotation2d.fromDegrees(-90)), null, scaleAdjust);
+
+        Rotation2d newInitialSpline = courseToGoal; 
 
         List<HolonomicPose2d> waypoints = new ArrayList<>();
         waypoints.add(new HolonomicPose2d(currTranslation, currentPose.getRotation(), newInitialSpline));

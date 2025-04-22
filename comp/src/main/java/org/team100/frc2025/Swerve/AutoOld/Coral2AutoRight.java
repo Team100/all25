@@ -58,7 +58,7 @@ public class Coral2AutoRight extends SequentialCommandGroup100 {
                                 new WaitCommand(2),
                                 new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
                             ),
-                            new PrePlaceCoralL4(wrist, elevator, 47, true)
+                            new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true)
                         )
                 ),
                 new PostDropCoralL4(wrist, elevator, 10),

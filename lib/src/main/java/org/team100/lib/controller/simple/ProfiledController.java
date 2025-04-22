@@ -1,5 +1,6 @@
 package org.team100.lib.controller.simple;
 
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -65,5 +66,7 @@ public interface ProfiledController {
      * to return resources used within, this is really for tests.
      */
     void close();
+
+    void setProfile(Profile100 profile);
 
 }

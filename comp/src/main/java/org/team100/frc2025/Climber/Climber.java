@@ -106,4 +106,8 @@ public class Climber extends SubsystemBase {
         if(climberMotor == null) return;
         climberMotor.periodic();
     }
+
+    public void setProfile(Profile100 profile){
+        climberMotor.setProfile(profile);
+    }
 }

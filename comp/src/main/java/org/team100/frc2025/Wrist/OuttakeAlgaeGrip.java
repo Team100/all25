@@ -30,7 +30,7 @@ public class OuttakeAlgaeGrip extends Command {
         // }
 
         // if(atit){
-            m_grip.setDutyCycle(-1);
+            m_grip.setDutyCycle(-0.1);
         // }
 
 

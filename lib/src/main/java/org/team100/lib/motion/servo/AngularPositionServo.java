@@ -3,6 +3,7 @@ package org.team100.lib.motion.servo;
 import java.util.OptionalDouble;
 
 import org.team100.lib.dashboard.Glassy;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 
 /**
@@ -81,5 +82,7 @@ public interface AngularPositionServo extends Glassy {
 
     /** for logging */
     void periodic();
+
+    void setProfile(Profile100 profile);
 
 }

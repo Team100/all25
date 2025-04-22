@@ -10,6 +10,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.motion.mechanism.RotaryMechanism;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -186,6 +187,11 @@ public class UnprofiledOutboardAngularPositionServo implements AngularPositionSe
 
     @Override
     public void setStaticTorque(double feedForwardTorqueNm) {
+    }
+
+    @Override
+    public void setProfile(Profile100 profile){
+        // m_controller.setProfile(profile);
     }
 
 }

@@ -1,6 +1,7 @@
 package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -15,13 +16,15 @@ public class PrePlaceCoralL3 extends Command {
     double count = 0;
     boolean finished = false;
     boolean m_perpetual = false;
+    CoralTunnel m_tunnel;
 
-    public PrePlaceCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue, boolean perpetual) {
+    public PrePlaceCoralL3(Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, double elevatorValue, boolean perpetual) {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
         m_perpetual = perpetual;
-        addRequirements(m_wrist, m_elevator);
+        m_tunnel = tunnel;
+        addRequirements(m_wrist, m_elevator, m_tunnel);
     }
 
     @Override
@@ -36,6 +39,7 @@ public class PrePlaceCoralL3 extends Command {
 
     @Override
     public void execute() {
+        m_tunnel.setCoralMotor(1);
         m_elevator.setPosition(m_elevatorGoal);
         if (m_elevatorGoal - 10 > m_elevator.getPosition()) {
             m_wrist.setAngleValue(0.4);
@@ -58,7 +62,8 @@ public class PrePlaceCoralL3 extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        
+        m_tunnel.setCoralMotor(0);
+
     }
 
     public boolean isDone() {

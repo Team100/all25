@@ -60,7 +60,8 @@ public class WristDefaultCommand extends Command implements Glassy {
             return;
         }
 
-        m_holdPosition = m_wrist.getAngle();
+        
+
 
 
         // if (distanceToReef > 1.6) {
@@ -99,6 +100,9 @@ public class WristDefaultCommand extends Command implements Glassy {
                     if (m_elevator.getSafeCondition()) {
                         m_wrist.setSafeCondition(true);
                         m_wrist.setAngleValue(0.1);
+                    } else {
+                        m_wrist.setAngleValue(m_holdPosition);
+                        return;
                     }
                 }
             } else {
@@ -111,6 +115,9 @@ public class WristDefaultCommand extends Command implements Glassy {
                     m_wrist.setSafeCondition(true);
                 }
             }
+
+            m_holdPosition = m_wrist.getAngle();
+
         // } else {
             // m_log_activity.log(() -> "far away");
         //     // m_wrist.stop();

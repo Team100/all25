@@ -8,6 +8,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.timed.TimedProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
@@ -22,7 +23,7 @@ import org.team100.lib.util.Util;
 public class TimedProfiledController implements ProfiledController, Glassy {
     private static final boolean DEBUG = false;
 
-    private final TimedProfile m_profile;
+    private TimedProfile m_profile;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
     private final double m_positionTolerance;
@@ -50,6 +51,15 @@ public class TimedProfiledController implements ProfiledController, Glassy {
         // use the parent logger
         m_log_setpoint = logger.model100Logger(Level.TRACE, "setpoint");
         m_log_control = logger.control100Logger(Level.TRACE, "control");
+
+        m_profile.init(new Model100(1, 0), new Model100(0, 0));
+        m_profile.sample(0);
+
+
+    }
+
+    @Override
+    public void setProfile(Profile100 profile){
     }
 
     @Override

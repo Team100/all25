@@ -181,10 +181,10 @@ public class AlgaeGrip extends SubsystemBase implements Glassy {
         TalonFXConfigurator talonFXConfigurator = m_motor.getConfigurator();
         CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs();
 
-        currentConfigs.SupplyCurrentLimit = 25;
+        currentConfigs.SupplyCurrentLimit = 35;
         currentConfigs.SupplyCurrentLimitEnable = true;
 
-        currentConfigs.StatorCurrentLimit = 25;
+        currentConfigs.StatorCurrentLimit = 35;
         currentConfigs.StatorCurrentLimitEnable = true;
 
         talonFXConfigurator.apply(currentConfigs);

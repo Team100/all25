@@ -65,7 +65,7 @@ deploy {
                     //
                     // We want everything compiled, as early as possible.  Not sure which of these will work
                     // jvmArgs.add("-XX:CompileThreshold=1") // JVM 8
-                    jvmArgs.add("-XX:CompileThresholdScaling=0.01") // JVM 17
+                    // jvmArgs.add("-XX:CompileThresholdScaling=0.01") // JVM 17
                     // Don't compile in the background, since we have few threads, and want this done fast.
                     // This doesn't seem to help
                     // jvmArgs.add("-XX:-BackgroundCompilation")

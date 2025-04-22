@@ -29,7 +29,7 @@ public class SetWristHandoff extends Command {
     @Override
     public void execute() {
 
-        if (Math.abs(m_wrist.getAngle() - m_angle) < 0.05) {
+        if (Math.abs(m_wrist.getAngle() - m_angle) < 0.3) {
             count++;
             m_wrist.setAngleValue(m_angle);
 
@@ -38,7 +38,7 @@ public class SetWristHandoff extends Command {
             count = 0;
         }
 
-        if (count >= 20) {
+        if (count >= 2) {
             m_wrist.setStatic();
             finished = true;
         }

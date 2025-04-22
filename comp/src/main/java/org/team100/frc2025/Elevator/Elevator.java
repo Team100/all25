@@ -67,7 +67,7 @@ public class Elevator extends SubsystemBase implements Glassy {
 
         // TODO: review these constants
         final double maxVel = 220; //220
-        final double maxAccel = 200; //240
+        final double maxAccel = 170; //240
         final double stallAccel = 1000;
         final double maxJerk = 500;
 

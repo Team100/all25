@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.util.Takt;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -69,17 +70,25 @@ public class LEDIndicator {
     // private final AddressableLEDBuffer m_buffer;
     private final AddressableLEDBuffer m_greenBuffer;
     private final AddressableLEDBuffer m_redBuffer;
+
+    private final AddressableLEDBuffer m_orangeBuffer;
+    private final AddressableLEDBuffer m_beigeBuffer;
+
     private final List<LEDStrip> m_frontStrips;
     private final List<LEDStrip> m_backStrips;
-
+    private final Supplier<Boolean> m_isUsingBargeAsisst;
     private State m_front;
     private State m_back;
     private boolean m_flashing;
 
     private Supplier<Double> m_timeSinceLastPose;
-    public LEDIndicator(int port, Supplier<Double> timeSinceLastPose) {
+
+    SwerveDriveSubsystem m_drive;
+    public LEDIndicator(int port, Supplier<Double> timeSinceLastPose, Supplier <Boolean> isUsingBargeAssist, SwerveDriveSubsystem drive) {
         m_frontStrips = new ArrayList<>();
         m_backStrips = new ArrayList<>();
+        m_drive = drive;
+        m_isUsingBargeAsisst = isUsingBargeAssist;
 
         m_frontStrips.add(new LEDStrip(0, 21));
         m_backStrips.add(new LEDStrip(21, 40));
@@ -95,6 +104,7 @@ public class LEDIndicator {
 
         // buffer flipping is a little quicker than setting the pixels one at a time
         m_greenBuffer = new AddressableLEDBuffer(length);
+
         for (LEDStrip strip : m_frontStrips) {
             strip.solid(m_greenBuffer, Color.kGreen);
         }
@@ -110,6 +120,27 @@ public class LEDIndicator {
         for (LEDStrip strip : m_backStrips) {
             strip.solid(m_redBuffer, Color.kRed);
         }
+
+        m_orangeBuffer = new AddressableLEDBuffer(length);
+
+        for (LEDStrip strip : m_frontStrips) {
+            strip.solid(m_orangeBuffer, Color.kOrange);
+        }
+
+        for (LEDStrip strip : m_backStrips) {
+            strip.solid(m_orangeBuffer, Color.kOrange);
+        }
+
+        m_beigeBuffer = new AddressableLEDBuffer(length);
+
+        for (LEDStrip strip : m_frontStrips) {
+            strip.solid(m_beigeBuffer, Color.kBeige);
+        }
+
+        for (LEDStrip strip : m_backStrips) {
+            strip.solid(m_beigeBuffer, Color.kBeige);
+        }
+
 
         m_led.setData(m_redBuffer);
         // m_led.setData(m_buffer);
@@ -137,55 +168,22 @@ public class LEDIndicator {
      * Periodic does all the real work in this class.
      */
     public void periodic() {
-        // back always shows the same
-        // front depends on flashing state
-        // if (m_flashing) {
-        //     if ((int)(Takt.get() / kFlashDurationSec) % 2 == 0) {
-        //         for (LEDStrip strip : m_frontStrips) {
-        //             strip.solid(buffer, Color.kBlack);
-        //         }
-        //         for (LEDStrip strip : m_backStrips) {
-        //             strip.solid(buffer, Color.kBlack);
-        //         }
-        //     } else if ((int)(Takt.get() / kFlashDurationSec) % 2 == 1){
-        //         for (LEDStrip strip : m_frontStrips) {
-        //             strip.solid(buffer, m_front.color);
-        //         }
-        //         for (LEDStrip strip : m_backStrips) {
-        //             strip.solid(buffer, m_back.color);
-        //         }
-        //     }
-        // } else {
-        //     for (LEDStrip strip : m_frontStrips) {
-        //         strip.solid(buffer, m_front.color);
-        //     }
-        //     for (LEDStrip strip : m_backStrips) {
-        //         strip.solid(buffer, m_back.color);
-        //     }
-        // }
 
-        if(m_timeSinceLastPose.get() < 1){
-            // for (LEDStrip strip : m_frontStrips) {
-            //     strip.solid(m_buffer, Color.kGreen);
+        if(!m_isUsingBargeAsisst.get()){
+            if(m_timeSinceLastPose.get() < 1){
+                m_led.setData(m_greenBuffer);
+            } else {
+                m_led.setData(m_redBuffer);
+            }
+        } else{
+            // if( Math.abs(m_drive.getPose().getX() - 7.2) < 0.05){
+            //     m_led.setData(m_orangeBuffer);
+            // } else {
+            //     m_led.setData(m_beigeBuffer);
             // }
-
-            // for (LEDStrip strip : m_backStrips) {
-            //     strip.solid(m_buffer, Color.kGreen);
-            // }
-            m_led.setData(m_greenBuffer);
-        } else {
-            // for (LEDStrip strip : m_frontStrips) {
-            //     strip.solid(m_buffer, Color.kRed);
-            // }
-
-            // for (LEDStrip strip : m_backStrips) {
-            //     strip.solid(m_buffer, Color.kRed);
-            // }
-            m_led.setData(m_redBuffer);
         }
 
-        // update the output with the buffer we constructed.
-        // m_led.setData(m_buffer);
+        
     }
 
     public void close() {

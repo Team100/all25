@@ -9,6 +9,7 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.Control100Logger;
 import org.team100.lib.logging.LoggerFactory.Model100Logger;
 import org.team100.lib.profile.IncrementalProfile;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -35,7 +36,7 @@ import edu.wpi.first.math.MathUtil;
 public class IncrementalProfiledController implements ProfiledController, Glassy {
     private static final double kDt = TimedRobot100.LOOP_PERIOD_S;
 
-    private final IncrementalProfile m_profile;
+    private IncrementalProfile m_profile;
     private final Feedback100 m_feedback;
     private final DoubleUnaryOperator m_modulus;
     private final double m_positionTolerance;
@@ -75,6 +76,13 @@ public class IncrementalProfiledController implements ProfiledController, Glassy
         m_log_setpoint.log(() -> m_setpoint);
         m_feedback.reset();
     }
+
+    @Override
+    public void setProfile(Profile100 profile){
+        m_profile = profile;
+    }
+
+
 
     /**
      * Calculates feedforward and feedback.

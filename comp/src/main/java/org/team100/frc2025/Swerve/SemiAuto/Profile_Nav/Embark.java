@@ -182,16 +182,16 @@ public class Embark extends Command implements Glassy {
                         radius = 1.445;
                         break;
                     case I:
-                        radius = 1.445;
+                        radius = 1.43;
                         break;
                     case J:
                         radius = 1.445;
                         break;
                     case K:
-                        radius = 1.445;
+                        radius = 1.43;
                         break;
                     case L:
-                        radius = 1.445;
+                        radius = 1.43;
                         break;
                     default:
                         break;
@@ -242,7 +242,7 @@ public class Embark extends Command implements Glassy {
             }
 
             if (scoringPosition == ScoringPosition.L2) {
-                radius = 1.32;
+                radius = 1.295;
             }
 
             if(scoringPosition == ScoringPosition.NONE){
@@ -292,7 +292,7 @@ public class Embark extends Command implements Glassy {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("*************I FINISHED EMBBARKING********************");
+        // System.out.println("*************I FINISHED EMBBARKING********************");
         m_drive.stop();
         m_reference.end();
         m_reference = null;

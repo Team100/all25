@@ -2,6 +2,7 @@
 package org.team100.frc2025.Funnel;
 
 import org.team100.frc2025.Climber.Climber;
+import org.team100.frc2025.Climber.ClimberOut;
 import org.team100.frc2025.Climber.SetClimber;
 import org.team100.lib.framework.ParallelRaceGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;

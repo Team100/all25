@@ -10,6 +10,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.profile.CurrentLimitedExponentialProfile;
 import org.team100.lib.profile.ExponentialProfileWPI;
+import org.team100.lib.profile.Profile100;
 import org.team100.lib.profile.TrapezoidProfile100;
 import org.team100.lib.profile.TrapezoidProfileWPI;
 import org.team100.lib.profile.timed.JerkLimitedProfile100;
@@ -96,6 +97,11 @@ public class SelectProfiledController implements ProfiledController, Glassy {
             Util.printf("SelectProfiledController init\n");
         m_selected.init(measurement);
     }
+
+    @Override
+    public void setProfile(Profile100 profile){
+    }
+
 
     @Override
     public Result calculate(Model100 measurement, Model100 goal) {
