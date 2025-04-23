@@ -1,6 +1,7 @@
 package org.team100.frc2025.CommandGroups;
 
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
@@ -16,23 +17,26 @@ public class PrePlaceCoralL4 extends Command {
     boolean finished = false;
     boolean m_perpetual = false;
     Command m_holdingCommand;
+    CoralTunnel m_tunnel;
 
-    public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue, boolean perpetual) {
+    public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, double elevatorValue, boolean perpetual) {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
         m_perpetual = perpetual;
         m_holdingCommand = null;
-        addRequirements(m_wrist, m_elevator);
+        m_tunnel = tunnel;
+        addRequirements(m_wrist, m_elevator, tunnel);
     }
 
-    public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue, boolean perpetual, Command holdingCommand) {
+    public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, CoralTunnel tunnel, double elevatorValue, boolean perpetual, Command holdingCommand) {
         m_wrist = wrist;
         m_elevator = elevator;
         m_elevatorGoal = elevatorValue;
         m_perpetual = perpetual;
         m_holdingCommand = holdingCommand;
-        addRequirements(m_wrist, m_elevator);
+        m_tunnel = tunnel;
+        addRequirements(m_wrist, m_elevator, tunnel);
     }
 
     @Override
@@ -48,6 +52,7 @@ public class PrePlaceCoralL4 extends Command {
 
     @Override
     public void execute() {
+        m_tunnel.setCoralMotor(1);
         m_elevator.setPosition(m_elevatorGoal);
         if (m_elevatorGoal - 10 > m_elevator.getPosition()) {
             m_wrist.setAngleValue(0.4);
@@ -85,6 +90,8 @@ public class PrePlaceCoralL4 extends Command {
         finished = false;
         countElevator = 0;
         countWrist = 0;
+        m_tunnel.setCoralMotor(0);
+        
 
     }
 

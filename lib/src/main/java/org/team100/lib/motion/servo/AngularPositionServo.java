@@ -69,5 +69,4 @@ public interface AngularPositionServo extends Glassy {
 
     /** for logging */
     void periodic();
-
 }

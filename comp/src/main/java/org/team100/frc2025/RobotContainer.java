@@ -215,7 +215,6 @@ public class RobotContainer implements Glassy {
                 layout,
                 poseEstimator);
 
-        m_leds = new LEDIndicator(0, visionDataProvider::getPoseAgeSec);
 
         final SwerveLocal swerveLocal = new SwerveLocal(
                 driveLog,
@@ -232,6 +231,8 @@ public class RobotContainer implements Glassy {
                 swerveLocal,
                 visionDataProvider::update,
                 limiter);
+        
+        m_leds = new LEDIndicator(0, visionDataProvider::getPoseAgeSec); 
 
         if (RobotBase.isReal()) {
             // Real robots get an empty simulated tag detector.
@@ -315,7 +316,8 @@ public class RobotContainer implements Glassy {
                         m_swerveKinodynamics,
                         driverControl::useReefLock,
                         thetaFeedback,
-                        m_drive));
+                        m_drive,
+                        buttons::red1));
 
         // DEFAULT COMMANDS
         // m_drive.setDefaultCommand(driveManually);
@@ -330,7 +332,7 @@ public class RobotContainer implements Glassy {
                 driverControl::velocity,
                 m_drive,
                 new ManualWithProfiledReefLock(manLog, m_swerveKinodynamics, driverControl::useReefLock, thetaFeedback,
-                        m_drive),
+                        m_drive, buttons::red1),
                 new ManualWithBargeAssist(manLog, m_swerveKinodynamics, driverControl::desiredRotation, thetaFeedback,
                         m_drive),
                 driverControl::driveWithBargeAssist);
@@ -373,7 +375,7 @@ public class RobotContainer implements Glassy {
         whileTrue(driverControl::feedFunnel,
                 new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(driverControl::climb,
-                new ParallelCommandGroup(new SetClimber(m_climber, 0.6), new DriveForwardSlowly(m_drive)));
+                new ParallelCommandGroup(new SetClimber(m_climber, 0.53), new DriveForwardSlowly(m_drive)));
 
         // whileTrue(driverControl::driveToTag,
         // new Coral2AutoLeftNewNew(logger, m_wrist, m_elevator, m_funnel, m_tunnel,
@@ -460,7 +462,7 @@ public class RobotContainer implements Glassy {
         whileTrue(buttons::ij, new GrabAlgaeL3Dumb(comLog, m_wrist, m_elevator, m_grip));
         whileTrue(buttons::kl, new GrabAlgaeL2Dumb(comLog, m_wrist, m_elevator, m_grip));
 
-        whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
+        // whileTrue(buttons::red1, new RunFunnelHandoff(comLog, m_elevator, m_wrist, m_funnel, m_tunnel, m_grip));
         whileTrue(buttons::red2, new AlgaeOuttakeGroup(comLog, m_grip, m_wrist, m_elevator));
         whileTrue(buttons::red3, new ScoreBargeSmart(m_elevator, m_wrist, m_grip,
                 buttons::red4));
@@ -533,6 +535,8 @@ public class RobotContainer implements Glassy {
     public void onInit() {
         // m_drive.resetPose()
         m_drive.resetPose(new Pose2d(m_drive.getPose().getTranslation(), new Rotation2d(Math.PI)));
+
+        m_auton.initialize();
 
     }
 

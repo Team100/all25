@@ -1,5 +1,6 @@
 package org.team100.lib.commands.drivetrain.manual;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import org.team100.lib.commands.drivetrain.FieldConstants;
@@ -22,6 +23,7 @@ import org.team100.lib.util.DriveUtil;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
@@ -53,8 +55,7 @@ public class ManualWithProfiledReefLock implements FieldRelativeDriver {
     private final DoubleLogger m_log_theta_FF;
     private final DoubleLogger m_log_theta_FB;
     private final DoubleLogger m_log_output_omega;
-    
-
+    private final Supplier<Boolean> m_lockToFunnel;
     
     // package private for testing
     Rotation2d m_goal = null;
@@ -74,7 +75,8 @@ public class ManualWithProfiledReefLock implements FieldRelativeDriver {
             SwerveKinodynamics swerveKinodynamics,
             Supplier<Boolean> lockToReef,
             Feedback100 thetaController,
-            SwerveDriveSubsystem drive) {
+            SwerveDriveSubsystem drive,
+            Supplier<Boolean> lockToFunnel) {
         LoggerFactory child = parent.child(this);
         m_swerveKinodynamics = swerveKinodynamics;
         m_lockToReef = lockToReef;
@@ -88,6 +90,7 @@ public class ManualWithProfiledReefLock implements FieldRelativeDriver {
         m_log_theta_FF = child.doubleLogger(Level.TRACE, "thetaFF");
         m_log_theta_FB = child.doubleLogger(Level.TRACE, "thetaFB");
         m_log_output_omega = child.doubleLogger(Level.TRACE, "output/omega");
+        m_lockToFunnel  = lockToFunnel;
     }
 
     @Override
@@ -121,15 +124,30 @@ public class ManualWithProfiledReefLock implements FieldRelativeDriver {
 
         final TrapezoidProfile100 m_profile = makeProfile(currentVelocity);
 
-        if(m_lockToReef.get()) {
-            Rotation2d rotationToReef = FieldConstants.angleToReefCenter(m_drive.getPose().getTranslation());
-            // m_goal = FieldConstants.getSectorAngle(currentFieldSector).rotateBy(Rotation2d.k180deg);
-            m_goal = rotationToReef;
-            // System.out.println(currentFieldSector);
-        }else{
+        if(!m_lockToReef.get() && !m_lockToFunnel.get()){
             m_goal = null;
+        } else{
+            if(m_lockToReef.get()) {
+                Rotation2d rotationToReef = FieldConstants.angleToReefCenter(m_drive.getPose().getTranslation());
+                // m_goal = FieldConstants.getSectorAngle(currentFieldSector).rotateBy(Rotation2d.k180deg);
+                m_goal = rotationToReef;
+                // System.out.println(currentFieldSector);
+            }
+
+            if(m_lockToFunnel.get()){
+                Pose2d goalTranslationLeft = new Pose2d(1.2, 7.00, Rotation2d.fromDegrees(-54));
+                Pose2d goalTranslationRight = new Pose2d(1.2, 1.05, Rotation2d.fromDegrees(54));
+    
+                ArrayList<Pose2d> poses = new ArrayList<>();
+    
+                poses.add(goalTranslationLeft);
+                poses.add(goalTranslationRight);
+    
+                m_goal = m_drive.getPose().nearest(poses).getRotation();
+            }
         }
 
+         
         // m_goal = Rotation2d.fromDegrees(90);
 
         if (m_goal == null) {
