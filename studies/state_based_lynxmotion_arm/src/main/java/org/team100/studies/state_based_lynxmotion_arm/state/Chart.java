@@ -1,12 +1,14 @@
 package org.team100.studies.state_based_lynxmotion_arm.state;
 
+import static edu.wpi.first.wpilibj2.command.Commands.print;
+import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
+
 import java.util.function.BooleanSupplier;
 
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Describes actions and the graph of transitions. */
@@ -20,10 +22,10 @@ public class Chart {
         m_arm = arm;
         m_current = State.HOME;
         // print on state entry
-        in(State.HOME).onTrue(Commands.print("HOME"));
-        in(State.AWAY).onTrue(Commands.print("AWAY"));
-        in(State.EAST).onTrue(Commands.print("EAST"));
-        in(State.WEST).onTrue(Commands.print("WEST"));
+        in(State.HOME).onTrue(print("HOME"));
+        in(State.AWAY).onTrue(print("AWAY"));
+        in(State.EAST).onTrue(print("EAST"));
+        in(State.WEST).onTrue(print("WEST"));
         // guarded transition on button press
         in(State.HOME).and(m_controller::getAButton).onTrue(set(State.AWAY));
         in(State.AWAY).and(m_controller::getBButton).onTrue(set(State.HOME));
@@ -53,7 +55,7 @@ public class Chart {
     }
 
     private Command set(State state) {
-        return Commands.runOnce(() -> {
+        return runOnce(() -> {
             m_current = state;
         });
     }
