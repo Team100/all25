@@ -1,6 +1,7 @@
 
 package org.team100.studies.state_based_lynxmotion_arm;
 
+import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
 import org.team100.studies.state_based_lynxmotion_arm.state.Chart;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 
@@ -14,8 +15,25 @@ public class RobotContainer {
     private final Chart m_chart;
 
     public RobotContainer() {
+
+        // calibrating servos.
+        // don't use +/- pi/2 for calibration, it's in the saturation region.
+        // these are for arm "ONE".
+        // each arm is different. TODO: multiple configs.
+        LynxArmAngles.Config config = new LynxArmAngles.Config();
+        config.swingCenter = 0.47;
+        config.swingScale = 3.2;
+        config.boomCenter = 0.48;
+        config.boomScale = 4;
+        config.stickOffset = 0.05;
+        config.stickScale = 3.4;
+        config.wristCenter = 0.55;
+        config.wristScale = 3.3;
+
+        LynxArmAngles.Factory factory = new LynxArmAngles.Factory(config);
+
         m_controller = new XboxController(0);
-        m_arm = new Arm();
+        m_arm = new Arm(factory);
         m_chart = new Chart(m_controller, m_arm);
     }
 

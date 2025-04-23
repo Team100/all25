@@ -2,36 +2,47 @@ package org.team100.studies.state_based_lynxmotion_arm.subsystems;
 
 import static edu.wpi.first.math.MathUtil.isNear;
 
-import edu.wpi.first.wpilibj.Servo;
+import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
+import org.team100.studies.state_based_lynxmotion_arm.motion.ProfiledServo;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
-
-    private record Configuration(double swing, double boom, double stick, double wrist, double twist, double grip) {
-    }
-
-    private static final Configuration HOME = new Configuration(90, 135, 90, 90, 90, 90);
-    private static final Configuration AWAY = new Configuration(135, 135, 90, 90, 90, 90);
-
     private static final double TOLERANCE = 0.05;
-    private final Servo m_swing;
-    private final Servo m_boom;
-    private final Servo m_stick;
-    private final Servo m_wrist;
-    private final Servo m_twist;
-    private final Servo m_grip;
+    private static final double wristSpeed = 5;
+    private static final double wristAccel = 5;
+    private static final double speed = 1;
+    private static final double accel = 1;
+
+    private final LynxArmAngles HOME;
+    private final LynxArmAngles AWAY;
+
+    private final LynxArmAngles.Factory m_factory;
+
+    private final ProfiledServo m_swing;
+    private final ProfiledServo m_boom;
+    private final ProfiledServo m_stick;
+    private final ProfiledServo m_wrist;
+    private final ProfiledServo m_twist;
+    private final ProfiledServo m_grip;
 
     private final Timer m_awayTimer;
 
-    public Arm() {
-        m_swing = new Servo(0);
-        m_boom = new Servo(1);
-        m_stick = new Servo(2);
-        m_wrist = new Servo(3);
-        m_twist = new Servo(4);
-        m_grip = new Servo(5);
+    public Arm(LynxArmAngles.Factory factory) {
+        m_factory = factory;
+        LynxArmAngles initial = m_factory.fromRad(
+                0, -Math.PI / 4, Math.PI / 2, Math.PI / 4, 0.5, 0.9);
+        HOME = m_factory.fromDeg(90, 135, 90, 90, 90, 90);
+        AWAY = m_factory.fromDeg(135, 135, 90, 90, 90, 90);
+
+        m_swing = new ProfiledServo("Swing", 0, initial.swing, 0, 1, speed, accel);
+        m_boom = new ProfiledServo("Boom", 1, initial.boom, 0, 1, speed, accel);
+        m_stick = new ProfiledServo("Stick", 2, initial.stick, 0, 1, speed, accel);
+        m_wrist = new ProfiledServo("Wrist", 3, initial.wrist, 0, 1, wristSpeed, wristAccel);
+        m_twist = new ProfiledServo("Twist", 4, initial.twist, 0, 1, 1, 1);
+        m_grip = new ProfiledServo("Grip", 5, initial.grip, 0, 1, 1, 1);
 
         m_awayTimer = new Timer();
     }
@@ -65,17 +76,27 @@ public class Arm extends SubsystemBase {
         //
     }
 
+    public LynxArmAngles get() {
+        return m_factory.fromDeg(
+                m_swing.getAngle(),
+                m_boom.getAngle(),
+                m_stick.getAngle(),
+                m_wrist.getAngle(),
+                m_twist.getAngle(),
+                m_grip.getAngle());
+    }
+
     //////////////////////////////////////////////////
 
     private void home() {
-        set(HOME);
+        setGoals(HOME);
     }
 
     private void away() {
-        set(AWAY);
+        setGoals(AWAY);
     }
 
-    private boolean isAt(Configuration target) {
+    private boolean isAt(LynxArmAngles target) {
         return isNear(m_swing.getAngle(), target.swing, TOLERANCE)
                 && isNear(m_boom.getAngle(), target.boom, TOLERANCE)
                 && isNear(m_stick.getAngle(), target.stick, TOLERANCE)
@@ -84,12 +105,54 @@ public class Arm extends SubsystemBase {
                 && isNear(m_grip.getAngle(), target.grip, TOLERANCE);
     }
 
-    private void set(Configuration target) {
+    private void set(LynxArmAngles target) {
         m_swing.setAngle(target.swing);
         m_boom.setAngle(target.boom);
         m_stick.setAngle(target.stick);
         m_wrist.setAngle(target.wrist);
         m_twist.setAngle(target.twist);
         m_grip.setAngle(target.grip);
+    }
+
+    /*
+     * Applies the specified goals, adjusting velocity/acceleration so that all the
+     * axes will complete at the same time.
+     * 
+     * TODO: add boundary enforcement (e.g. raise boom to avoid hitting the table).
+     */
+    private void setGoals(LynxArmAngles goals) {
+        double slowest_eta = slowestEta(goals);
+        setGoal(m_swing, goals.swing, slowest_eta);
+        setGoal(m_boom, goals.boom, slowest_eta);
+        setGoal(m_stick, goals.stick, slowest_eta);
+        setGoal(m_wrist, goals.wrist, slowest_eta);
+        setGoal(m_twist, goals.twist, slowest_eta);
+        setGoal(m_grip, goals.grip, slowest_eta);
+    }
+
+    private void setRawGoals(LynxArmAngles goals) {
+        m_swing.setGoal(goals.swing, 1);
+        m_boom.setGoal(goals.boom, 1);
+        m_stick.setGoal(goals.stick, 1);
+        m_wrist.setGoal(goals.wrist, 1);
+        m_twist.setGoal(goals.twist, 1);
+        m_grip.setGoal(goals.grip, 1);
+    }
+
+    private void setGoal(ProfiledServo servo, double goal, double slowest_eta) {
+        double eta = servo.eta(goal);
+        servo.setGoal(goal, eta / slowest_eta);
+    }
+
+    /** Finds the slowest axis; use this to slow down the other axes. */
+    private double slowestEta(LynxArmAngles goals) {
+        double slowest_eta = 0;
+        slowest_eta = Math.max(slowest_eta, m_swing.eta(goals.swing));
+        slowest_eta = Math.max(slowest_eta, m_boom.eta(goals.boom));
+        slowest_eta = Math.max(slowest_eta, m_stick.eta(goals.stick));
+        slowest_eta = Math.max(slowest_eta, m_wrist.eta(goals.wrist));
+        slowest_eta = Math.max(slowest_eta, m_twist.eta(goals.twist));
+        slowest_eta = Math.max(slowest_eta, m_grip.eta(goals.grip));
+        return slowest_eta;
     }
 }
