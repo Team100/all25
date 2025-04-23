@@ -17,17 +17,17 @@ public class ArmVisualization {
 
     private final Mechanism2d m_topView = new Mechanism2d(100, 100);
     private final MechanismRoot2d m_topRoot = m_topView.getRoot("TopRoot", 50, 50);
-    private final MechanismLigament2d m_swingLigament = new MechanismLigament2d("Swing", 15, 90, 5,
-            new Color8Bit(Color.kWhite));
+    private final MechanismLigament2d m_swingLigament = new MechanismLigament2d(
+            "Swing", 15, 90, 5, new Color8Bit(Color.kWhite));
 
     private final Mechanism2d m_sideView = new Mechanism2d(100, 100);
     private final MechanismRoot2d m_sideRoot = m_sideView.getRoot("SideRoot", 50, 50);
-    private final MechanismLigament2d m_boomLigament = new MechanismLigament2d("Boom",
-            20, 90, 5, new Color8Bit(Color.kWhite));
-    private final MechanismLigament2d m_stickLigament = new MechanismLigament2d("Stick",
-            20, -90, 5, new Color8Bit(Color.kLightGreen));
-    private final MechanismLigament2d m_wristLigament = new MechanismLigament2d("Wrist",
-            5, -90, 5, new Color8Bit(Color.kLightBlue));
+    private final MechanismLigament2d m_boomLigament = new MechanismLigament2d(
+            "Boom", 20, 90, 5, new Color8Bit(Color.kWhite));
+    private final MechanismLigament2d m_stickLigament = new MechanismLigament2d(
+            "Stick", 20, -90, 5, new Color8Bit(Color.kLightGreen));
+    private final MechanismLigament2d m_wristLigament = new MechanismLigament2d(
+            "Wrist", 5, -90, 5, new Color8Bit(Color.kLightBlue));
 
     private final Notifier m_notifier = new Notifier(this::update);
 
@@ -50,14 +50,15 @@ public class ArmVisualization {
     /* Reads current servo positions and writes them to the dashboard */
     public void update() {
         LynxArmAngles angles = m_arm.get();
-        double swingLength = 20 * Math.cos(Math.toRadians(angles.boom))
-                + 20 * Math.cos(Math.toRadians(angles.boom + angles.stick));
+        // System.out.println(angles);
+        double swingLength = 20 * Math.cos(Math.PI * angles.boom)
+                + 20 * Math.cos(Math.PI * (angles.boom - angles.stick));
 
-        m_swingLigament.setAngle(angles.swing);
+        m_swingLigament.setAngle(180 * angles.swing);
         m_swingLigament.setLength(swingLength);
-        m_boomLigament.setAngle(angles.boom);
-        m_stickLigament.setAngle(angles.stick);
-        m_wristLigament.setAngle(angles.wrist);
+        m_boomLigament.setAngle(180 * angles.boom);
+        m_stickLigament.setAngle(-180 * angles.stick);
+        m_wristLigament.setAngle(180 * (angles.wrist));
     }
 
 }

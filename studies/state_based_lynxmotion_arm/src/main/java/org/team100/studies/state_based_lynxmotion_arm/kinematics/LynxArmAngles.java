@@ -177,4 +177,14 @@ public class LynxArmAngles {
                 grip);
     }
 
+    @Override
+    public String toString() {
+        return "LynxArmAngles [swing=" + swing
+                + ", boom=" + boom
+                + ", stick=" + stick
+                + ", wrist=" + wrist
+                + ", twist=" + twist
+                + ", grip=" + grip + "]";
+    }
+
 }

@@ -2,6 +2,7 @@ package org.team100.studies.state_based_lynxmotion_arm.subsystems;
 
 import static edu.wpi.first.math.MathUtil.isNear;
 
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
 import org.team100.studies.state_based_lynxmotion_arm.motion.ProfiledServo;
 
@@ -18,6 +19,9 @@ public class Arm extends SubsystemBase {
 
     private final LynxArmAngles HOME;
     private final LynxArmAngles AWAY;
+    private final LynxArmAngles east;
+    private final LynxArmAngles west;
+    private final LynxArmAngles north;
 
     private final LynxArmAngles.Factory m_factory;
 
@@ -35,7 +39,10 @@ public class Arm extends SubsystemBase {
         LynxArmAngles initial = m_factory.fromRad(
                 0, -Math.PI / 4, Math.PI / 2, Math.PI / 4, 0.5, 0.9);
         HOME = m_factory.fromDeg(90, 135, 90, 90, 90, 90);
-        AWAY = m_factory.fromDeg(135, 135, 90, 90, 90, 90);
+        AWAY = m_factory.fromDeg(0, 0, 0, 0, 0, 0);
+        east = m_factory.from0_1(0, 0.2, 0.35, 0.5, 0, 0);
+        west = m_factory.from0_1(1.0, 0.2, 0.35, 0.5, 0, 0);
+        north = m_factory.from0_1(0.5, 0.5, 0.8, 0.2, 0, 0);
 
         m_swing = new ProfiledServo("Swing", 0, initial.swing, 0, 1, speed, accel);
         m_boom = new ProfiledServo("Boom", 1, initial.boom, 0, 1, speed, accel);
@@ -57,6 +64,18 @@ public class Arm extends SubsystemBase {
         return isAt(AWAY);
     }
 
+    public boolean isWest() {
+        return isAt(west);
+    }
+
+    public boolean isEast() {
+        return isAt(east);
+    }
+
+    public boolean isNorth() {
+        return isAt(north);
+    }
+
     public boolean awayTimerExpired() {
         return m_awayTimer.hasElapsed(1);
     }
@@ -64,11 +83,23 @@ public class Arm extends SubsystemBase {
     // ACTIONS
 
     public Command goHome() {
-        return run(this::home);
+        return run(() -> setRawGoals(HOME));
     }
 
     public Command goAway() {
-        return startRun(m_awayTimer::restart, this::away);
+        return startRun(m_awayTimer::restart, () -> setRawGoals(AWAY));
+    }
+
+    public Command goWest() {
+        return run(() -> setRawGoals(west));
+    }
+
+    public Command goEast() {
+        return run(() -> setRawGoals(east));
+    }
+
+    public Command goNorth() {
+        return run(() -> setRawGoals(north));
     }
 
     @Override
@@ -86,23 +117,24 @@ public class Arm extends SubsystemBase {
                 m_grip.getAngle());
     }
 
+    public void move(double dt) {
+        m_swing.move(dt);
+        m_boom.move(dt);
+        m_stick.move(dt);
+        m_wrist.move(dt);
+        m_twist.move(dt);
+        m_grip.move(dt);
+    }
+
     //////////////////////////////////////////////////
 
-    private void home() {
-        setGoals(HOME);
-    }
-
-    private void away() {
-        setGoals(AWAY);
-    }
-
     private boolean isAt(LynxArmAngles target) {
-        return isNear(m_swing.getAngle(), target.swing, TOLERANCE)
-                && isNear(m_boom.getAngle(), target.boom, TOLERANCE)
-                && isNear(m_stick.getAngle(), target.stick, TOLERANCE)
-                && isNear(m_wrist.getAngle(), target.wrist, TOLERANCE)
-                && isNear(m_twist.getAngle(), target.twist, TOLERANCE)
-                && isNear(m_grip.getAngle(), target.grip, TOLERANCE);
+        return isNear(m_swing.getPosition(), target.swing, TOLERANCE)
+                && isNear(m_boom.getPosition(), target.boom, TOLERANCE)
+                && isNear(m_stick.getPosition(), target.stick, TOLERANCE)
+                && isNear(m_wrist.getPosition(), target.wrist, TOLERANCE)
+                && isNear(m_twist.getPosition(), target.twist, TOLERANCE)
+                && isNear(m_grip.getPosition(), target.grip, TOLERANCE);
     }
 
     private void set(LynxArmAngles target) {
@@ -128,6 +160,7 @@ public class Arm extends SubsystemBase {
         setGoal(m_wrist, goals.wrist, slowest_eta);
         setGoal(m_twist, goals.twist, slowest_eta);
         setGoal(m_grip, goals.grip, slowest_eta);
+        move(TimedRobot100.LOOP_PERIOD_S);
     }
 
     private void setRawGoals(LynxArmAngles goals) {
@@ -137,6 +170,7 @@ public class Arm extends SubsystemBase {
         m_wrist.setGoal(goals.wrist, 1);
         m_twist.setGoal(goals.twist, 1);
         m_grip.setGoal(goals.grip, 1);
+        move(TimedRobot100.LOOP_PERIOD_S);
     }
 
     private void setGoal(ProfiledServo servo, double goal, double slowest_eta) {

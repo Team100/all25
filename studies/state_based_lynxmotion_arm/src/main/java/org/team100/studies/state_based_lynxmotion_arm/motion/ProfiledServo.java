@@ -10,6 +10,7 @@ public class ProfiledServo {
     private static final double kVelocityTolerance = 0.01;
 
     private final TrapezoidProfile.Constraints m_maxConstraints;
+    private final String m_name;
     private final Servo m_servo;
     private final double m_min;
     private final double m_max;
@@ -28,6 +29,7 @@ public class ProfiledServo {
             double max,
             double maxVel,
             double maxAcc) {
+        m_name = name;
         m_servo = new Servo(channel);
         m_min = min;
         m_max = max;
@@ -55,13 +57,15 @@ public class ProfiledServo {
     public double eta(double goal) {
         TrapezoidProfile x = new TrapezoidProfile(m_maxConstraints);
         x.calculate(0.02, new TrapezoidProfile.State(goal, 0), m_setpoint); // this is awful
-        return x.totalTime();
+        double totalTime = x.totalTime();
+        // System.out.printf("%s %f %f %f\n", m_name, goal, m_setpoint.position, totalTime);
+        return totalTime;
     }
 
     /** Calculates the new setpoint and moves the servo. */
     public void move(double dt) {
         var profile = new TrapezoidProfile(m_constraints);
-        m_setpoint = profile.calculate(dt, m_goal, m_setpoint);
+        m_setpoint = profile.calculate(dt, m_setpoint, m_goal);
         m_servo.set(m_setpoint.position);
     }
 
@@ -80,7 +84,9 @@ public class ProfiledServo {
 
     /** TODO: remove */
     public double getAngle() {
-        return m_servo.getAngle();
+        // TODO: make this work in simulation
+        // return m_servo.getAngle();
+        return 180 * m_setpoint.position;
     }
 
     /** TODO: remove */
