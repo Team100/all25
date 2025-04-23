@@ -51,14 +51,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
 
     double maxVel = 40;
     double maxAccel = 40;
-    double maxJerk = 70;
+    double maxJerk = 40;
 
     // private LaserCan lc;
 
     private boolean m_isSafe = false;
 
-    private final double kPositionTolerance = 0.02;
-    private final double kVelocityTolerance = 0.01;
     private final AngularPositionServo wristServo;
 
     private final RotaryMechanism m_wristMech;
@@ -75,13 +73,11 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
         Feedback100 wristFeedback = new FullStateFeedback(
-                logger, 4.0, 0.11, x -> x, kPositionTolerance, kVelocityTolerance);
+            logger, 4.5, 0.12, x -> x, 0.05, 0.05);
 
         JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
 
         ProfileReference1d ref = new TimedProfileReference1d(profile);
-        // TrapezoidProfile100 profile = new TrapezoidProfile100(35, 15,
-        // kPositionTolerance);
 
         m_log_safe = logger.booleanLogger(Level.TRACE, "Wrist Safe Condition");
 
@@ -100,9 +96,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         0.135541, // 0.346857, //0.317012, //0.227471, //0.188726
                         EncoderDrive.DIRECT);
 
-                // IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(logger,
-                // wristMotor);
-
                 m_wristMech = new RotaryMechanism(
                         logger,
                         wristMotor,
@@ -110,14 +103,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         GEAR_RATIO,
                         kWristMinimumPosition,
                         kWristMaximumPosition);
-
-                // Feedback100 wristFeedback = new PIDFeedback(child, 7.5, 0.00, 0.000, false,
-                // kPositionTolerance,
-                // kPositionTolerance);
-                // Feedback100 wristFeedback = new PIDFeedback(parent, 5.0, 0.00, 0.000, false,
-                // kPositionTolerance, 0.1);
-                // Feedback100 wristFeedback = new PIDFeedback(parent, 0, 0, 0 , false,
-                // kPositionTolerance, kPositionTolerance);
 
                 wristServo = new OnboardAngularPositionServo(
                         logger, m_wristMech, ref, wristFeedback);

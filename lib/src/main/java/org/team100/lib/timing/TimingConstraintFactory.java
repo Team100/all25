@@ -40,7 +40,7 @@ public class TimingConstraintFactory {
 
     /** Maybe unrealistically fast? */
     public List<TimingConstraint> auto() {
-        return scaled(0.77, 1.4, 0.75, 0.5);
+        return scaled(0.77, 0.6, 0.75, 0.5);
     }
 
     /** see TrajectoryVelocityProfileTest.testAuto() */

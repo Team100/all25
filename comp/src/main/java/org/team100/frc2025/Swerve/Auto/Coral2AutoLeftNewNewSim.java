@@ -68,11 +68,11 @@ public class Coral2AutoLeftNewNewSim extends SequentialCommandGroup100 {
         GoToCoralStation goToStation2ndTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
                                         CoralStation.Left, 0.5, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4K = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4K = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4L = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4L = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
        
         // PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, () -> false);

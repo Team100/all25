@@ -35,12 +35,12 @@ public class ScoreBargeSmart extends Command {
 
             m_grip.setDutyCycle(0.5);
 
-            if (m_grip.hasAlgae()) {
-                m_grip.applyLowConfigs();
-            }
-        } else {
-            m_elevator.setPosition(54.0);
-            m_wrist.setAngleValue(2.0);
+        if(m_grip.hasAlgae()){
+            m_grip.applyLowConfigs();
+        }
+    } else {
+      m_elevator.setPosition(54.0);
+      m_wrist.setAngleValue(2.2);
 
             if (Math.abs(m_elevator.getPosition() - 54) < 0.5) {
                 m_grip.applyHighConfigs();

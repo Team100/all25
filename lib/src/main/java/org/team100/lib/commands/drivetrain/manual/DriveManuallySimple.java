@@ -32,7 +32,6 @@ public class DriveManuallySimple extends Command implements Glassy {
     private final SwerveDriveSubsystem m_drive;
     private final FieldRelativeDriver m_defaultDriver;
     private final FieldRelativeDriver m_alternativeDriver;
-
     String currentManualMode = null;
     Supplier<Boolean> m_useAlternative;
 
@@ -50,7 +49,6 @@ public class DriveManuallySimple extends Command implements Glassy {
         m_defaultDriver = driver;
         m_alternativeDriver = alterativeDriver;
         m_useAlternative = useAlteranative;
-        
         addRequirements(m_drive);
     }
 

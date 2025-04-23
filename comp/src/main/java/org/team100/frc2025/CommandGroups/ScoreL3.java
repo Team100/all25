@@ -3,6 +3,7 @@ package org.team100.frc2025.CommandGroups;
 import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Elevator.SetElevatorPerpetually;
+import org.team100.frc2025.Wrist.CoralTunnel;
 import org.team100.frc2025.Wrist.SetWrist;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
@@ -11,11 +12,11 @@ import org.team100.lib.logging.LoggerFactory;
 
 public class ScoreL3 extends SequentialCommandGroup100 {
 
-    public ScoreL3(LoggerFactory logger, Wrist2 wrist, Elevator elevator) {
+    public ScoreL3(LoggerFactory logger, Wrist2 wrist, Elevator elevator, CoralTunnel tunnel) {
         super(logger, "ScoreL3");
         addCommands(
                 new SetWrist(wrist, 0.4, false),
-                new PrePlaceCoralL3(wrist, elevator, 23, false),
+                new PrePlaceCoralL3(wrist, elevator, tunnel ,23, false),
                 // new ParallelDeadlineGroup100(parent,
                 // new SetElevator(elevator, 23, false), new
                 // SetWrist(wrist, 0.4, true)),

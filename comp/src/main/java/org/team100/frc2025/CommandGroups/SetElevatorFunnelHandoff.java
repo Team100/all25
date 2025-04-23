@@ -37,7 +37,7 @@ public class SetElevatorFunnelHandoff extends Command {
             count = 0;
         }
 
-        if (count >= 20) {
+        if (count >= 2) {
             finished = true;
         }
     }

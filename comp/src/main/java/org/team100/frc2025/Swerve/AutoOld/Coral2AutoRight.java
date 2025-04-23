@@ -49,11 +49,14 @@ public class Coral2AutoRight extends SequentialCommandGroup100 {
                         new Embark(m_logger, m_drive, heedRadiusM, controller, profile, FieldSector.EF,
                                 ReefDestination.RIGHT,
                                 () -> ScoringPosition.L4, ReefPoint.F),
-                        new SequentialCommandGroup100(logger, "handoff then place",
-                                new ParallelRaceGroup100(m_logger, "handoff",
-                                        new WaitCommand(2),
-                                        new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)),
-                                new PrePlaceCoralL4(wrist, elevator, 47, true))),
+                        new SequentialCommandGroup100(logger, "handoff then place",      
+                            new ParallelRaceGroup100(m_logger, "handoff",
+                                new WaitCommand(2),
+                                new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
+                            ),
+                            new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true)
+                        )
+                ),
                 new PostDropCoralL4(wrist, elevator, 10),
 
                 // new ParallelDeadlineGroup100(m_logger, "pick",

@@ -43,7 +43,7 @@ public class ScoreL4Smart extends SequentialCommandGroup100 {
         Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
 
         Embark embarkCommand = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint, true);
-        PrePlaceCoralL4 prePlaceCoralL4 = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4 = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
         addCommands(
                 new ParallelDeadlineGroup100(m_logger, "drive",

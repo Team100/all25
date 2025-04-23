@@ -9,6 +9,7 @@ import org.team100.frc2025.CommandGroups.RunFunnelHandoff;
 import org.team100.frc2025.CommandGroups.WaitForBooleanTrue;
 import org.team100.frc2025.CommandGroups.ScoreSmart.PostDropCoralL4;
 import org.team100.frc2025.Elevator.Elevator;
+import org.team100.frc2025.Elevator.SetElevator;
 import org.team100.frc2025.Funnel.Funnel;
 import org.team100.frc2025.Funnel.RunFunnel;
 import org.team100.frc2025.Swerve.SemiAuto.Profile_Nav.Embark;
@@ -23,6 +24,7 @@ import org.team100.lib.commands.drivetrain.FieldConstants.ReefDestination;
 import org.team100.lib.commands.drivetrain.FieldConstants.ReefPoint;
 import org.team100.lib.config.ElevatorUtil.ScoringPosition;
 import org.team100.lib.controller.drivetrain.SwerveController;
+import org.team100.lib.framework.ParallelCommandGroup100;
 import org.team100.lib.framework.ParallelDeadlineGroup100;
 import org.team100.lib.framework.ParallelRaceGroup100;
 import org.team100.lib.framework.SequentialCommandGroup100;
@@ -65,25 +67,27 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
         GoToCoralStation goToStation1stTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
                                         CoralStation.Left, 0.5, true);
 
-        GoToCoralStation goToStation2ndTime = new GoToCoralStation(logger, m_drive, controller, viz, kinodynamics,
+        GoToCoralStationPastGlass goToStation2ndTime = new GoToCoralStationPastGlass(logger, m_drive, controller, viz, kinodynamics,
                                         CoralStation.Left, 0.5, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4I = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4K = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4K = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
-        PrePlaceCoralL4 prePlaceCoralL4L = new PrePlaceCoralL4(wrist, elevator, 47, true);
+        PrePlaceCoralL4 prePlaceCoralL4L = new PrePlaceCoralL4(wrist, elevator, tunnel, 47, true);
 
        
         // PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, () -> false);
 
         PostDropAndReadyFunnel postDropAndReadyFunnelFromI = new PostDropAndReadyFunnel(wrist, elevator, 10, (goToStation1stTime::isDone));
 
-        PostDropAndReadyFunnel postDropAndReadyFunnelFromK = new PostDropAndReadyFunnel(wrist, elevator, 10, goToStation2ndTime::isDone);
+        PostDropAndReadyFunnel postDropAndReadyFunnelFromK = new PostDropAndReadyFunnel(wrist, elevator, 10, (goToStation2ndTime::isDone));
 
 
 
         addCommands(
+
+                // new WaitCommand(3),
 
                 // Go to peg I and pre place preload
                 new ParallelDeadlineGroup100(
@@ -96,7 +100,8 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
                                     new WaitCommand(0.5),
                                     new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
                                 ),
-                                new SetWrist(wrist, 0.4, false),
+                                new ParallelCommandGroup100(logger, getName(), new SetWrist(wrist, 0.4, false), new SetElevator(logger, elevator, 1, false)),
+                                
                                 prePlaceCoralL4I)),
 
                 // Place preload and reload
@@ -119,6 +124,12 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
 
                 ),
 
+                new ParallelDeadlineGroup100(
+                    logger, 
+                    "reload 1",
+                    new WaitCommand(0.5), 
+                    new RunFunnelHandoff(logger, elevator, wrist, funnel, tunnel, grip)),
+
                 //Go to peg K and pre place
  
                 new ParallelDeadlineGroup100(
@@ -136,7 +147,11 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
 
                 // Place coral and reload
 
-                new ParallelDeadlineGroup100(
+
+                new ParallelRaceGroup100(
+                    logger, 
+                    getName(),
+                    new ParallelDeadlineGroup100(
                         logger,
                         "drive away",
                         postDropAndReadyFunnelFromK,
@@ -150,8 +165,16 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
                                         goToStation2ndTime,
                                         new RunFunnel(funnel),
                                         new RunCoralTunnel(tunnel, 1)))
+                    ),
+                    new WaitCommand(2.6)
 
                 ),
+
+                // new ParallelDeadlineGroup100(
+                //     logger, 
+                //     "reload 2",
+                //     new WaitCommand(0.5), 
+                //     new RunFunnelHandoff(logger, elevator, wrist, funnel, tunnel, grip)),
 
                 //Go to peg L and pre place
  
@@ -161,10 +184,10 @@ public class Coral2AutoLeftNewNew extends SequentialCommandGroup100 {
                         new DeadlineForEmbarkAndPrePlace(embarkToL::isDone, prePlaceCoralL4L::isDone),
                         embarkToL,
                         new SequentialCommandGroup100(logger, "handoff then place",
-                                new ParallelRaceGroup100(m_logger, "handoff",
-                                        new WaitCommand(0.5),
-                                new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
-                                ),
+                                // new ParallelRaceGroup100(m_logger, "handoff",
+                                //         new WaitCommand(0.5),
+                                // new RunFunnelHandoff(m_logger, elevator, wrist, funnel, tunnel, grip)
+                                // ),
                                 new SetWrist(wrist, 0.4, false),
                                 prePlaceCoralL4L)),
 

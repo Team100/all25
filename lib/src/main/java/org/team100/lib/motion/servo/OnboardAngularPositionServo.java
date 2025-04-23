@@ -66,7 +66,7 @@ public class OnboardAngularPositionServo implements AngularPositionServo {
         m_log_u_FF = child.doubleLogger(Level.TRACE, "u_FF (rad_s)");
         m_encoderValue = child.doubleLogger(Level.TRACE, "Encoder Value");
 
-        m_log_u_TOTAL = child.doubleLogger(Level.TRACE, "u_TOTAL (rad_s)");
+        m_log_u_TOTAL = child.doubleLogger(Level.COMP, "u_TOTAL (rad_s)");
         m_log_error = child.doubleLogger(Level.TRACE, "Controller Position Error (rad)");
         m_log_velocity_error = child.doubleLogger(Level.TRACE, "Controller Velocity Error (rad_s)");
         m_log_at_setpoint = child.booleanLogger(Level.TRACE, "At Setpoint");

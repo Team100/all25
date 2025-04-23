@@ -41,9 +41,8 @@ public class ScoreL3Smart extends SequentialCommandGroup100 {
 
         Command holdingCommand = new HoldWristAndElevator(elevator, wrist);
 
-        Embark embarkCommand = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector,
-                destination, height, reefPoint, true);
-        PrePlaceCoralL3 prePlaceCoralL3 = new PrePlaceCoralL3(wrist, elevator, 23, true);
+        Embark embarkCommand = new Embark(m_logger, m_drive, heedRadiusM, controller, profile, targetSector, destination, height, reefPoint, true);
+        PrePlaceCoralL3 prePlaceCoralL3 = new PrePlaceCoralL3(wrist, elevator, tunnel, 23, true);
 
         addCommands(
                 new ParallelDeadlineGroup100(m_logger, "drive",
