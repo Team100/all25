@@ -12,9 +12,6 @@ import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class WristDefaultCommand extends Command implements Glassy {
-    private final double kPositionTolerance = 0.02;
-    private final double kVelocityTolerance = 0.01;
-
     private final StringLogger m_log_activity;
     private final Elevator m_elevator;
     private final Wrist2 m_wrist;
@@ -22,8 +19,8 @@ public class WristDefaultCommand extends Command implements Glassy {
     private final AlgaeGrip m_grip;
     private final SwerveDriveSubsystem m_drive;
 
-    private double count = 0;
-    private boolean docked = false;
+    // private double count = 0;
+    // private boolean docked = false;
     private double m_holdPosition;
     private final DoubleLogger m_log_holdPosition;
 
@@ -46,8 +43,8 @@ public class WristDefaultCommand extends Command implements Glassy {
         // this sets the setpoint position to the current measurement,
         // and sets the setpoint velocity to zero.
         m_wrist.resetWristProfile();
-        count = 0;
-        docked = false;
+        // count = 0;
+        // docked = false;
         m_holdPosition = m_wrist.getAngle();
     }
 

@@ -1,7 +1,5 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
-import java.util.function.DoubleSupplier;
-
 import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
@@ -38,8 +36,7 @@ public class SwerveKinodynamics implements Glassy {
     private final double m_wheelbase;
     private final double m_frontoffset;
     private final double m_radius;
-    // VCG is supplied by the elevator subsystem
-    private final DoubleSupplier m_vcg;
+    private final double m_vcg;
     private final SwerveDriveKinematics100 m_kinematics;
 
     // configured inputs
@@ -90,7 +87,7 @@ public class SwerveKinodynamics implements Glassy {
             double backtrack,
             double wheelbase,
             double frontoffset,
-            DoubleSupplier vcg) {
+            double vcg) {
         if (fronttrack < 0.1 || backtrack < 0.1)
             throw new IllegalArgumentException();
         if (wheelbase < 0.1)
@@ -192,7 +189,7 @@ public class SwerveKinodynamics implements Glassy {
      * vertical center of gravity and frame size.
      */
     public double getMaxCapsizeAccelM_S2() {
-        return 9.8 * (m_fulcrum / m_vcg.getAsDouble());
+        return 9.8 * (m_fulcrum / m_vcg);
     }
 
     /**

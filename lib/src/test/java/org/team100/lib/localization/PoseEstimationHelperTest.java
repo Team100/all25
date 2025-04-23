@@ -197,7 +197,6 @@ class PoseEstimationHelperTest {
         final int iterations = 10000000;
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < iterations; ++i) {
-            @SuppressWarnings("unused")
             Transform3d tagInCamera = blip.blipToTransform();
             tagInCamera = PoseEstimationHelper.tagInCamera(
                     cameraInRobot,

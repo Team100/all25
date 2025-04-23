@@ -1,7 +1,5 @@
 package org.team100.lib.motion.drivetrain.kinodynamics;
 
-import java.util.function.DoubleSupplier;
-
 import org.team100.lib.config.Identity;
 import org.team100.lib.util.Util;
 
@@ -28,12 +26,8 @@ public class SwerveKinodynamicsFactory {
      * 
      * Tests should try to avoid calling get(). Use one of the test-specific methods
      * below instead.
-     * 
-     * NOTE: VCG supplier is not used.
-     * 
-     * TODO: actually use the VCG supplier.
      */
-    public static SwerveKinodynamics get(DoubleSupplier vcg) {
+    public static SwerveKinodynamics get() {
         Util.printf("Swerve Kinodynamics Factory using Identity %s\n", Identity.instance);
         switch (Identity.instance) {
             case COMP_BOT:
@@ -43,7 +37,7 @@ public class SwerveKinodynamicsFactory {
                 // note these measurements were updated jun 24.
                 // 9/24/04, raised steering rate from 20 to 40, accel from 60 to 120.
                 return new SwerveKinodynamics(
-                        4.5, //TODO find real max vel m/s @ EPA
+                        4.5, // max vel m/s
                         10, // stall m/s/s
                         5, // max accel m/s/s
                         25, // max decel m/s/s
@@ -53,7 +47,7 @@ public class SwerveKinodynamicsFactory {
                         0.590, // back track m
                         0.590, // wheelbase m
                         0.295275, // front offset m
-                        vcg); // vcg m NOTE VERY HIGH
+                        0.5); // vcg m NOTE VERY HIGH
             case SWERVE_TWO:
                 return new SwerveKinodynamics(
                         4, // vel m/s
@@ -66,7 +60,7 @@ public class SwerveKinodynamicsFactory {
                         0.380, // track m
                         0.445, // wheelbase m
                         0.2225, // front offset m
-                        () -> 0.5); // vcg m HIGH LIKE COMP
+                        0.5); // vcg m HIGH LIKE COMP
             case SWERVE_ONE:
                 return new SwerveKinodynamics(
                         5, // vel m/s
@@ -79,7 +73,7 @@ public class SwerveKinodynamicsFactory {
                         0.44, // back track m
                         0.462, // wheelbase m
                         0.31, // front offset m
-                        () -> 0.5); // vcg m HIGH LIKE COMP
+                        0.5); // vcg m HIGH LIKE COMP
             case BLANK:
                 // this is used for tests and simulation; the limits should be kept in sync
                 // with the comp config, so that the simulator provides realistic
@@ -97,7 +91,7 @@ public class SwerveKinodynamicsFactory {
                         0.5, // track m
                         0.5, // wheelbase m
                         0.25, // front offset m
-                        () -> 0.1); // vcg m
+                        0.1); // vcg m
             case BETA_BOT:
                 // these numbers were extracted from module mode acceleration
                 // runs as shown in this spreadsheet
@@ -122,7 +116,7 @@ public class SwerveKinodynamicsFactory {
                         0.44, // back track m
                         0.491, // wheelbase m
                         0.29, // front offset m
-                        () -> 0.5); // vcg m HIGH LIKE COMP
+                        0.5); // vcg m HIGH LIKE COMP
             default:
                 Util.warn("***");
                 Util.warn("*** Using default kinodynamics, this should never happen.");
@@ -138,7 +132,7 @@ public class SwerveKinodynamicsFactory {
                         0.5, // track m
                         0.5, // wheelbase m
                         0.25, // front offset m
-                        () -> 0.3); // vcg m
+                        0.3); // vcg m
         }
     }
 
@@ -160,7 +154,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     public static SwerveKinodynamics forRealisticTest() {
@@ -175,7 +169,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     public static SwerveKinodynamics forTrajectoryTimingTest() {
@@ -190,7 +184,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     public static SwerveKinodynamics likeComp25() {
@@ -205,7 +199,7 @@ public class SwerveKinodynamicsFactory {
                 0.590, // back track m
                 0.590, // wheelbase m
                 0.295275, // front offset m
-                () -> 0.5); // m NOTE VERY HIGH
+                0.5); // m NOTE VERY HIGH
     }
 
     public static SwerveKinodynamics forTest2() {
@@ -220,7 +214,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.6); // vcg m
+                0.6); // vcg m
     }
 
     public static SwerveKinodynamics forTest3() {
@@ -235,7 +229,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.6); // vcg m
+                0.6); // vcg m
     }
 
     public static SwerveKinodynamics forWPITest() {
@@ -250,7 +244,7 @@ public class SwerveKinodynamicsFactory {
                 2, // track m
                 2, // wheelbase m
                 1, // front offset m
-                () -> 1); // vcg m
+                1); // vcg m
     }
     //////////////////////////////////////////
     //
@@ -268,7 +262,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.001); // vcg m
+                0.001); // vcg m
     }
 
     public static SwerveKinodynamics decelCase() {
@@ -283,7 +277,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     public static SwerveKinodynamics highCapsize() {
@@ -298,7 +292,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.1); // vcg m
+                0.1); // vcg m
     }
 
     public static SwerveKinodynamics lowCapsize() {
@@ -313,7 +307,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 2); // vcg m (very high vcg)
+                2); // vcg m (very high vcg)
     }
 
     public static SwerveKinodynamics limiting() {
@@ -328,7 +322,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     /** Large difference in accel and decel, to make asymmetry obvious. */
@@ -344,7 +338,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0.3); // vcg m
+                0.3); // vcg m
     }
 
     /**
@@ -366,7 +360,7 @@ public class SwerveKinodynamicsFactory {
                 0.5, // track m
                 0.5, // wheelbase m
                 0.25, // front offset m
-                () -> 0); // vcg m
+                0); // vcg m
     }
 
     private SwerveKinodynamicsFactory() {

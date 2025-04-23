@@ -12,9 +12,8 @@ public class PostDropCoralL3 extends Command {
     private final double m_elevatorGoal;
 
     private double count = 0;
-    private boolean finished = false;
+    // private boolean finished = false;
     private double initialElevatorPosition = 0;
-    private final CommandScheduler scheduler = CommandScheduler.getInstance();
     private final Command m_holdingCommand;
 
     public PostDropCoralL3(Wrist2 wrist, Elevator elevator, double elevatorValue, Command holdingCommand) {
@@ -29,7 +28,7 @@ public class PostDropCoralL3 extends Command {
     public void initialize() {
 
         count = 0;
-        finished = false;
+        // finished = false;
         // resetting forces the setpoint velocity to zero, which is not always what we
         // want
         // m_wrist.resetWristProfile();
@@ -59,7 +58,7 @@ public class PostDropCoralL3 extends Command {
         }
 
         if (count >= 5) {
-            finished = true;
+            // finished = true;
         }
     }
 

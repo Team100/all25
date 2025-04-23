@@ -11,7 +11,6 @@ import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.motor.MockBareMotor;
 
 public class RotaryMechanismTest {
-    private static final boolean DEBUG = false;
     private static final double kDelta = 0.001;
     private static final LoggerFactory logger = new TestLoggerFactory(new TestPrimitiveLogger());
 

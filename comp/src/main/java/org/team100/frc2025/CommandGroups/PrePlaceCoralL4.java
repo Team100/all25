@@ -6,7 +6,6 @@ import org.team100.lib.experiments.Experiment;
 import org.team100.lib.experiments.Experiments;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class PrePlaceCoralL4 extends Command {
     Wrist2 m_wrist;
@@ -16,7 +15,6 @@ public class PrePlaceCoralL4 extends Command {
     double countWrist = 0;
     boolean finished = false;
     boolean m_perpetual = false;
-    private final CommandScheduler scheduler = CommandScheduler.getInstance();
     Command m_holdingCommand;
 
     public PrePlaceCoralL4(Wrist2 wrist, Elevator elevator, double elevatorValue, boolean perpetual) {

@@ -17,8 +17,6 @@ import org.team100.lib.state.Model100;
  * roughly linear tapering with time, i.e. constant jerk
  */
 public class TaperedProfile implements TimedProfile {
-    private static final boolean DEBUG = false;
-
     private final double vel;
     private final double acc;
     private final double taper;

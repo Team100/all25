@@ -50,7 +50,7 @@ public class ProfileToDestination extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        Pose2d currentPose = m_drive.getPose();
+        // Pose2d currentPose = m_drive.getPose();
         // FieldSector currentSector = m_destinationSector;
         Translation2d destination = FieldConstants.getOrbitDestination(m_destinationSector, m_reefDestination, 1.3);
         Rotation2d heading = FieldConstants.getSectorAngle(m_destinationSector).rotateBy(Rotation2d.fromDegrees(180));

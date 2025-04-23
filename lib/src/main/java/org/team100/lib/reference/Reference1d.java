@@ -10,7 +10,7 @@ import org.team100.lib.util.Takt;
  * Produces "next" and "current" references from a supplier, using the clock to
  * keep track of whether it's time to fetch a new one.
  * 
- * TODO: maybe make a generic reference?
+ * maybe make a generic reference?
  */
 public class Reference1d {
 

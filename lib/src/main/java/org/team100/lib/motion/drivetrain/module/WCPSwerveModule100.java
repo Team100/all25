@@ -258,16 +258,14 @@ public class WCPSwerveModule100 extends SwerveModule100 {
                     parent,
                     channel,
                     inputOffset,
-                    drive,
-                    true);
+                    drive);
         }
         if (encoderClass == DutyCycleRotaryPositionSensor.class) {
             return new AS5048RotaryPositionSensor(
                     parent,
                     channel,
                     inputOffset,
-                    drive,
-                    true);
+                    drive);
         }
         throw new IllegalArgumentException("unknown encoder class: " + encoderClass.getName());
     }

@@ -24,8 +24,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
  */
 public class SwerveLocal implements Glassy, SwerveLocalObserver {
     private static final boolean DEBUG = false;
-    private static final double kPositionToleranceRad = 0.05; // about 3 degrees
-    private static final double kVelocityToleranceRad_S = 0.05; // 3 deg/s, slow!
     private static final SwerveModuleStates states0 = new SwerveModuleStates(
             new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)),
             new SwerveModuleState100(0, Optional.of(Rotation2d.kZero)),
@@ -56,7 +54,7 @@ public class SwerveLocal implements Glassy, SwerveLocalObserver {
             SwerveKinodynamics swerveKinodynamics,
             SwerveModuleCollection modules) {
         LoggerFactory child = parent.child(this);
-        m_log_chassis_speed = child.chassisSpeedsLogger(Level.TRACE, "chassis speed LOG");
+        m_log_chassis_speed = child.chassisSpeedsLogger(Level.TRACE, "chassis speed");
         m_swerveModuleFrontLeftPosition = child.swerveModulePosition100Logger(Level.TRACE, "Fromt Left");
         m_swerveModuleFrontRightPosition = child.swerveModulePosition100Logger(Level.TRACE, "Front Right");
         m_swerveModuleRearLeftPosition = child.swerveModulePosition100Logger(Level.TRACE, "Rear Left");

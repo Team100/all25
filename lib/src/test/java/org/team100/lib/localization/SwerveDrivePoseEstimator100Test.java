@@ -154,7 +154,6 @@ class SwerveDrivePoseEstimator100Test {
      */
     @Test
     void testGentleNudge() {
-        // TODO: measure the actual frame rate.
         int frameRate = 50;
         double[] stateStdDev = new double[] {
                 0.001,
@@ -191,7 +190,6 @@ class SwerveDrivePoseEstimator100Test {
      */
     @Test
     void testFirmerNudge() {
-        // TODO: measure the actual frame rate.
         int frameRate = 50;
         double[] stateStdDev = new double[] {
                 0.001,

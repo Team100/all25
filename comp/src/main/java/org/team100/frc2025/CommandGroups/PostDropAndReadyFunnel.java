@@ -6,7 +6,6 @@ import org.team100.frc2025.Elevator.Elevator;
 import org.team100.frc2025.Wrist.Wrist2;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class PostDropAndReadyFunnel extends Command {
     private final Wrist2 m_wrist;
@@ -15,12 +14,11 @@ public class PostDropAndReadyFunnel extends Command {
 
     private double count = 0;
     private boolean finishedDrop = false;
-    private boolean completelyFinished = false;
+    // private boolean completelyFinished = false;
     private boolean finishedReadyFunnel = false;
     private boolean indicateReadyToLeave = false;
 
     private double initialElevatorPosition = 0;
-    private final CommandScheduler scheduler = CommandScheduler.getInstance();
     Supplier<Boolean> m_endCondition;
 
     public PostDropAndReadyFunnel(Wrist2 wrist, Elevator elevator, double elevatorValue,
@@ -36,7 +34,7 @@ public class PostDropAndReadyFunnel extends Command {
     public void initialize() {
         count = 0;
         finishedDrop = false;
-        completelyFinished = false;
+        // completelyFinished = false;
         finishedReadyFunnel = false;
         indicateReadyToLeave = false;
         // resetting forces the setpoint velocity to zero, which is not always what we
@@ -110,7 +108,7 @@ public class PostDropAndReadyFunnel extends Command {
     public void end(boolean interrupted) {
         count = 0;
         finishedDrop = false;
-        completelyFinished = false;
+        // completelyFinished = false;
         finishedReadyFunnel = false;
         indicateReadyToLeave = false;
 

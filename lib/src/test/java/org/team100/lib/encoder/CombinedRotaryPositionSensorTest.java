@@ -40,6 +40,8 @@ class CombinedRotaryPositionSensorTest implements Timeless {
 
         RotaryMechanism m = new RotaryMechanism(
                 logger, motor, combined, 1.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        // the mechanism shows the wrong position
+        assertEquals(0.0, m.getPositionRad().getAsDouble(), kDelta);
 
         combined.sync();
         // the combined encoder reads the correct value
@@ -47,5 +49,8 @@ class CombinedRotaryPositionSensorTest implements Timeless {
 
         // and the secondary encoder has been "fixed"
         assertEquals(1.0, encoder.position, kDelta);
+
+        // the mechanism shows the right position
+        assertEquals(1.0, m.getPositionRad().getAsDouble(), kDelta);
     }
 }

@@ -37,7 +37,6 @@ public class OnboardLinearDutyCyclePositionServo implements LinearPositionServo 
 
     /** Null if there's no current profile. */
     private Model100 m_goal;
-    // TODO: should this be both? which one should we retain?
     private Control100 m_setpoint;
 
     public OnboardLinearDutyCyclePositionServo(

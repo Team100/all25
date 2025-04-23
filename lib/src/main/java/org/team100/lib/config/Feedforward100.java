@@ -32,6 +32,8 @@ package org.team100.lib.config;
 public class Feedforward100 {
     private final double kV;
     private final double kA;
+    // TODO: make kD actually work
+    @SuppressWarnings("unused")
     private final double kD;
     private final double kSS;
     private final double kDS;

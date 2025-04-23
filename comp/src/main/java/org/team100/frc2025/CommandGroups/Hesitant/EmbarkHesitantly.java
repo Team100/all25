@@ -77,8 +77,8 @@ public class EmbarkHesitantly extends Command implements Glassy {
 
     @Override
     public void initialize() {
-        Pose2d currentPose = m_drive.getPose();
-        FieldSector currentSector = FieldConstants.getSector(currentPose);
+        // Pose2d currentPose = m_drive.getPose();
+        // FieldSector currentSector = FieldConstants.getSector(currentPose);
 
         m_scoringPosition = m_elevator.getScoringPosition();
         System.out.println(m_scoringPosition);

@@ -1,10 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "../../../../../../../../studies/parking_lot"
+			"path": "."
 		},
 		{
-			"path": "../../../../../../.."
+			"path": "../../lib"
 		}
 	],
 	"settings": {
@@ -40,9 +40,6 @@
 			"edu.wpi.first.math.proto.*",
 			"edu.wpi.first.math.**.proto.*",
 			"edu.wpi.first.math.**.struct.*"
-		],
-		"editor.inlayHints.enabled": "off",
-		"editor.minimap.enabled": false,
-		"workbench.colorTheme": "Default Light Modern"
+		]
 	}
 }

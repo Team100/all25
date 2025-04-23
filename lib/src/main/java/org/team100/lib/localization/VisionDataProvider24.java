@@ -219,9 +219,7 @@ public class VisionDataProvider24 implements Glassy {
                 // decode the way StructArrayEntryImpl does
                 byte[] b = v.getRaw();
                 if (b.length == 0) {
-                    // this seems to happen not-never which is weird.
-                    // TODO: why?
-                    // Util.warnf("VisionDataProvider24: no raw value for name: %s\n", name);
+                    // this should never happen, but it does, very occasionally.
                     continue;
                 }
 

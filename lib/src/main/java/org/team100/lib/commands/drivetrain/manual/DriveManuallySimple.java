@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Chooser.
  */
 public class DriveManuallySimple extends Command implements Glassy {
-    private static final boolean DEBUG = false;
 
     /**
      * Velocity control in control units, [-1,1] on all axes. This needs to be
@@ -96,17 +95,17 @@ public class DriveManuallySimple extends Command implements Glassy {
 
     //////////////
 
-    private Driver stop() {
-        return new Driver() {
-            public void apply(SwerveModel s, DriverControl.Velocity t) {
-                m_drive.stop();
-            }
+    // private Driver stop() {
+    //     return new Driver() {
+    //         public void apply(SwerveModel s, DriverControl.Velocity t) {
+    //             m_drive.stop();
+    //         }
 
-            public void reset(SwerveModel p) {
-                //
-            }
-        };
-    }
+    //         public void reset(SwerveModel p) {
+    //             //
+    //         }
+    //     };
+    // }
 
 
     @Override

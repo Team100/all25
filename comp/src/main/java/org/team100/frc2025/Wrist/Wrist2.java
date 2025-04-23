@@ -70,18 +70,12 @@ public class Wrist2 extends SubsystemBase implements Glassy {
     public Wrist2(LoggerFactory parent, int wristID, DoubleSupplier carriageAccel) {
         LoggerFactory logger = parent.child(this);
 
-        int wristSupplyLimit = 60;
-        int wristStatorLimit = 90;
-
-        int algaeCurrentLimit = 20;
-        int coralCurrentLimit = 20;
-
         PIDConstants wristPID = PIDConstants.makeVelocityPID(0.3); // 0.3
 
         Feedforward100 wristFF = Feedforward100.makeKraken6Wrist();
 
         Feedback100 wristFeedback = new FullStateFeedback(
-                logger, 4.0, 0.11, x -> x, 0.05, 0.05);
+                logger, 4.0, 0.11, x -> x, kPositionTolerance, kVelocityTolerance);
 
         JerkLimitedProfile100 profile = new JerkLimitedProfile100(maxVel, maxAccel, maxJerk, false);
 
@@ -94,6 +88,8 @@ public class Wrist2 extends SubsystemBase implements Glassy {
         switch (Identity.instance) {
             case COMP_BOT -> {
 
+                int wristSupplyLimit = 60;
+                int wristStatorLimit = 90;
                 Kraken6Motor wristMotor = new Kraken6Motor(logger, wristID, MotorPhase.REVERSE,
                         wristSupplyLimit, wristStatorLimit, wristPID, wristFF);
 
@@ -102,9 +98,7 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         logger,
                         5,
                         0.135541, // 0.346857, //0.317012, //0.227471, //0.188726
-                        EncoderDrive.DIRECT,
-                        false);
-
+                        EncoderDrive.DIRECT);
 
                 // IncrementalBareEncoder internalWristEncoder = new Talon6Encoder(logger,
                 // wristMotor);
@@ -146,16 +140,16 @@ public class Wrist2 extends SubsystemBase implements Glassy {
                         logger, motor, sensor,
                         GEAR_RATIO, kWristMinimumPosition, kWristMaximumPosition);
 
-
                 wristServo = new OnboardAngularPositionServo(
                         logger, wristMech, ref, wristFeedback);
 
                 // Gravity gravity = new Gravity(logger, 0, 0);
                 // Spring spring = new Spring(logger);
-                // m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) + spring.applyAsDouble(x));
+                // m_gravityAndSpringTorque = new Torque((x) -> gravity.applyAsDouble(x) +
+                // spring.applyAsDouble(x));
                 // for now, no extra forces in simulation
                 // TODO: add physics to the sim
-                m_gravityAndSpringTorque = new Torque(x->x);
+                m_gravityAndSpringTorque = new Torque(x -> x);
                 m_wristMech = wristMech;
             }
 
@@ -168,7 +162,6 @@ public class Wrist2 extends SubsystemBase implements Glassy {
             };
         }
     }
-
 
     @Override
     public void periodic() {
