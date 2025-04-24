@@ -5,42 +5,32 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-/**
- * Illustrates an issue with triggers: the "initialize" method of scheduled
- * commands is run immediately upon scheduling, and the triggers schedule
- * commands immediately upon evaluating their conditions. This means that
- * triggers that modify conditions (as are common in state machines) can have
- * surprising effects: "later" trigger evaluations can miss conditions because
- * the "earlier" evaluations have changed the conditions. The evaluation order
- * is insertion order.
- * 
- * see https://www.chiefdelphi.com/t/trigger-condition-evaluation/500280
- * 
- */
-public class TriggerTest {
+/** Like TriggerTest but for Trigger100. */
+public class Trigger100Test {
     boolean foo;
     boolean A;
     boolean B;
 
-    /**
-     * This illustrates a workaround suggested by Sam, using "run.until" instead of
-     * "runOnce".
-     * 
-     * I don't like this solution, because it forces you to remember which one to
-     * use, and also because it doesn't work for "real" commands with "initialize"
-     * logic.
-     * 
-     * see
-     * https://github.com/wpilibsuite/allwpilib/issues/7920#issuecomment-2827375076
-     */
+    @Test
+    void testMap() {
+        Map<String, Boolean> m = new HashMap<>();
+        m.put("hi", false);
+        assertFalse(m.get("hi"));
+        for (Map.Entry<String, Boolean> entry : m.entrySet()) {
+            entry.setValue(true);
+        }
+        assertTrue(m.get("hi"));
+    }
+
     @Test
     void testThatWorks() {
         HAL.initialize(500, 0);
@@ -48,8 +38,8 @@ public class TriggerTest {
         DriverStationSim.notifyNewData();
         A = false;
         B = false;
-        EventLoop loop = new EventLoop();
-        new Trigger(loop, () -> foo)
+        EventLoop100 loop = new EventLoop100();
+        new Trigger100(loop, () -> foo)
                 .onTrue(run(
                         // this runs in execute, which happens after all the triggers have been
                         // evaluated, so the falling edge of foo is visible to the binding below.
@@ -79,8 +69,8 @@ public class TriggerTest {
         DriverStationSim.notifyNewData();
         A = false;
         B = false;
-        EventLoop loop = new EventLoop();
-        new Trigger(loop, () -> foo)
+        EventLoop100 loop = new EventLoop100();
+        new Trigger100(loop, () -> foo)
                 .onTrue(runOnce(
                         // this runs in initialize, which happens during trigger evaluation, so the
                         // falling edge of foo is not seen by the binding below.
