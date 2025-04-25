@@ -47,6 +47,7 @@
         "editor.detectIndentation": false,
         "editor.stickyScroll.scrollWithEditor": false,
         "workbench.tree.enableStickyScroll": false,
-        "editor.stickyScroll.enabled": false
+        "editor.stickyScroll.enabled": false,
+        "workbench.editor.revealIfOpen": true
 	}
 }

@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class Trigger100 implements BooleanSupplier {
     @FunctionalInterface
-    private interface BindingBody {
-        void run(boolean previous, boolean current);
+    private interface Condition {
+        boolean eval(boolean prev, boolean curr);
     }
 
     private final BooleanSupplier m_condition;
@@ -30,91 +30,79 @@ public class Trigger100 implements BooleanSupplier {
     }
 
     public Trigger100 onChange(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (previous != current) {
-                        command.schedule();
-                    }
-                });
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> previous != current,
+                command::schedule);
         return this;
     }
 
     public Trigger100 onTrue(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (!previous && current) {
-                        command.schedule();
-                    }
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> !previous && current,
+                () -> {
+                    // System.out.println("ontrue schedule " + command.getName());
+                    command.schedule();
                 });
         return this;
     }
 
     public Trigger100 onFalse(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (previous && !current) {
-                        command.schedule();
-                    }
-                });
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> previous && !current,
+                command::schedule);
         return this;
     }
 
     public Trigger100 whileTrue(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (!previous && current) {
-                        command.schedule();
-                    }
-                });
-        addBinding(
-                (previous, current) -> {
-                    if (previous && !current) {
-                        command.cancel();
-                    }
-                });
-
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> !previous && current,
+                command::schedule);
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> previous && !current,
+                command::cancel);
         return this;
     }
 
     public Trigger100 whileFalse(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (previous && !current) {
-                        command.schedule();
-                    }
-                });
-        addBinding(
-                (previous, current) -> {
-                    if (!previous && current) {
-                        command.cancel();
-                    }
-                });
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> previous && !current,
+                command::schedule);
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> !previous && current,
+                command::cancel);
         return this;
     }
 
     public Trigger100 toggleOnTrue(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (!previous && current) {
-                        if (command.isScheduled()) {
-                            command.cancel();
-                        } else {
-                            command.schedule();
-                        }
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> !previous && current,
+                () -> {
+                    if (command.isScheduled()) {
+                        command.cancel();
+                    } else {
+                        command.schedule();
                     }
                 });
         return this;
     }
 
     public Trigger100 toggleOnFalse(Command command) {
-        addBinding(
-                (previous, current) -> {
-                    if (previous && !current) {
-                        if (command.isScheduled()) {
-                            command.cancel();
-                        } else {
-                            command.schedule();
-                        }
+        addEventBinding(
+                command.getName(),
+                (previous, current) -> previous && !current,
+                () -> {
+                    if (command.isScheduled()) {
+                        command.cancel();
+                    } else {
+                        command.schedule();
                     }
                 });
         return this;
@@ -154,19 +142,19 @@ public class Trigger100 implements BooleanSupplier {
         return m_condition.getAsBoolean();
     }
 
-    private void addBinding(BindingBody body) {
-        m_loop.bind(
-                new Runnable() {
+    private void addEventBinding(String name, Condition condition, Runnable action) {
+        m_loop.bind(new EventLoop100.Event(
+                name,
+                new BooleanSupplier() {
                     private boolean m_previous = m_condition.getAsBoolean();
 
                     @Override
-                    public void run() {
+                    public boolean getAsBoolean() {
                         boolean current = m_condition.getAsBoolean();
-
-                        body.run(m_previous, current);
-
+                        boolean result = condition.eval(m_previous, current);
                         m_previous = current;
+                        return result;
                     }
-                });
+                }, action));
     }
 }

@@ -6,7 +6,6 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
 import org.team100.studies.state_based_lynxmotion_arm.motion.ProfiledServo;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -32,8 +31,6 @@ public class Arm extends SubsystemBase {
     private final ProfiledServo m_twist;
     private final ProfiledServo m_grip;
 
-    private final Timer m_awayTimer;
-
     public Arm(LynxArmAngles.Factory factory) {
         m_factory = factory;
         LynxArmAngles initial = m_factory.fromRad(
@@ -50,8 +47,6 @@ public class Arm extends SubsystemBase {
         m_wrist = new ProfiledServo("Wrist", 3, initial.wrist, 0, 1, wristSpeed, wristAccel);
         m_twist = new ProfiledServo("Twist", 4, initial.twist, 0, 1, 1, 1);
         m_grip = new ProfiledServo("Grip", 5, initial.grip, 0, 1, 1, 1);
-
-        m_awayTimer = new Timer();
     }
 
     // OBSERVATIONS
@@ -76,18 +71,14 @@ public class Arm extends SubsystemBase {
         return isAt(north);
     }
 
-    public boolean awayTimerExpired() {
-        return m_awayTimer.hasElapsed(1);
-    }
-
     // ACTIONS
 
     public Command goHome() {
-        return run(() -> setRawGoals(HOME));
+        return run(() -> setRawGoals(HOME)).withName("go home");
     }
 
     public Command goAway() {
-        return startRun(m_awayTimer::restart, () -> setRawGoals(AWAY));
+        return run(() -> setRawGoals(AWAY)).withName("go away");
     }
 
     public Command goWest() {

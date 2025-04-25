@@ -53,11 +53,11 @@ public class Trigger100Test {
         CommandScheduler scheduler = CommandScheduler.getInstance();
         foo = true;
         assertFalse(A);
-        loop.poll();
+        loop.pollEvents();
         scheduler.run();
         assertTrue(A);
         assertFalse(B);
-        loop.poll();
+        loop.pollEvents();
         scheduler.run();
         assertTrue(B);
     }
@@ -72,27 +72,26 @@ public class Trigger100Test {
         EventLoop100 loop = new EventLoop100();
         new Trigger100(loop, () -> foo)
                 .onTrue(runOnce(
-                        // this runs in initialize, which happens during trigger evaluation, so the
-                        // falling edge of foo is not seen by the binding below.
+                        // now this code runs after all the conditions are evaluated
                         () -> {
                             foo = false;
                             A = true;
                         }))
                 .onFalse(runOnce(() -> {
-                    // this never runs
+                    // now this runs
                     B = true;
                 }));
 
         CommandScheduler scheduler = CommandScheduler.getInstance();
         foo = true;
         assertFalse(A);
-        loop.poll();
+        loop.pollEvents();
         scheduler.run();
         assertTrue(A);
         assertFalse(B);
-        loop.poll();
+        loop.pollEvents();
         scheduler.run();
-        // this is the broken case.
-        assertFalse(B);
+        // and now this is fixed
+        assertTrue(B);
     }
 }

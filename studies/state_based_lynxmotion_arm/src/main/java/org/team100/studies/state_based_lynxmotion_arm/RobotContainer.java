@@ -14,7 +14,7 @@ public class RobotContainer {
     private final XboxController m_controller;
     private final Arm m_arm;
     private final Chart m_chart;
-      private final ArmVisualization m_visualizer ;
+    private final ArmVisualization m_visualizer;
 
     public RobotContainer() {
 
@@ -39,6 +39,10 @@ public class RobotContainer {
         m_chart = new Chart(m_controller, m_arm);
         m_visualizer = new ArmVisualization(m_arm);
         m_visualizer.start();
+    }
+
+    public void runChart() {
+        m_chart.poll();
     }
 
     public Command getAutonomousCommand() {
