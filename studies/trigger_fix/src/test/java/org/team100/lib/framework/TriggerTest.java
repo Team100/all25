@@ -105,4 +105,65 @@ public class TriggerTest {
         // this is the broken case.
         assertFalse(B);
     }
+
+    /*
+     * Here's an alternative way to fix it, that doesn't require changing the
+     * trigger. Instead, guard the state. Accept updates anytime, and commit
+     * explicitly (this would go in robotperiodic or whatever).
+     */
+    static class State {
+        private boolean value;
+        private boolean newValue;
+
+        public void set(boolean x) {
+            newValue = x;
+        }
+
+        public boolean get() {
+            return value;
+        }
+
+        public void commit() {
+            value = newValue;
+        }
+    }
+
+    State FOO = new State();
+
+    @Test
+    void testAlternative() {
+        HAL.initialize(500, 0);
+        DriverStationSim.setEnabled(true);
+        DriverStationSim.notifyNewData();
+        A = false;
+        B = false;
+        EventLoop loop = new EventLoop();
+        new Trigger(loop, FOO::get)
+                .onTrue(runOnce(
+                        // this still runs immediately, but it just sets the newValue.
+                        () -> {
+                            FOO.set(false);
+                            A = true;
+                        }))
+                .onFalse(runOnce(() -> {
+                    // this now runs
+                    B = true;
+                }));
+
+        CommandScheduler scheduler = CommandScheduler.getInstance();
+        FOO.set(true);
+        FOO.commit();
+        assertFalse(A);
+        loop.poll();
+        scheduler.run();
+        FOO.commit();
+        assertTrue(A);
+        assertFalse(B);
+        loop.poll();
+        scheduler.run();
+        FOO.commit();
+        // and now it's fixed
+        assertTrue(B);
+    }
+
 }
