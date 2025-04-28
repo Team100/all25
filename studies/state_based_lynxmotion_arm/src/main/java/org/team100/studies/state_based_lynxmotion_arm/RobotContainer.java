@@ -2,6 +2,7 @@
 package org.team100.studies.state_based_lynxmotion_arm;
 
 import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
+import org.team100.studies.state_based_lynxmotion_arm.state.Alternative;
 import org.team100.studies.state_based_lynxmotion_arm.state.Chart;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.ArmVisualization;
@@ -13,7 +14,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer {
     private final XboxController m_controller;
     private final Arm m_arm;
-    private final Chart m_chart;
+    // private final Chart m_chart;
+    private final Alternative m_alt;
     private final ArmVisualization m_visualizer;
 
     public RobotContainer() {
@@ -36,13 +38,15 @@ public class RobotContainer {
 
         m_controller = new XboxController(0);
         m_arm = new Arm(factory);
-        m_chart = new Chart(m_controller, m_arm);
+        // m_chart = new Chart(m_controller, m_arm);
+        m_alt = new Alternative(m_controller, m_arm);
         m_visualizer = new ArmVisualization(m_arm);
         m_visualizer.start();
     }
 
     public void runChart() {
-        m_chart.poll();
+        // m_chart.poll();
+        m_alt.poll();
     }
 
     public Command getAutonomousCommand() {

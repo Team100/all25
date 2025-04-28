@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** Describes actions and the graph of transitions. */
 public class Chart {
     private final XboxController m_controller;
-    private final Arm m_arm;
     private final EventLoop100 m_loop;
     private final Set<State> m_buffer;
     // TODO: buffer updates: triggers fill a queue, then the queue is applied all at
@@ -28,7 +27,6 @@ public class Chart {
 
     public Chart(XboxController controller, Arm arm) {
         m_controller = controller;
-        m_arm = arm;
         m_loop = new EventLoop100();
         m_buffer = new LinkedHashSet<>();
         m_current = State.HOME;

@@ -127,12 +127,19 @@ public class LynxArmAngles {
             double twist0_1,
             double grip0_1) {
         m_config = config;
-        this.swing = swing0_1;
-        this.boom = boom0_1;
-        this.stick = stick0_1;
-        this.wrist = wrist0_1;
-        this.twist = twist0_1;
-        this.grip = grip0_1;
+        this.swing = check(swing0_1, "swing");
+        this.boom = check(boom0_1, "boom");
+        this.stick = check(stick0_1, "stick");
+        this.wrist = check(wrist0_1, "wrist");
+        this.twist = check(twist0_1, "twist");
+        this.grip = check(grip0_1, "grip");
+    }
+
+    private double check(double x, String name) {
+        if (x < 0 || x > 1)
+            // throw new IllegalArgumentException(String.format("%s was %f", name, x));
+            System.out.printf("%s was %f", name, x);
+        return x;
     }
 
     /**

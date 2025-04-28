@@ -42,7 +42,7 @@ public class Trigger100 implements BooleanSupplier {
                 command.getName(),
                 (previous, current) -> !previous && current,
                 () -> {
-                    // System.out.println("ontrue schedule " + command.getName());
+                    System.out.println("ontrue schedule " + command.getName());
                     command.schedule();
                 });
         return this;

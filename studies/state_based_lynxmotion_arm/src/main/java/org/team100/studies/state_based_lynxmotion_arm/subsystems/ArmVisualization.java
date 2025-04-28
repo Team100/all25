@@ -50,7 +50,6 @@ public class ArmVisualization {
     /* Reads current servo positions and writes them to the dashboard */
     public void update() {
         LynxArmAngles angles = m_arm.get();
-        // System.out.println(angles);
         double swingLength = 20 * Math.cos(Math.PI * angles.boom)
                 + 20 * Math.cos(Math.PI * (angles.boom - angles.stick));
 

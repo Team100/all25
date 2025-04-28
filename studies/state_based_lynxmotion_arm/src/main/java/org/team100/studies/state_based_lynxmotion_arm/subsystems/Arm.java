@@ -1,6 +1,7 @@
 package org.team100.studies.state_based_lynxmotion_arm.subsystems;
 
 import static edu.wpi.first.math.MathUtil.isNear;
+import static edu.wpi.first.wpilibj2.command.Commands.print;
 
 import org.team100.lib.framework.TimedRobot100;
 import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
@@ -35,7 +36,7 @@ public class Arm extends SubsystemBase {
         m_factory = factory;
         LynxArmAngles initial = m_factory.fromRad(
                 0, -Math.PI / 4, Math.PI / 2, Math.PI / 4, 0.5, 0.9);
-        HOME = m_factory.fromDeg(90, 135, 90, 90, 90, 90);
+        HOME = m_factory.fromDeg(0, 100, 90, 90, 0.5, 0.5);
         AWAY = m_factory.fromDeg(0, 0, 0, 0, 0, 0);
         east = m_factory.from0_1(0, 0.2, 0.35, 0.5, 0, 0);
         west = m_factory.from0_1(1.0, 0.2, 0.35, 0.5, 0, 0);
@@ -73,6 +74,9 @@ public class Arm extends SubsystemBase {
 
     // ACTIONS
 
+    // TODO: these should probably reset the profiles in all the axes, otherwise
+    // nothing ever does.
+
     public Command goHome() {
         return run(() -> setRawGoals(HOME)).withName("go home");
     }
@@ -99,13 +103,13 @@ public class Arm extends SubsystemBase {
     }
 
     public LynxArmAngles get() {
-        return m_factory.fromDeg(
-                m_swing.getAngle(),
-                m_boom.getAngle(),
-                m_stick.getAngle(),
-                m_wrist.getAngle(),
-                m_twist.getAngle(),
-                m_grip.getAngle());
+        return m_factory.from0_1(
+                m_swing.getPosition(),
+                m_boom.getPosition(),
+                m_stick.getPosition(),
+                m_wrist.getPosition(),
+                m_twist.getPosition(),
+                m_grip.getPosition());
     }
 
     public void move(double dt) {
@@ -120,12 +124,13 @@ public class Arm extends SubsystemBase {
     //////////////////////////////////////////////////
 
     private boolean isAt(LynxArmAngles target) {
-        return isNear(m_swing.getPosition(), target.swing, TOLERANCE)
-                && isNear(m_boom.getPosition(), target.boom, TOLERANCE)
-                && isNear(m_stick.getPosition(), target.stick, TOLERANCE)
-                && isNear(m_wrist.getPosition(), target.wrist, TOLERANCE)
-                && isNear(m_twist.getPosition(), target.twist, TOLERANCE)
-                && isNear(m_grip.getPosition(), target.grip, TOLERANCE);
+        boolean swing = isNear(m_swing.getPosition(), target.swing, TOLERANCE);
+        boolean boom = isNear(m_boom.getPosition(), target.boom, TOLERANCE);
+        boolean stick = isNear(m_stick.getPosition(), target.stick, TOLERANCE);
+        boolean wrist = isNear(m_wrist.getPosition(), target.wrist, TOLERANCE);
+        boolean twist = isNear(m_twist.getPosition(), target.twist, TOLERANCE);
+        boolean grip = isNear(m_grip.getPosition(), target.grip, TOLERANCE);
+        return swing && boom && stick && wrist && twist && grip;
     }
 
     private void set(LynxArmAngles target) {
