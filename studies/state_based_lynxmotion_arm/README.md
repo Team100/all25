@@ -13,3 +13,7 @@ Each state is represented by a trigger on the matching state.
 You can attach commands to each state, with or without guard conditions.
 
 You can also attach transitions to each state, using observations.
+
+Most of the Lynxmotion arm code comes from the piano-playing project from 2023.
+
+https://github.com/Team100/studies2023/tree/main/piano_arm
