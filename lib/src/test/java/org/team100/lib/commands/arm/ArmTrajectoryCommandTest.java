@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.motion.arm.ArmAngles;
-import org.team100.lib.motion.arm.ArmFactory;
-import org.team100.lib.motion.arm.ArmKinematics;
-import org.team100.lib.motion.arm.ArmSubsystem;
+import org.team100.lib.motion.arm23.ArmAngles;
+import org.team100.lib.motion.arm23.ArmFactory;
+import org.team100.lib.motion.arm23.ArmKinematics;
+import org.team100.lib.motion.arm23.ArmSubsystem;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;

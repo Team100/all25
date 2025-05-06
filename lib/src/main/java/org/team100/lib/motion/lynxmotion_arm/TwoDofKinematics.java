@@ -1,4 +1,4 @@
-package org.team100.studies.state_based_lynxmotion_arm.kinematics;
+package org.team100.lib.motion.lynxmotion_arm;
 
 import edu.wpi.first.math.geometry.Translation2d;
 

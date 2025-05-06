@@ -5,12 +5,12 @@ import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
 import java.util.function.BooleanSupplier;
 
-import org.team100.lib.framework.EventLoop100;
-import org.team100.lib.framework.Trigger100;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This is the same logic as Chart but using the behavior tree style that WPI
@@ -21,11 +21,11 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class Alternative {
     private final Arm m_arm;
-    private final EventLoop100 m_loop;
+    private final EventLoop m_loop;
 
     public Alternative(XboxController controller, Arm arm) {
         m_arm = arm;
-        m_loop = new EventLoop100();
+        m_loop = new EventLoop();
         on(controller::getAButton, sequence(away(), pause(), home()));
         on(controller::getBButton, home());
         on(controller::getXButton, sequence(east(), north(), west(), home()));
@@ -33,7 +33,7 @@ public class Alternative {
     }
 
     public void poll() {
-        m_loop.pollEvents();
+        m_loop.poll();
     }
 
     private Command east() {
@@ -60,7 +60,7 @@ public class Alternative {
         return m_arm.goHome().until(m_arm::isHome);
     }
 
-    private Trigger100 on(BooleanSupplier condition, Command command) {
+    private Trigger on(BooleanSupplier condition, Command command) {
         // Using whileTrue here means you can interrupt the command by
         // letting go of the button, which seems like the right thing.
         //
@@ -68,6 +68,6 @@ public class Alternative {
         // start again, which may not be what you want.
         // 
         // TODO: think about how to pick up where you left off?
-        return new Trigger100(m_loop, condition).whileTrue(command);
+        return new Trigger(m_loop, condition).whileTrue(command);
     }
 }

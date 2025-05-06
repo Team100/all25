@@ -1,9 +1,8 @@
 
 package org.team100.studies.state_based_lynxmotion_arm;
 
-import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
+import org.team100.lib.motion.lynxmotion_arm.LynxArmAngles;
 import org.team100.studies.state_based_lynxmotion_arm.state.Alternative;
-import org.team100.studies.state_based_lynxmotion_arm.state.Chart;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.ArmVisualization;
 

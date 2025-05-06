@@ -1,4 +1,4 @@
-package org.team100.studies.state_based_lynxmotion_arm.kinematics;
+package org.team100.lib.motion.lynxmotion_arm;
 
 /** Represents the state of a Lynx arm. */
 public class LynxArmAngles {

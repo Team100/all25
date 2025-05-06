@@ -1,4 +1,4 @@
-package org.team100.lib.motion.arm;
+package org.team100.lib.motion.arm23;
 
 /**
  * Represents a 2DOF serial arm.

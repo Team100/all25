@@ -3,9 +3,9 @@ package org.team100.lib.commands.arm;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-import org.team100.lib.motion.arm.ArmAngles;
-import org.team100.lib.motion.arm.ArmKinematics;
-import org.team100.lib.motion.arm.ArmSubsystem;
+import org.team100.lib.motion.arm23.ArmAngles;
+import org.team100.lib.motion.arm23.ArmKinematics;
+import org.team100.lib.motion.arm23.ArmSubsystem;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;

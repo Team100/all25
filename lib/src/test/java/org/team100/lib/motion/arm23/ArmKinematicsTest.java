@@ -1,11 +1,9 @@
-package org.team100.lib.kinematics;
+package org.team100.lib.motion.arm23;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.motion.arm.ArmKinematics;
-import org.team100.lib.motion.arm.ArmAngles;
 
 import edu.wpi.first.math.geometry.Translation2d;
 

@@ -1,6 +1,7 @@
 package org.team100.studies.state_based_lynxmotion_arm.subsystems;
 
-import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
+
+import org.team100.lib.motion.lynxmotion_arm.LynxArmAngles;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;

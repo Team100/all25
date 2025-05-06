@@ -1,10 +1,9 @@
 package org.team100.studies.state_based_lynxmotion_arm.subsystems;
 
 import static edu.wpi.first.math.MathUtil.isNear;
-import static edu.wpi.first.wpilibj2.command.Commands.print;
 
 import org.team100.lib.framework.TimedRobot100;
-import org.team100.studies.state_based_lynxmotion_arm.kinematics.LynxArmAngles;
+import org.team100.lib.motion.lynxmotion_arm.LynxArmAngles;
 import org.team100.studies.state_based_lynxmotion_arm.motion.ProfiledServo;
 
 import edu.wpi.first.wpilibj2.command.Command;

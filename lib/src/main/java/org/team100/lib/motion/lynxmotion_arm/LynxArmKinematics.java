@@ -1,6 +1,6 @@
-package org.team100.studies.state_based_lynxmotion_arm.kinematics;
+package org.team100.lib.motion.lynxmotion_arm;
 
-import org.team100.studies.state_based_lynxmotion_arm.kinematics.TwoDofKinematics.ArmAngles;
+import org.team100.lib.motion.lynxmotion_arm.TwoDofKinematics.ArmAngles;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;

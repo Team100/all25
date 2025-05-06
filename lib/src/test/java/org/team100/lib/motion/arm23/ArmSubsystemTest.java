@@ -1,4 +1,4 @@
-package org.team100.lib.motion.arm;
+package org.team100.lib.motion.arm23;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

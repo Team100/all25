@@ -1,25 +1,24 @@
 package org.team100.studies.state_based_lynxmotion_arm.state;
 
 import static edu.wpi.first.wpilibj2.command.Commands.print;
-import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
-import org.team100.lib.framework.EventLoop100;
-import org.team100.lib.framework.Trigger100;
 import org.team100.studies.state_based_lynxmotion_arm.subsystems.Arm;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Describes actions and the graph of transitions. */
 public class Chart {
     private final XboxController m_controller;
-    private final EventLoop100 m_loop;
+    private final EventLoop m_loop;
     private final Set<State> m_buffer;
     // TODO: buffer updates: triggers fill a queue, then the queue is applied all at
     // once. if the queue contains more than one thing, explode.
@@ -27,7 +26,7 @@ public class Chart {
 
     public Chart(XboxController controller, Arm arm) {
         m_controller = controller;
-        m_loop = new EventLoop100();
+        m_loop = new EventLoop();
         m_buffer = new LinkedHashSet<>();
         m_current = State.HOME;
         // print on state entry
@@ -70,7 +69,7 @@ public class Chart {
 
     /** Evaluate all the triggers, some of which may queue a transition. */
     public void poll() {
-        m_loop.pollEvents();
+        m_loop.poll();
         commit();
     }
 
@@ -86,12 +85,12 @@ public class Chart {
         m_buffer.clear();
     }
 
-    private Trigger100 in(State state) {
-        return new Trigger100(m_loop, () -> m_current == state);
+    private Trigger in(State state) {
+        return new Trigger(m_loop, () -> m_current == state);
     }
 
-    private Trigger100 always(BooleanSupplier condition) {
-        return new Trigger100(m_loop, condition);
+    private Trigger always(BooleanSupplier condition) {
+        return new Trigger(m_loop, condition);
     }
 
     private Command set(State state) {

@@ -10,9 +10,9 @@ import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.ArmAnglesLogger;
 import org.team100.lib.logging.LoggerFactory.DoubleLogger;
 import org.team100.lib.logging.LoggerFactory.Translation2dLogger;
-import org.team100.lib.motion.arm.ArmAngles;
-import org.team100.lib.motion.arm.ArmKinematics;
-import org.team100.lib.motion.arm.ArmSubsystem;
+import org.team100.lib.motion.arm23.ArmAngles;
+import org.team100.lib.motion.arm23.ArmKinematics;
+import org.team100.lib.motion.arm23.ArmSubsystem;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.Util;
 

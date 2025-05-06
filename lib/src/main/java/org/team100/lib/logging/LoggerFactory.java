@@ -12,7 +12,7 @@ import org.team100.lib.dashboard.Glassy;
 import org.team100.lib.geometry.Pose2dWithMotion;
 import org.team100.lib.localization.Blip24;
 import org.team100.lib.logging.primitive.PrimitiveLogger;
-import org.team100.lib.motion.arm.ArmAngles;
+import org.team100.lib.motion.arm23.ArmAngles;
 import org.team100.lib.motion.drivetrain.SwerveControl;
 import org.team100.lib.motion.drivetrain.SwerveModel;
 import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeAcceleration;
