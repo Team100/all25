@@ -89,6 +89,7 @@ public class Phoenix100 {
         Slot0Configs slot0Configs = new Slot0Configs();
         Slot1Configs slot1Configs = new Slot1Configs();
         slot0Configs.kV = 0.0; // we use "arbitrary feedforward", not this.
+        slot1Configs.kV = 0.0; 
         slot0Configs.kP = pid.getPositionP();
         slot0Configs.kI = pid.getPositionI();
         slot0Configs.kD = pid.getPositionD();
