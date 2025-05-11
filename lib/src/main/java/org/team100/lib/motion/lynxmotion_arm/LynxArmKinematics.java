@@ -30,6 +30,8 @@ public class LynxArmKinematics {
     }
 
     /**
+     * TODO: this should be a Transform3d not a Translation3d.
+     * 
      * @returns relative to the arm origin, which is the intersection of the
      *          swing and boom axes.
      *          Facing the keys, +x is right, +y is forward, +z is up.
@@ -62,6 +64,8 @@ public class LynxArmKinematics {
     }
 
     /**
+     * TODO: the input should be a Pose3d, not a Translation3d+angle.
+     * 
      * since 3dof in 2d is underconstrained, specify
      * the wrist angle here to get a single solution
      * 
