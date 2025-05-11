@@ -1,26 +1,17 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
  * Lynxmotion AL5D board.
  * 
- * Results from calibration:
- * 
- * 0.0:90
- * 0.1:71
- * 0.2:50
- * 0.3:31
- * 0.4:14
- * 0.5:-6
- * 0.6:-24
- * 0.7:-41
- * 0.8:-61
- * 0.9:-77
- * 1.0:-94
+ * overview:
  * 
  * https://docs.google.com/document/d/1B6vGPtBtnDSOpfzwHBflI8-nn98W9QvmrX78bon8Ajw
+ *
+ * calibration:
+ * 
+ * https://docs.google.com/spreadsheets/d/1XCtQGnJABVWTuCkx0t6u_xJjezelqyBE2Rz7eqmoyh4
  * 
  * TODO: move this to lib when it's done
  */
@@ -33,7 +24,7 @@ public class LynxArm extends SubsystemBase {
     // private final Servo m_grip;
 
     public LynxArm() {
-        m_swing = new CalibratedServo(0);
+        m_swing = new CalibratedServo(0, new AffineFunction(-3.216, 1.534));
         // m_boom = new Servo(1);
         // m_stick = new Servo(2);
         // m_wrist = new Servo(3);
