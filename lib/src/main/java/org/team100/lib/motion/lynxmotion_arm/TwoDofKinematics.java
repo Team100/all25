@@ -43,9 +43,9 @@ public class TwoDofKinematics {
 
     /** Workspace end location based on joint configuration. */
     public Translation2d forward(TwoDofArmConfig a) {
-        return new Translation2d(
-                l1 * Math.cos(a.q1) + l2 * Math.cos(a.q2 + a.q1),
-                l1 * Math.sin(a.q1) + l2 * Math.sin(a.q2 + a.q1));
+        double x = l1 * Math.cos(a.q1) + l2 * Math.cos(a.q2 + a.q1);
+        double y = l1 * Math.sin(a.q1) + l2 * Math.sin(a.q2 + a.q1);
+        return new Translation2d(x, y);
     }
 
     /**

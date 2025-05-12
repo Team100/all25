@@ -30,6 +30,7 @@
         "intellicodeApiExamples.typescript.enabled": false,
         "workbench.tree.enableStickyScroll": false,
         "editor.stickyScroll.scrollWithEditor": false,
-        "editor.stickyScroll.enabled": false
+        "editor.stickyScroll.enabled": false,
+        "editor.parameterHints.enabled": false
     }
 }
