@@ -189,7 +189,6 @@ public class LynxArmKinematics {
                 Rotation3d wrist3d = new Rotation3d(0, swingRelative3d.getY(), 0);
                 Rotation3d twist3d = swingRelative3d.minus(wrist3d);
                 twist = OptionalDouble.of(twist3d.getX());
-
             }
         } else {
             // Check that the swing angle matches the end angle.

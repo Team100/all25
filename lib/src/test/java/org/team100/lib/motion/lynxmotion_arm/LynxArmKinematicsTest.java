@@ -1,6 +1,7 @@
 package org.team100.lib.motion.lynxmotion_arm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.OptionalDouble;
 
@@ -13,6 +14,14 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 public class LynxArmKinematicsTest {
     private static final double kDelta = 0.001;
+
+    @Test
+    void testbad() {
+        // stretched out along x but with the wrong end rotation
+        LynxArmKinematics k = new LynxArmKinematics(1, 1, 1, 1);
+        Pose3d t = new Pose3d(new Translation3d(2, 0, 1), new Rotation3d(0, 0, 1));
+        assertThrows(IllegalArgumentException.class, () -> k.inverse(t));
+    }
 
     @Test
     void testf1() {
@@ -61,7 +70,7 @@ public class LynxArmKinematicsTest {
         assertEquals(0, a.twist().getAsDouble(), kDelta);
     }
 
-    // // bending forward at the elbow
+    // bending forward at the elbow
     // @Test
     // void testf2() {
     // LynxArmAngles.Factory factory = new LynxArmAngles.Factory();

@@ -66,7 +66,7 @@ public class TwoDofKinematics {
         double q2 = alpha + Math.PI;
 
         if (Double.isNaN(q1) || Double.isNaN(q2))
-            return null;
+            throw new IllegalArgumentException("invalid two-dof parameters");
         return new TwoDofArmConfig(q1, q2);
     }
 }
