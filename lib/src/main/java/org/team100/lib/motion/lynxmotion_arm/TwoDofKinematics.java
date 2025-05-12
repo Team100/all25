@@ -1,84 +1,72 @@
 package org.team100.lib.motion.lynxmotion_arm;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** This solves the subproblem of boom and stick angles. */
+/**
+ * Planar serial arm kinematics: two revolute joints and two links.
+ * 
+ * Refer to the diagram:
+ * https://docs.google.com/document/d/1B6vGPtBtnDSOpfzwHBflI8-nn98W9QvmrX78bon8Ajw
+ */
 public class TwoDofKinematics {
-    public static class ArmAngles {
-        /** proximal radians relative to ground, zero up */
-        public final double th1;
-        /** distal radians relative to the proximal segment, zero inline */
-        public final double th2;
-
-        /**
-         * angles in radians, counting out from the grounded joint.
-         * 
-         * @param th1 proximal relative to ground
-         * @param th2 distal relative to proximal
-         */
-        public ArmAngles(double th1, double th2) {
-            this.th1 = th1;
-            this.th2 = th2;
+    /**
+     * Configuration of the joints.
+     * 
+     * @param q1 Proximal radians, [-pi, pi]. Zero is along the x axis, positive is
+     *           counterclockwise.
+     * 
+     * @param q2 Distal radians, [-pi, pi]. Zero is along the parent link, positive
+     *           is counterclockwise. Because the "elbow" is always "up", this angle
+     *           is always between pi and 2pi.
+     */
+    public record TwoDofArmConfig(double q1, double q2) {
+        public TwoDofArmConfig(double q1, double q2) {
+            this.q1 = MathUtil.angleModulus(q1);
+            this.q2 = MathUtil.angleModulus(q2);
         }
     }
 
+    /** Proximal link length, meters. */
     private final double l1;
+    /** Distal link length, meters. */
     private final double l2;
 
     /**
-     * Lengths counting out from the grounded joint. Units here determine units
-     * below.
-     * 
-     * @param l1 proximal
-     * @param l2 distal
+     * @param l1 Proximal link length, meters.
+     * @param l2 Distal link length, meters.
      */
     public TwoDofKinematics(double l1, double l2) {
         this.l1 = l1;
         this.l2 = l2;
     }
 
-    /**
-     * Calculates the position of the arm based on absolute joint angles, counting
-     * out from the grounded joint.
-     * 
-     * @param a absolute angles
-     * @return end position
-     */
-    public Translation2d forward(ArmAngles a) {
-        // this is the 2023 way
-        // return new Translation2d(
-        // l1 * Math.cos(a.th1) + l2 * Math.cos(a.th2),
-        // l1 * Math.sin(a.th1) + l2 * Math.sin(a.th2));
-        // this is the relative way
+    /** Workspace end location based on joint configuration. */
+    public Translation2d forward(TwoDofArmConfig a) {
         return new Translation2d(
-                l1 * Math.cos(a.th1) + l2 * Math.cos(a.th2 + a.th1),
-                l1 * Math.sin(a.th1) + l2 * Math.sin(a.th2 + a.th1));
+                l1 * Math.cos(a.q1) + l2 * Math.cos(a.q2 + a.q1),
+                l1 * Math.sin(a.q1) + l2 * Math.sin(a.q2 + a.q1));
     }
 
     /**
-     * Calculate absolute joint angles given cartesian coords of the end.
+     * Calculate joint configuration given the workspace location of the end.
      * 
-     * It's an application of the law of cosines. It's almost exactly the same as:
-     * https://docs.google.com/document/d/135U309CXN29X3Oube1N1DaXPHlo6r-YdnPHMH8NBev8/edit
+     * It's an application of the law of cosines.
      * 
-     * but theta2 is relative to l1, so there's no th1 in the th2 expression.
-     * 
-     * @param x
-     * @param y
-     * @return absolute joint angles, null if unreachable.
+     * Refer to the diagram:
+     * https://docs.google.com/document/d/1B6vGPtBtnDSOpfzwHBflI8-nn98W9QvmrX78bon8Ajw
      */
-    public ArmAngles inverse(Translation2d t) {
-        double r = Math.sqrt(t.getX() * t.getX() + t.getY() * t.getY());
+    public TwoDofArmConfig inverse(Translation2d t) {
+        double r = t.getNorm();
         double gamma = Math.atan2(t.getY(), t.getX());
         double beta = Math.acos((r * r + l1 * l1 - l2 * l2) / (2 * r * l1));
         double alpha = Math.acos((l1 * l1 + l2 * l2 - r * r) / (2 * l1 * l2));
-        double th1 = gamma - beta;
-        // this is how the 2023 arm works:
-        // double th2 = Math.PI + th1 - alpha;
-        // this is the relative way
-        double th2 = Math.PI - alpha;
-        if (Double.isNaN(th1) || Double.isNaN(th2))
+
+        double q1 = gamma + beta;
+        double q2 = alpha + Math.PI;
+
+        if (Double.isNaN(q1) || Double.isNaN(q2))
             return null;
-        return new ArmAngles(th1, th2);
+        return new TwoDofArmConfig(q1, q2);
     }
 }
