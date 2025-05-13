@@ -1,6 +1,8 @@
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -27,76 +30,182 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /**
- * Use the glass "mechanism" display to show the arm position.
- * 
- * The general idea is to project the link positions into a 2d plane, and then
- * render that.
- * 
- * TODO: also render the workspace (i.e the table).
+ * Use the glass "mechanism" display to show the arm position in 3d.
  */
 public class LynxArmVisualizer {
-    private final Mechanism2d m_view = new Mechanism2d(100, 100);
-    // camera is pointing at the origin in the center: (50,50)
-    private final MechanismRoot2d m_root = m_view.getRoot("root", 50, 50);
+    // Line width in the widget, in pixels.
+    private static final int LINE_WIDTH = 2;
+    // Where the camera is pointing.
+    private static final Translation3d CENTER = new Translation3d(0.25, 0, 0);
+    // Reverses the rotation.
+    private static final Transform3d FLIP = new Transform3d(
+            Pose3d.kZero, new Pose3d(0, 0, 0, new Rotation3d(0, 0, Math.PI)));
+    // Transforms the camera z to look along -x
+    private static final Transform3d LOOKAT = new Transform3d(
+            new Translation3d(),
+            new Rotation3d(MatBuilder.fill(Nat.N3(), Nat.N3(),
+                    0, -1, 0, //
+                    0, 0, -1, //
+                    1, 0, 0)))
+            .inverse();
+
+    private final Mechanism2d m_view;
+    private final MechanismRoot2d m_root;
+    private final MechanismLigament2d m_base;
+    private final Map<String, MechanismLigament2d> ligaments = new HashMap<>();
+
+    // coordinates of the camera.
+    private double m_cameraRange;
+    private double m_pitch;
+    private double m_yaw;
 
     public LynxArmVisualizer() {
         OpenCvLoader.forceStaticLoad();
-        // base angle is zero (pointing right)
-        MechanismLigament2d base = new MechanismLigament2d(
-                "link", 0, 0, 5, new Color8Bit(Color.kBlack));
-        m_root.append(base);
 
-        MatOfPoint2f points = foo();
+        // size matches the intrinsic matrix
+        m_view = new Mechanism2d(100, 100);
+
+        // camera is pointing at the origin in the center: (50, 50)
+        m_root = m_view.getRoot("root", 50, 50);
+
+        // base angle is zero (pointing right)
+        m_base = new MechanismLigament2d("link", 0, 0, 0, new Color8Bit(Color.kBlack));
+        m_root.append(m_base);
+
+        m_cameraRange = 0.866;
+        // pitch up to the camera, i.e. it is above the table.
+        m_pitch = -0.615;
+        // start behind the arm and to the right
+        m_yaw = -2.356;
+
+        SmartDashboard.putData("View", m_view);
+    }
+
+    public void periodic() {
+        // Orbit in yaw.
+        // TODO: Also use POV to move around?
+        m_yaw += 0.01;
+        paintAll();
+    }
+
+    Pose3d getCameraPose() {
+        // spherical location of the camera; this rotation is not the direction
+        // the camera is facing
+        Rotation3d r = new Rotation3d(0, m_pitch, m_yaw);
+        Translation3d t = new Translation3d(m_cameraRange, 0, 0).rotateBy(r);
+
+        // Rotation facing out
+        Pose3d p1 = new Pose3d(t, r);
+        // Rotation facing in
+        Pose3d p2 = p1.plus(FLIP);
+        // Rotate the camera z so it faces in
+        Pose3d p3 = p2.plus(LOOKAT);
+        // Add an offset to the center of the table
+        return new Pose3d(p3.getTranslation().plus(CENTER), p3.getRotation());
+    }
+
+    void paintAll() {
+        Pose3d m_cameraPose = getCameraPose();
+        List<Translation3d> tList2 = List.of(
+                new Translation3d(0, 0, 0),
+                new Translation3d(0, 0, 0.07),
+                new Translation3d(0.1, 0, 0.2),
+                new Translation3d(0.25, 0, 0.1),
+                new Translation3d(0.3, 0, 0.05));
+        paint(m_base, "arm", m_cameraPose, tList2, Color.kOrangeRed);
+
+        List<Translation3d> tList3 = List.of(
+                new Translation3d(0, 0, 0),
+                new Translation3d(0, 0.5, 0),
+                new Translation3d(0.5, 0.5, 0),
+                new Translation3d(0.5, -0.5, 0),
+                new Translation3d(0, -0.5, 0),
+                new Translation3d(0, 0, 0));
+        paint(m_base, "tabletop", m_cameraPose, tList3, Color.kGray);
+    }
+
+    void paint(
+            MechanismLigament2d base,
+            String name,
+            Pose3d cameraPose,
+            List<Translation3d> tList,
+            Color color) {
+
+        MatOfPoint2f points = project(cameraPose, tList);
         List<Point> pointList = points.toList();
         double x0 = 50;
         double y0 = 50;
         double t0 = 0;
         for (int i = 0; i < pointList.size(); ++i) {
+            // this is a point in the camera, which is x-left, y-down,
+            // looking towards +z,
+            // which implies clockwise-positive angles in the xy plane.
+            // the mechanism2d widget uses counterclockwise-positive angles.
+            // we could invert the xy coordinates, but then we'd have to remember
+            // that the "camera" coordinates are unusual.
+            // instead, we'll just invert the angle.
             Point p = pointList.get(i);
 
             double dx = p.x - x0;
             double dy = p.y - y0;
             double length = Math.hypot(dx, dy);
-            double absoluteAngle = Math.atan2(dy, dx);
+            double absoluteAngle = -1.0 * Math.atan2(dy, dx);
             double relativeAngle = absoluteAngle - t0;
-            MechanismLigament2d link = new MechanismLigament2d(
-                    "link" + i, length, Math.toDegrees(relativeAngle), 2, i==0?new Color8Bit(Color.kBlack):new Color8Bit(Color.kWhite));
-            base.append(link);
-            base = link;
+            String fullname = String.format("%s_%d", name, i);
+            MechanismLigament2d link = ligaments.get(fullname);
+            if (link == null) {
+                link = new MechanismLigament2d(
+                        fullname,
+                        length,
+                        Math.toDegrees(relativeAngle),
+                        LINE_WIDTH,
+                        i == 0 ? new Color8Bit(Color.kBlack) : new Color8Bit(color));
+                base.append(link);
+                base = link;
+                ligaments.put(fullname, link);
+            } else {
+                link.setLength(length);
+                link.setAngle(Math.toDegrees(relativeAngle));
+            }
             x0 = p.x;
             y0 = p.y;
             t0 = absoluteAngle;
         }
-
-        SmartDashboard.putData("SideView", m_view);
     }
 
-    public MatOfPoint2f foo() {
+    MatOfPoint2f project(Pose3d cameraPose, List<Translation3d> tList) {
+        // the extrinsic matrix is the inverse of the camera pose.
+        Transform3d extrinsic = new Transform3d(Pose3d.kZero, cameraPose).inverse();
 
-        // a cube centered on the origin
-        // TODO: this is camera coords, so fix that
-        List<Translation3d> tList = List.of(
-                new Translation3d(1, 1, 1),
-                new Translation3d(-1, 1, 1),
-                new Translation3d(-1, -1, 1),
-                new Translation3d(1, -1, 1),
-                new Translation3d(1, 1, -1),
-                new Translation3d(-1, 1, -1),
-                new Translation3d(-1, -1, -1),
-                new Translation3d(1, -1, -1));
+        Mat rvec = getRvec(extrinsic);
+        Mat tVec = getTVec(extrinsic);
+        Mat kMat = getKMat();
 
-        // the camera view is similar to the lynx board: camera is behind the workspace,
-        // a little bit oblique.
-        // the camera view is +z
-        // Pose3d camera = new Pose3d(0, 0, -4, new Rotation3d(0.3, 0.3, 0));
-        Pose3d camera = new Pose3d(-4, 0, 0, new Rotation3d(0, 0.4, 0.3));
-        camera = camera.rotateBy(new Rotation3d(MatBuilder.fill(Nat.N3(), Nat.N3(),
-                0, -1, 0, //
-                0, 0, -1, //
-                1, 0, 0)));
+        MatOfDouble dMat = new MatOfDouble(0, 0, 0, 0, 0);
+        MatOfPoint2f imagePts2f = new MatOfPoint2f();
 
-        System.out.println("CAMERA " + camera);
-        Matrix<N3, N3> r = camera.getRotation().toMatrix();
+        Calib3d.projectPoints(objectPts(tList), rvec, tVec, kMat, dMat, imagePts2f);
+        return imagePts2f;
+    }
+
+    private Mat getTVec(Transform3d extrinsic) {
+        Translation3d t = extrinsic.getTranslation();
+        Mat tVec = Mat.zeros(3, 1, CvType.CV_64F);
+        tVec.put(0, 0, t.getX(), t.getY(), t.getZ());
+        return tVec;
+    }
+
+    private Mat getKMat() {
+        Mat kMat = Mat.zeros(3, 3, CvType.CV_64F);
+        kMat.put(0, 0,
+                100.0, 0.0, 50.0,
+                0.0, 100.0, 50.0,
+                0.0, 0.0, 1.0);
+        return kMat;
+    }
+
+    private Mat getRvec(Transform3d extrinsic) {
+        Matrix<N3, N3> r = extrinsic.getRotation().toMatrix();
         Mat rmat = new Mat(3, 3, CvType.CV_64F);
         rmat.put(0, 0, r.get(0, 0));
         rmat.put(0, 1, r.get(0, 1));
@@ -109,40 +218,10 @@ public class LynxArmVisualizer {
         rmat.put(2, 2, r.get(2, 2));
         Mat rvec = new Mat(3, 1, CvType.CV_64F);
         Calib3d.Rodrigues(rmat, rvec);
-
-        // Mat rVec = Mat.zeros(3, 1, CvType.CV_64F);
-        Translation3d t = camera.getTranslation();
-
-        Mat tVec = Mat.zeros(3, 1, CvType.CV_64F);
-        tVec.put(0, 0, t.getX(), t.getY(), t.getZ());
-        // tVec.put(0, 0, 0, 0, -4);
-
-        Mat kMat = Mat.zeros(3, 3, CvType.CV_64F);
-        kMat.put(0, 0,
-                100.0, 0.0, 50.0,
-                0.0, 100.0, 50.0,
-                0.0, 0.0, 1.0);
-
-        MatOfDouble dMat = new MatOfDouble(0, 0, 0, 0, 0);
-        MatOfPoint2f imagePts2f = new MatOfPoint2f();
-
-        Calib3d.projectPoints(objectPts(tList), rvec, tVec, kMat, dMat, imagePts2f);
-        return imagePts2f;
+        return rvec;
     }
 
-    public static Mat rvec() {
-        Mat rVec = Mat.zeros(3, 1, CvType.CV_64F);
-        return rVec;
-    }
-
-    public static Mat tvec() {
-        Mat tVec = Mat.zeros(3, 1, CvType.CV_64F);
-        tVec.put(0, 0, 0, 0, -10);
-        return tVec;
-    }
-
-    public static MatOfPoint3f objectPts(List<Translation3d> tList) {
-        // TODO: permute the coordinates
+    static MatOfPoint3f objectPts(List<Translation3d> tList) {
         Point3[] pList = new Point3[tList.size()];
         for (int i = 0; i < tList.size(); ++i) {
             pList[i] = point(tList.get(i));
@@ -150,7 +229,7 @@ public class LynxArmVisualizer {
         return new MatOfPoint3f(pList);
     }
 
-    public static Point3 point(Translation3d t) {
+    static Point3 point(Translation3d t) {
         return new Point3(t.getX(), t.getY(), t.getZ());
     }
 }
