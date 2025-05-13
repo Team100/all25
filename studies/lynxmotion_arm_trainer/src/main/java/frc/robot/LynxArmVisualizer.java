@@ -8,6 +8,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
+import org.opencv.core.Point;
 import org.opencv.core.Point3;
 
 import edu.wpi.first.cscore.OpenCvLoader;
@@ -15,7 +16,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 
 /**
  * Use the glass "mechanism" display to show the arm position.
@@ -27,9 +32,28 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class LynxArmVisualizer {
     private final Mechanism2d m_view = new Mechanism2d(100, 100);
+    private final MechanismRoot2d m_root = m_view.getRoot("root", 50, 50);
 
     public LynxArmVisualizer() {
         OpenCvLoader.forceStaticLoad();
+        MechanismLigament2d base = new MechanismLigament2d(
+                "link", 20, 90, 5, new Color8Bit(Color.kWhite));
+        m_root.append(base);
+
+        MatOfPoint2f points = foo();
+        List<Point> pointList = points.toList();
+        for (int i = 0; i < pointList.size() - 1; ++i) {
+            Point p0 = pointList.get(i);
+            Point p1 = pointList.get(i + 1);
+            double dx = p1.x-p0.x;
+            double dy = p1.y-p0.y;
+            double length = Math.hypot(dx, dy);
+            double angle = Math.atan2(dy,dx);
+            MechanismLigament2d link = new MechanismLigament2d(
+                    "link"+i, length, Math.toDegrees(angle), 5, new Color8Bit(Color.kWhite));
+            base.append(link); 
+            base = link;
+        }
 
         SmartDashboard.putData("SideView", m_view);
     }
