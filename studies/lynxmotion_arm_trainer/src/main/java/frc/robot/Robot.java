@@ -15,7 +15,8 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         m_led = new DemoLED();
         m_controller = new XboxController(0);
-        m_calibrator = new AxisCalibrator(0);
+        // m_calibrator = new AxisCalibrator(0);
+        m_calibrator = new AxisCalibrator(2);
         new Trigger(m_controller::getXButton).onTrue(m_calibrator.step());
         // m_led.setDefaultCommand(m_led.sweep());
         m_led.setDefaultCommand(m_led.indicateCalibration(m_calibrator));
