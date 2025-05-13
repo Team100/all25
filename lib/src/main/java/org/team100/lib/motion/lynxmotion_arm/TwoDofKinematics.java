@@ -27,6 +27,12 @@ public class TwoDofKinematics {
         }
     }
 
+    /**
+     * Position of each joint.
+     */
+    public record TwoDofArmPosition(Translation2d p1, Translation2d p2) {
+    }
+
     /** Proximal link length, meters. */
     private final double l1;
     /** Distal link length, meters. */
@@ -42,10 +48,14 @@ public class TwoDofKinematics {
     }
 
     /** Workspace end location based on joint configuration. */
-    public Translation2d forward(TwoDofArmConfig a) {
-        double x = l1 * Math.cos(a.q1) + l2 * Math.cos(a.q2 + a.q1);
-        double y = l1 * Math.sin(a.q1) + l2 * Math.sin(a.q2 + a.q1);
-        return new Translation2d(x, y);
+    public TwoDofArmPosition forward(TwoDofArmConfig a) {
+        double x1 = l1 * Math.cos(a.q1);
+        double y1 = l1 * Math.sin(a.q1);
+        double x2 = x1 + l2 * Math.cos(a.q2 + a.q1);
+        double y2 = y1 + l2 * Math.sin(a.q2 + a.q1);
+        return new TwoDofArmPosition(
+                new Translation2d(x1, y1),
+                new Translation2d(x2, y2));
     }
 
     /**

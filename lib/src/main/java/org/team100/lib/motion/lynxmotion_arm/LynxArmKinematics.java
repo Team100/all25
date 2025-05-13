@@ -74,12 +74,24 @@ public class LynxArmKinematics {
         }
     }
 
+    /**
+     * Workspace pose of each joint. The rotation is the rotation of the parent
+     * link, in workspace coordinates, not relative to the previous.
+     */
+    public record LynxArmPose(
+            Pose3d p1,
+            Pose3d p2,
+            Pose3d p3,
+            Pose3d p4,
+            Pose3d p5) {
+    }
+
     public final double m_swingHeight;
     public final double m_boomLength;
     public final double m_stickLength;
     /**
-     * Includes the link before the roll servo and also the length of the grip,
-     * since they're always parallel.
+     * Includes the link before the twist servo and also the length of the grip,
+     * since they're collinear.
      */
     public final double m_wristLength;
 
@@ -113,15 +125,22 @@ public class LynxArmKinematics {
      * (grip center) pose relative to the arm origin, which is the on the tabletop
      * at the swing axis.
      */
-    public Pose3d forward(LynxArmConfig joints) {
+    public LynxArmPose forward(LynxArmConfig joints) {
         Pose3d root = Pose3d.kZero;
+        // the end of the swing axis, at the boom joint
+        // TODO: this is a little bit wierd, translating in z. Maybe use x and a
+        // rotation?
         Pose3d boomRoot = root.transformBy(joints.swingT()).transformBy(z(m_swingHeight));
+        // the end of the boom, at the stick joint
         Pose3d stickRoot = boomRoot.transformBy(joints.boomT()).transformBy(x(m_boomLength));
+        // the end of the stick, at the wrist joint
         Pose3d wristRoot = stickRoot.transformBy(joints.stickT()).transformBy(x(m_stickLength));
+        // this is actually at the grip center but without the twist,
+        // since the twist axis and the grip axis are collinear.
         Pose3d twistRoot = wristRoot.transformBy(joints.wristT()).transformBy(x(m_wristLength));
+        // this is Tool Center Point.
         Pose3d grip = twistRoot.transformBy(joints.twistT());
-        return grip;
-
+        return new LynxArmPose(boomRoot, stickRoot, wristRoot, twistRoot, grip);
     }
 
     /**
@@ -167,13 +186,13 @@ public class LynxArmKinematics {
                 // Both twist and swing are indeterminate; the caller should decide what to do.
                 swing = OptionalDouble.empty();
                 twist = OptionalDouble.empty();
-                wrist = -Math.PI/2 - boom - stick;
+                wrist = -Math.PI / 2 - boom - stick;
             } else if (MathUtil.isNear(Math.PI / 2, endRotation.getY(), 0.01)) {
                 // The wrist axis is pointing down.
                 // Both twist and swing are indeterminate; the caller should decide what to do.
                 swing = OptionalDouble.empty();
                 twist = OptionalDouble.empty();
-                wrist = Math.PI/2 - boom - stick;
+                wrist = Math.PI / 2 - boom - stick;
             } else {
                 // The end is on the swing axis, but the wrist is not, so the arm swing needs to
                 // be aligned with the end angle.
