@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -10,6 +11,7 @@ public class Robot extends TimedRobot {
     private final DemoLED m_led;
     private final XboxController m_controller;
     private final AxisCalibrator m_calibrator;
+    private final LynxArmVisualizer m_viz;
 
     public Robot() {
         m_robotContainer = new RobotContainer();
@@ -20,6 +22,7 @@ public class Robot extends TimedRobot {
         new Trigger(m_controller::getXButton).onTrue(m_calibrator.step());
         // m_led.setDefaultCommand(m_led.sweep());
         m_led.setDefaultCommand(m_led.indicateCalibration(m_calibrator));
+        m_viz = new LynxArmVisualizer();
     }
 
     @Override
@@ -37,6 +40,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopExit() {
+    }
+
+    @Override
+    public void simulationInit() {
+        DriverStation.silenceJoystickConnectionWarning(true);
     }
 
 }
