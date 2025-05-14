@@ -152,7 +152,7 @@ public class LynxArmVisualizer {
 
         MatOfPoint2f points = project(cameraPose, tList);
         List<Point> pointList = points.toList();
-        System.out.printf("pointlist size %d\n", pointList.size());
+        // System.out.printf("pointlist size %d\n", pointList.size());
         double x0 = 50;
         double y0 = 50;
         double t0 = 0;

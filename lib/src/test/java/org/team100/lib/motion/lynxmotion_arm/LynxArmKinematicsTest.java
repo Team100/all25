@@ -22,6 +22,14 @@ public class LynxArmKinematicsTest {
     private static final double kDelta = 0.001;
 
     @Test
+    void testTwist() {
+        // figure out the twist axis
+        Rotation3d r = new Rotation3d(Math.PI/2, Math.PI/2, Math.PI/2);
+        System.out.printf("r %s\n", rotStr(r));
+
+    }
+
+    @Test
     void testDerived() {
         // derive the axis directions
         LynxArmKinematics k = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);

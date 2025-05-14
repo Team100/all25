@@ -6,8 +6,6 @@ import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmPose;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -41,7 +39,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * TODO: compute gravity effect on each joint, adjust estimated position
  */
 public class LynxArm extends SubsystemBase implements AutoCloseable {
-    private static final Pose3d HOME = new Pose3d(0.2, 0, 0.1, new Rotation3d());
+    private static final Pose3d HOME = new Pose3d(0.1, 0, 0.2, new Rotation3d(0, Math.PI/4, 0));
     private final CalibratedServo m_swing;
     private final CalibratedServo m_boom;
     private final CalibratedServo m_stick;
@@ -89,7 +87,10 @@ public class LynxArm extends SubsystemBase implements AutoCloseable {
                 new Clamp(0, 0.02),
                 new AffineFunction(-0.02, 0.02));
 
-        m_kinematics = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);
+        // for dimensions, see
+        // https://wiki.lynxmotion.com/info/wiki/lynxmotion/download/ses-v1/ses-v1-robots/ses-v1-arms/al5d/WebHome/PLTW-AL5D-Guide-11.pdf
+
+        m_kinematics = new LynxArmKinematics(0.07, 0.146, 0.187, 0.111);
         // initial position keeps the IK path from being invalid
         setPosition(HOME);
     }
@@ -121,18 +122,6 @@ public class LynxArm extends SubsystemBase implements AutoCloseable {
         return m_kinematics.inverse(p);
     }
 
-    /**
-     * Override the wrist rotation of the supplied rotation so that it is valid.
-     * 
-     * TODO: maybe using a pose isn't a great idea?
-     */
-    public Pose3d fix(Pose3d p) {
-        Pose3d measurement = getPosition().p5();
-        Translation3d t = p.getTranslation();
-        Rotation3d r = p.getRotation();
-        return new Pose3d(t, new Rotation3d(r.getX(), r.getY(), measurement.getZ()));
-    }
-
     public LynxArmConfig getMeasuredConfig() {
         return new LynxArmConfig(
                 m_swing.getAngle(),
@@ -147,11 +136,11 @@ public class LynxArm extends SubsystemBase implements AutoCloseable {
         return m_kinematics.forward(q);
     }
 
-    public Command moveTo(Pose3d goal) {
+    public MoveCommand moveTo(Pose3d goal) {
         return new MoveCommand(this, goal);
     }
 
-    public Command moveHome() {
+    public MoveCommand moveHome() {
         return new MoveCommand(this, HOME);
     }
 
