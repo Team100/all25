@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import edu.wpi.first.cscore.OpenCvLoader;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -89,7 +91,7 @@ public class LynxArmVisualizer {
     public void periodic() {
         // Orbit in yaw.
         // TODO: Also use POV to move around?
-        m_yaw += 0.001;
+        m_yaw += 0.002;
         paintAll();
     }
 
@@ -113,41 +115,44 @@ public class LynxArmVisualizer {
         Pose3d m_cameraPose = getCameraPose();
 
         LynxArmPose p = m_arm.getPosition();
-        List<Translation3d> pList = List.of(
-                p.p1().getTranslation(),
-                p.p2().getTranslation(),
-                p.p3().getTranslation(),
-                p.p4().getTranslation(),
-                p.p5().getTranslation());
+        List<Pose3d> pList = List.of(
+                Pose3d.kZero,
+                p.p1(),
+                p.p2(),
+                p.p3(),
+                p.p4(),
+                p.p5());
         paint(m_base, "actual_arm", m_cameraPose, pList, Color.kOrangeRed);
 
         // List<Translation3d> tList2 = List.of(
-        //         new Translation3d(0, 0, 0),
-        //         new Translation3d(0, 0, 0.07),
-        //         new Translation3d(0.1, 0, 0.2),
-        //         new Translation3d(0.25, 0, 0.1),
-        //         new Translation3d(0.3, 0, 0.05));
+        // new Translation3d(0, 0, 0),
+        // new Translation3d(0, 0, 0.07),
+        // new Translation3d(0.1, 0, 0.2),
+        // new Translation3d(0.25, 0, 0.1),
+        // new Translation3d(0.3, 0, 0.05));
         // paint(m_base, "arm", m_cameraPose, tList2, Color.kOrangeRed);
 
-        List<Translation3d> tList3 = List.of(
-                new Translation3d(0, 0, 0),
-                new Translation3d(0, 0.5, 0),
-                new Translation3d(0.5, 0.5, 0),
-                new Translation3d(0.5, -0.5, 0),
-                new Translation3d(0, -0.5, 0),
-                new Translation3d(0, 0, 0));
+        List<Pose3d> tList3 = List.of(
+                new Pose3d(0, 0, 0, Rotation3d.kZero),
+                new Pose3d(0, 0.5, 0, Rotation3d.kZero),
+                new Pose3d(0.5, 0.5, 0, Rotation3d.kZero),
+                new Pose3d(0.5, -0.5, 0, Rotation3d.kZero),
+                new Pose3d(0, -0.5, 0, Rotation3d.kZero),
+                new Pose3d(0, 0, 0, Rotation3d.kZero));
         paint(m_base, "tabletop", m_cameraPose, tList3, Color.kGray);
     }
 
+    /** TODO: render the joint axes too */
     void paint(
             MechanismLigament2d base,
             String name,
             Pose3d cameraPose,
-            List<Translation3d> tList,
+            List<Pose3d> tList,
             Color color) {
 
         MatOfPoint2f points = project(cameraPose, tList);
         List<Point> pointList = points.toList();
+        System.out.printf("pointlist size %d\n", pointList.size());
         double x0 = 50;
         double y0 = 50;
         double t0 = 0;
@@ -188,7 +193,7 @@ public class LynxArmVisualizer {
         }
     }
 
-    MatOfPoint2f project(Pose3d cameraPose, List<Translation3d> tList) {
+    MatOfPoint2f project(Pose3d cameraPose, List<Pose3d> tList) {
         // the extrinsic matrix is the inverse of the camera pose.
         Transform3d extrinsic = new Transform3d(Pose3d.kZero, cameraPose).inverse();
 
@@ -236,12 +241,20 @@ public class LynxArmVisualizer {
         return rvec;
     }
 
-    static MatOfPoint3f objectPts(List<Translation3d> tList) {
-        Point3[] pList = new Point3[tList.size()];
-        for (int i = 0; i < tList.size(); ++i) {
-            pList[i] = point(tList.get(i));
+    static MatOfPoint3f objectPts(List<Pose3d> tList) {
+        List<Point3> pList = new ArrayList<Point3>();
+        for (Pose3d p : tList) {
+            Translation3d t = p.getTranslation();
+            pList.add(point(t));
+            // also add a line representing the y axis
+            Translation3d yt = new Translation3d(0,1,0);
+            Translation3d a2 = new Translation3d(yt.rotateBy(p.getRotation()).toVector()).times(0.03);
+            pList.add(point(t.plus(a2)));
+            pList.add(point(t.minus(a2)));
+            // and reiterate the joint point so that the links look right
+            pList.add(point(t));
         }
-        return new MatOfPoint3f(pList);
+        return new MatOfPoint3f(pList.toArray(new Point3[0]));
     }
 
     static Point3 point(Translation3d t) {

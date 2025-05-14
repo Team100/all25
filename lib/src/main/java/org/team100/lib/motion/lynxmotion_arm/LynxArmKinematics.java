@@ -237,8 +237,8 @@ public class LynxArmKinematics {
                     // throw new IllegalArgumentException(
                     // String.format("end rotation %s not equal to swing %s",
                     // endRotation2d, swingAngle));
-                    // System.out.printf("end rotation %s not equal to swing %s for goal %s\n",
-                    //         endRotation2d, swingAngle, poseStr(end));
+                    System.out.printf("end rotation %s not equal to swing %s for goal %s\n",
+                            endRotation2d, swingAngle, poseStr(end));
                 }
             }
         }

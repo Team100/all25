@@ -33,7 +33,7 @@ public class MoveCommand extends Command {
 
     @Override
     public void initialize() {
-        m_start = m_arm.getPosition().p5();
+        m_start = m_arm.fix(m_arm.getPosition().p5());
         m_distance = m_start.getTranslation().getDistance(m_goal.getTranslation());
         m_profile.init(new Control100(), new Model100(m_distance, 0));
         m_timer.restart();
@@ -53,13 +53,14 @@ public class MoveCommand extends Command {
         Rotation3d rotTogo2 = measurement.getRotation().minus(m_goal.getRotation());
         double angleTogo2 = rotTogo2.getAngle();
         System.out.printf("to go %f angle %f measured %f \n", togo, angleTogo, angleTogo2);
-        if (togo < 0.001) {
+        if (togo < 0.001 && Math.abs(angleTogo2) < 0.001) {
             System.out.println("at goal");
             m_arm.setPosition(m_goal);
             return;
         }
         m_arm.setPosition(setpoint);
-        // System.out.printf("setpoint %s\n", poseStr(setpoint));
+        System.out.printf("setpoint %s\n", poseStr(setpoint));
+        System.out.printf("goal %s\n", poseStr(m_goal));
         LynxArmConfig measuredConfig = m_arm.getMeasuredConfig();
         System.out.printf("measured  config %s\n", measuredConfig);
         LynxArmConfig commandedConfig = m_arm.getInverse(setpoint);

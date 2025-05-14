@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 
 /**
@@ -29,6 +30,14 @@ public class CalibratedServo implements AutoCloseable {
      */
     private final AffineFunction m_transfer;
 
+    /**
+     * The actual servo, and the simulated servo, use integer pulse width
+     * microseconds to record the setpoint; this number ranges from something like
+     * 1000 to something like 2000, so the resolution is only 1000 steps or so. To
+     * avoid surprising the caller we'll just remember the last thing they told us.
+     */
+    private double m_setpoint;
+
     public CalibratedServo(int channel, Clamp clamp, AffineFunction transfer) {
         m_servo = new Servo(channel);
         m_clamp = clamp;
@@ -37,12 +46,18 @@ public class CalibratedServo implements AutoCloseable {
 
     /** Sets the angle in radians. */
     public void setAngle(double rad) {
+        m_setpoint = rad;
         m_servo.set(m_transfer.x(m_clamp.f(rad)));
     }
 
     /** Returns the current setpoint (not the actual measurement) in radians. */
     public double getAngle() {
-        return m_transfer.y(m_servo.get());
+        double measurement = m_transfer.y(m_servo.get());
+        if (!MathUtil.isNear(m_setpoint, measurement, 0.01)) {
+            // if we're somehow way out of sync, then get back in sync.
+            m_setpoint = measurement;
+        }
+        return m_setpoint;
     }
 
     @Override

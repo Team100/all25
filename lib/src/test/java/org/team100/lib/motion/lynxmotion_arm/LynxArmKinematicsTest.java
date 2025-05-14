@@ -10,14 +10,49 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmConfig;
 import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmPose;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
 
 public class LynxArmKinematicsTest {
     private static final double kDelta = 0.001;
+
+    @Test
+    void testDerived() {
+        // derive the axis directions
+        LynxArmKinematics k = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);
+        Pose3d end = new Pose3d(0.15, -0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
+        LynxArmConfig q = k.inverse(end);
+        System.out.printf("q %s\n", q);
+        LynxArmPose p = k.forward(q);
+        System.out.printf("p1 %s\n", poseStr(p.p1()));
+        System.out.printf("p2 %s\n", poseStr(p.p2()));
+        System.out.printf("p3 %s\n", poseStr(p.p3()));
+        System.out.printf("p4 %s\n", poseStr(p.p4()));
+        System.out.printf("p5 %s\n", poseStr(p.p5()));
+        // the difference in joint poses here produces a pure pitch
+        // which does not match my intuition (that the joint axis would be rotated)
+        Rotation3d r = p.p3().getRotation().minus(p.p2().getRotation());
+        System.out.printf("r %s\n", rotStr(r));
+        Translation3d t = new Translation3d(1, 0, 0);
+        Vector<N3> v2 = t.rotateBy(p.p2().getRotation()).toVector();
+        Vector<N3> v3 = t.rotateBy(p.p3().getRotation()).toVector();
+        Vector<N3> axis = Vector.cross(v2, v3);
+        Rotation3d axisR = new Rotation3d(axis);
+        System.out.printf("axisR %s\n", rotStr(axisR));
+        Translation3d tR = new Translation3d(axis);
+        System.out.printf("tR %s\n", tR);
+
+        // this way is simpler
+        Translation3d yt = new Translation3d(0,1,0);
+        Translation3d a2 = new Translation3d(yt.rotateBy(p.p3().getRotation()).toVector());
+        System.out.printf("a2 %s\n", a2);
+       
+    }
 
     @Test
     void testWrist() {
@@ -298,4 +333,8 @@ public class LynxArmKinematicsTest {
                 p.getRotation().getX(), p.getRotation().getY(), p.getRotation().getZ());
     }
 
+    String rotStr(Rotation3d r) {
+        return String.format("%f %f %f",
+                r.getX(), r.getY(), r.getZ());
+    }
 }

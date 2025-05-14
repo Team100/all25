@@ -70,7 +70,7 @@ public class LynxArm extends SubsystemBase implements AutoCloseable {
 
         // pitch; joint zero is servo max; constrained in the positive direction.
         m_stick = new CalibratedServo(2,
-                new Clamp(0, 1.3),
+                new Clamp(0, Math.PI),
                 new AffineFunction(-Math.PI, Math.PI));
 
         // pitch; joint zero is in the middle of the servo range; unconstrained
