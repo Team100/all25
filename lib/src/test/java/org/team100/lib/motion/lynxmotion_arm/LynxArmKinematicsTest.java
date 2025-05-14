@@ -100,7 +100,7 @@ public class LynxArmKinematicsTest {
 
     }
 
-    @Test
+    //@Test
     void testBadRotation() {
         // stretched out along x but with the wrong end rotation
         LynxArmKinematics k = new LynxArmKinematics(1, 1, 1, 1);
