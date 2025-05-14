@@ -34,7 +34,8 @@ public class MoveCommand extends Command {
     @Override
     public void initialize() {
         m_start = m_arm.fix(m_arm.getPosition().p5());
-        m_distance = m_start.getTranslation().getDistance(m_goal.getTranslation());
+        // this doesn't work for twist-only moves without the minimum
+        m_distance = Math.max(0.01, m_start.getTranslation().getDistance(m_goal.getTranslation()));
         m_profile.init(new Control100(), new Model100(m_distance, 0));
         m_timer.restart();
         System.out.printf("start %s\n", poseStr(m_start));

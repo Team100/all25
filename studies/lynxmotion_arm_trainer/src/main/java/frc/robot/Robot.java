@@ -38,8 +38,13 @@ public class Robot extends TimedRobot {
                 m_arm.moveTo(new Pose3d(0.15, 0.1, 0, new Rotation3d(0, Math.PI / 2, 0))));
         new Trigger(m_controller::getXButton).whileTrue(
                 m_arm.moveTo(new Pose3d(0.15, -0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0))));
+        // new Trigger(m_controller::getYButton).whileTrue(
+        // m_arm.moveTo(new Pose3d(0.15, -0.1, 0, new Rotation3d(0, Math.PI / 2, 0))));
+
+        // move only the twist axis here
         new Trigger(m_controller::getYButton).whileTrue(
-                m_arm.moveTo(new Pose3d(0.15, -0.1, 0, new Rotation3d(0, Math.PI / 2, 0))));
+                m_arm.moveTo(new Pose3d(0.2, 0, 0.1, new Rotation3d(Math.PI/2, 0, 0))));
+
         m_arm.setDefaultCommand(m_arm.moveHome());
     }
 
