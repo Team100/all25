@@ -7,8 +7,12 @@ import edu.wpi.first.wpilibj.Servo;
  * 
  * The WPI Servo class has the same sort of function inside, but it uses
  * constants (!). This class allows the transfer function to be specified.
+ * 
+ * Note that servos are proportional controllers and so they are "springy" in
+ * the presence of load, i.e. the actual position will not, in general, be
+ * exactly the commanded position.
  */
-public class CalibratedServo {
+public class CalibratedServo implements AutoCloseable {
     /**
      * TODO: allow the pulse width range to be specified
      */
@@ -34,6 +38,16 @@ public class CalibratedServo {
     /** Sets the angle in radians. */
     public void setAngle(double rad) {
         m_servo.set(m_transfer.x(m_clamp.f(rad)));
+    }
+
+    /** Returns the current setpoint (not the actual measurement) in radians. */
+    public double getAngle() {
+        return m_transfer.y(m_servo.get());
+    }
+
+    @Override
+    public void close() {
+        m_servo.close();
     }
 
 }

@@ -12,6 +12,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.Point;
 import org.opencv.core.Point3;
+import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmPose;
 
 import edu.wpi.first.cscore.OpenCvLoader;
 import edu.wpi.first.math.MatBuilder;
@@ -34,7 +35,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
  */
 public class LynxArmVisualizer {
     // Line width in the widget, in pixels.
-    private static final int LINE_WIDTH = 2;
+    private static final int LINE_WIDTH = 3;
     // Where the camera is pointing.
     private static final Translation3d CENTER = new Translation3d(0.25, 0, 0);
     // Reverses the rotation.
@@ -49,6 +50,8 @@ public class LynxArmVisualizer {
                     1, 0, 0)))
             .inverse();
 
+    private final LynxArm m_arm;
+
     private final Mechanism2d m_view;
     private final MechanismRoot2d m_root;
     private final MechanismLigament2d m_base;
@@ -59,8 +62,10 @@ public class LynxArmVisualizer {
     private double m_pitch;
     private double m_yaw;
 
-    public LynxArmVisualizer() {
+    public LynxArmVisualizer(LynxArm arm) {
         OpenCvLoader.forceStaticLoad();
+
+        m_arm = arm;
 
         // size matches the intrinsic matrix
         m_view = new Mechanism2d(100, 100);
@@ -84,7 +89,7 @@ public class LynxArmVisualizer {
     public void periodic() {
         // Orbit in yaw.
         // TODO: Also use POV to move around?
-        m_yaw += 0.01;
+        m_yaw += 0.001;
         paintAll();
     }
 
@@ -106,13 +111,23 @@ public class LynxArmVisualizer {
 
     void paintAll() {
         Pose3d m_cameraPose = getCameraPose();
-        List<Translation3d> tList2 = List.of(
-                new Translation3d(0, 0, 0),
-                new Translation3d(0, 0, 0.07),
-                new Translation3d(0.1, 0, 0.2),
-                new Translation3d(0.25, 0, 0.1),
-                new Translation3d(0.3, 0, 0.05));
-        paint(m_base, "arm", m_cameraPose, tList2, Color.kOrangeRed);
+
+        LynxArmPose p = m_arm.getPosition();
+        List<Translation3d> pList = List.of(
+                p.p1().getTranslation(),
+                p.p2().getTranslation(),
+                p.p3().getTranslation(),
+                p.p4().getTranslation(),
+                p.p5().getTranslation());
+        paint(m_base, "actual_arm", m_cameraPose, pList, Color.kOrangeRed);
+
+        // List<Translation3d> tList2 = List.of(
+        //         new Translation3d(0, 0, 0),
+        //         new Translation3d(0, 0, 0.07),
+        //         new Translation3d(0.1, 0, 0.2),
+        //         new Translation3d(0.25, 0, 0.1),
+        //         new Translation3d(0.3, 0, 0.05));
+        // paint(m_base, "arm", m_cameraPose, tList2, Color.kOrangeRed);
 
         List<Translation3d> tList3 = List.of(
                 new Translation3d(0, 0, 0),

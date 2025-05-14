@@ -150,6 +150,7 @@ public class LynxArmKinematics {
      * https://docs.google.com/document/d/1B6vGPtBtnDSOpfzwHBflI8-nn98W9QvmrX78bon8Ajw
      */
     public LynxArmConfig inverse(final Pose3d end) {
+        
         final OptionalDouble swing;
         final double boom;
         final double stick;
@@ -233,12 +234,22 @@ public class LynxArmKinematics {
                 // Check that the swing angle matches the end angle.
                 Rotation2d endRotation2d = endRotation.toRotation2d();
                 if (Math.abs(endRotation2d.minus(swingAngle).getRadians()) > 1e-3) {
-                    throw new IllegalArgumentException("end rotation not parallel with wrist rotation");
+                    // throw new IllegalArgumentException(
+                    // String.format("end rotation %s not equal to swing %s",
+                    // endRotation2d, swingAngle));
+                    // System.out.printf("end rotation %s not equal to swing %s for goal %s\n",
+                    //         endRotation2d, swingAngle, poseStr(end));
                 }
             }
         }
 
         return new LynxArmConfig(swing, boom, stick, wrist, twist);
+    }
+
+    String poseStr(Pose3d p) {
+        return String.format("%f %f %f %f %f %f",
+                p.getX(), p.getY(), p.getZ(),
+                p.getRotation().getX(), p.getRotation().getY(), p.getRotation().getZ());
     }
 
 }

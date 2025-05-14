@@ -11,11 +11,51 @@ import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmConfig;
 import org.team100.lib.motion.lynxmotion_arm.LynxArmKinematics.LynxArmPose;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 public class LynxArmKinematicsTest {
     private static final double kDelta = 0.001;
+
+    @Test
+    void testWrist() {
+        LynxArmKinematics k = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);
+
+        Pose3d start = new Pose3d(0.15, -0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
+        Pose3d end = new Pose3d(0.15, 0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
+        for (double s = 0; s <= 1; s += 0.1) {
+            Pose3d mid = start.interpolate(end, s);
+            // wrist should be pointing down the whole time
+            LynxArmConfig q = k.inverse(mid);
+            System.out.printf("q %s\n", poseStr(mid));
+        }
+    }
+
+    @Test
+    void testWrist2() {
+        // is the wrist logic right?
+        LynxArmKinematics k = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);
+
+        // this is from an error case
+        Pose3d p = new Pose3d(
+                new Translation3d(0.191993, 0.013100, 0.092421),
+                new Rotation3d(0.051100, 0.220814, -0.048971));
+
+        // this does indeed produce an error
+        LynxArmConfig q = k.inverse(p);
+
+        Translation2d translation = p.toPose2d().getTranslation();
+        Rotation3d endRotation = p.getRotation();
+
+        Rotation2d swingAngle = translation.getAngle();
+        System.out.printf("swing angle rad %f\n", swingAngle.getRadians());
+        Rotation3d swing3d = new Rotation3d(swingAngle);
+        Rotation3d swingRelative3d = endRotation.minus(swing3d);
+        System.out.printf("swing relative %s\n", swingRelative3d);
+
+    }
 
     @Test
     void testBadRotation() {
@@ -250,6 +290,12 @@ public class LynxArmKinematicsTest {
         } else {
             assertTrue(actual.twist().isEmpty());
         }
+    }
+
+    String poseStr(Pose3d p) {
+        return String.format("%f %f %f %f %f %f",
+                p.getX(), p.getY(), p.getZ(),
+                p.getRotation().getX(), p.getRotation().getY(), p.getRotation().getZ());
     }
 
 }
