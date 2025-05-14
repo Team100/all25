@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
@@ -19,7 +20,6 @@ import edu.wpi.first.cscore.OpenCvLoader;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -52,7 +52,7 @@ public class LynxArmVisualizer {
                     1, 0, 0)))
             .inverse();
 
-    private final LynxArm m_arm;
+    private final Supplier<LynxArmPose> m_arm;
 
     private final Mechanism2d m_view;
     private final MechanismRoot2d m_root;
@@ -64,7 +64,7 @@ public class LynxArmVisualizer {
     private double m_pitch;
     private double m_yaw;
 
-    public LynxArmVisualizer(LynxArm arm) {
+    public LynxArmVisualizer(Supplier<LynxArmPose> arm) {
         OpenCvLoader.forceStaticLoad();
 
         m_arm = arm;
@@ -114,7 +114,7 @@ public class LynxArmVisualizer {
     void paintAll() {
         Pose3d m_cameraPose = getCameraPose();
 
-        LynxArmPose p = m_arm.getPosition();
+        LynxArmPose p = m_arm.get();
         List<Pose3d> pList = List.of(
                 Pose3d.kZero,
                 p.p1(),
@@ -247,7 +247,7 @@ public class LynxArmVisualizer {
             Translation3d t = p.getTranslation();
             pList.add(point(t));
             // also add a line representing the y axis
-            Translation3d yt = new Translation3d(0,1,0);
+            Translation3d yt = new Translation3d(0, 1, 0);
             Translation3d a2 = new Translation3d(yt.rotateBy(p.getRotation()).toVector()).times(0.03);
             pList.add(point(t.plus(a2)));
             pList.add(point(t.minus(a2)));

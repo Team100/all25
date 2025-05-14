@@ -13,7 +13,7 @@ public class LynxArmVisualizerTest {
     @Test
     void testFoo() {
         try (LynxArm arm = new LynxArm()) {
-            LynxArmVisualizer foo = new LynxArmVisualizer(arm);
+            LynxArmVisualizer foo = new LynxArmVisualizer(arm::getPosition);
             // unrotated camera below the table
             Pose3d cameraPose = new Pose3d(0, 0, -4, new Rotation3d(0, 0, 0));
             // a cube centered on the origin
