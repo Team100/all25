@@ -61,10 +61,10 @@ public class LynxArmKinematicsTest {
         Pose3d start = new Pose3d(0.15, -0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
         Pose3d end = new Pose3d(0.15, 0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
         for (double s = 0; s <= 1; s += 0.1) {
-            Pose3d mid = start.interpolate(end, s);
+            Pose3d lerp = start.interpolate(end, s);
             // wrist should be pointing down the whole time
-            LynxArmConfig q = k.inverse(mid);
-            System.out.printf("q %s\n", poseStr(mid));
+            LynxArmConfig q = k.inverse(lerp);
+            System.out.printf("q %s\n", poseStr(lerp));
         }
     }
 

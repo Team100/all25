@@ -180,7 +180,7 @@ public class LynxArmKinematics {
 
         Rotation3d endRotation = end.getRotation();
         if (translation.getNorm() < 1e-3) {
-            // The end pose is above the swing axis.
+            System.out.println("The end pose is above the swing axis.");
 
             if (MathUtil.isNear(-Math.PI / 2, endRotation.getY(), 0.01)) {
                 // The wrist axis is pointing up.
@@ -227,9 +227,9 @@ public class LynxArmKinematics {
             twist = OptionalDouble.of(twist3d.getX());
 
             if (MathUtil.isNear(-Math.PI / 2, endRotation.getY(), 0.01)) {
-                // The wrist axis is straight up.
+                System.out.println("The wrist axis is straight up.");
             } else if (MathUtil.isNear(Math.PI / 2, endRotation.getY(), 0.01)) {
-                // The wrist axis is straight down, so twist is free
+                System.out.println("The wrist axis is straight down");
             } else {
                 // Check that the swing angle matches the end angle.
                 Rotation2d endRotation2d = endRotation.toRotation2d();
