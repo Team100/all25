@@ -6,6 +6,8 @@ import org.team100.lib.motion.drivetrain.kinodynamics.FieldRelativeVelocity;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +16,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N6;
 import edu.wpi.first.math.spline.PoseWithCurvature;
 
 /**
@@ -139,6 +143,11 @@ public class GeometryUtil {
         if (a.dy == 0.0)
             return Math.abs(a.dx);
         return Math.hypot(a.dx, a.dy);
+    }
+
+    public static double norm(Twist3d t) {
+        Vector<N6> v = VecBuilder.fill(t.dx,t.dy,t.dz,t.rx,t.ry,t.rz);
+        return v.norm();
     }
 
     public static double norm(ChassisSpeeds a) {
