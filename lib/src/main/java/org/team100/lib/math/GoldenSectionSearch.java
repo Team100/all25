@@ -45,6 +45,7 @@ public class GoldenSectionSearch {
         double fhigh = m_f.applyAsDouble(high);
 
         while (top - bottom > m_tolerance) {
+            // System.out.printf("%5.3f %5.3f\n", bottom, top);
             if (flow < fhigh) {
                 top = high;
                 high = low;

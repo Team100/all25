@@ -159,7 +159,6 @@ public class GoldenSectionSearchTest {
         Util.println("Golden section search on quaternion dot product");
         Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
         Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
-
     }
 
 }
