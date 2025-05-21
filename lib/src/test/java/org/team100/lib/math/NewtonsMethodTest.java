@@ -269,7 +269,7 @@ public class NewtonsMethodTest {
         assertEquals(2.094, x.get(1), 1e-3);
     }
 
-    /** 5 us per solve */
+    /** 3.7 us per solve */
     @Test
     void test7() {
         // performance
@@ -279,7 +279,7 @@ public class NewtonsMethodTest {
         NewtonsMethod<N2, N2> s = new NewtonsMethod<>(Nat.N2(), Nat.N2(), f, 1e-3, 10);
         Vector<N2> Xd = VecBuilder.fill(0, 1);
         Vector<N2> q0 = VecBuilder.fill(0, Math.PI / 2);
-        int iterations = 100000;
+        int iterations = 1000000;
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < iterations; ++i) {
             s.solve(q0, Xd);
@@ -288,6 +288,40 @@ public class NewtonsMethodTest {
         Util.println("Newton's method for RR arm");
         Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
         Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
+    }
 
+    @Test
+    void test62() {
+        // case from test3 but using the solver class
+        Function<Vector<N2>, Vector<N2>> f = q -> VecBuilder.fill(
+                Math.cos(q.get(0)) + Math.cos(q.get(0) + q.get(1)),
+                Math.sin(q.get(0)) + Math.sin(q.get(0) + q.get(1)));
+        NewtonsMethod<N2, N2> s = new NewtonsMethod<>(Nat.N2(), Nat.N2(), f, 1e-3, 10);
+        Vector<N2> Xd = VecBuilder.fill(0, 1);
+        Vector<N2> q0 = VecBuilder.fill(0, Math.PI / 2);
+        Vector<N2> x = s.solve2(q0, Xd);
+        assertEquals(0.524, x.get(0), 1e-3);
+        assertEquals(2.094, x.get(1), 1e-3);
+    }
+
+    /** 2.4 us per solve with "solve2" optimizations. */
+    @Test
+    void test72() {
+        // performance
+        Function<Vector<N2>, Vector<N2>> f = q -> VecBuilder.fill(
+                Math.cos(q.get(0)) + Math.cos(q.get(0) + q.get(1)),
+                Math.sin(q.get(0)) + Math.sin(q.get(0) + q.get(1)));
+        NewtonsMethod<N2, N2> s = new NewtonsMethod<>(Nat.N2(), Nat.N2(), f, 1e-3, 10);
+        Vector<N2> Xd = VecBuilder.fill(0, 1);
+        Vector<N2> q0 = VecBuilder.fill(0, Math.PI / 2);
+        int iterations = 1000000;
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < iterations; ++i) {
+            s.solve2(q0, Xd);
+        }
+        long finishTime = System.currentTimeMillis();
+        Util.println("Newton's method for RR arm");
+        Util.printf("ET (s): %6.3f\n", ((double) finishTime - startTime) / 1000);
+        Util.printf("ET/call (ns): %6.3f\n ", 1000000 * ((double) finishTime - startTime) / iterations);
     }
 }

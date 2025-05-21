@@ -24,6 +24,7 @@ public class NewtonsMethod<X extends Num, Y extends Num> {
     private final Nat<Y> m_ydim;
     private final Function<Vector<X>, Vector<Y>> m_f;
     private final double m_tolerance;
+    private final double m_toleranceSq;
     private final int m_iterations;
 
     public NewtonsMethod(
@@ -36,6 +37,7 @@ public class NewtonsMethod<X extends Num, Y extends Num> {
         m_ydim = ydim;
         m_f = f;
         m_tolerance = tolerance;
+        m_toleranceSq = tolerance * tolerance;
         m_iterations = iterations;
     }
 
@@ -43,13 +45,32 @@ public class NewtonsMethod<X extends Num, Y extends Num> {
         Vector<X> x = new Vector<>(initial.getStorage().copy());
         for (int i = 0; i < m_iterations; ++i) {
             Vector<Y> y = m_f.apply(x);
-            // TODO: allow a different metric to be specified here
-            double e = goal.minus(y).norm();
-            if (e < m_tolerance)
+            Vector<Y> error = goal.minus(y);
+            if (error.norm() < m_tolerance)
                 return x;
             Matrix<Y, X> j = NumericalJacobian100.numericalJacobian(m_xdim, m_ydim, m_f, x);
-            Vector<X> dx = new Vector<>(j.solve(goal.minus(y)));
+            Vector<X> dx = new Vector<>(j.solve(error));
             x = x.plus(dx);
+        }
+        return x;
+    }
+
+    /** Use single-sided Jacobian */
+    public Vector<X> solve2(Vector<X> initial, Vector<Y> goal) {
+        Vector<X> x = new Vector<>(initial.getStorage().copy());
+        for (int i = 0; i < m_iterations; ++i) {
+            Vector<Y> y = m_f.apply(x);
+            Vector<Y> error = goal.minus(y);
+            // using dot instead of norm saves the sqrt.
+            if (error.dot(error) < m_toleranceSq)
+                return x;
+            Matrix<Y, X> j = NumericalJacobian100.numericalJacobian2(m_xdim, m_ydim, m_f, x);
+            Vector<X> dx = new Vector<>(j.solve(error));
+            // mutate x directly here to save allocations
+            // x = x + dx
+            for (int ji = 0; ji < x.getNumRows(); ++ji) {
+                x.set(ji, 0, x.get(ji, 0) + dx.get(ji, 0));
+            }
         }
         return x;
     }
