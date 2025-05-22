@@ -27,6 +27,14 @@ import edu.wpi.first.math.numbers.N3;
  * need them someday. I haven't found the URDF visualizers (e.g.
  * https://mymodelrobot.appspot.com/5629499534213120) or simulators (e.g.
  * Gazebo) to be that useful.
+ * 
+ * TODO: normalize the "axis" vector or complain if not normalized.
+ * 
+ * There exists SRDF, which specifies, among other things, group states, e.g.
+ * home positions.  I think SRDF is dead, but representing states seems fine;
+ * the format is a map of joint names and values.
+ * 
+ * https://wiki.ros.org/srdf/review
  */
 public interface URDFModel {
 

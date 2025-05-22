@@ -45,7 +45,8 @@ public class URDFAL5D {
                                 new Limit(1000, 0, 3.14, 0.5),
                                 base_link,
                                 base_pan_link,
-                                new Pose3d(0, 0, 0.06731, new Rotation3d(0, 0, -1.57)),
+                                // rot z zero used to be -pi/2
+                                new Pose3d(0, 0, 0.06731, new Rotation3d(0, 0, 0)),
                                 VecBuilder.fill(0, 0, 1)),
                         new Joint(
                                 "shoulder_tilt",
@@ -61,7 +62,8 @@ public class URDFAL5D {
                                 new Limit(1000.0, 0.52, 3.14, 0.5),
                                 upper_arm_link,
                                 lower_arm_link,
-                                new Pose3d(0.14605, 0, 0, new Rotation3d(0, 3.14, 0)),
+                                // rot y zero used to be pi
+                                new Pose3d(0.14605, 0, 0, new Rotation3d(0, 0, 0)),
                                 VecBuilder.fill(0, -1, 0)),
                         new Joint(
                                 "wrist_tilt",
@@ -69,7 +71,8 @@ public class URDFAL5D {
                                 new Limit(1000.0, 0.0, 3.14, 0.5),
                                 lower_arm_link,
                                 link3,
-                                new Pose3d(0.187325, 0, 0, new Rotation3d(0, 1.57, 0)),
+                                // rot y zero used to be pi/2
+                                new Pose3d(0.187325, 0, 0, new Rotation3d(0, 0, 0)),
                                 VecBuilder.fill(0, -1, 0)),
                         new Joint(
                                 "wrist_rotate",
@@ -77,11 +80,13 @@ public class URDFAL5D {
                                 new Limit(1000.0, 0.0, 3.14, 0.5),
                                 link3,
                                 gripper,
-                                new Pose3d(0.034, 0, 0, new Rotation3d(-1.57, 0, 0)),
+                                // rot x zero used to be -pi/2
+                                new Pose3d(0.034, 0, 0, new Rotation3d(0, 0, 0)),
                                 VecBuilder.fill(1, 0, 0)),
                         new Joint(
                                 "center_point",
-                                JointType.fixed, null,
+                                JointType.fixed,
+                                null,
                                 gripper,
                                 tool_center_point,
                                 new Pose3d(0.055, 0, 0, new Rotation3d()), null)));

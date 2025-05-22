@@ -65,7 +65,6 @@ public class LynxArmKinematicsTest {
     @Test
     void testWrist() {
         LynxArmKinematics k = new LynxArmKinematics(0.07, 0.12, 0.15, 0.09);
-
         Pose3d start = new Pose3d(0.15, -0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
         Pose3d end = new Pose3d(0.15, 0.1, 0.1, new Rotation3d(0, Math.PI / 2, 0));
         for (double s = 0; s <= 1; s += 0.1) {
