@@ -1,4 +1,4 @@
-package org.team100.lib.motion.lynxmotion_arm;
+package org.team100.lib.motion.urdf;
 
 import java.util.List;
 

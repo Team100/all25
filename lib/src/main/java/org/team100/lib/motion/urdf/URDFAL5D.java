@@ -1,12 +1,12 @@
-package org.team100.lib.motion.lynxmotion_arm;
+package org.team100.lib.motion.urdf;
 
 import java.util.List;
 
-import org.team100.lib.motion.lynxmotion_arm.URDFModel.Joint;
-import org.team100.lib.motion.lynxmotion_arm.URDFModel.Joint.JointType;
-import org.team100.lib.motion.lynxmotion_arm.URDFModel.Joint.Limit;
-import org.team100.lib.motion.lynxmotion_arm.URDFModel.Link;
-import org.team100.lib.motion.lynxmotion_arm.URDFModel.Robot;
+import org.team100.lib.motion.urdf.URDFModel.Joint;
+import org.team100.lib.motion.urdf.URDFModel.Link;
+import org.team100.lib.motion.urdf.URDFModel.Robot;
+import org.team100.lib.motion.urdf.URDFModel.Joint.JointType;
+import org.team100.lib.motion.urdf.URDFModel.Joint.Limit;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,7 +19,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
  * https://groups.google.com/g/moveit-users/c/g3vaTDQSRcQ
  */
 public class URDFAL5D {
-    private static final Robot ROBOT;
+    public static final Robot ROBOT;
     static {
         Link base_link = new Link("base_link");
         Link base_pan_link = new Link("base_pan_link");
@@ -84,13 +84,6 @@ public class URDFAL5D {
                                 JointType.fixed, null,
                                 gripper,
                                 tool_center_point,
-                                new Pose3d(0.055, 0, 0, new Rotation3d()), null)
-
-                ));
-
+                                new Pose3d(0.055, 0, 0, new Rotation3d()), null)));
     }
 }
-
-/*
-
- */
