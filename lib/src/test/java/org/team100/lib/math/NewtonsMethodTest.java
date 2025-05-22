@@ -5,12 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
+import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.util.Util;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
@@ -198,6 +202,120 @@ public class NewtonsMethodTest {
         Vector<N2> q4 = q3.plus(dq4);
         assertEquals(0.524, q4.get(0), 1e-3);
         assertEquals(2.094, q4.get(1), 1e-3);
+    }
+
+    @Test
+    void test4Pose2() {
+        // Same as above but using pose2d. This does what GTSAM does, which is to
+        // optimize in the tangent space (pose->log->twist->vector) .
+        Function<Vector<N2>, Pose2d> f = q -> new Pose2d(
+                Math.cos(q.get(0)) + Math.cos(q.get(0) + q.get(1)),
+                Math.sin(q.get(0)) + Math.sin(q.get(0) + q.get(1)),
+                new Rotation2d(q.get(0) + q.get(1)));
+        Function<Vector<N2>, Vector<N3>> ff = (x) -> GeometryUtil.toVec(GeometryUtil.slog(f.apply(x)));
+
+        // desired position
+        // q0 should be pi/6 or 0.524, q1 should be 2pi/3 or 2.094
+        // the resulting end-angle is 5pi/6
+        Pose2d XXd = new Pose2d(0, 1, new Rotation2d(2.618));
+        Vector<N3> Xd = GeometryUtil.toVec(GeometryUtil.slog(XXd));
+        // initial joint angles
+        Vector<N2> q0 = VecBuilder.fill(0, Math.PI / 2);
+        // initial position
+        Pose2d XX0 = f.apply(q0);
+        assertEquals(1, XX0.getX(), 1e-9);
+        assertEquals(1, XX0.getY(), 1e-9);
+        Vector<N3> X0 = ff.apply(q0);
+        // jacobian at q0
+        Matrix<N3, N2> j0 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q0);
+        // note the jacobian is different since the "log" is in there.
+        assertEquals(0.215, j0.get(0, 0), 1e-3);
+        assertEquals(-0.571, j0.get(0, 1), 1e-3);
+        assertEquals(0.785, j0.get(1, 0), 1e-3);
+        assertEquals(0, j0.get(1, 1), 1e-3);
+        assertEquals(1, j0.get(2, 0), 1e-3);
+        assertEquals(1, j0.get(2, 1), 1e-3);
+        Vector<N2> dq1 = new Vector<>(j0.solve(Xd.minus(X0)));
+
+        Vector<N2> q1 = q0.plus(dq1);
+        assertEquals(0.438, q1.get(0), 1e-3);
+        assertEquals(2.183, q1.get(1), 1e-3);
+
+        // this is a bit better convergence than the case above
+        Matrix<N3, N2> j1 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q1);
+        Vector<N3> X1 = ff.apply(q1);
+        Vector<N2> dq2 = new Vector<>(j1.solve(Xd.minus(X1)));
+        Vector<N2> q2 = q1.plus(dq2);
+        assertEquals(0.524, q2.get(0), 1e-3);
+        assertEquals(2.095, q2.get(1), 1e-3);
+
+        // there in step 2
+        Matrix<N3, N2> j2 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q2);
+        Vector<N3> X2 = ff.apply(q2);
+        Vector<N2> dq3 = new Vector<>(j2.solve(Xd.minus(X2)));
+        Vector<N2> q3 = q2.plus(dq3);
+        assertEquals(0.524, q3.get(0), 1e-3);
+        assertEquals(2.094, q3.get(1), 1e-3);
+    }
+
+    @Test
+    void test4Pose2Transform2() {
+        // Same as above but using pose2d and transform2d for the forward f, so that
+        // it's more like an arbitrary kinematic chain.
+        // link lengths
+        final double l0 = 1;
+        final double l1 = 1;
+        Function<Double, Rotation2d> r = q -> new Rotation2d(q);
+        Function<Vector<N2>, Pose2d> f = q -> Pose2d.kZero
+                .transformBy(new Transform2d(0, 0, r.apply(q.get(0))))
+                .transformBy(new Transform2d(l0, 0, Rotation2d.kZero))
+                .transformBy(new Transform2d(0, 0, r.apply(q.get(1))))
+                .transformBy(new Transform2d(l1, 0, Rotation2d.kZero));
+
+        Function<Vector<N2>, Vector<N3>> ff = (x) -> GeometryUtil.toVec(GeometryUtil.slog(f.apply(x)));
+
+        // desired position
+        // q0 should be pi/6 or 0.524, q1 should be 2pi/3 or 2.094
+        // the resulting end-angle is 5pi/6
+        Pose2d XXd = new Pose2d(0, 1, new Rotation2d(2.618));
+        Vector<N3> Xd = GeometryUtil.toVec(GeometryUtil.slog(XXd));
+        // initial joint angles
+        Vector<N2> q0 = VecBuilder.fill(0, Math.PI / 2);
+        // initial position
+        Pose2d XX0 = f.apply(q0);
+        assertEquals(1, XX0.getX(), 1e-9);
+        assertEquals(1, XX0.getY(), 1e-9);
+        Vector<N3> X0 = ff.apply(q0);
+        // jacobian at q0
+        Matrix<N3, N2> j0 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q0);
+        // note the jacobian is different since the "log" is in there.
+        assertEquals(0.215, j0.get(0, 0), 1e-3);
+        assertEquals(-0.571, j0.get(0, 1), 1e-3);
+        assertEquals(0.785, j0.get(1, 0), 1e-3);
+        assertEquals(0, j0.get(1, 1), 1e-3);
+        assertEquals(1, j0.get(2, 0), 1e-3);
+        assertEquals(1, j0.get(2, 1), 1e-3);
+        Vector<N2> dq1 = new Vector<>(j0.solve(Xd.minus(X0)));
+
+        Vector<N2> q1 = q0.plus(dq1);
+        assertEquals(0.438, q1.get(0), 1e-3);
+        assertEquals(2.183, q1.get(1), 1e-3);
+
+        // this is a bit better convergence than the case above
+        Matrix<N3, N2> j1 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q1);
+        Vector<N3> X1 = ff.apply(q1);
+        Vector<N2> dq2 = new Vector<>(j1.solve(Xd.minus(X1)));
+        Vector<N2> q2 = q1.plus(dq2);
+        assertEquals(0.524, q2.get(0), 1e-3);
+        assertEquals(2.095, q2.get(1), 1e-3);
+
+        // there in step 2
+        Matrix<N3, N2> j2 = NumericalJacobian100.numericalJacobian(Nat.N2(), Nat.N3(), ff, q2);
+        Vector<N3> X2 = ff.apply(q2);
+        Vector<N2> dq3 = new Vector<>(j2.solve(Xd.minus(X2)));
+        Vector<N2> q3 = q2.plus(dq3);
+        assertEquals(0.524, q3.get(0), 1e-3);
+        assertEquals(2.094, q3.get(1), 1e-3);
     }
 
     @Test

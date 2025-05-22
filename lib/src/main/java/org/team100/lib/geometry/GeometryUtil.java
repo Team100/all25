@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N6;
 import edu.wpi.first.math.spline.PoseWithCurvature;
 
@@ -292,6 +293,9 @@ public class GeometryUtil {
         Quaternion q = zforward.getQuaternion();
         Quaternion q2 = new Quaternion(q.getW(), q.getZ(), -q.getX(), -q.getY());
         return new Rotation3d(q2);
+    }
 
+    public static Vector<N3> toVec(Twist2d twist) {
+        return VecBuilder.fill(twist.dx, twist.dy, twist.dtheta);
     }
 }

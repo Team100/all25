@@ -128,7 +128,7 @@ public class LynxArmKinematics {
     public LynxArmPose forward(LynxArmConfig joints) {
         Pose3d root = Pose3d.kZero;
         // the end of the swing axis, at the boom joint
-        // TODO: this is a little bit wierd, translating in z. Maybe use x and a
+        // TODO: this is a little bit weird, translating in z. Maybe use x and a
         // rotation?
         Pose3d boomRoot = root.transformBy(joints.swingT()).transformBy(z(m_swingHeight));
         // the end of the boom, at the stick joint
