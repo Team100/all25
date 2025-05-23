@@ -15,7 +15,7 @@ public class URDFUtilTest {
     void test1() {
         URDFModel.Robot m = URDFAL5D.ROBOT;
         URDFModel.Joint j = URDFUtil.getJoint(m, "center_point");
-        Transform3d t = URDFUtil.jointTransform(j, 1);
+        Transform3d t = URDFUtil.jointTransform(j, 1.0);
         // center point is just 5.5 cm down the x axis, fixed.
         assertEquals(0.055, t.getX(), 1e-3);
         assertEquals(0, t.getY(), 1e-3);
@@ -43,6 +43,19 @@ public class URDFUtilTest {
         verify(new Pose3d(0.33337, 0, 0.06731, new Rotation3d()), poses, "wrist_tilt");
         verify(new Pose3d(0.36737, 0, 0.06731, new Rotation3d()), poses, "wrist_rotate");
         verify(new Pose3d(0.42237, 0, 0.06731, new Rotation3d()), poses, "center_point");
+    }
+
+    @Test
+    void test3() {
+        URDFModel.Robot m = URDFAL5D.ROBOT;
+        Pose3d end = new Pose3d(0.15, 0.0, 0.1, new Rotation3d(0, 0, 0));
+        Map<String, Double> qMap = URDFUtil.inverse(m, "center_point", end);
+        assertEquals(5, qMap.size());
+        assertEquals(0, qMap.get("base_pan"), 1e-3);
+        assertEquals(0, qMap.get("shoulder_tilt"), 1e-3);
+        assertEquals(0, qMap.get("elbow_tilt"), 1e-3);
+        assertEquals(0, qMap.get("wrist_tilt"), 1e-3);
+        assertEquals(0, qMap.get("wrist_rotate"), 1e-3);
     }
 
     void verify(Pose3d expected, Map<String, Pose3d> poses, String name) {

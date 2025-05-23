@@ -65,6 +65,7 @@ public class NewtonsMethod<X extends Num, Y extends Num> {
             if (error.dot(error) < m_toleranceSq)
                 return x;
             Matrix<Y, X> j = NumericalJacobian100.numericalJacobian2(m_xdim, m_ydim, m_f, x);
+            System.out.printf("J %s\n", j);
             Vector<X> dx = new Vector<>(j.solve(error));
             // mutate x directly here to save allocations
             // x = x + dx

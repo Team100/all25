@@ -53,6 +53,7 @@ public class NumericalJacobian100 {
             double xi = x.get(i);
             x.set(i, 0, xi + kEpsilon);
             Vector<Y> Y1 = f.apply(x);
+            System.out.printf("Y1 - Y %s\n", Y1.minus(Y));
             // mutate Y1 here to save lots of allocations
             // dF = (f(x + epsilon) - f(x)) / epsilon
             for (int j = 0; j < ydim.getNum(); ++j) {
