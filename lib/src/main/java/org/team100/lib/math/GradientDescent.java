@@ -51,7 +51,7 @@ public class GradientDescent<R extends Num> {
             // current.get(0), current.get(1), fCurrent,
             // next.get(0), next.get(1), fNext);
             // System.out.printf("current %7.4f \n", fCurrent);
-            System.out.printf("%5.3f\n", current.get(0));
+            // System.out.printf("%5.3f\n", current.get(0));
             if (fNext > fCurrent) {
                 // if we go too far, turn down the step size and try again.
                 stepSize *= 0.5;
@@ -59,7 +59,7 @@ public class GradientDescent<R extends Num> {
             }
             double step = Math.abs(fNext - fCurrent);
             if (step < m_tolerance) {
-                System.out.println(i);
+                // System.out.println(i);
                 return next;
             }
             current = next;

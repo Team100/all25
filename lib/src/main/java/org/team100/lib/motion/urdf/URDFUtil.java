@@ -23,29 +23,34 @@ import edu.wpi.first.math.numbers.N6;
 /** Maybe some of this should go in the model itself. */
 public class URDFUtil {
 
-    /** All joint configurations. */
+    /**
+     * All joint configurations.
+     * TODO: add initial/current starting point.
+     */
     public static Map<String, Double> inverse(
             URDFModel.Robot robot,
             String jointName,
-            Pose3d x) {
+            Pose3d goal) {
         // there are 6 joints but one is "fixed"
         Nat<N5> configDim = Nat.N5();
         Nat<N6> twistDim = Nat.N6();
         Function<Vector<N5>, Vector<N6>> f = q -> {
-            System.out.println(q);
+            // print("q", q);
             // solve all of them
             Map<String, Double> qMap = qMap(robot, q);
             Map<String, Pose3d> p = forward(robot, qMap);
             // pick out the one we want
             Pose3d pose = p.get(jointName);
             Vector<N6> pv = GeometryUtil.toVec(GeometryUtil.slog(pose));
-            System.out.printf("pose %s pv %s\n", pose, pv);
+            // print(pose);
+            // print("pv", pv);
             return pv;
         };
-        NewtonsMethod<N5, N6> solver = new NewtonsMethod<>(configDim, twistDim, f, 1e-3, 10);
+        NewtonsMethod<N5, N6> solver = new NewtonsMethod<>(configDim, twistDim, f, 1e-3, 20);
+        // TODO: replace this
         Vector<N5> q0 = VecBuilder.fill(0.1, 0.1, 0.1, 0.1, 0.1);
-        Vector<N6> Xd = GeometryUtil.toVec(GeometryUtil.slog(x));
-        Vector<N5> q = solver.solve2(q0, Xd);
+        Vector<N6> goalVec = GeometryUtil.toVec(GeometryUtil.slog(goal));
+        Vector<N5> q = solver.solve2(q0, goalVec);
         return qMap(robot, q);
     }
 
@@ -119,21 +124,20 @@ public class URDFUtil {
     /**
      * Transform for a single joint.
      * q can be null, for fixed joints.
+     * first transform is the "origin" transform (in the parent frame), followed by
+     * the joint transform (rotation or translation).
      */
     public static Transform3d jointTransform(URDFModel.Joint joint, Double q) {
-        return switch (joint.type()) {
-            case revolute, continuous ->
-                new Transform3d(0, 0, 0, new Rotation3d(joint.axis(), q))
-                        .plus(new Transform3d(Pose3d.kZero, joint.origin()));
-            case prismatic ->
-                new Transform3d(new Translation3d(joint.axis().times(q)), Rotation3d.kZero)
-                        .plus(new Transform3d(Pose3d.kZero, joint.origin()));
-            case fixed ->
-                new Transform3d(Pose3d.kZero, joint.origin());
-            default ->
-                throw new UnsupportedOperationException();
+        // first translate along the link, in the parent frame
+        Transform3d linkTransform = new Transform3d(Pose3d.kZero, joint.origin());
+        // then rotate or translate as appropriate
+        Transform3d jointTransform = switch (joint.type()) {
+            case revolute, continuous -> new Transform3d(0, 0, 0, new Rotation3d(joint.axis(), q));
+            case prismatic -> new Transform3d(new Translation3d(joint.axis().times(q)), Rotation3d.kZero);
+            case fixed -> Transform3d.kZero;
+            default -> throw new UnsupportedOperationException();
         };
-
+        return linkTransform.plus(jointTransform);
     }
 
     public static URDFModel.Joint getJoint(URDFModel.Robot robot, String name) {
@@ -142,5 +146,19 @@ public class URDFUtil {
                 return joint;
         }
         return null;
+    }
+
+    static void print(Pose3d p) {
+        System.out.printf("x %6.3f y %6.3f z %6.3f r %6.3f p %6.3f y %6.3f\n",
+                p.getX(), p.getY(), p.getZ(),
+                p.getRotation().getX(), p.getRotation().getY(), p.getRotation().getZ());
+    }
+
+    static <R extends Num> void print(String name, Vector<R> v) {
+        System.out.printf("%s ", name);
+        for (int i = 0; i < v.getNumRows(); ++i) {
+            System.out.printf("%6.3f ", v.get(i));
+        }
+        System.out.println();
     }
 }

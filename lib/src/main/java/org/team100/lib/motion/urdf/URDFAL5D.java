@@ -17,6 +17,12 @@ import edu.wpi.first.math.geometry.Rotation3d;
  * 
  * The content came from here:
  * https://groups.google.com/g/moveit-users/c/g3vaTDQSRcQ
+ * 
+ * I flipped the joint axis signs so that none of them are inverted, since I
+ * find that easier to remember.
+ * 
+ * I changed the joint zeros so that the "arm zero" is the same as the
+ * rotation3d zero axis, i.e. +x.
  */
 public class URDFAL5D {
     public static final Robot ROBOT;
@@ -55,7 +61,8 @@ public class URDFAL5D {
                                 base_pan_link,
                                 upper_arm_link,
                                 new Pose3d(),
-                                VecBuilder.fill(0, -1, 0)),
+                                // rotation was -y
+                                VecBuilder.fill(0, 1, 0)),
                         new Joint(
                                 "elbow_tilt",
                                 JointType.revolute,
@@ -64,7 +71,8 @@ public class URDFAL5D {
                                 lower_arm_link,
                                 // rot y zero used to be pi
                                 new Pose3d(0.14605, 0, 0, new Rotation3d(0, 0, 0)),
-                                VecBuilder.fill(0, -1, 0)),
+                                // rot was -y
+                                VecBuilder.fill(0, 1, 0)),
                         new Joint(
                                 "wrist_tilt",
                                 JointType.revolute,
@@ -73,7 +81,8 @@ public class URDFAL5D {
                                 link3,
                                 // rot y zero used to be pi/2
                                 new Pose3d(0.187325, 0, 0, new Rotation3d(0, 0, 0)),
-                                VecBuilder.fill(0, -1, 0)),
+                                // rot was -y
+                                VecBuilder.fill(0, 1, 0)),
                         new Joint(
                                 "wrist_rotate",
                                 JointType.revolute,

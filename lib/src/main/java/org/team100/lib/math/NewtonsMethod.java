@@ -2,6 +2,7 @@ package org.team100.lib.math;
 
 import java.util.function.Function;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Num;
@@ -20,6 +21,11 @@ import edu.wpi.first.math.Vector;
  * https://hades.mech.northwestern.edu/images/7/7f/MR.pdf
  */
 public class NewtonsMethod<X extends Num, Y extends Num> {
+    /**
+     * Max change in estimate per iteration, to avoid overreacting.
+     * TODO: allow the caller to specify.
+     */
+    private static final double DX_LIMIT = 0.2;
     private final Nat<X> m_xdim;
     private final Nat<Y> m_ydim;
     private final Function<Vector<X>, Vector<Y>> m_f;
@@ -65,15 +71,33 @@ public class NewtonsMethod<X extends Num, Y extends Num> {
             if (error.dot(error) < m_toleranceSq)
                 return x;
             Matrix<Y, X> j = NumericalJacobian100.numericalJacobian2(m_xdim, m_ydim, m_f, x);
-            System.out.printf("J %s\n", j);
+            // System.out.printf("J %s\n", j);
             Vector<X> dx = new Vector<>(j.solve(error));
+            // limit dx
+            for (int xi = 0; xi < m_xdim.getNum(); ++xi) {
+                dx.set(xi, 0, MathUtil.clamp(dx.get(xi), -DX_LIMIT, DX_LIMIT));
+            }
+            // System.out.printf("%d ", i);
+            // System.out.printf("x ");
+            // print(x);
+            // System.out.printf("dx ");
+            // print(dx);
+            // System.out.printf("y ");
+            // print(y);
+            // System.out.println();
             // mutate x directly here to save allocations
             // x = x + dx
             for (int ji = 0; ji < x.getNumRows(); ++ji) {
                 x.set(ji, 0, x.get(ji, 0) + dx.get(ji, 0));
             }
+
         }
         return x;
     }
 
+    static <R extends Num> void print(Vector<R> v) {
+        for (int i = 0; i < v.getNumRows(); ++i) {
+            System.out.printf("%6.3f ", v.get(i));
+        }
+    }
 }
