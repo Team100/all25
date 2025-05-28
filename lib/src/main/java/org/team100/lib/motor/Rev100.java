@@ -82,8 +82,10 @@ public class Rev100 {
         conf.closedLoop.d(pid.getVelocityP(), ClosedLoopSlot.kSlot1);
         conf.closedLoop.iZone(pid.getPositionIZone(), ClosedLoopSlot.kSlot0);
         conf.closedLoop.iZone(pid.getVelocityIZone(), ClosedLoopSlot.kSlot1);
-        conf.closedLoop.velocityFF(0); // use arbitrary FF instead
-        conf.closedLoop.outputRange(-1, 1);
+        conf.closedLoop.velocityFF(0, ClosedLoopSlot.kSlot0); // use arbitrary FF instead
+        conf.closedLoop.velocityFF(0, ClosedLoopSlot.kSlot1); // use arbitrary FF instead
+        conf.closedLoop.outputRange(-1, 1, ClosedLoopSlot.kSlot0);
+        conf.closedLoop.outputRange(-1, 1, ClosedLoopSlot.kSlot1);
         crash(() -> motor.configure(conf, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters));
     }
 
