@@ -245,7 +245,6 @@ public class VisionDataProvider24 implements Glassy {
 
                 // this seems to always be 1. ????
                 m_log_lag.log(() -> Takt.get() - blipTimeSec);
-
                 estimateRobotPose(cameraId, blips, blipTimeSec, alliance.get());
             } else {
                 // this event is not for us

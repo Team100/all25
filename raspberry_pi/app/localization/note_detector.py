@@ -51,27 +51,26 @@ class NoteDetector(Interpreter):
         path = "objectVision/" + identity.value + "/" + str(camera_num)
         self._notes = network.get_note_sender(path + "/Rotation3d")
 
+    def undistort_points(self, points):
+        """Undistort image points using camera matrix and distortion coefficients."""
+        points = np.array(points, dtype=np.float32).reshape(-1, 1, 2)
+        undistorted = cv2.undistortPoints(points, self.mtx, self.dist, P=self.mtx)
+        return undistorted.reshape(-1, 2)
+
     def analyze(self, req: Request) -> None:
         with req.rgb() as buffer:
-
             img = cast(Mat, np.frombuffer(buffer, dtype=np.uint8))  # type:ignore
             img_bgr = img.reshape((self.height, self.width, 3))
 
-            # TODO: figure out the crop
-            # img_bgr : Mat = img_bgr[65:583, :, :]
-
-            img_bgr = cv2.undistort(img_bgr, self.mtx, self.dist)
             img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
             img_hsv = np.ascontiguousarray(img_hsv)
 
             img_range = cv2.inRange(img_hsv, self.object_lower, self.object_higher)
-            # img_range2 = cv2.inRange(img_hsv, self.object_lower2, self.object_higher2)
-            # img_range = cv2.bitwise_or(img_range1, img_range2)
-
+            
             floodfill = img_range.copy()
             mask = np.zeros((self.height + 2, self.width + 2), np.uint8)
             cv2.floodFill(floodfill, mask, [0, 0], [255])
-
+        
             floodfill_inv = cv2.bitwise_not(floodfill)
             img_floodfill = cv2.bitwise_or(img_range, floodfill_inv)
             median = cv2.medianBlur(img_range, 5)
@@ -80,19 +79,12 @@ class NoteDetector(Interpreter):
             )
 
             objects: list[Rotation3d] = []
+            points_to_undistort = []
+            contour_info = []
+            
             for c in contours:
-                # _, _, cnt_width, cnt_height = cv2.boundingRect(c)
-                # reject anything taller than it is wide
-                # if cnt_width / cnt_height < 1.2:
-                #     continue
-                # # reject big bounding box
-                # if cnt_width > width / 2 or cnt_height > height / 2:
-                #     continue
-
-                # if (cnt_height < 20 or cnt_width < 20) and cnt_width/cnt_height < 3:
-                #     continue
-
                 mmnts = cv2.moments(c)
+                
                 # reject too small (m00 is in pixels)
                 # TODO: make this adjustable at runtime
                 # to pick out distant targets
@@ -101,16 +93,24 @@ class NoteDetector(Interpreter):
 
                 cX = int(mmnts["m10"] / mmnts["m00"])
                 cY = int(mmnts["m01"] / mmnts["m00"])
+                
+                points_to_undistort.append([cX, cY])
+                contour_info.append((c, cX, cY))
 
-                yNormalized = (self.height / 2 - cY) / self.mtx[1, 1]
-                xNormalized = (self.width / 2 - cX) / self.mtx[0, 0]
+            if points_to_undistort:
+                # Undistort all points at once
+                undistorted_points = self.undistort_points(points_to_undistort)
+                
+                for (c, orig_cX, orig_cY), (undist_cX, undist_cY) in zip(contour_info, undistorted_points):
+                    yNormalized = (self.height / 2 - undist_cY) / self.mtx[1, 1]
+                    xNormalized = (self.width / 2 - undist_cX) / self.mtx[0, 0]
 
-                initial = np.array([1, 0, 0], dtype=np.float64)
-                final = np.array([1, xNormalized, yNormalized], dtype=np.float64)
-                rotation = Rotation3d(initial=initial, final=final)
-
-                objects.append(rotation)
-                self.display.note(img_bgr, c, cX, cY)
+                    initial = np.array([1, 0, 0], dtype=np.float64)
+                    final = np.array([1, xNormalized, yNormalized], dtype=np.float64)
+                    rotation = Rotation3d(initial=initial, final=final)
+                    
+                    objects.append(rotation)
+                    self.display.note(img_bgr, c, orig_cX, orig_cY)
 
             delay_us = req.delay_us()
 
@@ -121,5 +121,4 @@ class NoteDetector(Interpreter):
             fps = req.fps()
             self.display.text(img_bgr, f"FPS {fps:2.0f}", (5, 65))
             self.display.text(img_bgr, f"delay (ms) {delay_us/1000:2.0f}", (5, 105))
-            #self.display.put(img_range)
             self.display.put(img_bgr)
