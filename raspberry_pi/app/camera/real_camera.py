@@ -265,7 +265,8 @@ class RealCamera(Camera):
                 "AnalogueGain": 8,
                 # "AeEnable": False,
                 # 3/29/25: JOEL changed AUTO EXPOSURE to TRUE here because we're OUTSIDE.
-                "AeEnable": True,
+                "AeEnable": False,
+                "ExposureTime": RealCamera.__get_exposure_time(identity),
                 "AwbEnable": False,
                 # limit auto: go as fast as possible but no slower than 30fps
                 # without a duration limit, we slow down in the dark, which is fine
