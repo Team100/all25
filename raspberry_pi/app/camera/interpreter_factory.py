@@ -6,6 +6,7 @@ from app.camera.interpreter_protocol import Interpreter
 from app.config.identity import Identity
 from app.dashboard.fake_display import FakeDisplay
 from app.dashboard.real_display import RealDisplay
+from app.localization.combined_detector import CombinedDetector
 from app.localization.note_detector import NoteDetector
 from app.localization.tag_detector import TagDetector
 from app.network.network import Network
@@ -48,12 +49,10 @@ class InterpreterFactory:
                 | Identity.LEFTAMP
                 | Identity.SHOOTER
                 | Identity.GLOBAL_GAME_PIECE 
-                | Identity.CORAL_RIGHT
-                | Identity.CORAL_LEFT
+                
                 | Identity.SWERVE_RIGHT
                 | Identity.SWERVE_LEFT
                 | Identity.FUNNEL
-                | Identity.DEV
                 | Identity.DIST_TEST
                 | Identity.JOELS_TEST
             ):
@@ -63,6 +62,16 @@ class InterpreterFactory:
                     "tag" + str(camera_num),
                 )
                 return TagDetector(identity, cam, camera_num, display, network)
+            case (Identity.DEV| Identity.CORAL_RIGHT| Identity.CORAL_LEFT):
+                display = RealDisplay(
+                    int(scale * size.width),
+                    int(scale * size.height),
+                    "combined" + str(camera_num),
+                )
+                # GREEN TARGET VALUES
+                object_lower = np.array((40, 50, 100))
+                object_higher = np.array((70, 255, 255))
+                return CombinedDetector(identity, cam, camera_num, display, network, object_lower, object_higher)
             case _:
                 display = FakeDisplay()
                 return TagDetector(identity, cam, camera_num, display, network)

@@ -30,7 +30,7 @@ public class Robot extends TimedRobot100 implements Debug {
     private final DoubleLogger m_log_ds_MatchTime;
     private final BooleanLogger m_log_ds_AutonomousEnabled;
     private final BooleanLogger m_log_ds_TeleopEnabled;
-    private final BooleanLogger m_log_ds_FMSAttached;
+    private final BooleanLogger m_log_ds_FMSAttached;   
     private final IntLogger m_log_key_list_size;
     private final DoubleLogger m_log_voltage;
     private final JvmLogger m_jvmLogger;
