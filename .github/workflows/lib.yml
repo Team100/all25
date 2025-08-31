@@ -7,8 +7,12 @@ name: Lib Unit Tests
 on:
   push:
     branches: [ main ]
+    path-ignores:
+      - 'studies/**'
   pull_request:
     branches: [ main ]
+    path-ignores:
+      - 'studies/**'
 
 permissions:
   checks: write

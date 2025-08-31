@@ -1,6 +1,14 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
+    id "org.sonarqube" version "6.3.1.5724"
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "Team100_all25"
+    property "sonar.organization", "team100"
+  }
 }
 
 sourceSets {

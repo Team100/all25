@@ -3,6 +3,7 @@ package org.team100.svg.planning;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.geom.Ellipse2D;
 
 import javax.swing.JFrame;
@@ -21,26 +22,32 @@ import edu.wpi.first.math.trajectory.Trajectory;
 public class OperationExecutor {
     private final XYSeriesCollection dataset = new XYSeriesCollection();
     private final XYPlot xy;
+    private final boolean headless;
 
     private int seriesIdx = 0;
 
     public OperationExecutor() {
-        JFrame frame = new JFrame("Chart Collection");
+        headless = GraphicsEnvironment.isHeadless();
+        
         JFreeChart chart = ChartFactory.createScatterPlot("Plotter", "X", "Y", dataset);
         chart.removeLegend();
         xy = (XYPlot) chart.getPlot();
         xy.setBackgroundPaint(Color.WHITE);
-        ChartPanel panel = new ChartPanel(chart) {
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(500, 500);
-            }
-        };
-        frame.add(panel, BorderLayout.EAST);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        
+        if (!headless) {
+            JFrame frame = new JFrame("Chart Collection");
+            ChartPanel panel = new ChartPanel(chart) {
+                @Override
+                public Dimension getPreferredSize() {
+                    return new Dimension(500, 500);
+                }
+            };
+            frame.add(panel, BorderLayout.EAST);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            frame.pack();
+            frame.setVisible(true);
+        }
     }
 
     public void executeTrajectory(boolean penDown, Trajectory trajectory, double dtSec) {

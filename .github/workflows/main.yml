@@ -7,8 +7,12 @@ name: Comp Unit Tests
 on:
   push:
     branches: [ main ]
+    path-ignores:
+      - 'studies/**'
   pull_request:
     branches: [ main ]
+    path-ignores:
+      - 'studies/**'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
