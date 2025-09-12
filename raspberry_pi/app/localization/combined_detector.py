@@ -87,7 +87,7 @@ class CombinedDetector(Interpreter):
         undistorted = cv2.undistortPoints(points, self.mtx, self.dist, P=self.mtx)
         return undistorted.reshape(-1, 2)
 
-    def detect_tags(self, img_bgr: Mat, delay_us: int) -> None:
+    def detect_tags(self, img_bgr, img_display, delay_us: int) -> None:
         """Detect AprilTags in a BGR image by converting to grayscale internally."""
         # Convert BGR to grayscale for tag detection
         img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -115,11 +115,11 @@ class CombinedDetector(Interpreter):
             homography = result_item.getHomography()
             pose = self.estimator.estimate(homography, corners)
             blips.append(Blip24(result_item.getId(), pose))
-            self.display.tag(img_bgr, result_item, pose)  # Display on BGR image
+            self.display.tag(img_display, result_item, pose)  # Display on BGR image
 
         self._blips.send(blips, delay_us)
 
-    def detect_objects(self, img_bgr: Mat, delay_us: int) -> None:
+    def detect_objects(self, img_bgr: Mat, img_display: Mat, delay_us: int) -> None:
         """Detect colored objects in a BGR image."""
         img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
         img_hsv = np.ascontiguousarray(img_hsv)
@@ -165,7 +165,7 @@ class CombinedDetector(Interpreter):
                 rotation = Rotation3d(initial=initial, final=final)
                 
                 objects.append(rotation)
-                self.display.note(img_bgr, c, orig_cX, orig_cY)
+                self.display.note(img_display, c, orig_cX, orig_cY)
 
         self._notes.send(objects, delay_us)
 
@@ -176,17 +176,17 @@ class CombinedDetector(Interpreter):
             # Get BGR image for both detectors
             img_bgr = cast(Mat, np.frombuffer(buffer_rgb, dtype=np.uint8))
             img_bgr = img_bgr.reshape((self.height, self.width, 3))
-
+            img_display = img_bgr.copy()
             delay_us = req.delay_us()
             
             # Run both detectors on the BGR image
-            self.detect_tags(img_bgr, delay_us)
-            self.detect_objects(img_bgr, delay_us)
+            self.detect_tags(img_bgr, img_display,delay_us)
+            self.detect_objects(img_bgr,img_display, delay_us)
 
             # Network flush and display
             self.network.flush()
             
             fps = req.fps()
-            self.display.text(img_bgr, f"FPS {fps:2.0f}", (5, 65))
-            self.display.text(img_bgr, f"delay (ms) {delay_us/1000:2.0f}", (5, 105))
-            self.display.put(img_bgr)
+            self.display.text(img_display, f"FPS {fps:2.0f}", (5, 65))
+            self.display.text(img_display, f"delay (ms) {delay_us/1000:2.0f}", (5, 105))
+            self.display.put(img_display)
