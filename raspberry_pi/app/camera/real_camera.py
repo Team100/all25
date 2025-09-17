@@ -253,7 +253,7 @@ class RealCamera(Camera):
             },
             main={
                 "format": "RGB888",
-                "size": (size.width, size.height),
+                "size": (size.width, size.height),  
             },
             lores={
                 "format": "YUV420",
@@ -267,6 +267,8 @@ class RealCamera(Camera):
                 "AeEnable": False,
                 "AwbEnable": False,
                 "ExposureTime": RealCamera.__get_exposure_time(identity),
+                # The first comment is the red gain, second is blue gain, values are from testing in the new gym lighting
+                "ColourGains": (1.2,2.2),
                 # limit auto: go as fast as possible but no slower than 30fps
                 # without a duration limit, we slow down in the dark, which is fine
                 # "FrameDurationLimits": (5000, 33333),  # 41 fps
@@ -286,6 +288,7 @@ class RealCamera(Camera):
         #         return 500  # from b5879a6, works with GS cameras
         #     case _:
         #         return 500  # the old value, works with v2 cameras
+
 
     @staticmethod
     def __mtx_from_model(identity: Identity, model: Model) -> Mat:
@@ -312,8 +315,8 @@ class RealCamera(Camera):
                     # this is for the 3.2 mm lens
                 return np.array(
                 [
-                    [935, 0, 728], # 728 = 1456/2, not actually in the center
-                    [0, 935, 544], # 544 = 1088/2, actually center :-)
+                    [990, 0, 728], # 728 = 1456/2, not actually in the center
+                    [0, 990, 544], # 544 = 1088/2, actually center :-)
                     [0, 0, 1],
                 ]
                 )
@@ -355,8 +358,8 @@ class RealCamera(Camera):
                 return np.array([[-0.003, 0.04, 0, 0]])
             case Model.GS:
                 # if identity == Identity.DIST_TEST:
-# this is for the 3.2 mm lens from 2/1/25 testing
-                return np.array([[-0.374, 0.1, 0, 0]])
+# this is for the 3.2 mm lens from 9/15/25 testing
+                return np.array([[-0.27, 0.1, 0, 0]])
 # this is for the 6 mm lens from 2/1/25 testing
                 #     return np.array([[-0.510, 0.335, 0, 0]])
                 # else:

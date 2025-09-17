@@ -18,6 +18,13 @@ class InterpreterFactory:
     def get(
         identity: Identity, cam: Camera, camera_num: int, network: Network
     ) -> Interpreter:
+        # GREEN TARGET VALUES
+        # object_lower = np.array((40, 50, 100))
+        # object_higher = np.array((70, 255, 255))
+        # get these values from changing the range till the object is highlighted
+        # WHITE TARGET VALUES
+        object_lower = np.array((0, 0, 150))
+        object_higher = np.array((255, 100, 255))
         size = cam.get_size()
         if identity == Identity.DIST_TEST:
             scale = 1.0
@@ -34,10 +41,6 @@ class InterpreterFactory:
                     int(scale * size.height),
                     "note" + str(camera_num),
                 )
-
-                # GREEN TARGET VALUES
-                object_lower = np.array((40, 50, 100))
-                object_higher = np.array((70, 255, 255))
                 return NoteDetector(
                     identity,
                     cam,
@@ -64,26 +67,12 @@ class InterpreterFactory:
                     "tag" + str(camera_num),
                 )
                 return TagDetector(identity, cam, camera_num, display, network)
-            case (Identity.DEV):
-                display = RealDisplay(
-                    int(scale * size.width),
-                    int(scale * size.height),
-                    "tag" + str(camera_num),
-                )
-                # return NullDetector(cam, display)
-                return TagDetector(identity, cam, camera_num, display, network, False)
-            case (
-                # Identity.DEV
-                Identity.CORAL_RIGHT
-                  | Identity.CORAL_LEFT):
+            case (Identity.DEV|Identity.DEV2| Identity.CORAL_RIGHT| Identity.CORAL_LEFT):
                 display = RealDisplay(
                     int(scale * size.width),
                     int(scale * size.height),
                     "combined" + str(camera_num),
                 )
-                # GREEN TARGET VALUES
-                object_lower = np.array((40, 50, 100))
-                object_higher = np.array((70, 255, 255))
                 return CombinedDetector(identity, cam, camera_num, display, network, object_lower, object_higher)
             case _:
                 display = FakeDisplay()

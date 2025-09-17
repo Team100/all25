@@ -41,7 +41,8 @@ class CameraFactory:
                 | Identity.SWERVE_RIGHT
                 | Identity.SWERVE_LEFT
                 | Identity.FUNNEL
-                | Identity.DEV # has one v2 camera at the moment
+                | Identity.DEV 
+                | Identity.DEV2 
                 | Identity.DIST_TEST
                 | Identity.JOELS_TEST
             ):

@@ -36,6 +36,8 @@ class Identity(Enum):
     LEFTAMP = "100000004e0a1fb9"
     GAME_PIECE = "1000000013c9c96c"
     DIST_TEST = "cf206cd348d20bdd"
+    DEV2 = "4230a96261f3ab90"
+
 
     # camera-bot cameras
     GLOBAL_GAME_PIECE = "d44649628c20d4d4"
