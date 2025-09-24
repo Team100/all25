@@ -29,8 +29,6 @@ import org.team100.frc2025.Wrist.AlgaeGrip;
 import org.team100.frc2025.Wrist.AlgaeGripDefaultCommand;
 import org.team100.frc2025.Wrist.AlgaeOuttakeGroup;
 import org.team100.frc2025.Wrist.CoralTunnel;
-import org.team100.frc2025.Wrist.Manipulator;
-import org.team100.frc2025.Wrist.ManipulatorDefault;
 import org.team100.frc2025.Wrist.Wrist2;
 import org.team100.frc2025.Wrist.WristDefaultCommand;
 import org.team100.lib.async.Async;
@@ -92,7 +90,6 @@ import org.team100.lib.trajectory.timing.TimingConstraintFactory;
 import org.team100.lib.util.Util;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -101,7 +98,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 
 /**
  * Try to keep this container clean; if there's something you want to keep but
@@ -146,8 +142,6 @@ public class RobotContainer {
     private final Runnable m_targetSimulator;
     private final Runnable m_combinedViz;
     private final Targets m_targets;
-    private final Manipulator m_manipulator;
-
 
     public RobotContainer(TimedRobot100 robot) throws IOException {
         final AsyncFactory asyncFactory = new AsyncFactory(robot);
@@ -179,7 +173,6 @@ public class RobotContainer {
             m_grip = new AlgaeGrip(logger, m_tunnel);
             m_climber = new Climber(logger, 15);
             m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
-            m_manipulator = new Manipulator(logger);
         } else {
             m_swerveKinodynamics = SwerveKinodynamicsFactory.get();
             m_tunnel = new CoralTunnel(elevatorLog, 3, 25);
@@ -188,7 +181,6 @@ public class RobotContainer {
             m_wrist = new Wrist2(elevatorLog, 9, m_elevator::getSetpointAcceleration);
             m_funnel = new Funnel(logger, 23, 14);
             m_climber = new Climber(logger, 18);
-            m_manipulator = new Manipulator(logger);
         }
 
         m_combinedViz = new CombinedVisualization(m_elevator, m_wrist);
@@ -370,7 +362,6 @@ public class RobotContainer {
         m_wrist.setDefaultCommand(new WristDefaultCommand(elevatorLog, m_wrist, m_elevator, m_grip, m_drive));
         m_grip.setDefaultCommand(new AlgaeGripDefaultCommand(m_grip));
         m_funnel.setDefaultCommand(new FunnelDefault(m_funnel));
-        m_manipulator.setDefaultCommand(new ManipulatorDefault(m_manipulator));
 
         // DRIVER BUTTONS
         final HolonomicProfile profile = HolonomicProfile.get(driveLog, m_swerveKinodynamics, 1, 0.5, 1, 0.2);
@@ -472,10 +463,6 @@ public class RobotContainer {
 
         whileTrue(operatorControl::activateManualClimb,
                 m_climber.manual(operatorControl::manualClimbSpeed));
-        whileTrue(driverControl::a, m_manipulator.run(m_manipulator::intakeAlgae));
-        whileTrue(driverControl::b, m_manipulator.run(m_manipulator::intakeSideways));
-        whileTrue(driverControl::x, m_manipulator.run(m_manipulator::intakeCenter));
-        
 
         // this is for developing autopick.
         new FloorPickSetup(
