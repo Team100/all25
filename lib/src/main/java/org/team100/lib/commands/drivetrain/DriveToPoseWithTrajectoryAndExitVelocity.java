@@ -2,6 +2,7 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.List;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.geometry.GlobalVelocityR3;
@@ -16,13 +17,12 @@ import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Drive to a specified pose and exit velocity, using a trajectory constructed
  * at initialization time.
  */
-public class DriveToPoseWithTrajectoryAndExitVelocity extends Command {
+public class DriveToPoseWithTrajectoryAndExitVelocity extends MoveAndHold {
     private final Pose2d m_goal;
     private final GlobalVelocityR3 m_endVelocity;
     private final SwerveDriveSubsystem m_drive;
@@ -87,6 +87,7 @@ public class DriveToPoseWithTrajectoryAndExitVelocity extends Command {
 
     }
 
+    @Override
     public boolean isDone() {
         if (m_referenceController == null)
             return true;

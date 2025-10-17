@@ -2,6 +2,7 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.function.Supplier;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.Level;
@@ -15,12 +16,11 @@ import org.team100.lib.state.ModelR3;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Drive to a pose supplied at initialization, using a profile.
  */
-public class DriveToTranslationFacingWithProfile extends Command {
+public class DriveToTranslationFacingWithProfile extends MoveAndHold {
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final HolonomicProfile m_profile;
@@ -70,10 +70,7 @@ public class DriveToTranslationFacingWithProfile extends Command {
         m_referenceController = null;
     }
 
-    /**
-     * Done if we've started and we're finished.
-     * Note calling isDone after end will yield false.
-     */
+    @Override
     public boolean isDone() {
         return m_referenceController != null && m_referenceController.isDone();
     }

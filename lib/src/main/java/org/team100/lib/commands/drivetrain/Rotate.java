@@ -1,5 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -11,14 +12,13 @@ import org.team100.lib.state.ModelR3;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Rotate in place to the specified angle.
  * 
  * This is probably only useful for testing.
  */
-public class Rotate extends Command  {
+public class Rotate extends MoveAndHold {
     /** For testing */
     private static final boolean DEBUG = false;
     private static final double THETA_TOLERANCE_RAD = 0.02;
@@ -77,6 +77,7 @@ public class Rotate extends Command  {
             m_referenceController.execute();
     }
 
+    @Override
     public boolean isDone() {
         return m_referenceController != null && m_referenceController.isDone();
     }

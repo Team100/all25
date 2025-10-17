@@ -10,7 +10,7 @@ import java.util.function.DoubleConsumer;
 
 import org.team100.frc2025.CalgamesArm.CalgamesMech;
 import org.team100.frc2025.grip.Manipulator;
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveToTranslationFacingWithProfile;
 import org.team100.lib.commands.drivetrain.DriveWithTrajectoryFunction;
@@ -77,9 +77,9 @@ public class LolipopAuto {
                 logger, drive, controller, profile,
                 () -> FieldConstants.makeGoal(ScoringLevel.L4, ReefPoint.C));
 
-        Done toL4 = mech.homeToL4();
-        Done toL4second = mech.homeToL4();
-        Done toL4third = mech.homeToL4();
+        MoveAndHold toL4 = mech.homeToL4();
+        MoveAndHold toL4second = mech.homeToL4();
+        MoveAndHold toL4third = mech.homeToL4();
         ParallelRaceGroup eject = manipulator.centerEject().withTimeout(0.3);
         ParallelRaceGroup ejectsecond = manipulator.centerEject().withTimeout(0.3);
         ParallelRaceGroup ejectthird = manipulator.centerEject().withTimeout(0.3);

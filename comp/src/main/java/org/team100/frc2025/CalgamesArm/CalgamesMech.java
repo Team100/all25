@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.config.ElevatorUtil.ScoringLevel;
 import org.team100.lib.config.Feedforward100;
 import org.team100.lib.config.Identity;
@@ -395,7 +395,7 @@ public class CalgamesMech extends SubsystemBase implements Music {
      * to push against gravity (making that squealing noise).
      */
     public Command profileHomeAndThenRest() {
-        Done f = FollowJointProfiles.slowFast(this, HOME);
+        MoveAndHold f = FollowJointProfiles.slowFast(this, HOME);
         return sequence(
                 // f.until(f::isDone),
                 f.withTimeout(2),
@@ -470,7 +470,7 @@ public class CalgamesMech extends SubsystemBase implements Music {
     /// TRAJECTORY COMMANDS
     ///
 
-    public Done homeToL1() {
+    public MoveAndHold homeToL1() {
         return m_transit.endless("homeToL1",
                 HolonomicPose2d.make(m_home, -1.5),
                 HolonomicPose2d.make(L2, -1.7));
@@ -483,7 +483,7 @@ public class CalgamesMech extends SubsystemBase implements Music {
                 HolonomicPose2d.make(m_home, 1.5));
     }
 
-    public Done homeToL2() {
+    public MoveAndHold homeToL2() {
         return m_transit.endless("homeToL2",
                 HolonomicPose2d.make(m_home, 1.5),
                 HolonomicPose2d.make(L2, 1.5));
@@ -495,7 +495,7 @@ public class CalgamesMech extends SubsystemBase implements Music {
                 HolonomicPose2d.make(m_home, -1.5));
     }
 
-    public Done homeToL3() {
+    public MoveAndHold homeToL3() {
         return m_transit.endless("homeToL3",
                 HolonomicPose2d.make(m_home, 0.8),
                 HolonomicPose2d.make(L3, 1.5));
@@ -507,7 +507,7 @@ public class CalgamesMech extends SubsystemBase implements Music {
                 HolonomicPose2d.make(m_home, -2.3));
     }
 
-    public Done homeToL4() {
+    public MoveAndHold homeToL4() {
         return m_transit.endless("homeToL4",
                 HolonomicPose2d.make(m_home, 0.1),
                 HolonomicPose2d.make(L4, 1.5));
@@ -566,13 +566,13 @@ public class CalgamesMech extends SubsystemBase implements Music {
     /**
      * Move to the barge scoring position and hold there forever
      */
-    public Done homeToBarge() {
+    public MoveAndHold homeToBarge() {
         return m_transit.endless("homeToBarge",
                 HolonomicPose2d.make(m_home, 0),
                 HolonomicPose2d.make(BARGE, -1));
     }
 
-    public Done bargeToHome() {
+    public MoveAndHold bargeToHome() {
         return m_transit.endless("bargeToHome",
                 HolonomicPose2d.make(BARGE, 2.5),
                 HolonomicPose2d.make(m_home, Math.PI));

@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import org.team100.frc2025.CalgamesArm.CalgamesMech;
 import org.team100.frc2025.grip.Manipulator;
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.LoggerFactory;
@@ -29,7 +29,7 @@ public class ScoreL4Smart {
             Supplier<Pose2d> goal) {
         DriveToPoseWithProfile toReef = new DriveToPoseWithProfile(
                 logger, m_drive, controller, profile, goal);
-        Done toL4 = mech.homeToL4();
+        MoveAndHold toL4 = mech.homeToL4();
         Command eject = manipulator.centerEject().withTimeout(0.5);
         return sequence(
                 parallel(

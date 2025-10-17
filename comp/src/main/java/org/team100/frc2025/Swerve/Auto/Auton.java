@@ -18,7 +18,7 @@ import java.util.function.DoubleConsumer;
 
 import org.team100.frc2025.CalgamesArm.CalgamesMech;
 import org.team100.frc2025.grip.Manipulator;
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.commands.drivetrain.DriveToPoseWithProfile;
 import org.team100.lib.commands.drivetrain.DriveWithTrajectoryFunction;
 import org.team100.lib.config.ElevatorUtil.ScoringLevel;
@@ -99,7 +99,7 @@ public record Auton(LoggerFactory logger, CalgamesMech mech,
         DriveToPoseWithProfile toReef = new DriveToPoseWithProfile(
                 logger, drive, controller, profile,
                 () -> FieldConstants.makeGoal(position, point));
-        Done toL4 = mech.homeToL4();
+        MoveAndHold toL4 = mech.homeToL4();
         return parallel(
                 runOnce(() -> heedRadiusM.accept(HEED_RADIUS_M)),
                 toReef,

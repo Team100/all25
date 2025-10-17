@@ -417,7 +417,7 @@ public class Robot extends TimedRobot100 {
                                 SwerveControllerFactory.pick(driveLog), autoProfile)
                         //         .withName("Floor Pick")
                         // .until(m_manipulator::hasCoral);
-                        ;
+                        
 
         // Sideways intake for L1
         whileTrue(buttons::red2,

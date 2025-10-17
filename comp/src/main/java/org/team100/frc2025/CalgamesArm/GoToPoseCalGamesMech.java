@@ -2,7 +2,7 @@ package org.team100.frc2025.CalgamesArm;
 
 import java.util.List;
 
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.reference.TrajectoryReferenceR3;
 import org.team100.lib.trajectory.Trajectory100;
@@ -11,7 +11,7 @@ import org.team100.lib.trajectory.TrajectoryPlanner;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 /** Starting pose is current pose, with the fixed starting course. */
-public class GoToPoseCalGamesMech extends Done {
+public class GoToPoseCalGamesMech extends MoveAndHold {
 
     private final CalgamesMech m_subsystem;
     private final HolonomicPose2d m_goal;

@@ -1,5 +1,6 @@
 package org.team100.lib.commands.drivetrain;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.motion.drivetrain.DriveSubsystemInterface;
@@ -7,15 +8,13 @@ import org.team100.lib.reference.TrajectoryReferenceR3;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
-import edu.wpi.first.wpilibj2.command.Command;
-
 /**
  * Follow a single trajectory.
  * 
  * The starting point is fixed, obviously, so this command can
  * only be used from that point. It's kinda just for testing.
  */
-public class DriveWithTrajectory extends Command  {
+public class DriveWithTrajectory extends MoveAndHold {
     private final DriveSubsystemInterface m_drive;
     private final SwerveController m_controller;
     private final Trajectory100 m_trajectory;
@@ -51,6 +50,7 @@ public class DriveWithTrajectory extends Command  {
         m_referenceController.execute();
     }
 
+    @Override
     public boolean isDone() {
         return m_referenceController.isDone();
     }

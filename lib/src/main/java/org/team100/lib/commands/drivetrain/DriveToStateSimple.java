@@ -1,13 +1,12 @@
 package org.team100.lib.commands.drivetrain;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
 import org.team100.lib.reference.ConstantReferenceR3;
 import org.team100.lib.reference.ReferenceR3;
 import org.team100.lib.state.ModelR3;
-
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Given a swerve state, drive there using only the feedback in the holonomic
@@ -18,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * impose feasibility constraints or coordinate the axes, so it tries
  * to use the setpoint generator to moderate the output.
  */
-public class DriveToStateSimple extends Command {
+public class DriveToStateSimple extends MoveAndHold {
     private final SwerveController m_controller;
     private final SwerveDriveSubsystem m_drive;
     private final ReferenceR3 m_reference;
@@ -45,6 +44,7 @@ public class DriveToStateSimple extends Command {
         m_referenceController.execute();
     }
 
+    @Override
     public boolean isDone() {
         return m_referenceController.isDone();
     }

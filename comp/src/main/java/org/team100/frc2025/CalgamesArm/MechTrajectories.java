@@ -3,7 +3,7 @@ package org.team100.frc2025.CalgamesArm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.lib.commands.Done;
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.geometry.HolonomicPose2d;
 import org.team100.lib.motion.kinematics.AnalyticalJacobian;
 import org.team100.lib.motion.kinematics.ElevatorArmWristKinematics;
@@ -59,14 +59,14 @@ public class MechTrajectories extends Command {
     public Command terminal(String name, HolonomicPose2d start, HolonomicPose2d end) {
 
         /** Use the start course and ignore the start pose for now */
-        Done f = new GoToPoseCalGamesMech(m_subsystem, start.course(), end, m_planner);
+        MoveAndHold f = new GoToPoseCalGamesMech(m_subsystem, start.course(), end, m_planner);
         return f
                 .until(f::isDone)
                 .withName(name);
     }
 
     /** A command that goes from the start to the end and then waits forever. */
-    public Done endless(String name, HolonomicPose2d start, HolonomicPose2d end) {
+    public MoveAndHold endless(String name, HolonomicPose2d start, HolonomicPose2d end) {
 
         /** Use the start course and ignore the start pose for now */
         GoToPoseCalGamesMech c = new GoToPoseCalGamesMech(

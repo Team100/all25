@@ -3,6 +3,7 @@ package org.team100.lib.commands.drivetrain;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.FieldLogger;
@@ -14,7 +15,6 @@ import org.team100.lib.state.ModelR3;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Drive to the supplied target using a profile, so that the target is at
@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * If the supplier starts delivering empties (e.g. the camera loses sight of the
  * goal), retain the old goal (forever).
  */
-public class DriveToTranslationWithRelativeBearing extends Command {
+public class DriveToTranslationWithRelativeBearing extends MoveAndHold {
     /** verrrrrry loose. */
     private static final double THETA_TOLERANCE = 0.1;
     private final FieldLogger.Log m_field_log;
@@ -53,7 +53,6 @@ public class DriveToTranslationWithRelativeBearing extends Command {
         addRequirements(m_drive);
     }
 
-
     @Override
     public void initialize() {
         updateGoal();
@@ -76,6 +75,7 @@ public class DriveToTranslationWithRelativeBearing extends Command {
                 m_goal.getRotation().getRadians() });
     }
 
+    @Override
     public boolean isDone() {
         return m_referenceController != null && m_referenceController.isDone();
     }

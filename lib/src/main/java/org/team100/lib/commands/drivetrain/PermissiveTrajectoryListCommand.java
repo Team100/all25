@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.motion.drivetrain.SwerveDriveSubsystem;
@@ -12,14 +13,13 @@ import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.visualization.TrajectoryVisualization;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Similar to TrajectoryListCommand, but each trajectory starts wherever the
  * robot ends up, instead of at the end of the previous trajectory. This is
  * essentially like ignoring cross-track error.
  */
-public class PermissiveTrajectoryListCommand extends Command  {
+public class PermissiveTrajectoryListCommand extends MoveAndHold {
     private final SwerveDriveSubsystem m_drive;
     private final SwerveController m_controller;
     private final List<Function<Pose2d, Trajectory100>> m_trajectories;
@@ -68,6 +68,7 @@ public class PermissiveTrajectoryListCommand extends Command  {
             m_referenceController.execute();
     }
 
+    @Override
     public boolean isDone() {
         return m_referenceController == null || m_referenceController.isDone();
     }

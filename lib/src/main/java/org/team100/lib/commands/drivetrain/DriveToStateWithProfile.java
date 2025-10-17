@@ -2,6 +2,7 @@ package org.team100.lib.commands.drivetrain;
 
 import java.util.function.Supplier;
 
+import org.team100.lib.commands.MoveAndHold;
 import org.team100.lib.controller.drivetrain.ReferenceController;
 import org.team100.lib.controller.drivetrain.SwerveController;
 import org.team100.lib.logging.FieldLogger;
@@ -10,13 +11,11 @@ import org.team100.lib.profile.HolonomicProfile;
 import org.team100.lib.reference.ProfileReferenceR3;
 import org.team100.lib.state.ModelR3;
 
-import edu.wpi.first.wpilibj2.command.Command;
-
 /**
  * Drive to the supplied goal state using a profile. Allows the goal to change
  * after initialization.
  */
-public class DriveToStateWithProfile extends Command {
+public class DriveToStateWithProfile extends MoveAndHold {
     private final FieldLogger.Log m_field_log;
     private final Supplier<ModelR3> m_goals;
     private final SwerveDriveSubsystem m_drive;
@@ -73,10 +72,7 @@ public class DriveToStateWithProfile extends Command {
         m_goal = null;
     }
 
-    /**
-     * Done if we've started and we're finished.
-     * Note calling isDone after end will yield false.
-     */
+    @Override
     public boolean isDone() {
         return m_referenceController != null && m_referenceController.isDone();
     }
