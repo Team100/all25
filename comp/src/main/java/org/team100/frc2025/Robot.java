@@ -415,8 +415,9 @@ public class Robot extends TimedRobot100 {
                         FloorPickSequence.get(
                                 fieldLog, m_drive, m_targets,
                                 SwerveControllerFactory.pick(driveLog), autoProfile)
-                                .withName("Floor Pick")
-                        .until(m_manipulator::hasCoral);
+                        //         .withName("Floor Pick")
+                        // .until(m_manipulator::hasCoral);
+                        ;
 
         // Sideways intake for L1
         whileTrue(buttons::red2,
