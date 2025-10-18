@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 public class TargetLocalizer {
     private static final boolean DEBUG = false;
+    private static final double OBJ_GROUND_OFFSET = 0.12;
 
     /**
      * Converts camera-relative sights to field relative translations.
@@ -93,7 +94,7 @@ public class TargetLocalizer {
      */
     public static Optional<Translation2d> sightInRobotCoordsToTranslation2d(
             Transform3d robotRelativeSight) {
-        double h = robotRelativeSight.getZ();
+        double h = robotRelativeSight.getZ()-OBJ_GROUND_OFFSET;
         if (h <= 0) {
             if (DEBUG) {
                 System.out.printf("camera is below the floor %f\n", h);
