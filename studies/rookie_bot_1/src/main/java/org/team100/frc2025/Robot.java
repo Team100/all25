@@ -41,7 +41,6 @@ public class Robot extends TimedRobot100 {
     private static final double MAX_OMEGA_RAD_S = 3.0;
     private final TankDrive m_drive;
     private final TrajectoryVisualization m_trajectoryViz;
-    private final Command m_auton;
     private final Autons m_autons;
     private final SolidIndicator m_indicator;
     private final Alerts m_alerts;
@@ -90,10 +89,7 @@ public class Robot extends TimedRobot100 {
 
         m_autons = new Autons(logger, m_drive, m_trajectoryViz);
 
-        m_auton = sequence(
-                m_drive.run(() -> m_drive.setVelocity(1, 0)).withTimeout(1),
-                m_drive.run(() -> m_drive.setVelocity(1, 1)).withTimeout(1),
-                m_drive.run(() -> m_drive.setVelocity(1, 0)).withTimeout(1));
+
     }
 
     @Override

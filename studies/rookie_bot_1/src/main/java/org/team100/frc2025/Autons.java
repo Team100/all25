@@ -56,20 +56,24 @@ public class Autons {
         m_trajectoryViz = trajectoryViz;
 
         m_autonChooser = new AutonChooser();
+
         m_autonChooser.add("red left",
-                new AnnotatedCommand(redLeft(), Alliance.Red, MechanicalMayhem2025.START_RED_LEFT));
+                new AnnotatedCommand(redLeft(), Alliance.Red, Field.START_RED_LEFT));
+
         m_autonChooser.add("blue left",
-                new AnnotatedCommand(print("blue left"), Alliance.Blue, MechanicalMayhem2025.START_BLUE_LEFT));
+                new AnnotatedCommand(blueLeft(), Alliance.Blue, Field.START_BLUE_LEFT));
 
         m_autonChooser.add("red center",
-                new AnnotatedCommand(print("red center"), Alliance.Red, MechanicalMayhem2025.START_RED_CENTER));
+                new AnnotatedCommand(redCenter(), Alliance.Red, Field.START_RED_CENTER));
+
         m_autonChooser.add("blue center",
-                new AnnotatedCommand(print("blue center"), Alliance.Blue, MechanicalMayhem2025.START_BLUE_CENTER));
+                new AnnotatedCommand(blueCenter, Alliance.Blue, Field.START_BLUE_CENTER));
 
         m_autonChooser.add("red right",
-                new AnnotatedCommand(redRight(), Alliance.Red, MechanicalMayhem2025.START_RED_RIGHT));
+                new AnnotatedCommand(redRight(), Alliance.Red, Field.START_RED_RIGHT));
+
         m_autonChooser.add("blue right",
-                new AnnotatedCommand(print("blue right"), Alliance.Blue, MechanicalMayhem2025.START_BLUE_RIGHT));
+                new AnnotatedCommand(blueRight, Alliance.Blue, Field.START_BLUE_RIGHT));
 
     }
 
@@ -77,16 +81,7 @@ public class Autons {
         return m_autonChooser.get();
     }
 
-    private Command redLeft() {
-        LoggerFactory log = m_log.name("red left");
-        TrajectoryPlanner planner = new TrajectoryPlanner(
-                List.of(new ConstantConstraint(log, 1, 1)));
-        FixedTrajectory cmd = new FixedTrajectory(
-                () -> redLeftTrajectory(planner),
-                m_drive,
-                m_trajectoryViz);
-        return cmd.until(cmd::isDone).withName("red left");
-    }
+
 
     private Trajectory100 redLeftTrajectory(TrajectoryPlanner planner) {
         // delaying construction allows trajectory constraints to be mutable
@@ -102,10 +97,21 @@ public class Autons {
         LoggerFactory log = m_log.name("red right");
         ToPoseWithTrajectory cmd = new ToPoseWithTrajectory(
                 log,
-                MechanicalMayhem2025.START_RED_RIGHT
-                        .plus(new Transform2d(1, 1, Rotation2d.kCCW_90deg)),
+                Field.START_RED_RIGHT
+                        .plus(new Transform2d(1, 1, Rotation2d.kCW_90deg)),
                 m_drive,
                 m_trajectoryViz);
         return cmd.until(cmd::isDone).withName("red right");
     }
 }
+
+    private Command redLeft() {
+        LoggerFactory log = m_log.name("red left");
+        TrajectoryPlanner planner = new TrajectoryPlanner(
+                List.of(new ConstantConstraint(log, 1, 1)));
+        FixedTrajectory cmd = new FixedTrajectory(
+                () -> redLeftTrajectory(planner),
+                m_drive,
+                m_trajectoryViz);
+        return cmd.until(cmd::isDone).withName("red left");
+    }
