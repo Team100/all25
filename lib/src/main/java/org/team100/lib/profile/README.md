@@ -1,17 +1,23 @@
 # lib.profile
 
-This package supports "profiled" motion.
+This package supports "profiled" motion, which means movement from
+a specified starting state to an ending state, as fast as possible,
+within some constraints on velocity and acceleration.
 
-There are two types, "timed" and "incremental."
+There are several subpackages:
 
-A `TimedProfile` is like a trajectory: you precalculate the schedule
-and then sample it.
+* `timed` profiles are like a trajectories: you precalculate the schedule
+and then sample it.  The main interface is `TimedProfile`.
 
-An `IncrementalProfile` has no state: you give it the current setpoint,
-and it produces the next one.  There are also a few methods related to
-coordinating multiple profiles so that they arrive at their goals
-at the same time, e.g. for controlling multiple-DOF mechanisms,
-or the drivetrain.
+* `incremental` profiles have no state: you give one the current setpoint,
+and it produces the next one.  The main interface is `IncrementalProfile`.
 
-There is also `HolonomicProfile` which simply wraps (any) set of
-three `IncrementalProfile`s and coordinates them.
+* `se2` provides multi-dimensional profiled motion in the SE(2) manifold
+(x, y, theta), useful for navigation or planar motion.  The main
+interface is `ProfileSE2`.  
+
+* `roadrunner` is a direct translation of the RoadRunner Kotlin classes,
+which are used in the `timed` package.
+
+
+
