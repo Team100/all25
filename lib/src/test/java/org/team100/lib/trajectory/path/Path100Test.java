@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.GeometryUtil;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.trajectory.path.spline.HolonomicSpline;
 
@@ -24,20 +24,20 @@ class Path100Test {
             GeometryUtil.fromDegrees(60),
             GeometryUtil.fromDegrees(90));
 
-    private static final List<Pose2dWithMotion> WAYPOINTS = Arrays.asList(
-            new Pose2dWithMotion(
+    private static final List<PathPoint> WAYPOINTS = Arrays.asList(
+            new PathPoint(
                     WaypointSE2.irrotational(
                             new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                     0, 0),
-            new Pose2dWithMotion(
+            new PathPoint(
                     WaypointSE2.irrotational(
                             new Pose2d(24, 0, new Rotation2d(Math.toRadians(30))), 0, 1.2),
                     0, 0),
-            new Pose2dWithMotion(
+            new PathPoint(
                     WaypointSE2.irrotational(
                             new Pose2d(36, 12, new Rotation2d(Math.toRadians(60))), 0, 1.2),
                     0, 0),
-            new Pose2dWithMotion(
+            new PathPoint(
                     WaypointSE2.irrotational(
                             new Pose2d(60, 12, new Rotation2d(Math.toRadians(90))), 0, 1.2),
                     0, 0));
@@ -66,10 +66,10 @@ class Path100Test {
         assertEquals(WAYPOINTS.get(2), traj.getPoint(2));
         assertEquals(WAYPOINTS.get(3), traj.getPoint(3));
 
-        assertEquals(HEADINGS.get(0), traj.getPoint(0).getPose().pose().getRotation());
-        assertEquals(HEADINGS.get(1), traj.getPoint(1).getPose().pose().getRotation());
-        assertEquals(HEADINGS.get(2), traj.getPoint(2).getPose().pose().getRotation());
-        assertEquals(HEADINGS.get(3), traj.getPoint(3).getPose().pose().getRotation());
+        assertEquals(HEADINGS.get(0), traj.getPoint(0).waypoint().pose().getRotation());
+        assertEquals(HEADINGS.get(1), traj.getPoint(1).waypoint().pose().getRotation());
+        assertEquals(HEADINGS.get(2), traj.getPoint(2).waypoint().pose().getRotation());
+        assertEquals(HEADINGS.get(3), traj.getPoint(3).waypoint().pose().getRotation());
     }
 
 }

@@ -23,6 +23,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.team100.lib.trajectory.path.Path100;
 import org.team100.lib.trajectory.path.spline.HolonomicSpline;
+import org.team100.lib.trajectory.path.spline.SplineToVectorSeries;
 
 public class TrajectoryPlotter {
     public static final boolean SHOW = false;

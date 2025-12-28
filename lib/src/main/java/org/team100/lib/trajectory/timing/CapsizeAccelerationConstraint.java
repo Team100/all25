@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.tuning.Mutable;
@@ -48,14 +48,14 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
      * If the curvature is zero, this will return infinity.
      */
     @Override
-    public double maxV(final Pose2dWithMotion state) {
+    public double maxV(final PathPoint state) {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         // abs is used here to make sure sqrt is happy.
         return Math.sqrt(Math.abs(m_maxCentripetalAccel * m_scale.getAsDouble() * radius));
     }
 
     @Override
-    public double maxAccel(Pose2dWithMotion state, double velocity) {
+    public double maxAccel(PathPoint state, double velocity) {
         double alongsq = alongSq(state, velocity);
         if (alongsq < 0) {
             if (DEBUG)
@@ -66,7 +66,7 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         double alongsq = alongSq(state, velocity);
         if (alongsq < 0) {
             if (DEBUG)
@@ -90,7 +90,7 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
      * so
      * along = sqrt(total^2 - v^4/r^2)
      */
-    private double alongSq(Pose2dWithMotion state, double velocity) {
+    private double alongSq(PathPoint state, double velocity) {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         double actualCentripetalAccel = velocity * velocity / radius;
         if (DEBUG)

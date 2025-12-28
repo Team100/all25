@@ -11,7 +11,7 @@ import org.team100.lib.geometry.AccelerationSE2;
 import org.team100.lib.geometry.DeltaSE2;
 import org.team100.lib.geometry.GlobalVelocityR2;
 import org.team100.lib.geometry.WaypointSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.localization.Blip24;
 import org.team100.lib.logging.primitive.PrimitiveLogger;
@@ -451,7 +451,7 @@ public class LoggerFactory {
 
     public class TimedStateLogger {
         private final Level m_level;
-        private final Pose2dWithMotionLogger m_pose2dWithMotionLogger;
+        private final PathPointLogger m_pose2dWithMotionLogger;
         private final DoubleLogger m_timeLogger;
         private final DoubleLogger m_velocityLogger;
         private final DoubleLogger m_accelLogger;
@@ -501,28 +501,28 @@ public class LoggerFactory {
         return new PoseWithCurvatureLogger(level, leaf);
     }
 
-    public class Pose2dWithMotionLogger {
+    public class PathPointLogger {
         private final Level m_level;
         private final Pose2dLogger m_pose2dLogger;
         private final Rotation2dLogger m_rotation2dLogger;
 
-        Pose2dWithMotionLogger(Level level, String leaf) {
+        PathPointLogger(Level level, String leaf) {
             m_level = level;
             m_pose2dLogger = pose2dLogger(level, join(leaf, "pose"));
             m_rotation2dLogger = rotation2dLogger(level, join(leaf, "course"));
         }
 
-        public void log(Supplier<Pose2dWithMotion> vals) {
+        public void log(Supplier<PathPoint> vals) {
             if (!allow(m_level))
                 return;
-            WaypointSE2 val = vals.get().getPose();
+            WaypointSE2 val = vals.get().waypoint();
             m_pose2dLogger.log(val::pose);
             m_rotation2dLogger.log(() -> val.course().toRotation());
         }
     }
 
-    public Pose2dWithMotionLogger pose2dWithMotionLogger(Level level, String leaf) {
-        return new Pose2dWithMotionLogger(level, leaf);
+    public PathPointLogger pose2dWithMotionLogger(Level level, String leaf) {
+        return new PathPointLogger(level, leaf);
     }
 
     public class Twist2dLogger {

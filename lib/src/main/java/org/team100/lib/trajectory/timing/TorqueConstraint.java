@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,24 +46,24 @@ public class TorqueConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxV(Pose2dWithMotion state) {
+    public double maxV(PathPoint state) {
         // Do not constrain velocity.
         return Double.POSITIVE_INFINITY;
     }
 
     @Override
     public double maxAccel(
-            Pose2dWithMotion state, double velocityM_S) {
+            PathPoint state, double velocityM_S) {
         return getA(state);
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         return -getA(state);
     }
 
-    private double getA(Pose2dWithMotion state) {
-        WaypointSE2 pose = state.getPose();
+    private double getA(PathPoint state) {
+        WaypointSE2 pose = state.waypoint();
         Rotation2d course = pose.course().toRotation();
         // acceleration unit vector
         Translation2d u = new Translation2d(1.0, course);

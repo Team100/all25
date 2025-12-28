@@ -4,8 +4,12 @@ import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
 
-/** WaypointSE2 with heading rate and curvature. */
-public class Pose2dWithMotion {
+/**
+ * Represents a point on a path in SE(2).
+ * 
+ * Includes a WaypointSE2, heading rate, and curvature.
+ */
+public class PathPoint {
     private static final boolean DEBUG = false;
     /** Pose and course. */
     private final WaypointSE2 m_waypoint;
@@ -19,7 +23,7 @@ public class Pose2dWithMotion {
      * @param headingRateRad_M change in heading, per meter traveled
      * @param curvatureRad_M   change in course per meter traveled.
      */
-    public Pose2dWithMotion(
+    public PathPoint(
             WaypointSE2 waypoint,
             double headingRateRad_M,
             double curvatureRad_M) {
@@ -28,7 +32,7 @@ public class Pose2dWithMotion {
         m_curvatureRad_M = curvatureRad_M;
     }
 
-    public WaypointSE2 getPose() {
+    public WaypointSE2 waypoint() {
         return m_waypoint;
     }
 
@@ -51,8 +55,8 @@ public class Pose2dWithMotion {
      * 
      * Not a constant-twist arc.
      */
-    public Pose2dWithMotion interpolate(Pose2dWithMotion other, double x) {
-        return new Pose2dWithMotion(
+    public PathPoint interpolate(PathPoint other, double x) {
+        return new PathPoint(
                 GeometryUtil.interpolate(m_waypoint, other.m_waypoint, x),
                 MathUtil.interpolate(m_headingRateRad_M, other.m_headingRateRad_M, x),
                 Math100.interpolate(m_curvatureRad_M, other.m_curvatureRad_M, x));
@@ -65,18 +69,18 @@ public class Pose2dWithMotion {
      * 
      * Always non-negative.
      */
-    public double distanceCartesian(Pose2dWithMotion other) {
+    public double distanceCartesian(PathPoint other) {
         return Metrics.translationalDistance(m_waypoint.pose(), other.m_waypoint.pose());
     }
 
     public boolean equals(Object other) {
-        if (!(other instanceof Pose2dWithMotion)) {
+        if (!(other instanceof PathPoint)) {
             if (DEBUG)
                 System.out.println("wrong type");
             return false;
         }
 
-        Pose2dWithMotion p2dwc = (Pose2dWithMotion) other;
+        PathPoint p2dwc = (PathPoint) other;
         if (!m_waypoint.equals(p2dwc.m_waypoint)) {
             if (DEBUG)
                 System.out.println("wrong waypoint");

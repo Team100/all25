@@ -1,10 +1,9 @@
-package org.team100.lib.trajectory;
+package org.team100.lib.trajectory.path.spline;
 
 import java.util.List;
 
 import org.jfree.data.xy.VectorSeries;
 import org.jfree.data.xy.XYSeries;
-import org.team100.lib.trajectory.path.spline.HolonomicSpline;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,7 +27,8 @@ public class SplineToVectorSeries {
         VectorSeries series = new VectorSeries(name);
         for (HolonomicSpline spline : splines) {
             for (double s = 0; s <= 1.001; s += DS) {
-                Pose2d p = spline.getPose2d(s);
+                Pose2d p = spline.getPathPoint(s).waypoint().pose();
+                System.out.println(p);
                 double x = p.getX();
                 double y = p.getY();
                 Rotation2d heading = p.getRotation();

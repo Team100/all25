@@ -63,7 +63,7 @@ public class FixedTrajectory extends Command {
         // next for feedforward (and selecting K)
         TimedState next = m_trajectory.sample(t + TimedRobot100.LOOP_PERIOD_S);
         Pose2d currentPose = m_drive.getPose();
-        Pose2d poseReference = current.state().getPose().pose();
+        Pose2d poseReference = current.state().waypoint().pose();
         double velocityReference = next.velocityM_S();
         double omegaReference = next.velocityM_S() * next.state().getHeadingRateRad_M();
         ChassisSpeeds speeds = m_controller.calculate(

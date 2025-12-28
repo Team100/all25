@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.WaypointSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,7 +18,7 @@ class VelocityLimitRegionConstraintTest {
         // towards +x, 1 rad/m, 1 rad/s limit => 1 m/s
         VelocityLimitRegionConstraint c = new VelocityLimitRegionConstraint(
                 new Translation2d(), new Translation2d(1, 1), 1);
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(-1, -1, new Rotation2d(0)), 0, 1.2),
                 0, // spatial, so rad/m
@@ -33,7 +33,7 @@ class VelocityLimitRegionConstraintTest {
         // towards +x, 1 rad/m, 1 rad/s limit => 1 m/s
         VelocityLimitRegionConstraint c = new VelocityLimitRegionConstraint(
                 new Translation2d(), new Translation2d(1, 1), 1);
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(0.5, 0.5, new Rotation2d(0)), 0, 1.2),
                 0, // spatial, so rad/m

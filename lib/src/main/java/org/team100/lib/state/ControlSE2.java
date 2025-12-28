@@ -127,12 +127,12 @@ public class ControlSE2 {
      * Correctly accounts for centripetal acceleration.
      */
     public static ControlSE2 fromTimedState(TimedState timedPose) {
-        double xx = timedPose.state().getPose().pose().getTranslation().getX();
-        double yx = timedPose.state().getPose().pose().getTranslation().getY();
-        double thetax = timedPose.state().getPose().pose().getRotation().getRadians();
+        double xx = timedPose.state().waypoint().pose().getTranslation().getX();
+        double yx = timedPose.state().waypoint().pose().getTranslation().getY();
+        double thetax = timedPose.state().waypoint().pose().getRotation().getRadians();
 
         double velocityM_s = timedPose.velocityM_S();
-        Rotation2d course = timedPose.state().getPose().course().toRotation();
+        Rotation2d course = timedPose.state().waypoint().course().toRotation();
         double xv = course.getCos() * velocityM_s;
         double yv = course.getSin() * velocityM_s;
         double thetav = timedPose.state().getHeadingRateRad_M() * velocityM_s;

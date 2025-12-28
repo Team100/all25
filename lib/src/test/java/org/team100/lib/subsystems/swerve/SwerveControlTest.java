@@ -3,7 +3,7 @@ package org.team100.lib.subsystems.swerve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.state.ControlSE2;
@@ -29,7 +29,7 @@ class SwerveControlTest {
     void testTimedState() {
         ControlSE2 s = ControlSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -46,7 +46,7 @@ class SwerveControlTest {
     void testTimedState2() {
         ControlSE2 s = ControlSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -63,7 +63,7 @@ class SwerveControlTest {
     void testTimedState3() {
         ControlSE2 s = ControlSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -81,7 +81,7 @@ class SwerveControlTest {
     void testTimedState4() {
         ControlSE2 s = ControlSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 1),

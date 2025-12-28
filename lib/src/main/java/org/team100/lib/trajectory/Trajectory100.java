@@ -3,7 +3,7 @@ package org.team100.lib.trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.trajectory.timing.TimedState;
 
@@ -106,11 +106,24 @@ public class Trajectory100 {
         System.out.println("i, t, v, a, k, x, y");
         for (int i = 0; i < length(); ++i) {
             TimedState ts = getPoint(i);
-            Pose2dWithMotion pwm = ts.state();
-            WaypointSE2 w = pwm.getPose();
+            PathPoint pwm = ts.state();
+            WaypointSE2 w = pwm.waypoint();
             Pose2d p = w.pose();
             System.out.printf("%d, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f\n",
                     i, ts.getTimeS(), ts.velocityM_S(), ts.acceleration(), pwm.getCurvatureRad_M(), p.getX(), p.getY());
         }
     }
+
+        /** For cutting-and-pasting into a spreadsheet */
+        public void tdump() {
+            System.out.println("t, v, a, k, x, y");
+            for (double t = 0; t < duration(); t += 0.02) {
+                TimedState ts = sample(t);
+                PathPoint pwm = ts.state();
+                WaypointSE2 w = pwm.waypoint();
+                Pose2d p = w.pose();
+                System.out.printf("%5.3f, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f\n",
+                        ts.getTimeS(), ts.velocityM_S(), ts.acceleration(), pwm.getCurvatureRad_M(), p.getX(), p.getY());
+            }
+        }
 }

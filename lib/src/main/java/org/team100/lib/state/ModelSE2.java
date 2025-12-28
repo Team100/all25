@@ -1,7 +1,7 @@
 package org.team100.lib.state;
 
 import org.team100.lib.geometry.GlobalVelocityR2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
@@ -136,13 +136,13 @@ public class ModelSE2 {
      * Transform timed pose into swerve state.
      */
     public static ModelSE2 fromTimedState(TimedState timedPose) {
-        Pose2dWithMotion state = timedPose.state();
-        WaypointSE2 pose = state.getPose();
+        PathPoint state = timedPose.state();
+        WaypointSE2 pose = state.waypoint();
         Translation2d translation = pose.pose().getTranslation();
         double xx = translation.getX();
         double yx = translation.getY();
         double thetax = pose.pose().getRotation().getRadians();
-        Rotation2d course = state.getPose().course().toRotation();
+        Rotation2d course = state.waypoint().course().toRotation();
         double velocityM_s = timedPose.velocityM_S();
         double xv = course.getCos() * velocityM_s;
         double yv = course.getSin() * velocityM_s;

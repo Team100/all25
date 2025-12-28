@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.DirectionSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.logging.LoggerFactory;
@@ -22,11 +22,11 @@ import org.team100.lib.trajectory.examples.TrajectoryExamples;
 import org.team100.lib.trajectory.path.PathFactory;
 import org.team100.lib.trajectory.timing.CapsizeAccelerationConstraint;
 import org.team100.lib.trajectory.timing.ConstantConstraint;
-import org.team100.lib.trajectory.timing.TrajectoryFactory;
 import org.team100.lib.trajectory.timing.SwerveDriveDynamicsConstraint;
 import org.team100.lib.trajectory.timing.TimedState;
 import org.team100.lib.trajectory.timing.TimingConstraint;
 import org.team100.lib.trajectory.timing.TimingConstraintFactory;
+import org.team100.lib.trajectory.timing.TrajectoryFactory;
 import org.team100.lib.trajectory.timing.YawRateConstraint;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -61,7 +61,7 @@ class TrajectoryPlannerTest implements Timeless {
         // start at zero velocity
         assertEquals(0, tp.velocityM_S(), DELTA);
         TimedState p = t.getPoint(8);
-        assertEquals(0.5, p.state().getPose().pose().getTranslation().getX(), DELTA);
+        assertEquals(0.5, p.state().waypoint().pose().getTranslation().getX(), DELTA);
         assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
     }
 
@@ -93,7 +93,7 @@ class TrajectoryPlannerTest implements Timeless {
         TimedState tp = t.getPoint(0);
         assertEquals(0, tp.velocityM_S(), DELTA);
         TimedState p = t.getPoint(8);
-        assertEquals(0.5, p.state().getPose().pose().getTranslation().getX(), DELTA);
+        assertEquals(0.5, p.state().waypoint().pose().getTranslation().getX(), DELTA);
         assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
     }
 
@@ -135,7 +135,7 @@ class TrajectoryPlannerTest implements Timeless {
         }
         assertEquals(33, t.length());
         TimedState p = t.getPoint(12);
-        assertEquals(0.605, p.state().getPose().pose().getTranslation().getX(), DELTA);
+        assertEquals(0.605, p.state().waypoint().pose().getTranslation().getX(), DELTA);
         assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
     }
 
@@ -295,8 +295,8 @@ class TrajectoryPlannerTest implements Timeless {
 
         class ConditionalTimingConstraint implements TimingConstraint {
             @Override
-            public double maxV(Pose2dWithMotion state) {
-                double x = state.getPose().pose().getTranslation().getX();
+            public double maxV(PathPoint state) {
+                double x = state.waypoint().pose().getTranslation().getX();
                 if (x < 1.5) {
                     return 2.0;
                 }
@@ -308,12 +308,12 @@ class TrajectoryPlannerTest implements Timeless {
             }
 
             @Override
-            public double maxAccel(Pose2dWithMotion state, double velocity) {
+            public double maxAccel(PathPoint state, double velocity) {
                 return 2;
             }
 
             @Override
-            public double maxDecel(Pose2dWithMotion state, double velocity) {
+            public double maxDecel(PathPoint state, double velocity) {
                 return -1;
             }
         }
