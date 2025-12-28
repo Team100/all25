@@ -70,9 +70,9 @@ public class ToPoseWithTrajectory extends Command {
             // next for feedforward (and selecting K)
             TimedState next = m_trajectory.sample(t + TimedRobot100.LOOP_PERIOD_S);
             Pose2d currentPose = m_drive.getPose();
-            Pose2d poseReference = current.state().waypoint().pose();
+            Pose2d poseReference = current.point().waypoint().pose();
             double velocityReference = next.velocityM_S();
-            double omegaReference = next.velocityM_S() * next.state().getHeadingRateRad_M();
+            double omegaReference = next.velocityM_S() * next.point().getHeadingRateRad_M();
             ChassisSpeeds speeds = m_controller.calculate(
                     currentPose, poseReference, velocityReference, omegaReference);
             m_drive.setVelocity(speeds.vxMetersPerSecond, speeds.omegaRadiansPerSecond);

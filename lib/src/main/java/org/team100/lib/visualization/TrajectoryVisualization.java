@@ -32,7 +32,7 @@ public class TrajectoryVisualization {
         double[] arr = new double[m_trajectory.length() * 3];
         int ndx = 0;
         for (TimedState p : m_trajectory.getPoints()) {
-            WaypointSE2 pose = p.state().waypoint();
+            WaypointSE2 pose = p.point().waypoint();
             arr[ndx + 0] = pose.pose().getTranslation().getX();
             arr[ndx + 1] = pose.pose().getTranslation().getY();
             arr[ndx + 2] = pose.pose().getRotation().getDegrees();

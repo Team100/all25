@@ -11,7 +11,7 @@ import org.team100.lib.util.Math100;
  */
 public class TimedState {
     private static final boolean DEBUG = false;
-    private final PathPoint m_state;
+    private final PathPoint m_point;
     /** Time we achieve this state. */
     private final double m_timeS;
     /** Instantaneous pathwise velocity, m/s. */
@@ -27,14 +27,14 @@ public class TimedState {
             double t,
             double velocity,
             double acceleration) {
-        m_state = state;
+        m_point = state;
         m_timeS = t;
         m_velocityM_S = velocity;
         m_accelM_S_S = acceleration;
     }
 
-    public PathPoint state() {
-        return m_state;
+    public PathPoint point() {
+        return m_point;
     }
 
     /** Time we achieve this state. */
@@ -55,7 +55,7 @@ public class TimedState {
     @Override
     public String toString() {
         return String.format("state %s, time %5.3f, vel %5.3f, acc %5.3f",
-                m_state,
+                m_point,
                 m_timeS,
                 m_velocityM_S,
                 m_accelM_S_S);
@@ -72,7 +72,7 @@ public class TimedState {
         double vLerp = m_velocityM_S + m_accelM_S_S * delta_t;
         double pathwiseDistance = m_velocityM_S * delta_t + 0.5 * m_accelM_S_S * delta_t * delta_t;
 
-        double distanceBetween = m_state.distanceCartesian(other.m_state);
+        double distanceBetween = m_point.distanceCartesian(other.m_point);
         double interpolant = pathwiseDistance / distanceBetween;
         if (Double.isNaN(interpolant)) {
             interpolant = 1.0;
@@ -81,7 +81,7 @@ public class TimedState {
         if (DEBUG)
             System.out.printf("tlerp %f\n", tLerp);
         return new TimedState(
-                m_state.interpolate(other.m_state, interpolant),
+                m_point.interpolate(other.m_point, interpolant),
                 tLerp,
                 vLerp,
                 m_accelM_S_S);
@@ -89,7 +89,7 @@ public class TimedState {
 
     /** Translation only, ignores rotation */
     public double distanceCartesian(TimedState other) {
-        return m_state.distanceCartesian(other.m_state);
+        return m_point.distanceCartesian(other.m_point);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class TimedState {
             return false;
         }
         TimedState ts = (TimedState) other;
-        if (!m_state.equals(ts.m_state)) {
+        if (!m_point.equals(ts.m_point)) {
             if (DEBUG)
                 System.out.println("wrong state");
             return false;

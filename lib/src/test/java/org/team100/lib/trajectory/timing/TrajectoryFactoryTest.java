@@ -79,14 +79,14 @@ public class TrajectoryFactoryTest {
         TimedState prev_state = null;
         for (TimedState state : traj.getPoints()) {
             for (final TimingConstraint constraint : constraints) {
-                assertTrue(state.velocityM_S() - EPSILON <= constraint.maxV(state.state()));
+                assertTrue(state.velocityM_S() - EPSILON <= constraint.maxV(state.point()));
                 assertTrue(state.acceleration() - EPSILON <= constraint.maxAccel(
-                        state.state(), state.velocityM_S()),
+                        state.point(), state.velocityM_S()),
                         String.format("%f %f", state.acceleration(), constraint.maxAccel(
-                                state.state(), state.velocityM_S())));
-                assertTrue(state.acceleration() + EPSILON >= constraint.maxDecel(state.state(), state.velocityM_S()),
+                                state.point(), state.velocityM_S())));
+                assertTrue(state.acceleration() + EPSILON >= constraint.maxDecel(state.point(), state.velocityM_S()),
                         String.format("%f %f", state.acceleration(),
-                                constraint.maxDecel(state.state(), state.velocityM_S())));
+                                constraint.maxDecel(state.point(), state.velocityM_S())));
             }
             if (prev_state != null) {
                 assertEquals(state.velocityM_S(),
@@ -278,8 +278,8 @@ public class TrajectoryFactoryTest {
         }
         assertEquals(33, t.length());
         TimedState p = t.getPoint(12);
-        assertEquals(0.605, p.state().waypoint().pose().getTranslation().getX(), DELTA);
-        assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
+        assertEquals(0.605, p.point().waypoint().pose().getTranslation().getX(), DELTA);
+        assertEquals(0, p.point().getHeadingRateRad_M(), DELTA);
 
     }
 

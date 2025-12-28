@@ -61,8 +61,8 @@ class TrajectoryPlannerTest implements Timeless {
         // start at zero velocity
         assertEquals(0, tp.velocityM_S(), DELTA);
         TimedState p = t.getPoint(8);
-        assertEquals(0.5, p.state().waypoint().pose().getTranslation().getX(), DELTA);
-        assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
+        assertEquals(0.5, p.point().waypoint().pose().getTranslation().getX(), DELTA);
+        assertEquals(0, p.point().getHeadingRateRad_M(), DELTA);
     }
 
     @Test
@@ -93,8 +93,8 @@ class TrajectoryPlannerTest implements Timeless {
         TimedState tp = t.getPoint(0);
         assertEquals(0, tp.velocityM_S(), DELTA);
         TimedState p = t.getPoint(8);
-        assertEquals(0.5, p.state().waypoint().pose().getTranslation().getX(), DELTA);
-        assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
+        assertEquals(0.5, p.point().waypoint().pose().getTranslation().getX(), DELTA);
+        assertEquals(0, p.point().getHeadingRateRad_M(), DELTA);
     }
 
     /**
@@ -135,8 +135,8 @@ class TrajectoryPlannerTest implements Timeless {
         }
         assertEquals(33, t.length());
         TimedState p = t.getPoint(12);
-        assertEquals(0.605, p.state().waypoint().pose().getTranslation().getX(), DELTA);
-        assertEquals(0, p.state().getHeadingRateRad_M(), DELTA);
+        assertEquals(0.605, p.point().waypoint().pose().getTranslation().getX(), DELTA);
+        assertEquals(0, p.point().getHeadingRateRad_M(), DELTA);
     }
 
     @Test

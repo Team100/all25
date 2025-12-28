@@ -182,7 +182,7 @@ public class ReferenceControllerSE2Test implements Timeless {
         VelocityReferenceControllerSE2 referenceController = new VelocityReferenceControllerSE2(
                 logger, drive, swerveController, reference);
 
-        Pose2d pose = trajectory.sample(0).state().waypoint().pose();
+        Pose2d pose = trajectory.sample(0).point().waypoint().pose();
         VelocitySE2 velocity = VelocitySE2.ZERO;
 
         double mDt = 0.02;

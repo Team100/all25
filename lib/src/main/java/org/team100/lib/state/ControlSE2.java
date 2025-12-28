@@ -127,23 +127,23 @@ public class ControlSE2 {
      * Correctly accounts for centripetal acceleration.
      */
     public static ControlSE2 fromTimedState(TimedState timedPose) {
-        double xx = timedPose.state().waypoint().pose().getTranslation().getX();
-        double yx = timedPose.state().waypoint().pose().getTranslation().getY();
-        double thetax = timedPose.state().waypoint().pose().getRotation().getRadians();
+        double xx = timedPose.point().waypoint().pose().getTranslation().getX();
+        double yx = timedPose.point().waypoint().pose().getTranslation().getY();
+        double thetax = timedPose.point().waypoint().pose().getRotation().getRadians();
 
         double velocityM_s = timedPose.velocityM_S();
-        Rotation2d course = timedPose.state().waypoint().course().toRotation();
+        Rotation2d course = timedPose.point().waypoint().course().toRotation();
         double xv = course.getCos() * velocityM_s;
         double yv = course.getSin() * velocityM_s;
-        double thetav = timedPose.state().getHeadingRateRad_M() * velocityM_s;
+        double thetav = timedPose.point().getHeadingRateRad_M() * velocityM_s;
 
         double accelM_s_s = timedPose.acceleration();
         double xa = course.getCos() * accelM_s_s;
         double ya = course.getSin() * accelM_s_s;
-        double thetaa = timedPose.state().getHeadingRateRad_M() * accelM_s_s;
+        double thetaa = timedPose.point().getHeadingRateRad_M() * accelM_s_s;
 
         // centripetal accel = v^2/r = v^2 * curvature
-        double curvRad_M = timedPose.state().getCurvatureRad_M();
+        double curvRad_M = timedPose.point().getCurvatureRad_M();
         double centripetalAccelM_s_s = velocityM_s * velocityM_s * curvRad_M;
         double xCa = -1.0 * course.getSin() * centripetalAccelM_s_s;
         double yCa = course.getCos() * centripetalAccelM_s_s;

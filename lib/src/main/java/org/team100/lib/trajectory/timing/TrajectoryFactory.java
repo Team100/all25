@@ -50,7 +50,7 @@ public class TrajectoryFactory {
      * 
      * Output is these same samples with time.
      */
-    private Trajectory100 fromSamples(
+    public Trajectory100 fromSamples(
             PathPoint[] samples,
             double start_vel,
             double end_vel) {
@@ -59,7 +59,7 @@ public class TrajectoryFactory {
         double[] accels = accels(distances, velocities);
         double[] runningTime = runningTime(distances, velocities, accels);
         List<TimedState> timedStates = timedStates(samples, velocities, accels, runningTime);
-        return new Trajectory100(timedStates);
+        return new Trajectory100(timedStates, m_constraints);
     }
 
     /**

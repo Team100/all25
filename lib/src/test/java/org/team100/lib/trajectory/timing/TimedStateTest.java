@@ -40,6 +40,6 @@ class TimedStateTest {
         assertEquals(start_state.acceleration(), intermediate_state.acceleration(), EPSILON);
         assertEquals(0.5, intermediate_state.velocityM_S(), EPSILON);
         // close to the start state by distance
-        assertEquals(0.125, intermediate_state.state().waypoint().pose().getTranslation().getX(), EPSILON);
+        assertEquals(0.125, intermediate_state.point().waypoint().pose().getTranslation().getX(), EPSILON);
     }
 }

@@ -1,5 +1,6 @@
 package org.team100.lib.geometry;
 
+import org.team100.lib.trajectory.path.spline.HolonomicSpline;
 import org.team100.lib.util.Math100;
 
 import edu.wpi.first.math.MathUtil;
@@ -13,6 +14,10 @@ public class PathPoint {
     private static final boolean DEBUG = false;
     /** Pose and course. */
     private final WaypointSE2 m_waypoint;
+    /** The source of this point (for resampling) */
+    private final HolonomicSpline m_spline;
+    /** The parameter value of this point (for resampling) */
+    private final double m_s;
     /** Change in heading per meter of motion, rad/m. */
     private final double m_headingRateRad_M;
     /** Change in course per change in distance, rad/m. */
@@ -25,9 +30,24 @@ public class PathPoint {
      */
     public PathPoint(
             WaypointSE2 waypoint,
+            HolonomicSpline spline,
+            double s,
             double headingRateRad_M,
             double curvatureRad_M) {
         m_waypoint = waypoint;
+        m_spline = spline;
+        m_s = s;
+        m_headingRateRad_M = headingRateRad_M;
+        m_curvatureRad_M = curvatureRad_M;
+    }
+
+    public PathPoint(
+            WaypointSE2 waypoint,
+            double headingRateRad_M,
+            double curvatureRad_M) {
+        m_waypoint = waypoint;
+        m_spline = null;
+        m_s = 0;
         m_headingRateRad_M = headingRateRad_M;
         m_curvatureRad_M = curvatureRad_M;
     }
@@ -56,8 +76,29 @@ public class PathPoint {
      * Not a constant-twist arc.
      */
     public PathPoint interpolate(PathPoint other, double x) {
+        HolonomicSpline spline = null;
+        double s = 0;
+        if (m_spline == other.m_spline) {
+            // ok to interpolate using this spline
+            spline = m_spline;
+            s = Math100.interpolate(m_s, other.m_s, x);
+        } else {
+            // which one to use?
+            // one of the endpoints should be the spline endpoint
+            // which is always the zero (not the 1)
+            if (other.m_s < 1e-6) {
+                // other one is the start, so use this one
+                spline = m_spline;
+                s = Math100.interpolate(m_s, 1, x);
+            } else {
+                spline = other.m_spline;
+                s = Math100.interpolate(other.m_s, 1, x);
+            }
+        }
         return new PathPoint(
                 GeometryUtil.interpolate(m_waypoint, other.m_waypoint, x),
+                spline,
+                s,
                 MathUtil.interpolate(m_headingRateRad_M, other.m_headingRateRad_M, x),
                 Math100.interpolate(m_curvatureRad_M, other.m_curvatureRad_M, x));
     }

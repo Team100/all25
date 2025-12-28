@@ -136,7 +136,7 @@ public class ModelSE2 {
      * Transform timed pose into swerve state.
      */
     public static ModelSE2 fromTimedState(TimedState timedPose) {
-        PathPoint state = timedPose.state();
+        PathPoint state = timedPose.point();
         WaypointSE2 pose = state.waypoint();
         Translation2d translation = pose.pose().getTranslation();
         double xx = translation.getX();

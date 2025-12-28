@@ -121,6 +121,7 @@ public class HolonomicSpline {
                 new WaypointSE2(
                         new Pose2d(new Translation2d(x(s), y(s)), getHeading(s)),
                         getCourse(s), 1),
+                this, s,
                 getDHeadingDs(s),
                 getCurvature(s));
     }

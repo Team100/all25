@@ -27,7 +27,7 @@ public class TrajectoryToVectorSeries {
         double dt = duration / POINTS;
         for (double time = 0; time < duration; time += dt) {
             TimedState p = t.sample(time);
-            WaypointSE2 pp = p.state().waypoint();
+            WaypointSE2 pp = p.point().waypoint();
             double x = pp.pose().getTranslation().getX();
             double y = pp.pose().getTranslation().getY();
             Rotation2d heading = pp.pose().getRotation();
@@ -51,7 +51,7 @@ public class TrajectoryToVectorSeries {
         double dt = duration / POINTS;
         for (double t = 0; t <= duration + 0.0001; t += dt) {
             TimedState p = trajectory.sample(t);
-            WaypointSE2 pp = p.state().waypoint();
+            WaypointSE2 pp = p.point().waypoint();
             double x = pp.pose().getTranslation().getX();
             series.add(t, x);
         }
@@ -69,7 +69,7 @@ public class TrajectoryToVectorSeries {
         double dt = duration / POINTS;
         for (double t = 0; t <= duration + 0.0001; t += dt) {
             TimedState p = trajectory.sample(t);
-            Rotation2d course = p.state().waypoint().course().toRotation();
+            Rotation2d course = p.point().waypoint().course().toRotation();
             double velocityM_s = p.velocityM_S();
             System.out.println(velocityM_s);
             System.out.println(course);

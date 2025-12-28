@@ -468,7 +468,7 @@ public class LoggerFactory {
             if (!allow(m_level))
                 return;
             TimedState val = vals.get();
-            m_pose2dWithMotionLogger.log(val::state);
+            m_pose2dWithMotionLogger.log(val::point);
             m_timeLogger.log(val::getTimeS);
             m_velocityLogger.log(val::velocityM_S);
             m_accelLogger.log(val::acceleration);
