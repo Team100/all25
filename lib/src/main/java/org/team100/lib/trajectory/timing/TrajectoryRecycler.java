@@ -20,8 +20,15 @@ import org.team100.lib.trajectory.Trajectory100;
  * 
  * The new samples are used to reschedule a new trajectory which may have a
  * different duration.
+ * 
+ * This does the right thing when acceleration is constant: samples are further
+ * apart when moving fast.
+ * 
+ * But when acceleration is rising, this tends to oversample (because sampling
+ * assumes the lower acceleration will continue for longer).
  */
 public class TrajectoryRecycler {
+    private static final boolean DEBUG = false;
 
     public static Trajectory100 recycle(Trajectory100 original, double dt) {
         double start_vel = original.sample(0).velocityM_S();
@@ -30,11 +37,13 @@ public class TrajectoryRecycler {
         List<PathPoint> points = new ArrayList<>();
         // a little past the end to make sure we get the last point.
         for (double t = 0; t < original.duration() + dt; t += dt) {
-            TimedState sample = original.sample(t);
+            TimedState sample = original.sample2(t);
             // these contain discretization errors
             // TODO: go back to the original spline for these
             PathPoint point = sample.point();
             points.add(point);
+            if (DEBUG)
+                System.out.printf("recycle t %f %s\n", t, point);
         }
         return new TrajectoryFactory(original.m_constraints)
                 .fromSamples(points.toArray(new PathPoint[0]), start_vel, end_vel);

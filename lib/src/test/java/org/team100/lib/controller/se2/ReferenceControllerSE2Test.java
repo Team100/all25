@@ -81,21 +81,21 @@ public class ReferenceControllerSE2Test implements Timeless {
 
         stepTime();
         c.execute();
-        assertEquals(0.139, drive.m_setpoint.x(), DELTA);
+        assertEquals(0.171, drive.m_setpoint.x(), DELTA);
         assertEquals(0, drive.m_setpoint.y(), DELTA);
         assertEquals(0, drive.m_setpoint.theta(), DELTA);
 
         // more normal driving
         stepTime();
         c.execute();
-        assertEquals(0.179, drive.m_setpoint.x(), DELTA);
+        assertEquals(0.217, drive.m_setpoint.x(), DELTA);
         assertEquals(0, drive.m_setpoint.y(), DELTA);
         assertEquals(0, drive.m_setpoint.theta(), DELTA);
 
         // etc
         stepTime();
         c.execute();
-        assertEquals(0.221, drive.m_setpoint.x(), DELTA);
+        assertEquals(0.264, drive.m_setpoint.x(), DELTA);
         assertEquals(0, drive.m_setpoint.y(), DELTA);
         assertEquals(0, drive.m_setpoint.theta(), DELTA);
     }

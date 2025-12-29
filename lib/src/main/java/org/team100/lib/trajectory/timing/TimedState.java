@@ -68,6 +68,10 @@ public class TimedState {
      * Acceleration of this state is constant through the whole arc.
      */
     public TimedState interpolate(TimedState other, double delta_t) {
+        if (delta_t < 0)
+            throw new IllegalArgumentException("delta_t must be non-negative");
+        if (DEBUG)
+            System.out.println("lerp");
         double tLerp = m_timeS + delta_t;
         double vLerp = m_velocityM_S + m_accelM_S_S * delta_t;
         double pathwiseDistance = m_velocityM_S * delta_t + 0.5 * m_accelM_S_S * delta_t * delta_t;
@@ -78,9 +82,45 @@ public class TimedState {
             interpolant = 1.0;
         }
 
+        // TODO: pass t interpolant, not just spatial one
+        double s = delta_t / (other.m_timeS - m_timeS);
+        if (DEBUG)
+            System.out.printf("t0 %f t1 %f delta t %f s %f\n",
+                    m_timeS, other.m_timeS, delta_t, s);
+
         if (DEBUG)
             System.out.printf("tlerp %f\n", tLerp);
         return new TimedState(
+                // m_point.interpolate(other.m_point, interpolant),
+                m_point.interpolate(other.m_point, s),
+                tLerp,
+                vLerp,
+                m_accelM_S_S);
+    }
+
+    /** Tries to take variation in acceleration into account. For resampling. */
+    public TimedState interpolate2(TimedState other, double delta_t) {
+        if (delta_t < 0)
+            throw new IllegalArgumentException("delta_t must be non-negative");
+        if (DEBUG)
+            System.out.println("lerp");
+        double tLerp = m_timeS + delta_t;
+        double vLerp = m_velocityM_S + m_accelM_S_S * delta_t;
+        double dt = other.m_timeS - m_timeS;
+        double j = (other.m_accelM_S_S - m_accelM_S_S) / dt;
+        double pathwiseDistance = m_velocityM_S * delta_t + 0.5 * m_accelM_S_S * delta_t * delta_t
+                + 0.1666 * j * delta_t * delta_t * delta_t;
+
+        double distanceBetween = m_velocityM_S * dt + 0.5 * m_accelM_S_S * dt * dt + 0.1666 * j * dt * dt * dt;
+        double interpolant = pathwiseDistance / distanceBetween;
+        if (Double.isNaN(interpolant)) {
+            interpolant = 1.0;
+        }
+
+        if (DEBUG)
+            System.out.printf("tlerp %f\n", tLerp);
+        return new TimedState(
+                // m_point.interpolate(other.m_point, interpolant),
                 m_point.interpolate(other.m_point, interpolant),
                 tLerp,
                 vLerp,

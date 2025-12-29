@@ -92,7 +92,7 @@ class Trajectory100Test implements Timeless {
         TimedState sample = trajectory.sample(0);
         assertEquals(0, sample.point().waypoint().pose().getTranslation().getX(), DELTA);
         sample = trajectory.sample(1);
-        assertEquals(0.828, sample.point().waypoint().pose().getTranslation().getX(), DELTA);
+        assertEquals(0.827, sample.point().waypoint().pose().getTranslation().getX(), DELTA);
         sample = trajectory.sample(2);
         assertEquals(1, sample.point().waypoint().pose().getTranslation().getX(), DELTA);
     }
@@ -132,20 +132,20 @@ class Trajectory100Test implements Timeless {
 
         assertEquals(1.415, trajectory.duration(), DELTA);
         check(trajectory, 0.0, 0.000);
-        check(trajectory, 0.1, 0.010);
-        check(trajectory, 0.2, 0.040);
-        check(trajectory, 0.3, 0.090);
-        check(trajectory, 0.4, 0.160);
+        check(trajectory, 0.1, 0.025);
+        check(trajectory, 0.2, 0.050);
+        check(trajectory, 0.3, 0.093);
+        check(trajectory, 0.4, 0.161);
         check(trajectory, 0.5, 0.250);
         check(trajectory, 0.6, 0.360);
         check(trajectory, 0.7, 0.490);
         check(trajectory, 0.8, 0.622);
         check(trajectory, 0.9, 0.734);
-        check(trajectory, 1.0, 0.828);
-        check(trajectory, 1.1, 0.901);
-        check(trajectory, 1.2, 0.953);
-        check(trajectory, 1.3, 0.987);
-        check(trajectory, 1.4, 1.000);
+        check(trajectory, 1.0, 0.827);
+        check(trajectory, 1.1, 0.898);
+        check(trajectory, 1.2, 0.946);
+        check(trajectory, 1.3, 0.971);
+        check(trajectory, 1.4, 0.996);
         check(trajectory, 1.5, 1.000);
     }
 

@@ -247,7 +247,7 @@ class TrajectoryPlannerTest implements Timeless {
                 0);
         if (DEBUG)
             traj.dump();
-        assertEquals(2.741, traj.duration(), DELTA);
+        assertEquals(2.705, traj.duration(), DELTA);
     }
 
     /**
@@ -281,7 +281,7 @@ class TrajectoryPlannerTest implements Timeless {
         Trajectory100 traj = planner.generateTrajectory(waypoints, 1, 1);
         if (DEBUG)
             traj.dump();
-        assertEquals(4.603, traj.duration(), DELTA);
+        assertEquals(4.562, traj.duration(), DELTA);
     }
 
     /**

@@ -64,7 +64,7 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
         c.execute();
         assertFalse(c.isDone());
         // the trajectory takes a little over 3s
-        for (double t = 0; t < 3.2; t += TimedRobot100.LOOP_PERIOD_S) {
+        for (double t = 0; t < 4; t += TimedRobot100.LOOP_PERIOD_S) {
             stepTime();
             c.execute();
             fixture.drive.periodic(); // for updateOdometry

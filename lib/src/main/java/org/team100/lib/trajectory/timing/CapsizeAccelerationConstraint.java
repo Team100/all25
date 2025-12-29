@@ -51,7 +51,10 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
     public double maxV(final PathPoint state) {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         // abs is used here to make sure sqrt is happy.
-        return Math.sqrt(Math.abs(m_maxCentripetalAccel * m_scale.getAsDouble() * radius));
+        double maxV = Math.sqrt(Math.abs(m_maxCentripetalAccel * m_scale.getAsDouble() * radius));
+        if (DEBUG)
+            System.out.printf("maxV %f\n", maxV);
+        return maxV;
     }
 
     @Override
@@ -62,7 +65,10 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
                 System.out.println("too fast for the curvature, can't speed up");
             return 0;
         }
-        return Math.sqrt(alongsq);
+        double maxA = Math.sqrt(alongsq);
+        if (DEBUG)
+            System.out.printf("maxA %f\n", maxA);
+        return maxA;
     }
 
     @Override
@@ -73,10 +79,10 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
                 System.out.println("too fast for the curvature, slowing down is ok");
             return m_maxDecel * m_scale.getAsDouble();
         }
-        double decel = -Math.sqrt(alongsq);
+        double maxD = -Math.sqrt(alongsq);
         if (DEBUG)
-            System.out.printf("decel %f\n", decel);
-        return decel;
+            System.out.printf("maxD %f\n", maxD);
+        return maxD;
     }
 
     /**
@@ -94,8 +100,8 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         double actualCentripetalAccel = velocity * velocity / radius;
         if (DEBUG)
-            System.out.printf("radius %f actual centripetal %f\n",
-                    radius, actualCentripetalAccel);
+            System.out.printf("radius %f velocity %f actual centripetal accel %f\n",
+                    radius, velocity, actualCentripetalAccel);
         return m_maxCentripetalAccel * m_scale.getAsDouble() * m_maxCentripetalAccel * m_scale.getAsDouble()
                 - actualCentripetalAccel * actualCentripetalAccel;
     }

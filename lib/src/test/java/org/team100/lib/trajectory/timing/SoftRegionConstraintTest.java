@@ -64,14 +64,15 @@ public class SoftRegionConstraintTest {
         // note that the first accel (10) matches the max soft accel (10)
         List<TimingConstraint> constraints = List.of(
                 new ConstantConstraint(logger, 10, 10),
-                new SoftRegionConstraint(w0.pose().getTranslation(), 0.1, 0.5, 10),
-                new SoftRegionConstraint(w1.pose().getTranslation(), 0.1, 0.5, 10));
+                new SoftRegionConstraint(w0.pose().getTranslation(), 0.05, 0.5, 10),
+                new SoftRegionConstraint(w1.pose().getTranslation(), 0.05, 0.5, 10));
         TrajectoryFactory trajectoryFactory = new TrajectoryFactory(constraints);
-        // note finer path than usual in order to see the detail
-        PathFactory pathFactory = new PathFactory(0.01, 0.01, 0.01, 0.1);
+        PathFactory pathFactory = new PathFactory(0.04, 0.1, 0.1, 0.1);
         TrajectoryPlanner planner = new TrajectoryPlanner(pathFactory, trajectoryFactory);
-        Trajectory100 trajectory = planner.restToRest(waypoints);
-        trajectory.tdump();
+        Trajectory100 original = planner.restToRest(waypoints);
+        original.dump();
+        Trajectory100 recycled = TrajectoryRecycler.recycle(original, 0.04);
+        recycled.dump();
     }
 
 }

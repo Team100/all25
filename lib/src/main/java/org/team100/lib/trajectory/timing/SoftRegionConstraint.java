@@ -9,13 +9,10 @@ import edu.wpi.first.math.geometry.Translation2d;
  * Limits acceleration near a point.
  * 
  * There's a minimum at the point, and a maximum at the edge of a circle
- * surrounding it, interpolated using the sqrt of the distance.  This
- * provides roughly constant jerk.
+ * surrounding it, interpolated using the cube root of the distance.  This
+ * provides roughly constant jerk (i.e. constant growth rate of acceleration).
  * 
- * Because the path is discretized by length, and because acceleration is
- * constant between points, the interpolated samples have a rather jerky
- * acceleration curve when viewed on the time axis -- it's not really a
- * smooth jerk limit.
+ * To increase resolution of the slow part, you should use the TrajectoryRecycler.
  * 
  * https://docs.google.com/spreadsheets/d/1sbB-zTBUjRRlWHaWXe-V1ZDhAZCFwItVVO1x3LmZ4B4/edit?gid=691127145#gid=691127145
  */
@@ -48,7 +45,7 @@ public class SoftRegionConstraint implements TimingConstraint {
     public double maxAccel(PathPoint state, double velocityM_S) {
         double s = near(state);
         if (s < 1)
-            return Math100.interpolate(m_min, m_max, Math.sqrt(s));
+            return Math100.interpolate(m_min, m_max, Math.cbrt(s));
         return Double.POSITIVE_INFINITY;
     }
 
@@ -56,7 +53,7 @@ public class SoftRegionConstraint implements TimingConstraint {
     public double maxDecel(PathPoint state, double velocityM_S) {
         double s = near(state);
         if (s < 1)
-            return -1.0 * Math100.interpolate(m_min, m_max, Math.sqrt(s));
+            return -1.0 * Math100.interpolate(m_min, m_max, Math.cbrt(s));
         return Double.NEGATIVE_INFINITY;
     }
 

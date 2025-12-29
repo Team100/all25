@@ -133,22 +133,33 @@ public class TrajectoryFactory {
         int n = samples.length;
         velocities[0] = start_vel;
         for (int i = 0; i < n - 1; ++i) {
+            if (DEBUG)
+                System.out.printf("FWD i %d\n", i);
             double arclength = distances[i + 1] - distances[i];
             if (Math.abs(arclength) < EPSILON) {
+                if (DEBUG)
+                    System.out.printf("i %d zero arc\n", i);
                 // zero-length arcs have the same state at both ends
                 velocities[i + 1] = velocities[i];
                 break;
             }
             // velocity constraint depends only on state
             double maxVelocity = maxVelocity(samples[i + 1]);
+            if (DEBUG)
+                System.out.printf("maxV i %d %f\n", i + 1, maxVelocity);
             // start with the maximum velocity
             velocities[i + 1] = maxVelocity;
             // reduce velocity to fit under the acceleration constraint
             double impliedAccel = Math100.accel(velocities[i], velocities[i + 1], arclength);
             double maxAccel = maxAccel(samples[i], velocities[i]);
-            if (impliedAccel > maxAccel + EPSILON) {
+            if (impliedAccel > maxAccel/* + EPSILON */) {
                 velocities[i + 1] = Math100.v1(velocities[i], maxAccel, arclength);
+                if (DEBUG)
+                    System.out.printf("adjust vi+1 %f\n", velocities[i + 1]);
             }
+            if (DEBUG)
+                System.out.printf("FWD i %d vi %f vi+1 %f maxA %f impliedA %f\n",
+                        i, velocities[i], velocities[i + 1], maxAccel, impliedAccel);
         }
     }
 
@@ -165,17 +176,35 @@ public class TrajectoryFactory {
         int n = samples.length;
         velocities[n - 1] = end_vel;
         for (int i = n - 2; i >= 0; --i) {
+            if (DEBUG)
+                System.out.printf("BACK i %d\n", i);
             double arclength = distances[i + 1] - distances[i];
             if (Math.abs(arclength) < EPSILON) {
                 // already handled this case
                 break;
             }
+
+            double maxVelocity = maxVelocity(samples[i]);
+            if (DEBUG)
+                System.out.printf("maxV i %d %f\n", i, maxVelocity);
+
             double impliedAccel = Math100.accel(velocities[i], velocities[i + 1], arclength);
             // Apply the decel constraint at the end of the segment since it is feasible.
-            double maxDecel = maxDecel(samples[i + 1], velocities[i + 1]);
-            if (impliedAccel < maxDecel - EPSILON) {
+            double maxDecel = maxDecel(samples[i], velocities[i + 1]);
+            if (impliedAccel < maxDecel/* - EPSILON */) {
                 velocities[i] = Math100.v0(velocities[i + 1], maxDecel, arclength);
+                if (DEBUG)
+                    System.out.printf("adjust vi %f\n", velocities[i]);
             }
+            if (Math.abs(maxVelocity) < velocities[i]) {
+                velocities[i] = Math.signum(velocities[i]) * maxVelocity;
+                if (DEBUG)
+                    System.out.println("fix v one more time");
+            }
+
+            if (DEBUG)
+                System.out.printf("BACK i %d vi %f vi+1 %f max %f implied %f\n",
+                        i, velocities[i], velocities[i + 1], maxDecel, impliedAccel);
         }
     }
 

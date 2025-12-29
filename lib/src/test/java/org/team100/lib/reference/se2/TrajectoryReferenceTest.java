@@ -51,7 +51,7 @@ public class TrajectoryReferenceTest implements Timeless {
             assertEquals(0, c.pose().getX(), DELTA);
             ControlSE2 n = r.next();
             assertEquals(0.033, n.velocity().x(), DELTA);
-            assertEquals(0, n.pose().getX(), DELTA);
+            assertEquals(0.004, n.pose().getX(), DELTA);
         }
         // no time step, nothing changes
         {
@@ -61,17 +61,17 @@ public class TrajectoryReferenceTest implements Timeless {
             ControlSE2 n = r.next();
             assertEquals(0.033, n.velocity().x(), DELTA);
             // x is very small but not zero
-            assertEquals(0.0003266, n.pose().getX(), 0.0000001);
+            assertEquals(0.004, n.pose().getX(), DELTA);
         }
         // stepping time gets the next references
         stepTime();
         {
             ModelSE2 c = r.current();
             assertEquals(0.033, c.velocity().x(), DELTA);
-            assertEquals(0, c.pose().getX(), DELTA);
+            assertEquals(0.004, c.pose().getX(), DELTA);
             ControlSE2 n = r.next();
             assertEquals(0.065, n.velocity().x(), DELTA);
-            assertEquals(0.001, n.pose().getX(), DELTA);
+            assertEquals(0.009, n.pose().getX(), DELTA);
         }
         // way in the future, we're at the end.
         for (int i = 0; i < 500; ++i) {
