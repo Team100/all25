@@ -1,3 +1,30 @@
+----
+----
+----
+----
+----
+
+<pre>
+ █████╗ ██████╗  ██████╗██╗  ██╗██╗██╗   ██╗███████╗██████╗ 
+██╔══██╗██╔══██╗██╔════╝██║  ██║██║██║   ██║██╔════╝██╔══██╗
+███████║██████╔╝██║     ███████║██║██║   ██║█████╗  ██║  ██║
+██╔══██║██╔══██╗██║     ██╔══██║██║╚██╗ ██╔╝██╔══╝  ██║  ██║
+██║  ██║██║  ██║╚██████╗██║  ██║██║ ╚████╔╝ ███████╗██████╔╝
+╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝╚═════╝ 
+                                                            
+</pre>
+
+The 2025 code is read-only.  You can find current development in the "all26" repo.
+
+----
+----
+----
+----
+----
+
+# all25
+
+
 [![CI](https://github.com/Team100/all25/actions/workflows/main.yml/badge.svg)](https://github.com/Team100/all25/actions/workflows/main.yml)
 [![CI](https://github.com/Team100/all25/actions/workflows/lib.yml/badge.svg)](https://github.com/Team100/all25/actions/workflows/lib.yml)
 [![CI](https://github.com/Team100/all25/actions/workflows/raspberry_pi.yml/badge.svg)](https://github.com/Team100/all25/actions/workflows/raspberry_pi.yml)
