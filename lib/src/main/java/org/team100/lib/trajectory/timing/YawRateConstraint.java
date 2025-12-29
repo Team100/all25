@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.tuning.Mutable;
@@ -37,7 +37,7 @@ public class YawRateConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxV(Pose2dWithMotion state) {
+    public double maxV(PathPoint state) {
         // Heading rate in rad/m
         double heading_rate = state.getHeadingRateRad_M();
         // rad/s / rad/m => m/s.
@@ -45,7 +45,7 @@ public class YawRateConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxAccel(Pose2dWithMotion state, double velocity) {
+    public double maxAccel(PathPoint state, double velocity) {
         // TODO: this is wrong
         // Heading rate in rad/m
         double heading_rate = state.getHeadingRateRad_M();
@@ -54,7 +54,7 @@ public class YawRateConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         // TODO: this is wrong
         // Heading rate in rad/m
         double heading_rate = state.getHeadingRateRad_M();

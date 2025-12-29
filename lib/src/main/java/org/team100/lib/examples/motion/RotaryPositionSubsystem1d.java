@@ -11,9 +11,10 @@ import org.team100.lib.motor.MotorPhase;
 import org.team100.lib.motor.NeutralMode;
 import org.team100.lib.motor.ctre.Kraken6Motor;
 import org.team100.lib.motor.sim.SimulatedBareMotor;
-import org.team100.lib.profile.timed.JerkLimitedTimedProfile;
+import org.team100.lib.profile.r1.IncrementalProfile;
+import org.team100.lib.profile.r1.TrapezoidProfileWPI;
+import org.team100.lib.reference.r1.IncrementalProfileReferenceR1;
 import org.team100.lib.reference.r1.ProfileReferenceR1;
-import org.team100.lib.reference.r1.TimedProfileReferenceR1;
 import org.team100.lib.sensor.position.absolute.EncoderDrive;
 import org.team100.lib.sensor.position.absolute.RotaryPositionSensor;
 import org.team100.lib.sensor.position.absolute.sim.SimulatedRotaryPositionSensor;
@@ -71,9 +72,10 @@ public class RotaryPositionSubsystem1d extends SubsystemBase {
 
         double maxVel = 40;
         double maxAccel = 40;
-        double maxJerk = 70;
-        JerkLimitedTimedProfile profile = new JerkLimitedTimedProfile(maxVel, maxAccel, maxJerk, true);
-        ProfileReferenceR1 ref = new TimedProfileReferenceR1(log, profile);
+        IncrementalProfile profile = new TrapezoidProfileWPI(maxVel, maxAccel);
+
+        ProfileReferenceR1 ref = new IncrementalProfileReferenceR1(log, () -> profile, positionTolerance,
+                velocityTolerance);
 
         /*
          * Here we use the Team 100 "Identity" mechanism to allow different

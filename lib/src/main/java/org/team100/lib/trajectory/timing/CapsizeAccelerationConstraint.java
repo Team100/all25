@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.tuning.Mutable;
@@ -48,35 +48,41 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
      * If the curvature is zero, this will return infinity.
      */
     @Override
-    public double maxV(final Pose2dWithMotion state) {
+    public double maxV(final PathPoint state) {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         // abs is used here to make sure sqrt is happy.
-        return Math.sqrt(Math.abs(m_maxCentripetalAccel * m_scale.getAsDouble() * radius));
+        double maxV = Math.sqrt(Math.abs(m_maxCentripetalAccel * m_scale.getAsDouble() * radius));
+        if (DEBUG)
+            System.out.printf("maxV %f\n", maxV);
+        return maxV;
     }
 
     @Override
-    public double maxAccel(Pose2dWithMotion state, double velocity) {
+    public double maxAccel(PathPoint state, double velocity) {
         double alongsq = alongSq(state, velocity);
         if (alongsq < 0) {
             if (DEBUG)
                 System.out.println("too fast for the curvature, can't speed up");
             return 0;
         }
-        return Math.sqrt(alongsq);
+        double maxA = Math.sqrt(alongsq);
+        if (DEBUG)
+            System.out.printf("maxA %f\n", maxA);
+        return maxA;
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         double alongsq = alongSq(state, velocity);
         if (alongsq < 0) {
             if (DEBUG)
                 System.out.println("too fast for the curvature, slowing down is ok");
             return m_maxDecel * m_scale.getAsDouble();
         }
-        double decel = -Math.sqrt(alongsq);
+        double maxD = -Math.sqrt(alongsq);
         if (DEBUG)
-            System.out.printf("decel %f\n", decel);
-        return decel;
+            System.out.printf("maxD %f\n", maxD);
+        return maxD;
     }
 
     /**
@@ -90,12 +96,12 @@ public class CapsizeAccelerationConstraint implements TimingConstraint {
      * so
      * along = sqrt(total^2 - v^4/r^2)
      */
-    private double alongSq(Pose2dWithMotion state, double velocity) {
+    private double alongSq(PathPoint state, double velocity) {
         double radius = 1 / Math.abs(state.getCurvatureRad_M());
         double actualCentripetalAccel = velocity * velocity / radius;
         if (DEBUG)
-            System.out.printf("radius %f actual centripetal %f\n",
-                    radius, actualCentripetalAccel);
+            System.out.printf("radius %f velocity %f actual centripetal accel %f\n",
+                    radius, velocity, actualCentripetalAccel);
         return m_maxCentripetalAccel * m_scale.getAsDouble() * m_maxCentripetalAccel * m_scale.getAsDouble()
                 - actualCentripetalAccel * actualCentripetalAccel;
     }

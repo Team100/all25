@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.WaypointSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
@@ -27,7 +27,7 @@ class YawRateConstraintTest implements Timeless {
         // the linear constraint but it's ok)
         YawRateConstraint c = new YawRateConstraint(logger, SwerveKinodynamicsFactory.forTest(logger),
                 YAW_RATE_SCALE);
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                 1, // spatial, so rad/m
                 0);
@@ -41,7 +41,7 @@ class YawRateConstraintTest implements Timeless {
         // towards +x, 1 rad/m, 2 rad/s limit => 2 m/s
         YawRateConstraint c = new YawRateConstraint(logger, SwerveKinodynamicsFactory.forTest2(logger),
                 YAW_RATE_SCALE);
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                 1, // spatial, so rad/m
@@ -56,7 +56,7 @@ class YawRateConstraintTest implements Timeless {
         YawRateConstraint c = new YawRateConstraint(logger, SwerveKinodynamicsFactory.forTest(logger),
                 YAW_RATE_SCALE);
         // driving and spinning
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                 1,
@@ -73,7 +73,7 @@ class YawRateConstraintTest implements Timeless {
         double scale = 0.1;
         YawRateConstraint c = new YawRateConstraint(logger, SwerveKinodynamicsFactory.forRealisticTest(logger),
                 scale);
-        Pose2dWithMotion p = new Pose2dWithMotion(
+        PathPoint p = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                 1, // spatial, so rad/m

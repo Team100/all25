@@ -107,9 +107,4 @@ class SwerveUtilTest implements Timeless {
             v += dt * a;
         }
     }
-
-    @Test
-    void testJerkLimit() {
-
-    }
 }

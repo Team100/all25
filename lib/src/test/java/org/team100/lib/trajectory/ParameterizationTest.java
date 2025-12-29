@@ -9,13 +9,14 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.DirectionSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.trajectory.path.PathFactory;
 import org.team100.lib.trajectory.path.spline.HolonomicSpline;
+import org.team100.lib.trajectory.path.spline.SplineToVectorSeries;
 import org.team100.lib.trajectory.timing.ConstantConstraint;
 import org.team100.lib.trajectory.timing.TrajectoryFactory;
 import org.team100.lib.trajectory.timing.TimingConstraint;
@@ -115,7 +116,7 @@ public class ParameterizationTest {
                         new DirectionSE2(1, 0, 0), 1));
 
         PathFactory pathFactory = new PathFactory(0.1, 0.02, 0.2, 0.1);
-        List<Pose2dWithMotion> poses = pathFactory.samplesFromSplines(List.of(spline));
+        List<PathPoint> poses = pathFactory.samplesFromSplines(List.of(spline));
 
         XYSeries sx = PathToVectorSeries.x("spline", poses);
         XYDataset dataSet = TrajectoryPlotter.collect(sx);

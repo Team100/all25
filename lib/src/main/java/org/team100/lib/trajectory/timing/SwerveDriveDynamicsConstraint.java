@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 import org.team100.lib.subsystems.swerve.kinodynamics.limiter.SwerveUtil;
@@ -42,11 +42,11 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
      * speed allowed (m/s) that maintains the target spatial heading rate.
      */
     @Override
-    public double maxV(Pose2dWithMotion state) {
+    public double maxV(PathPoint state) {
         // First check instantaneous velocity and compute a limit based on drive
         // velocity.
-        Rotation2d course = state.getPose().course().toRotation();
-        Rotation2d heading = state.getPose().pose().getRotation();
+        Rotation2d course = state.waypoint().course().toRotation();
+        Rotation2d heading = state.waypoint().pose().getRotation();
         Rotation2d course_local = course.minus(heading);
         double vx = course_local.getCos();
         double vy = course_local.getSin();
@@ -79,7 +79,7 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
      * @see SwerveUtil.getAccelLimit()
      */
     @Override
-    public double maxAccel(Pose2dWithMotion state, double velocity) {
+    public double maxAccel(PathPoint state, double velocity) {
         if (Double.isNaN(velocity))
             throw new IllegalArgumentException();
         double maxAccel = SwerveUtil.minAccel(m_limits, 1, 1, velocity);
@@ -92,7 +92,7 @@ public class SwerveDriveDynamicsConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         // min accel is stronger than max accel
         return -1.0 * maxA();
     }

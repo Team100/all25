@@ -10,7 +10,6 @@ import org.team100.lib.profile.se2.HolonomicProfile;
 import org.team100.lib.profile.se2.HolonomicProfileFactory;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.subsystems.se2.MockSubsystemSE2;
-import org.team100.lib.subsystems.se2.commands.DriveToPoseWithProfile;
 import org.team100.lib.testing.Timeless;
 
 import edu.wpi.first.math.geometry.Pose2d;

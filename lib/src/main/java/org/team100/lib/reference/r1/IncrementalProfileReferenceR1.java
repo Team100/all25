@@ -8,7 +8,7 @@ import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.LoggerFactory.BooleanLogger;
 import org.team100.lib.logging.LoggerFactory.SetpointsR1Logger;
-import org.team100.lib.profile.incremental.IncrementalProfile;
+import org.team100.lib.profile.r1.IncrementalProfile;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 

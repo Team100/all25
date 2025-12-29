@@ -24,7 +24,6 @@ import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.sensor.gyro.SimulatedGyro;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.subsystems.se2.MockSubsystemSE2;
-import org.team100.lib.subsystems.se2.commands.test.DriveWithTrajectory;
 import org.team100.lib.subsystems.swerve.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.swerve.SwerveLocal;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
@@ -90,21 +89,21 @@ public class DriveWithTrajectoryTest implements Timeless {
 
         stepTime();
         c.execute();
-        assertEquals(0.102, d.m_setpoint.x(), DELTA);
+        assertEquals(0.125, d.m_setpoint.x(), DELTA);
         assertEquals(0, d.m_setpoint.y(), DELTA);
         assertEquals(0, d.m_setpoint.theta(), DELTA);
 
         // more normal driving
         stepTime();
         c.execute();
-        assertEquals(0.139, d.m_setpoint.x(), DELTA);
+        assertEquals(0.171, d.m_setpoint.x(), DELTA);
         assertEquals(0, d.m_setpoint.y(), DELTA);
         assertEquals(0, d.m_setpoint.theta(), DELTA);
 
         // etc
         stepTime();
         c.execute();
-        assertEquals(0.179, d.m_setpoint.x(), DELTA);
+        assertEquals(0.217, d.m_setpoint.x(), DELTA);
         assertEquals(0, d.m_setpoint.y(), DELTA);
         assertEquals(0, d.m_setpoint.theta(), DELTA);
     }
@@ -219,7 +218,7 @@ public class DriveWithTrajectoryTest implements Timeless {
         // etc
         stepTime();
         command.execute();
-        assertEquals(0.064, collection.states().frontLeft().speedMetersPerSecond(), DELTA);
+        assertEquals(0.077, collection.states().frontLeft().speedMetersPerSecond(), DELTA);
         assertEquals(0, collection.states().frontLeft().angle().get().getRadians(), DELTA);
     }
 

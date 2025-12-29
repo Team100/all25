@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.team100.lib.geometry.GeometryUtil;
 import org.team100.lib.geometry.Metrics;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 import org.team100.lib.trajectory.path.spline.HolonomicSpline;
 
@@ -69,7 +69,7 @@ public class PathFactory {
     ///
     ///
     ///
-  
+
     /**
      * Make a list of splines with the waypoints as knots.
      */
@@ -82,7 +82,7 @@ public class PathFactory {
     }
 
     /**
-     * Converts a spline into a list of Pose2dWithMotion.
+     * Converts a spline into a list of PathPoint.
      * 
      * The points are chosen so that the secant line between the points is within
      * the specified tolerance (dx, dy, dtheta) of the actual spline.
@@ -90,9 +90,9 @@ public class PathFactory {
      * The trajectory scheduler consumes these points, interpolating between them
      * with straight lines.
      */
-    List<Pose2dWithMotion> samplesFromSpline(HolonomicSpline spline) {
-        List<Pose2dWithMotion> result = new ArrayList<>();
-        result.add(spline.getPose2dWithMotion(0.0));
+    List<PathPoint> samplesFromSpline(HolonomicSpline spline) {
+        List<PathPoint> result = new ArrayList<>();
+        result.add(spline.getPathPoint(0.0));
         getSegmentArc(spline, result, 0, 1);
         return result;
     }
@@ -104,16 +104,16 @@ public class PathFactory {
     /**
      * For testing only. Do not call this directly
      */
-    public List<Pose2dWithMotion> samplesFromSplines(List<? extends HolonomicSpline> splines) {
-        List<Pose2dWithMotion> result = new ArrayList<>();
+    public List<PathPoint> samplesFromSplines(List<? extends HolonomicSpline> splines) {
+        List<PathPoint> result = new ArrayList<>();
         if (splines.isEmpty())
             return result;
-        result.add(splines.get(0).getPose2dWithMotion(0.0));
+        result.add(splines.get(0).getPathPoint(0.0));
         for (int i = 0; i < splines.size(); i++) {
             HolonomicSpline s = splines.get(i);
             if (DEBUG)
                 System.out.printf("SPLINE:\n%d\n%s\n", i, s);
-            List<Pose2dWithMotion> samples = samplesFromSpline(s);
+            List<PathPoint> samples = samplesFromSpline(s);
             // the sample at the end of the previous spline is the same as the one for the
             // beginning of the next, so don't include it twice.
             samples.remove(0);
@@ -131,13 +131,13 @@ public class PathFactory {
      */
     private void getSegmentArc(
             HolonomicSpline spline,
-            List<Pose2dWithMotion> rv,
+            List<PathPoint> rv,
             double s0,
             double s1) {
-        Pose2d p0 = spline.getPose2d(s0);
+        Pose2d p0 = spline.getPathPoint(s0).waypoint().pose();
         double shalf = (s0 + s1) / 2;
-        Pose2d phalf = spline.getPose2d(shalf);
-        Pose2d p1 = spline.getPose2d(s1);
+        Pose2d phalf = spline.getPathPoint(shalf).waypoint().pose();
+        Pose2d p1 = spline.getPathPoint(s1).waypoint().pose();
 
         // twist from p0 to p1
         Twist2d twist_full = p0.log(p1);
@@ -149,9 +149,9 @@ public class PathFactory {
         Transform2d error = phalf_predicted.minus(phalf);
 
         // also prohibit large changes in direction between points
-        Pose2dWithMotion p20 = spline.getPose2dWithMotion(s0);
-        Pose2dWithMotion p21 = spline.getPose2dWithMotion(s1);
-        Twist2d p2t = p20.getPose().course().minus(p21.getPose().course());
+        PathPoint p20 = spline.getPathPoint(s0);
+        PathPoint p21 = spline.getPathPoint(s1);
+        Twist2d p2t = p20.waypoint().course().minus(p21.waypoint().course());
 
         // note the extra conditions to avoid points too far apart.
         // checks both translational and l2 norms
@@ -167,7 +167,7 @@ public class PathFactory {
             getSegmentArc(spline, rv, shalf, s1);
         } else {
             // midpoint is close enough, so add the endpoint
-            rv.add(spline.getPose2dWithMotion(s1));
+            rv.add(spline.getPathPoint(s1));
         }
     }
 }

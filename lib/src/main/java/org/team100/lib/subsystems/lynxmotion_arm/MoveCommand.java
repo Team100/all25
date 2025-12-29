@@ -1,7 +1,9 @@
 package org.team100.lib.subsystems.lynxmotion_arm;
 
+import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.geometry.GeometryUtil;
-import org.team100.lib.profile.timed.JerkLimitedTimedProfile;
+import org.team100.lib.profile.r1.IncrementalProfile;
+import org.team100.lib.profile.r1.TrapezoidProfileWPI;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 import org.team100.lib.util.StrUtil;
@@ -19,8 +21,11 @@ public class MoveCommand extends Command {
     private static final boolean DEBUG = false;
     private final LynxArm m_arm;
     private final Pose3d m_goal;
-    private final JerkLimitedTimedProfile m_profile;
+    private final IncrementalProfile m_profile;
     private final Timer m_timer;
+
+    private Control100 m_setpoint;
+    private Model100 m_profileGoal;
 
     private Pose3d m_start;
     private double m_grip;
@@ -30,7 +35,7 @@ public class MoveCommand extends Command {
     public MoveCommand(LynxArm arm, Pose3d goal, double velocity) {
         m_arm = arm;
         m_goal = goal;
-        m_profile = new JerkLimitedTimedProfile(velocity, 1, 10, true);
+        m_profile = new TrapezoidProfileWPI(velocity, 1);
         m_timer = new Timer();
         addRequirements(arm);
     }
@@ -44,7 +49,8 @@ public class MoveCommand extends Command {
 
         // this doesn't work for twist-only moves without the minimum
         m_distance = Math.max(0.01, m_start.getTranslation().getDistance(m_goal.getTranslation()));
-        m_profile.init(new Control100(), new Model100(m_distance, 0));
+        m_setpoint = new Control100();
+        m_profileGoal = new Model100(m_distance, 0);
         m_timer.restart();
         m_done = false;
         if (DEBUG) {
@@ -60,7 +66,8 @@ public class MoveCommand extends Command {
         // the servo doesn't need to be commanded to maintain its position but it's a
         // good habit since some motor types do need this.
         m_arm.setGrip(m_grip);
-        Control100 c = m_profile.sample(m_timer.get());
+        m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint, m_profileGoal);
+        Control100 c = m_setpoint;
         double s = c.x() / m_distance;
         Pose3d setpoint = GeometryUtil.interpolate(m_start, m_goal, s);
         Pose3d measurement = m_arm.getPosition().p6();

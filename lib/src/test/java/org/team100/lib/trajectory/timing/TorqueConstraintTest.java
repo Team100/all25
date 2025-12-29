@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.WaypointSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,7 +16,7 @@ public class TorqueConstraintTest {
     void testRadial() {
         TorqueConstraint jc = new TorqueConstraint(6);
         // moving +x at (1,0,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(1, 0, new Rotation2d(0)), 0, 1.2),
                 0, 0);
@@ -29,7 +29,7 @@ public class TorqueConstraintTest {
     void testTangential() {
         TorqueConstraint jc = new TorqueConstraint(6);
         // at (1,0,0), moving (0,1,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(1, 0, new Rotation2d(0)), Math.PI / 2, 1.2),
                 0, 0);
@@ -42,7 +42,7 @@ public class TorqueConstraintTest {
     void testInclined() {
         TorqueConstraint jc = new TorqueConstraint(6);
         // moving +x+y at (1,0,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(1, 0, new Rotation2d(0)), Math.PI / 4, 1.2),
                 0, 0);
@@ -55,7 +55,7 @@ public class TorqueConstraintTest {
     void testFar() {
         TorqueConstraint jc = new TorqueConstraint(6);
         // moving +y at (2,0,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(2, 0, new Rotation2d(0)), Math.PI / 2, 1.2),
                 0, 0);
@@ -68,7 +68,7 @@ public class TorqueConstraintTest {
     void testFar2() {
         TorqueConstraint jc = new TorqueConstraint(6);
         // moving +y at (3,0,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(3, 0, new Rotation2d(0)), Math.PI / 2, 1.2),
                 0, 0);
@@ -81,7 +81,7 @@ public class TorqueConstraintTest {
     void testRealistic() {
         TorqueConstraint jc = new TorqueConstraint(30);
         // moving +y at (1,0,0)
-        Pose2dWithMotion state = new Pose2dWithMotion(
+        PathPoint state = new PathPoint(
                 WaypointSE2.irrotational(
                         new Pose2d(1, 0, new Rotation2d(0)), Math.PI / 2, 1.2),
                 0, 0);

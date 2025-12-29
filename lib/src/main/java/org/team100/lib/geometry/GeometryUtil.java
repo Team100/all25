@@ -375,7 +375,7 @@ public class GeometryUtil {
     /**
      * Change in heading per change in position.
      */
-    static double headingRatio(Pose2d p0, Pose2d p1) {
+    public static double headingRatio(Pose2d p0, Pose2d p1) {
         Rotation2d h0 = p0.getRotation();
         Rotation2d h1 = p1.getRotation();
         double d = Metrics.doubleGeodesicDistance(p0, p1);

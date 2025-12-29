@@ -118,23 +118,23 @@ public class TrajectoryTest {
                     "t, intrinsic_heading_dt, heading_dt, intrinsic_ca, extrinsic_ca, extrinsic v, intrinsic v, dcourse, dcourse1");
         for (double t = 0.04; t < duration; t += 0.04) {
             TimedState p1 = trajectory.sample(t);
-            Rotation2d heading0 = p0.state().getPose().pose().getRotation();
-            Rotation2d heading1 = p1.state().getPose().pose().getRotation();
+            Rotation2d heading0 = p0.point().waypoint().pose().getRotation();
+            Rotation2d heading1 = p1.point().waypoint().pose().getRotation();
             double dheading = heading1.minus(heading0).getRadians();
             // compute time derivative of heading two ways:
             // this just compares the poses and uses the known time step
             double dheadingDt = dheading / 0.04;
             // this uses the intrinsic heading rate and the velocity
             // rad/m * m/s = rad/s
-            double intrinsicDheadingDt = p0.state().getHeadingRateRad_M() * p0.velocityM_S();
+            double intrinsicDheadingDt = p0.point().getHeadingRateRad_M() * p0.velocityM_S();
             // curvature is used to compute centripetal acceleration
             // ca = v^2*curvature
-            DirectionSE2 course0 = p0.state().getPose().course();
-            DirectionSE2 course1 = p1.state().getPose().course();
-            p1.state().getPose().pose().log(p0.state().getPose().pose());
+            DirectionSE2 course0 = p0.point().waypoint().course();
+            DirectionSE2 course1 = p1.point().waypoint().course();
+            p1.point().waypoint().pose().log(p0.point().waypoint().pose());
             double dcourse1 = Metrics.translationalNorm(course1.minus(course0));
             double dcourse = course1.toRotation().minus(course0.toRotation()).getRadians();
-            double intrinsicCa = p0.velocityM_S() * p0.velocityM_S() * p0.state().getCurvatureRad_M();
+            double intrinsicCa = p0.velocityM_S() * p0.velocityM_S() * p0.point().getCurvatureRad_M();
 
             if (DEBUG)
                 System.out.printf("%5.3f, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f\n",

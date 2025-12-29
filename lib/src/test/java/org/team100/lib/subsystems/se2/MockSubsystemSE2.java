@@ -2,7 +2,6 @@ package org.team100.lib.subsystems.se2;
 
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.state.ModelSE2;
-import org.team100.lib.subsystems.se2.VelocitySubsystemSE2;
 
 public class MockSubsystemSE2 implements VelocitySubsystemSE2 {
     public VelocitySE2 m_setpoint;

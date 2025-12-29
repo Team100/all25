@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
+import org.team100.lib.profile.r1.TrapezoidProfileWPI;
 import org.team100.lib.state.Model100;
 import org.team100.lib.testing.Timeless;
 

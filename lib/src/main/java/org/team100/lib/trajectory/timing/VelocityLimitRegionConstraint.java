@@ -1,6 +1,6 @@
 package org.team100.lib.trajectory.timing;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -24,8 +24,8 @@ public class VelocityLimitRegionConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxV(Pose2dWithMotion state) {
-        final Translation2d translation = state.getPose().pose().getTranslation();
+    public double maxV(PathPoint state) {
+        final Translation2d translation = state.waypoint().pose().getTranslation();
         if (translation.getX() <= m_max.getX() && translation.getX() >= m_min.getX() &&
                 translation.getY() <= m_max.getY() && translation.getY() >= m_min.getY()) {
             return m_limit;
@@ -34,12 +34,12 @@ public class VelocityLimitRegionConstraint implements TimingConstraint {
     }
 
     @Override
-    public double maxAccel(Pose2dWithMotion state, double velocity) {
+    public double maxAccel(PathPoint state, double velocity) {
         return Double.POSITIVE_INFINITY;
     }
 
     @Override
-    public double maxDecel(Pose2dWithMotion state, double velocity) {
+    public double maxDecel(PathPoint state, double velocity) {
         return Double.NEGATIVE_INFINITY;
     }
 

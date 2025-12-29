@@ -17,7 +17,6 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.subsystems.se2.commands.test.DriveWithTrajectoryListFunction;
 import org.team100.lib.subsystems.swerve.Fixture;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.trajectory.TrajectoryPlanner;
@@ -64,7 +63,7 @@ class DriveWithTrajectoryListFunctionTest implements Timeless {
         c.execute();
         assertFalse(c.isDone());
         // the trajectory takes a little over 3s
-        for (double t = 0; t < 3.2; t += TimedRobot100.LOOP_PERIOD_S) {
+        for (double t = 0; t < 4; t += TimedRobot100.LOOP_PERIOD_S) {
             stepTime();
             c.execute();
             fixture.drive.periodic(); // for updateOdometry

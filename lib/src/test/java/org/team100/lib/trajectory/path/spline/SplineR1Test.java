@@ -28,10 +28,6 @@ public class SplineR1Test {
     /** Look at an example */
     @Test
     void testSample() {
-        // an example from 0 to 1 with zero first and second derivatives at the ends.
-        // the jerk and snap of this spline is very high at the ends, so it
-        // is not useful without modifying the schedule.
-        // Spline1d spline = Spline1d.get(0, 1, 0, 0, 0, 0);
         SplineR1 spline = SplineR1.viaMatrix(0, 1, 0, 0, 0, 0);
         show(spline);
     }

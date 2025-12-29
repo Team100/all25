@@ -5,141 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.trajectory.path.spline.HolonomicSpline;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 class GeometryUtilTest {
-    private static final boolean DEBUG = false;
     private static final double DELTA = 0.001;
-
-    @Test
-    void testCurvature() {
-        HolonomicSpline spline = new HolonomicSpline(
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(),
-                                new Rotation2d()),
-                        new DirectionSE2(1, 0, 0), 1),
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(1, 1),
-                                new Rotation2d()),
-                        new DirectionSE2(0, 1, 0), 1));
-        // verify one point
-        {
-            double splineCurvature = spline.getCurvature(0.5);
-            assertEquals(0.950, splineCurvature, DELTA);
-            Pose2d p0 = spline.getPose2d(0.49);
-            Pose2d p1 = spline.getPose2d(0.5);
-            Pose2d p2 = spline.getPose2d(0.51);
-            double mengerCurvature = GeometryUtil.mengerCurvature(
-                    p0.getTranslation(), p1.getTranslation(), p2.getTranslation());
-            assertEquals(0.950, mengerCurvature, DELTA);
-        }
-        // verify all the points
-        double DS = 0.01;
-        for (double s = DS; s <= 1 - DS; s += DS) {
-            double splineCurvature = spline.getCurvature(s);
-            Pose2d p0 = spline.getPose2d(s - DS);
-            Pose2d p1 = spline.getPose2d(s);
-            Pose2d p2 = spline.getPose2d(s + DS);
-            double mengerCurvature = GeometryUtil.mengerCurvature(
-                    p0.getTranslation(), p1.getTranslation(), p2.getTranslation());
-            if (DEBUG)
-                System.out.printf("%f %f %f %f\n", s, splineCurvature, mengerCurvature,
-                        splineCurvature - mengerCurvature);
-            // error scales with ds.
-            assertEquals(splineCurvature, mengerCurvature, 0.001);
-        }
-    }
-
-    @Test
-    void testCurvature2() {
-        // no curve
-        HolonomicSpline spline = new HolonomicSpline(
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(),
-                                new Rotation2d()),
-                        new DirectionSE2(1, 0, 0), 1),
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(1, 0),
-                                new Rotation2d()),
-                        new DirectionSE2(1, 0, 0), 1));
-        double splineCurvature = spline.getCurvature(0.5);
-        assertEquals(0, splineCurvature, DELTA);
-        Pose2d p0 = spline.getPose2d(0.49);
-        Pose2d p1 = spline.getPose2d(0.5);
-        Pose2d p2 = spline.getPose2d(0.51);
-        double mengerCurvature = GeometryUtil.mengerCurvature(
-                p0.getTranslation(), p1.getTranslation(), p2.getTranslation());
-        assertEquals(0, mengerCurvature, DELTA);
-    }
-
-    @Test
-    void testCurvature3() {
-        // turn in place
-        WaypointSE2 w0 = new WaypointSE2(
-                new Pose2d(new Translation2d(), new Rotation2d()),
-                new DirectionSE2(0, 0, 1), 1);
-        WaypointSE2 w1 = new WaypointSE2(
-                new Pose2d(new Translation2d(), new Rotation2d(1)),
-                new DirectionSE2(0, 0, 1), 1);
-        HolonomicSpline spline = new HolonomicSpline(w0, w1);
-
-        double splineCurvature = spline.getCurvature(0.5);
-        assertEquals(0, splineCurvature, DELTA);
-        Pose2d p0 = spline.getPose2d(0.49);
-        Pose2d p1 = spline.getPose2d(0.5);
-        Pose2d p2 = spline.getPose2d(0.51);
-        double mengerCurvature = GeometryUtil.mengerCurvature(
-                p0.getTranslation(), p1.getTranslation(), p2.getTranslation());
-        assertEquals(0, mengerCurvature, DELTA);
-    }
-
-    @Test
-    void testHeadingRate() {
-        // note spline rotation rate is not constant, to make it more interesting
-        HolonomicSpline spline = new HolonomicSpline(
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(),
-                                new Rotation2d()),
-                        new DirectionSE2(1, 0, 0), 1),
-                new WaypointSE2(
-                        new Pose2d(
-                                new Translation2d(1, 0),
-                                new Rotation2d(1)),
-                        new DirectionSE2(1, 0, 1), 1));
-        {
-            double splineHR = spline.getDHeadingDs(0.5);
-            assertEquals(0.811, splineHR, DELTA);
-            Pose2d p0 = spline.getPose2d(0.49);
-            Pose2d p1 = spline.getPose2d(0.51);
-            double discreteHR = GeometryUtil.headingRatio(p0, p1);
-            assertEquals(0.811, discreteHR, DELTA);
-        }
-        double DS = 0.001;
-        for (double s = DS; s <= 1 - DS; s += DS) {
-            double splineHR = spline.getDHeadingDs(s);
-            Pose2d p0 = spline.getPose2d(s - DS);
-            Pose2d p1 = spline.getPose2d(s + DS);
-            double discreteHR = GeometryUtil.headingRatio(p0, p1);
-            if (DEBUG)
-                System.out.printf("%f %f %f %f\n", s, splineHR, discreteHR, splineHR - discreteHR);
-            // error scales with ds
-            assertEquals(splineHR, discreteHR, 0.00001);
-        }
-    }
 
     @Test
     void testProject() {

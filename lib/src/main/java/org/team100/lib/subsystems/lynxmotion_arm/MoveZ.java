@@ -1,6 +1,8 @@
 package org.team100.lib.subsystems.lynxmotion_arm;
 
-import org.team100.lib.profile.timed.JerkLimitedTimedProfile;
+import org.team100.lib.framework.TimedRobot100;
+import org.team100.lib.profile.r1.IncrementalProfile;
+import org.team100.lib.profile.r1.TrapezoidProfileWPI;
 import org.team100.lib.state.Control100;
 import org.team100.lib.state.Model100;
 
@@ -11,8 +13,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class MoveZ extends Command {
     private final LynxArm m_arm;
     private final double m_goal;
-    private final JerkLimitedTimedProfile m_profile;
+    private final IncrementalProfile m_profile;
     private final Timer m_timer;
+
+    private Control100 m_setpoint;
+    private Model100 m_profileGoal;
 
     private double m_start;
     private double m_grip;
@@ -22,7 +27,7 @@ public class MoveZ extends Command {
     public MoveZ(LynxArm arm, double goal) {
         m_arm = arm;
         m_goal = goal;
-        m_profile = new JerkLimitedTimedProfile(1, 1, 10, true);
+        m_profile = new TrapezoidProfileWPI(1, 1);
         m_timer = new Timer();
         addRequirements(arm);
     }
@@ -32,7 +37,8 @@ public class MoveZ extends Command {
         m_start = m_arm.getPosition().p6().getZ();
         m_grip = m_arm.getGrip();
         m_distance = Math.abs(m_start - m_goal);
-        m_profile.init(new Control100(), new Model100(m_distance, 0));
+        m_setpoint = new Control100();
+        m_profileGoal = new Model100(m_distance, 0);
         m_timer.restart();
         m_done = false;
     }
@@ -40,7 +46,8 @@ public class MoveZ extends Command {
     @Override
     public void execute() {
         m_arm.setGrip(m_grip);
-        Control100 c = m_profile.sample(m_timer.get());
+        m_setpoint = m_profile.calculate(TimedRobot100.LOOP_PERIOD_S, m_setpoint, m_profileGoal);
+        Control100 c = m_setpoint;
         double s = c.x() / m_distance;
         double setpoint = MathUtil.interpolate(m_start, m_goal, s);
 

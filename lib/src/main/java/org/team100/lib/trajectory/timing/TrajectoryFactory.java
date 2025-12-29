@@ -3,7 +3,7 @@ package org.team100.lib.trajectory.timing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.path.Path100;
 import org.team100.lib.util.Math100;
@@ -30,7 +30,7 @@ public class TrajectoryFactory {
      * Samples the path, then assigns a time to each sample.
      */
     public Trajectory100 fromPath(Path100 path, double start_vel, double end_vel) {
-        Pose2dWithMotion[] samples = getSamples(path);
+        PathPoint[] samples = getSamples(path);
         return fromSamples(samples, start_vel, end_vel);
     }
 
@@ -41,7 +41,7 @@ public class TrajectoryFactory {
     /**
      * Return an array of poses from the path.
      */
-    private Pose2dWithMotion[] getSamples(Path100 path) {
+    private PathPoint[] getSamples(Path100 path) {
         return path.resample();
     }
 
@@ -50,8 +50,8 @@ public class TrajectoryFactory {
      * 
      * Output is these same samples with time.
      */
-    private Trajectory100 fromSamples(
-            Pose2dWithMotion[] samples,
+    public Trajectory100 fromSamples(
+            PathPoint[] samples,
             double start_vel,
             double end_vel) {
         double[] distances = distances(samples);
@@ -59,14 +59,14 @@ public class TrajectoryFactory {
         double[] accels = accels(distances, velocities);
         double[] runningTime = runningTime(distances, velocities, accels);
         List<TimedState> timedStates = timedStates(samples, velocities, accels, runningTime);
-        return new Trajectory100(timedStates);
+        return new Trajectory100(timedStates, m_constraints);
     }
 
     /**
      * Creates a list of timed states.
      */
     private List<TimedState> timedStates(
-            Pose2dWithMotion[] samples, double[] velocities, double[] accels, double[] runningTime) {
+            PathPoint[] samples, double[] velocities, double[] accels, double[] runningTime) {
         int n = samples.length;
         List<TimedState> timedStates = new ArrayList<>(n);
         for (int i = 0; i < n; ++i) {
@@ -113,7 +113,7 @@ public class TrajectoryFactory {
      * constraints.
      */
     private double[] velocities(
-            Pose2dWithMotion[] samples, double start_vel, double end_vel, double[] distances) {
+            PathPoint[] samples, double start_vel, double end_vel, double[] distances) {
         double velocities[] = new double[samples.length];
         forward(samples, start_vel, distances, velocities);
         backward(samples, end_vel, distances, velocities);
@@ -129,26 +129,37 @@ public class TrajectoryFactory {
      * referencing the state at i.
      */
     private void forward(
-            Pose2dWithMotion[] samples, double start_vel, double[] distances, double[] velocities) {
+            PathPoint[] samples, double start_vel, double[] distances, double[] velocities) {
         int n = samples.length;
         velocities[0] = start_vel;
         for (int i = 0; i < n - 1; ++i) {
+            if (DEBUG)
+                System.out.printf("FWD i %d\n", i);
             double arclength = distances[i + 1] - distances[i];
             if (Math.abs(arclength) < EPSILON) {
+                if (DEBUG)
+                    System.out.printf("i %d zero arc\n", i);
                 // zero-length arcs have the same state at both ends
                 velocities[i + 1] = velocities[i];
                 break;
             }
             // velocity constraint depends only on state
             double maxVelocity = maxVelocity(samples[i + 1]);
+            if (DEBUG)
+                System.out.printf("maxV i %d %f\n", i + 1, maxVelocity);
             // start with the maximum velocity
             velocities[i + 1] = maxVelocity;
             // reduce velocity to fit under the acceleration constraint
             double impliedAccel = Math100.accel(velocities[i], velocities[i + 1], arclength);
             double maxAccel = maxAccel(samples[i], velocities[i]);
-            if (impliedAccel > maxAccel + EPSILON) {
+            if (impliedAccel > maxAccel/* + EPSILON */) {
                 velocities[i + 1] = Math100.v1(velocities[i], maxAccel, arclength);
+                if (DEBUG)
+                    System.out.printf("adjust vi+1 %f\n", velocities[i + 1]);
             }
+            if (DEBUG)
+                System.out.printf("FWD i %d vi %f vi+1 %f maxA %f impliedA %f\n",
+                        i, velocities[i], velocities[i + 1], maxAccel, impliedAccel);
         }
     }
 
@@ -161,28 +172,46 @@ public class TrajectoryFactory {
      * smoothly smooth enough so it shouldn't matter much in practice.
      */
     private void backward(
-            Pose2dWithMotion[] samples, double end_vel, double[] distances, double[] velocities) {
+            PathPoint[] samples, double end_vel, double[] distances, double[] velocities) {
         int n = samples.length;
         velocities[n - 1] = end_vel;
         for (int i = n - 2; i >= 0; --i) {
+            if (DEBUG)
+                System.out.printf("BACK i %d\n", i);
             double arclength = distances[i + 1] - distances[i];
             if (Math.abs(arclength) < EPSILON) {
                 // already handled this case
                 break;
             }
+
+            double maxVelocity = maxVelocity(samples[i]);
+            if (DEBUG)
+                System.out.printf("maxV i %d %f\n", i, maxVelocity);
+
             double impliedAccel = Math100.accel(velocities[i], velocities[i + 1], arclength);
             // Apply the decel constraint at the end of the segment since it is feasible.
-            double maxDecel = maxDecel(samples[i + 1], velocities[i + 1]);
-            if (impliedAccel < maxDecel - EPSILON) {
+            double maxDecel = maxDecel(samples[i], velocities[i + 1]);
+            if (impliedAccel < maxDecel/* - EPSILON */) {
                 velocities[i] = Math100.v0(velocities[i + 1], maxDecel, arclength);
+                if (DEBUG)
+                    System.out.printf("adjust vi %f\n", velocities[i]);
             }
+            if (Math.abs(maxVelocity) < velocities[i]) {
+                velocities[i] = Math.signum(velocities[i]) * maxVelocity;
+                if (DEBUG)
+                    System.out.println("fix v one more time");
+            }
+
+            if (DEBUG)
+                System.out.printf("BACK i %d vi %f vi+1 %f max %f implied %f\n",
+                        i, velocities[i], velocities[i + 1], maxDecel, impliedAccel);
         }
     }
 
     /**
      * Computes the length of each arc and accumulates.
      */
-    private double[] distances(Pose2dWithMotion[] samples) {
+    private double[] distances(PathPoint[] samples) {
         int n = samples.length;
         double distances[] = new double[n];
         for (int i = 1; i < n; ++i) {
@@ -196,7 +225,7 @@ public class TrajectoryFactory {
      * Returns the lowest (i.e. closest to zero) velocity constraint from the list
      * of constraints. Always positive or zero.
      */
-    private double maxVelocity(Pose2dWithMotion sample) {
+    private double maxVelocity(PathPoint sample) {
         double minVelocity = HIGH_V;
         for (TimingConstraint constraint : m_constraints) {
             minVelocity = Math.min(minVelocity, constraint.maxV(sample));
@@ -208,7 +237,7 @@ public class TrajectoryFactory {
      * Returns the lowest (i.e. closest to zero) acceleration constraint from the
      * list of constraints. Always positive or zero.
      */
-    private double maxAccel(Pose2dWithMotion sample, double velocity) {
+    private double maxAccel(PathPoint sample, double velocity) {
         double minAccel = HIGH_ACCEL;
         for (TimingConstraint constraint : m_constraints) {
             minAccel = Math.min(minAccel, constraint.maxAccel(sample, velocity));
@@ -220,7 +249,7 @@ public class TrajectoryFactory {
      * Returns the highest (i.e. closest to zero) deceleration constraint from the
      * list of constraints. Always negative or zero.
      */
-    private double maxDecel(Pose2dWithMotion sample, double velocity) {
+    private double maxDecel(PathPoint sample, double velocity) {
         double maxDecel = -HIGH_ACCEL;
         for (TimingConstraint constraint : m_constraints) {
             maxDecel = Math.max(maxDecel, constraint.maxDecel(sample, velocity));

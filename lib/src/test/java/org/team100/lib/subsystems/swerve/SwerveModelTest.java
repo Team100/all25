@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.team100.lib.geometry.WaypointSE2;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.trajectory.timing.TimedState;
@@ -30,7 +30,7 @@ class ModelSE2Test {
     void testTimedState() {
         ModelSE2 s = ModelSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -47,7 +47,7 @@ class ModelSE2Test {
     void testTimedState2() {
         ModelSE2 s = ModelSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -64,7 +64,7 @@ class ModelSE2Test {
     void testTimedState3() {
         ModelSE2 s = ModelSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 0),
@@ -82,7 +82,7 @@ class ModelSE2Test {
     void testTimedState4() {
         ModelSE2 s = ModelSE2.fromTimedState(
                 new TimedState(
-                        new Pose2dWithMotion(
+                        new PathPoint(
                                 WaypointSE2.irrotational(
                                         new Pose2d(0, 0, new Rotation2d(0)), 0, 1.2),
                                 0, 1),

@@ -39,13 +39,15 @@ public class TrajectoryPlanner {
 
     /////////////////////////////////////////////////////////////////////////////////////
     ///
-    ///
+    /// DANGER ZONE
+    /// 
+    /// Only use this if you know what you're doing.
 
     /**
      * Makes a trajectory through the supplied waypoints, with start and end
      * velocities.
      */
-    Trajectory100 generateTrajectory(
+    public Trajectory100 generateTrajectory(
             List<WaypointSE2> waypoints, double start_vel, double end_vel) {
         try {
             // Create a path from splines.

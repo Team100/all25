@@ -2,7 +2,7 @@ package org.team100.lib.trajectory.path.spline;
 
 import org.team100.lib.geometry.DirectionSE2;
 import org.team100.lib.geometry.Metrics;
-import org.team100.lib.geometry.Pose2dWithMotion;
+import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.WaypointSE2;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -61,6 +61,9 @@ public class HolonomicSpline {
     public HolonomicSpline(WaypointSE2 p0, WaypointSE2 p1) {
         // Translation distance in the xy plane.
         double distance = Metrics.translationalDistance(p0.pose(), p1.pose());
+        if (distance < 1e-6)
+            throw new IllegalArgumentException("splines must cover xy distance");
+
         if (DEBUG)
             System.out.printf("distance %f\n", distance);
         double scale0 = p0.scale() * distance;
@@ -109,16 +112,21 @@ public class HolonomicSpline {
     }
 
     /**
-     * TODO: eliminate the waypoint here, for sure eliminate the scale.
+     * TODO: remove the "1" scale here
      * 
      * @param s [0,1]
      */
-    public Pose2dWithMotion getPose2dWithMotion(double s) {
-        return new Pose2dWithMotion(
-                new WaypointSE2(getPose2d(s), getCourse(s), 1), // <<< TODO: remove the "1"
+    public PathPoint getPathPoint(double s) {
+        return new PathPoint(
+                new WaypointSE2(
+                        new Pose2d(new Translation2d(x(s), y(s)), getHeading(s)),
+                        getCourse(s), 1),
+                this, s,
                 getDHeadingDs(s),
                 getCurvature(s));
     }
+
+    ////////////////////////////////////////////////////////////////////////
 
     /**
      * Direction of motion in SE(2). Includes both cartesian dimensions and also the
@@ -129,14 +137,10 @@ public class HolonomicSpline {
         double dx = dx(s);
         double dy = dy(s);
         double dtheta = dtheta(s);
+        if (DEBUG)
+            System.out.printf("%f %f %f\n", dx, dy, dtheta);
         return new DirectionSE2(dx, dy, dtheta);
     }
-
-    public Pose2d getPose2d(double s) {
-        return new Pose2d(new Translation2d(x(s), y(s)), getHeading(s));
-    }
-
-    ////////////////////////////////////////////////////////////////////////
 
     private double getDHeading(double s) {
         return m_heading.getVelocity(s);
@@ -148,12 +152,12 @@ public class HolonomicSpline {
      * 
      * TODO: elsewhere this is combined with R2 pathwise velocity, so this is wrong.
      */
-    public double getDHeadingDs(double s) {
+    double getDHeadingDs(double s) {
         return getDHeading(s) / getVelocity(s);
     }
 
     /** x at s */
-    public double x(double s) {
+    double x(double s) {
         return m_x.getPosition(s);
     }
 
@@ -169,7 +173,7 @@ public class HolonomicSpline {
     }
 
     /** dx/ds */
-    public double dx(double s) {
+    double dx(double s) {
         return m_x.getVelocity(s);
     }
 
@@ -184,7 +188,7 @@ public class HolonomicSpline {
     }
 
     /** d^2x/ds^2 */
-    public double ddx(double s) {
+    double ddx(double s) {
         return m_x.getAcceleration(s);
     }
 
@@ -221,7 +225,7 @@ public class HolonomicSpline {
      * Note the denominator is distance in this case, not the parameter, p.
      * but the argument to this function *is* the parameter, s. :-)
      */
-    public double getCurvature(double s) {
+    double getCurvature(double s) {
         double dx = dx(s);
         double dy = dy(s);
         double ddx = ddx(s);

@@ -3,7 +3,6 @@ package org.team100.frc2025.indicator;
 import org.team100.frc2025.Climber.ClimberIntake;
 import org.team100.frc2025.grip.Manipulator;
 import org.team100.lib.coherence.Takt;
-import org.team100.lib.localization.AprilTagRobotLocalizer;
 import org.team100.lib.localization.NudgingVisionUpdater;
 
 import edu.wpi.first.wpilibj.AddressableLED;

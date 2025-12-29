@@ -8,8 +8,6 @@ import org.team100.lib.geometry.VelocitySE2;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.profile.se2.HolonomicProfile;
-import org.team100.lib.profile.se2.HolonomicProfileFactory;
 import org.team100.lib.state.ControlSE2;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.testing.Timeless;
