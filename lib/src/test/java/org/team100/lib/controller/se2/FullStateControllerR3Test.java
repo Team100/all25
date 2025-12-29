@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.team100.lib.controller.se2.ControllerFactorySE2;
-import org.team100.lib.controller.se2.FullStateControllerSE2;
 import org.team100.lib.geometry.DeltaSE2;
 import org.team100.lib.geometry.PathPoint;
 import org.team100.lib.geometry.VelocitySE2;

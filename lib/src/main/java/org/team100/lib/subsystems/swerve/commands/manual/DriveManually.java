@@ -101,12 +101,6 @@ public class DriveManually extends Command {
 
     }
 
-    @Override
-    public void end(boolean interrupted) {
-        // this can interfere with semi-auton commands, creating a "jerk" at engagement.
-        // m_drive.stop();
-    }
-
     /**
      * Override the driver mode.
      * 

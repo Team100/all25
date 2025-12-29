@@ -98,35 +98,6 @@ public class TimedState {
                 m_accelM_S_S);
     }
 
-    /** Tries to take variation in acceleration into account. For resampling. */
-    public TimedState interpolate2(TimedState other, double delta_t) {
-        if (delta_t < 0)
-            throw new IllegalArgumentException("delta_t must be non-negative");
-        if (DEBUG)
-            System.out.println("lerp");
-        double tLerp = m_timeS + delta_t;
-        double vLerp = m_velocityM_S + m_accelM_S_S * delta_t;
-        double dt = other.m_timeS - m_timeS;
-        double j = (other.m_accelM_S_S - m_accelM_S_S) / dt;
-        double pathwiseDistance = m_velocityM_S * delta_t + 0.5 * m_accelM_S_S * delta_t * delta_t
-                + 0.1666 * j * delta_t * delta_t * delta_t;
-
-        double distanceBetween = m_velocityM_S * dt + 0.5 * m_accelM_S_S * dt * dt + 0.1666 * j * dt * dt * dt;
-        double interpolant = pathwiseDistance / distanceBetween;
-        if (Double.isNaN(interpolant)) {
-            interpolant = 1.0;
-        }
-
-        if (DEBUG)
-            System.out.printf("tlerp %f\n", tLerp);
-        return new TimedState(
-                // m_point.interpolate(other.m_point, interpolant),
-                m_point.interpolate(other.m_point, interpolant),
-                tLerp,
-                vLerp,
-                m_accelM_S_S);
-    }
-
     /** Translation only, ignores rotation */
     public double distanceCartesian(TimedState other) {
         return m_point.distanceCartesian(other.m_point);

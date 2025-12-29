@@ -65,34 +65,7 @@ public class Trajectory100 {
         throw new IllegalStateException("impossible trajectory: " + toString());
     }
 
-    /** Uses non-constant acceleration, for resampling */
-    public TimedState sample2(double timeS) {
-        // This scans the whole trajectory for every sample, but most of the time
-        // is the interpolation; I tried a TreeMap index and it only saved a few
-        // nanoseconds per call.
-        if (isEmpty())
-            throw new IllegalStateException("can't sample an empty trajectory");
-        if (timeS >= m_duration) {
-            return getLastPoint();
-        }
-        if (timeS <= 0) {
-            return getPoint(0);
-        }
 
-        for (int i = 1; i < length(); ++i) {
-            final TimedState ceil = getPoint(i);
-            if (ceil.getTimeS() >= timeS) {
-                final TimedState floor = getPoint(i - 1);
-                double span = ceil.getTimeS() - floor.getTimeS();
-                if (Math.abs(span) <= 1e-12) {
-                    return ceil;
-                }
-                double delta_t = timeS - floor.getTimeS();
-                return floor.interpolate2(ceil, delta_t);
-            }
-        }
-        throw new IllegalStateException("impossible trajectory: " + toString());
-    }
 
     /** Time is at or beyond the trajectory duration. */
     public boolean isDone(double timeS) {

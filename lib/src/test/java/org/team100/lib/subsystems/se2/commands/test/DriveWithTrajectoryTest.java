@@ -24,7 +24,6 @@ import org.team100.lib.sensor.gyro.Gyro;
 import org.team100.lib.sensor.gyro.SimulatedGyro;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.subsystems.se2.MockSubsystemSE2;
-import org.team100.lib.subsystems.se2.commands.test.DriveWithTrajectory;
 import org.team100.lib.subsystems.swerve.SwerveDriveSubsystem;
 import org.team100.lib.subsystems.swerve.SwerveLocal;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;

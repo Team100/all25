@@ -11,7 +11,7 @@ import edu.wpi.first.math.numbers.N6;
 /**
  * One-dimensional quintic spline, representing five derivatives of position.
  * 
- * The "t" parameter here is not time, its just a parameter.
+ * The "s" parameter here is not time, its just a parameter.
  */
 public class SplineR1 {
     /** crackle */

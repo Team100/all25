@@ -17,7 +17,6 @@ import org.team100.lib.framework.TimedRobot100;
 import org.team100.lib.logging.LoggerFactory;
 import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
-import org.team100.lib.subsystems.se2.commands.test.DriveWithTrajectoryListFunction;
 import org.team100.lib.subsystems.swerve.Fixture;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.trajectory.TrajectoryPlanner;

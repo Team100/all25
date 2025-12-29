@@ -117,8 +117,7 @@ public class PathPoint {
         if (spline != null)
             return spline.getPathPoint(s);
         // TODO: remove this way
-        if (DEBUG)
-            System.out.println("no spline");
+        System.out.println("WARNING: no spline, using linear interpolation ");
         return new PathPoint(
                 GeometryUtil.interpolate(m_waypoint, other.m_waypoint, x),
                 spline,

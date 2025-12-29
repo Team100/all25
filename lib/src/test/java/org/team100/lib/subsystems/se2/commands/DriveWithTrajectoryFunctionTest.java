@@ -11,7 +11,6 @@ import org.team100.lib.logging.TestLoggerFactory;
 import org.team100.lib.logging.primitive.TestPrimitiveLogger;
 import org.team100.lib.state.ModelSE2;
 import org.team100.lib.subsystems.se2.MockSubsystemSE2;
-import org.team100.lib.subsystems.se2.commands.DriveWithTrajectoryFunction;
 import org.team100.lib.testing.Timeless;
 import org.team100.lib.trajectory.Trajectory100;
 import org.team100.lib.trajectory.TrajectoryPlanner;

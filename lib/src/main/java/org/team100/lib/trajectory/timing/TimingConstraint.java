@@ -8,10 +8,11 @@ import org.team100.lib.geometry.PathPoint;
  * tippiness, wheel slip, etc. Different maneuvers may want different
  * constraints, e.g. some should be slow and precise, others fast and risky.
  * 
- * Note that this interface doesn't support jerk limiting in a simple way.
- * If you want to limit jerk at the start and/or end of a trajectory,
- * you can implement that using the acceleration and deceleration limits,
- * with a constraint that is aware of the endpoint locations.
+ * Note that this interface doesn't support jerk limiting.
+ * 
+ * I've gone back and forth om supporting jerk limiting, and for now I took it
+ * out. It's complicated, we don't seem to need it, and mechanism slack creates
+ * jerk even if the motor tries not to.
  */
 public interface TimingConstraint {
     /**
