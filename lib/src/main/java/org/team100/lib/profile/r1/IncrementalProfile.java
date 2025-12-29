@@ -1,4 +1,4 @@
-package org.team100.lib.profile.incremental;
+package org.team100.lib.profile.r1;
 
 import org.team100.lib.optimization.Bisection1d;
 import org.team100.lib.state.Control100;

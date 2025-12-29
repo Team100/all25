@@ -1,7 +1,6 @@
-# lib.profile.incremental
+# lib.profile.r1
 
-This package contains profiles which have
-no state: they just impose constraints at each time step.
+This package contains one-dimensional profiles.
 
 There are methods for scaling these profiles so they can be
 coordinated to complete in the same duration.

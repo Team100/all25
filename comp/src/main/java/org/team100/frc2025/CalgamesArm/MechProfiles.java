@@ -1,8 +1,8 @@
 package org.team100.frc2025.CalgamesArm;
 
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.profile.incremental.CompleteProfile;
-import org.team100.lib.profile.incremental.CurrentLimitedExponentialProfile;
+import org.team100.lib.profile.r1.CompleteProfile;
+import org.team100.lib.profile.r1.CurrentLimitedExponentialProfile;
 import org.team100.lib.subsystems.prr.EAWConfig;
 import org.team100.lib.subsystems.prr.commands.FollowJointProfiles;
 

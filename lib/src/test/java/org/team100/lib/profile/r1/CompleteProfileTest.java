@@ -1,4 +1,4 @@
-package org.team100.lib.profile.incremental;
+package org.team100.lib.profile.r1;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

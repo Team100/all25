@@ -2,9 +2,9 @@ package org.team100.lib.profile.se2;
 
 import org.team100.lib.logging.Level;
 import org.team100.lib.logging.LoggerFactory;
-import org.team100.lib.profile.incremental.CurrentLimitedExponentialProfile;
-import org.team100.lib.profile.incremental.TrapezoidIncrementalProfile;
-import org.team100.lib.profile.incremental.TrapezoidProfileWPI;
+import org.team100.lib.profile.r1.CurrentLimitedExponentialProfile;
+import org.team100.lib.profile.r1.TrapezoidIncrementalProfile;
+import org.team100.lib.profile.r1.TrapezoidProfileWPI;
 import org.team100.lib.subsystems.swerve.kinodynamics.SwerveKinodynamics;
 
 public class HolonomicProfileFactory {
