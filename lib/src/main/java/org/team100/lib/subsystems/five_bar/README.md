@@ -6,4 +6,4 @@ A five-bar is a two-dimensional parallel manipulator linkage, similar to a paral
 
 The analysis uses these coordinates; a5 is the grounded link.
 
-<img src="pantograph.png" width=600 />
+<img src="kinematics/pantograph.png" width=600 />
